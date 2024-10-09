@@ -1037,11 +1037,13 @@ apis:
       discovery_doc: memcache_v1.json
       default: true
   memorystore:
+    v1:
+      discovery_doc: memorystore_v1.json
+      default: true
     v1alpha:
       discovery_doc: memorystore_v1alpha.json
     v1beta:
       discovery_doc: memorystore_v1beta.json
-      default: true
   metastore:
     v1alpha:
       discovery_doc: metastore_v1alpha.json
@@ -1324,6 +1326,10 @@ apis:
   runtimeconfig:
     v1beta1:
       discovery_doc: runtimeconfig_v1beta1.json
+  saasservicemgmt:
+    v1alpha1:
+      discovery_doc: saasservicemgmt_v1alpha1.json
+      default: true
   sasportal:
     v1alpha1:
       discovery_doc: sasportal_v1alpha1.json
@@ -2099,7 +2105,6 @@ canonical_surfaces:
   memorystore:
     name: memorystore
     command: memorystore
-    hidden: true
   messagestreams:
     name: messagestreams
     command: messagestreams
@@ -2211,6 +2216,10 @@ canonical_surfaces:
   runtimeconfig:
     name: runtimeconfig
     command: runtime-config
+  saasservicemgmt:
+    name: saasservicemgmt
+    command: saas
+    hidden: true
   sasportal:
     name: sasportal
     hidden: true

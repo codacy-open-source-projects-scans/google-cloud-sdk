@@ -15,6 +15,7 @@
 """Utilities for flags for `gcloud notebook-executor` commands."""
 
 from googlecloudsdk.api_lib.notebook_executor import executions as executions_util
+from googlecloudsdk.api_lib.notebook_executor import schedules as schedules_util
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope.concepts import concepts
@@ -48,9 +49,40 @@ def AddExecutionResourceArg(parser, verb):
   concept_parsers.ConceptParser.ForResource(
       'execution',
       GetExecutionResourceSpec(),
-      'Unique name of the execution {}. This was optionally provided by setting'
-      ' --execution-job-id in the create execution command or was'
-      ' system-generated if unspecified.'.format(verb),
+      'Unique resource name of the execution {}.'.format(verb),
+      required=True,
+  ).AddToParser(parser)
+
+
+def AddScheduleResourceArg(parser, verb):
+  """Add a resource argument for a schedule to the parser.
+
+  Args:
+    parser: argparse parser for the command.
+    verb: str, the verb to describe the resource, such as 'to update'.
+  """
+
+  def GetScheduleResourceSpec(resource_name='schedule'):
+    """Add a resource argument for a schedule to the parser.
+
+    Args:
+      resource_name: str, the name of the resource to use in attribute help
+        text.
+
+    Returns:
+      A concepts.ResourceSpec for a schedule.
+    """
+    return concepts.ResourceSpec(
+        'aiplatform.projects.locations.schedules',
+        resource_name=resource_name,
+        projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+        locationsId=GetRegionAttributeConfig(),
+    )
+
+  concept_parsers.ConceptParser.ForResource(
+      'schedule',
+      GetScheduleResourceSpec(),
+      'Unique, system-generated resource name of the schedule {}.'.format(verb),
       required=True,
   ).AddToParser(parser)
 
@@ -148,18 +180,35 @@ def AddRuntimeTemplateResourceArg(parser):
   ).AddToParser(parser)
 
 
-def AddCreateExecutionFlags(parser):
+def AddCreateExecutionFlags(parser, is_schedule=False):
   """Adds flags for creating an execution to the parser."""
-  AddRegionResourceArg(parser, 'to create')
   execution_group = parser.add_group(
       help='Configuration of the execution job.',
       required=True,
   )
-  execution_group.add_argument(
-      '--display-name',
-      help='The display name of the execution.',
-      required=True,
-  )
+  if is_schedule:
+    execution_group.add_argument(
+        '--execution-display-name',
+        help='The display name of the execution.',
+        required=True,
+    )
+  else:
+    AddRegionResourceArg(parser, 'to create')
+    execution_group.add_argument(
+        '--display-name',
+        help='The display name of the execution.',
+        required=True,
+    )
+    parser.add_argument(
+        '--execution-job-id',
+        help=(
+            'The id to assign to the execution job. If not specified, a random'
+            ' id will be generated.'
+        ),
+        hidden=True,
+    )
+    base.ASYNC_FLAG.AddToParser(parser)
+
   notebook_source_group = execution_group.add_group(
       help='Source of the notebook to execute.',
       required=True,
@@ -200,13 +249,15 @@ def AddCreateExecutionFlags(parser):
           ' current version of the object will be used.'
       ),
   )
-  notebook_source_group.add_argument(
-      '--direct-content',
-      help=(
-          'The direct notebook content as IPYNB. This can be a local filepath'
-          ' to an .ipynb file or can be set to `-` to read content from stdin.'
-      ),
-  )
+  if not is_schedule:
+    notebook_source_group.add_argument(
+        '--direct-content',
+        help=(
+            'The direct notebook content as IPYNB. This can be a local filepath'
+            ' to an .ipynb file or can be set to `-` to read content from'
+            ' stdin.'
+        ),
+    )
   execution_group.add_argument(
       '--execution-timeout',
       help=(
@@ -243,66 +294,6 @@ def AddCreateExecutionFlags(parser):
       help='The service account to run the execution as.',
       required=False,
   )
-  AddKmsKeyResourceArg(
-      execution_group,
-      'The Cloud KMS encryption key (customer-managed encryption key) to'
-      ' protect the execution. If the notebook runtime template already'
-      ' specifies a customer-managed encryption key, that key will be used.'
-      ' If unspecified in both, Google-managed encryption keys will be used.',
-  )
-  parser.add_argument(
-      '--execution-job-id',
-      help=(
-          'The id to assign to the execution job. If not specified, a random id'
-          ' will be generated.'
-      ),
-  )
-  base.ASYNC_FLAG.AddToParser(parser)
-
-
-def AddKmsKeyResourceArg(parser, help_text):
-  """Adds Resource arg for KMS key to the parser.
-
-  Args:
-    parser: argparse parser for the command.
-    help_text: str, the help text for the flag.
-  """
-  def GetKmsKeyResourceSpec():
-
-    def KmsKeyAttributeConfig():
-      # For anchor attribute, help text is generated automatically.
-      return concepts.ResourceParameterAttributeConfig(name='kms-key')
-
-    def KmsKeyringAttributeConfig():
-      return concepts.ResourceParameterAttributeConfig(
-          name='kms-keyring', help_text='KMS keyring id of the {resource}.'
-      )
-
-    def KmsLocationAttributeConfig():
-      return concepts.ResourceParameterAttributeConfig(
-          name='kms-location', help_text='Cloud location for the {resource}.'
-      )
-
-    def KmsProjectAttributeConfig():
-      return concepts.ResourceParameterAttributeConfig(
-          name='kms-project', help_text='Cloud project id for the {resource}.'
-      )
-
-    return concepts.ResourceSpec(
-        'cloudkms.projects.locations.keyRings.cryptoKeys',
-        resource_name='key',
-        cryptoKeysId=KmsKeyAttributeConfig(),
-        keyRingsId=KmsKeyringAttributeConfig(),
-        locationsId=KmsLocationAttributeConfig(),
-        projectsId=KmsProjectAttributeConfig(),
-    )
-
-  concept_parsers.ConceptParser.ForResource(
-      '--kms-key',
-      GetKmsKeyResourceSpec(),
-      help_text,
-      required=False,
-  ).AddToParser(parser)
 
 
 def AddDeleteExecutionFlags(parser):
@@ -316,7 +307,135 @@ def AddDescribeExecutionFlags(parser):
   AddExecutionResourceArg(parser, 'to describe')
 
 
-def AddListRuntimeTemplatesFlags(parser):
-  """Construct groups and arguments specific to listing runtime templates."""
+def AddListExecutionsFlags(parser):
+  """Construct groups and arguments specific to listing executions."""
   AddRegionResourceArg(parser, 'for which to list all executions')
   parser.display_info.AddUriFunc(executions_util.GetExecutionUri)
+
+
+def AddDescribeScheduleFlags(parser):
+  """Add flags for describing a schedule to the parser."""
+  AddScheduleResourceArg(parser, 'to describe')
+
+
+def AddDeleteScheduleFlags(parser):
+  """Adds flags for deleting a schedule to the parser."""
+  AddScheduleResourceArg(parser, 'to delete')
+  base.ASYNC_FLAG.AddToParser(parser)
+
+
+def AddPauseScheduleFlags(parser):
+  """Adds flags for pausing a schedule to the parser."""
+  AddScheduleResourceArg(parser, 'to pause')
+
+
+def AddResumeScheduleFlags(parser):
+  """Adds flags for resuming a schedule to the parser."""
+  AddScheduleResourceArg(parser, 'to resume')
+  parser.add_argument(
+      '--enable-catch-up',
+      help=(
+          'Enables backfilling missed runs when the schedule is resumed from'
+          ' PAUSED state. If enabled, all missed runs will be scheduled and new'
+          ' runs will be scheduled after the backfill is complete.'
+      ),
+      action='store_true',
+      dest='enable_catch_up',
+      default=False,
+  )
+
+
+def AddListSchedulesFlags(parser):
+  """Construct groups and arguments specific to listing schedules."""
+  AddRegionResourceArg(parser, 'for which to list all schedules')
+  parser.display_info.AddUriFunc(schedules_util.GetScheduleUri)
+
+
+def AddCreateOrUpdateScheduleFlags(parser, is_update):
+  """Adds flags for creating or updating a schedule to the parser.
+
+  Args:
+    parser: argparse parser for the command.
+    is_update: Whether the flags are for updating a schedule.
+  """
+  schedule_group = parser.add_group(
+      help='Configuration of the schedule.',
+      required=True,
+  )
+  if not is_update:
+    AddRegionResourceArg(parser, 'to create')
+    # TODO: b/369896947 - Add support for updating execution once schedules API
+    # supports partial updates to NotebookExecutionJobCreateRequest.
+    AddCreateExecutionFlags(
+        schedule_group, is_schedule=True
+    )
+  else:
+    AddScheduleResourceArg(parser, 'to update')
+  schedule_group.add_argument(
+      '--display-name',
+      help='The display name of the schedule.',
+      required=True if not is_update else False,
+  )
+  schedule_group.add_argument(
+      '--start-time',
+      help=(
+          'The timestamp after which the first run can be scheduled. Defaults'
+          ' to the schedule creation time. Must be in the RFC 3339'
+          ' (https://www.ietf.org/rfc/rfc3339.txt) format. E.g.'
+          ' "2026-01-01T00:00:00Z" or "2026-01-01T00:00:00-05:00"'
+      ),
+      type=arg_parsers.Datetime.ParseUtcTime,
+  )
+  schedule_group.add_argument(
+      '--end-time',
+      help=(
+          'Timestamp after which no new runs can be scheduled. If specified,'
+          ' the schedule will be completed when either end_time is reached or'
+          ' when scheduled_run_count >= max_run_count. If neither end time nor'
+          ' max_run_count is specified, new runs will keep getting scheduled'
+          ' until this Schedule is paused or deleted. Must be in the RFC 3339'
+          ' (https://www.ietf.org/rfc/rfc3339.txt) format. E.g.'
+          ' "2026-01-01T00:00:00Z" or "2026-01-01T00:00:00-05:00"'
+      ),
+      type=arg_parsers.Datetime.ParseUtcTime,
+  )
+  schedule_group.add_argument(
+      '--max-runs',
+      help='The max runs for the schedule.',
+      type=int,
+  )
+  schedule_group.add_argument(
+      '--cron-schedule',
+      help=(
+          'Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch'
+          ' scheduled runs. To explicitly set a timezone to the cron tab, apply'
+          ' a prefix in the cron tab: "CRON_TZ=${IANA_TIME_ZONE}" or'
+          ' "TZ=${IANA_TIME_ZONE}". The ${IANA_TIME_ZONE} may only be a valid'
+          ' string from IANA time zone database. For example,'
+          ' "CRON_TZ=America/New_York 1 * * * *", or "TZ=America/New_York 1 * *'
+          ' * *".'
+      ),
+      required=True if not is_update else False,
+  )
+  schedule_group.add_argument(
+      '--max-concurrent-runs',
+      help=(
+          'Maximum number of runs that can be started concurrently for this'
+          ' Schedule. This is the limit for starting the scheduled requests and'
+          ' not the execution of the notebook execution jobs created by the'
+          ' requests.'
+      ),
+      type=int,
+      default=1 if not is_update else None,
+  )
+  schedule_group.add_argument(
+      '--enable-queueing',
+      help=(
+          'Enables new scheduled runs to be queued when max_concurrent_runs'
+          ' limit is reached. If set to true, new runs will be'
+          ' queued instead of skipped.'
+      ),
+      action='store_true',
+      dest='enable_queueing',
+      default=False if not is_update else None,
+  )

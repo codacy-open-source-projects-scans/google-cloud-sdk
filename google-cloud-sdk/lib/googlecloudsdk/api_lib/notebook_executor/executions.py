@@ -42,8 +42,8 @@ def ParseExecutionOperation(operation_name):
   )
 
 
-def GetParentForExecution(args):
-  """Get the parent Location resource name for the execution.
+def GetParentForExecutionOrSchedule(args):
+  """Get the parent Location resource name for the execution or schedule resource.
 
   Args:
     args: Argparse object from Command.Run
@@ -65,24 +65,6 @@ def GetExecutionResourceName(args):
     projects/{project}/locations/{location}/notebookExecutionJobs/{execution_job_id}.
   """
   return args.CONCEPTS.execution.Parse().RelativeName()
-
-
-def CreateEncryptionSpecConfig(args, messages):
-  """Constructs the encryption spec from the kms key resource arg.
-
-  Args:
-    args: Argparse object from Command.Run
-    messages: Module containing messages definition for the aiplatform API.
-
-  Returns:
-    Encryption spec for the runtime template.
-  """
-  encryption_spec = messages.GoogleCloudAiplatformV1beta1EncryptionSpec
-  if args.IsSpecified('kms_key'):
-    return encryption_spec(
-        kmsKeyName=args.CONCEPTS.kms_key.Parse().RelativeName()
-    )
-  return None
 
 
 def GetDataformRepositorySourceFromArgs(args, messages):
@@ -182,12 +164,13 @@ def GetExecutionUri(resource):
   return execution.SelfLink()
 
 
-def CreateNotebookExecutionJob(args, messages):
+def CreateNotebookExecutionJob(args, messages, for_schedule=False):
   """Creates the NotebookExecutionJob message for the create request.
 
   Args:
     args: Argparse object from Command.Run
     messages: Module containing messages definition for the AIPlatform API.
+    for_schedule: Whether this execution is used to create a schedule.
 
   Returns:
     Instance of the NotebookExecutionJob message.
@@ -196,15 +179,38 @@ def CreateNotebookExecutionJob(args, messages):
       dataformRepositorySource=GetDataformRepositorySourceFromArgs(
           args, messages
       ),
-      directNotebookSource=GetDirectNotebookSourceFromArgs(args, messages),
-      displayName=args.display_name,
-      encryptionSpec=CreateEncryptionSpecConfig(args, messages),
+      directNotebookSource=None
+      if for_schedule
+      else GetDirectNotebookSourceFromArgs(args, messages),
+      displayName=args.execution_display_name
+      if for_schedule
+      else args.display_name,
       executionTimeout=GetExecutionTimeoutFromArgs(args),
       executionUser=args.user_email,
       gcsNotebookSource=GetGcsNotebookSourceFromArgs(args, messages),
       gcsOutputUri=args.gcs_output_uri,
       notebookRuntimeTemplateResourceName=GetRuntimeTemplateResourceName(args),
       serviceAccount=args.service_account,
+  )
+
+
+def CreateExecutionCreateRequestForSchedule(args, messages):
+  """Builds a NotebookExecutionJobsCreateRequest message for a CreateSchedule request.
+
+  Args:
+    args: Argparse object from Command.Run
+    messages: Module containing messages definition for the specified API.
+
+  Returns:
+    Instance of the NotebookExecutionJobsCreateRequest message.
+  """
+  parent = GetParentForExecutionOrSchedule(args)
+  notebook_execution_job = CreateNotebookExecutionJob(
+      args, messages, for_schedule=True
+  )
+  return messages.GoogleCloudAiplatformV1beta1CreateNotebookExecutionJobRequest(
+      notebookExecutionJob=notebook_execution_job,
+      parent=parent,
   )
 
 
@@ -218,7 +224,7 @@ def CreateExecutionCreateRequest(args, messages):
   Returns:
     Instance of the NotebookExecutionJobsCreateRequest message.
   """
-  parent = GetParentForExecution(args)
+  parent = GetParentForExecutionOrSchedule(args)
   notebook_execution_job = CreateNotebookExecutionJob(args, messages)
   return messages.AiplatformProjectsLocationsNotebookExecutionJobsCreateRequest(
       googleCloudAiplatformV1beta1NotebookExecutionJob=notebook_execution_job,
@@ -275,6 +281,6 @@ def CreateExecutionListRequest(args, messages):
   """
   return (
       messages.AiplatformProjectsLocationsNotebookExecutionJobsListRequest(
-          parent=GetParentForExecution(args),
+          parent=GetParentForExecutionOrSchedule(args),
       )
   )

@@ -272,12 +272,14 @@ def AddAllowUnauthenticatedFlag(parser):
   )
 
 
-def AddAsyncFlag(parser, default_async_for_cluster=False, is_job=False):
+def AddAsyncFlag(
+    parser, default_async_for_cluster=False, is_managed_only=False
+):
   """Add an async flag."""
   help_text = """\
     Return immediately, without waiting for the operation in progress to
     complete."""
-  if is_job:
+  if is_managed_only:
     help_text += ' Defaults to --no-async.'
   else:
     help_text += """ Defaults to --no-async for Cloud Run (fully managed) and --async
@@ -1687,9 +1689,9 @@ def AddInvokerIamCheckFlag(parser):
       '--invoker-iam-check',
       action=arg_parsers.StoreTrueFalseAction,
       help=(
-          'Indicates whether an IAM check should occur when invoking the '
-          'container. This is Enabled by default. Disabling this flag is not '
-          'available in all projects.'
+          'Optionally disable invoker IAM checks. This feature is available by'
+          ' invitation only. More info at '
+          'https://cloud.google.com/run/docs/securing/managing-access#invoker_check.'
       ),
   )
 
