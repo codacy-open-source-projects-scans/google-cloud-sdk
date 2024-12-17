@@ -164,7 +164,7 @@ class Backup(_messages.Message):
     encryptionInformation: Output only. The encryption information for the
       backup, whether it is protected by one or more KMS keys. The information
       includes all Cloud KMS key versions used to encrypt the backup. The
-      `encryption_status' field inside of each `EncryptionInfo` is not
+      `encryption_status` field inside of each `EncryptionInfo` is not
       populated. At least one of the key versions must be available for the
       backup to be restored. If a key version is revoked in the middle of a
       restore, the restore behavior is undefined.
@@ -194,6 +194,9 @@ class Backup(_messages.Message):
       determine which backups are part of the same incremental backup chain.
       The ordering of backups in the chain can be determined by ordering the
       backup `version_time`.
+    instancePartitions: Output only. The instance partition(s) storing the
+      backup. This is the same as the list of the instance partition(s) that
+      the database had footprint in at the backup's `version_time`.
     maxExpireTime: Output only. The max allowed expiration time of the backup,
       with microseconds granularity. A backup's expiration time can be
       configured in multiple APIs: CreateBackup, UpdateBackup, CopyBackup.
@@ -272,14 +275,15 @@ class Backup(_messages.Message):
   expireTime = _messages.StringField(8)
   freeableSizeBytes = _messages.IntegerField(9)
   incrementalBackupChainId = _messages.StringField(10)
-  maxExpireTime = _messages.StringField(11)
-  name = _messages.StringField(12)
-  oldestVersionTime = _messages.StringField(13)
-  referencingBackups = _messages.StringField(14, repeated=True)
-  referencingDatabases = _messages.StringField(15, repeated=True)
-  sizeBytes = _messages.IntegerField(16)
-  state = _messages.EnumField('StateValueValuesEnum', 17)
-  versionTime = _messages.StringField(18)
+  instancePartitions = _messages.MessageField('BackupInstancePartition', 11, repeated=True)
+  maxExpireTime = _messages.StringField(12)
+  name = _messages.StringField(13)
+  oldestVersionTime = _messages.StringField(14)
+  referencingBackups = _messages.StringField(15, repeated=True)
+  referencingDatabases = _messages.StringField(16, repeated=True)
+  sizeBytes = _messages.IntegerField(17)
+  state = _messages.EnumField('StateValueValuesEnum', 18)
+  versionTime = _messages.StringField(19)
 
 
 class BackupInfo(_messages.Message):
@@ -301,9 +305,20 @@ class BackupInfo(_messages.Message):
   versionTime = _messages.StringField(4)
 
 
+class BackupInstancePartition(_messages.Message):
+  r"""Instance partition information for the backup.
+
+  Fields:
+    instancePartition: A unique identifier for the instance partition. Values
+      are of the form `projects//instances//instancePartitions/`
+  """
+
+  instancePartition = _messages.StringField(1)
+
+
 class BackupSchedule(_messages.Message):
   r"""BackupSchedule expresses the automated backup creation specification for
-  a Spanner database. Next ID: 10
+  a Spanner database.
 
   Fields:
     encryptionConfig: Optional. The encryption configuration that will be used
@@ -703,17 +718,17 @@ class CopyBackupEncryptionConfig(_messages.Message):
       `projects//locations//keyRings//cryptoKeys/`.
     kmsKeyNames: Optional. Specifies the KMS configuration for the one or more
       keys used to protect the backup. Values are of the form
-      `projects//locations//keyRings//cryptoKeys/`. Kms keys specified can be
-      in any order. The keys referenced by kms_key_names must fully cover all
-      regions of the backup's instance configuration. Some examples: * For
-      single region instance configs, specify a single regional location KMS
-      key. * For multi-regional instance configs of type GOOGLE_MANAGED,
-      either specify a multi-regional location KMS key or multiple regional
-      location KMS keys that cover all regions in the instance config. * For
-      an instance config of type USER_MANAGED, please specify only regional
-      location KMS keys to cover each region in the instance config. Multi-
-      regional location KMS keys are not supported for USER_MANAGED instance
-      configs.
+      `projects//locations//keyRings//cryptoKeys/`. KMS keys specified can be
+      in any order. The keys referenced by `kms_key_names` must fully cover
+      all regions of the backup's instance configuration. Some examples: * For
+      regional (single-region) instance configurations, specify a regional
+      location KMS key. * For multi-region instance configurations of type
+      `GOOGLE_MANAGED`, either specify a multi-region location KMS key or
+      multiple regional location KMS keys that cover all regions in the
+      instance configuration. * For an instance configuration of type
+      `USER_MANAGED`, specify only regional location KMS keys to cover each
+      region in the instance configuration. Multi-region location KMS keys
+      aren't supported for `USER_MANAGED` type instance configurations.
   """
 
   class EncryptionTypeValueValuesEnum(_messages.Enum):
@@ -811,15 +826,16 @@ class CreateBackupEncryptionConfig(_messages.Message):
     kmsKeyNames: Optional. Specifies the KMS configuration for the one or more
       keys used to protect the backup. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
-      kms_key_names must fully cover all regions of the backup's instance
-      configuration. Some examples: * For single region instance configs,
-      specify a single regional location KMS key. * For multi-regional
-      instance configs of type GOOGLE_MANAGED, either specify a multi-regional
-      location KMS key or multiple regional location KMS keys that cover all
-      regions in the instance config. * For an instance config of type
-      USER_MANAGED, please specify only regional location KMS keys to cover
-      each region in the instance config. Multi-regional location KMS keys are
-      not supported for USER_MANAGED instance configs.
+      `kms_key_names` must fully cover all regions of the backup's instance
+      configuration. Some examples: * For regional (single-region) instance
+      configurations, specify a regional location KMS key. * For multi-region
+      instance configurations of type `GOOGLE_MANAGED`, either specify a
+      multi-region location KMS key or multiple regional location KMS keys
+      that cover all regions in the instance configuration. * For an instance
+      configuration of type `USER_MANAGED`, specify only regional location KMS
+      keys to cover each region in the instance configuration. Multi-region
+      location KMS keys aren't supported for `USER_MANAGED` type instance
+      configurations.
   """
 
   class EncryptionTypeValueValuesEnum(_messages.Enum):
@@ -949,7 +965,7 @@ class CreateInstanceConfigMetadata(_messages.Message):
 
 
 class CreateInstanceConfigRequest(_messages.Message):
-  r"""The request for CreateInstanceConfigRequest.
+  r"""The request for CreateInstanceConfig.
 
   Fields:
     instanceConfig: Required. The `InstanceConfig` proto of the configuration
@@ -1136,7 +1152,7 @@ class Database(_messages.Message):
     encryptionInfo: Output only. For databases that are using customer managed
       encryption, this field contains the encryption information for the
       database, such as all Cloud KMS key versions that are in use. The
-      `encryption_status' field inside of each `EncryptionInfo` is not
+      `encryption_status` field inside of each `EncryptionInfo` is not
       populated. For databases that are using Google default or other types of
       encryption, this field is empty. This field is propagated lazily from
       the backend. There might be a delay from when a key version is being
@@ -1355,19 +1371,19 @@ class EncryptionConfig(_messages.Message):
     kmsKeyName: The Cloud KMS key to be used for encrypting and decrypting the
       database. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`.
-    kmsKeyNames: Specifies the KMS configuration for the one or more keys used
-      to encrypt the database. Values are of the form
+    kmsKeyNames: Specifies the KMS configuration for one or more keys used to
+      encrypt the database. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
-      kms_key_names must fully cover all regions of the database instance
-      configuration. Some examples: * For single region database instance
-      configs, specify a single regional location KMS key. * For multi-
-      regional database instance configs of type GOOGLE_MANAGED, either
-      specify a multi-regional location KMS key or multiple regional location
-      KMS keys that cover all regions in the instance config. * For a database
-      instance config of type USER_MANAGED, please specify only regional
-      location KMS keys to cover each region in the instance config. Multi-
-      regional location KMS keys are not supported for USER_MANAGED instance
-      configs.
+      `kms_key_names` must fully cover all regions of the database's instance
+      configuration. Some examples: * For regional (single-region) instance
+      configurations, specify a regional location KMS key. * For multi-region
+      instance configurations of type `GOOGLE_MANAGED`, either specify a
+      multi-region location KMS key or multiple regional location KMS keys
+      that cover all regions in the instance configuration. * For an instance
+      configuration of type `USER_MANAGED`, specify only regional location KMS
+      keys to cover each region in the instance configuration. Multi-region
+      location KMS keys aren't supported for `USER_MANAGED` type instance
+      configurations.
   """
 
   kmsKeyName = _messages.StringField(1)
@@ -1427,6 +1443,14 @@ class ExecuteBatchDmlRequest(_messages.Message):
   r"""The request for ExecuteBatchDml.
 
   Fields:
+    lastStatements: Optional. If set to true, this request marks the end of
+      the transaction. The transaction should be committed or aborted after
+      these statements execute, and attempts to execute any other requests
+      against this transaction (including reads and queries) will be rejected.
+      Setting this option may cause some error reporting to be deferred until
+      commit time (e.g. validation of unique constraints). Given this,
+      successful execution of statements should not be assumed until a
+      subsequent Commit call completes successfully.
     requestOptions: Common options for this request.
     seqno: Required. A per-transaction sequence number used to identify this
       request. This field makes each request idempotent such that if the
@@ -1446,10 +1470,11 @@ class ExecuteBatchDmlRequest(_messages.Message):
       begin a new transaction.
   """
 
-  requestOptions = _messages.MessageField('RequestOptions', 1)
-  seqno = _messages.IntegerField(2)
-  statements = _messages.MessageField('Statement', 3, repeated=True)
-  transaction = _messages.MessageField('TransactionSelector', 4)
+  lastStatements = _messages.BooleanField(1)
+  requestOptions = _messages.MessageField('RequestOptions', 2)
+  seqno = _messages.IntegerField(3)
+  statements = _messages.MessageField('Statement', 4, repeated=True)
+  transaction = _messages.MessageField('TransactionSelector', 5)
 
 
 class ExecuteBatchDmlResponse(_messages.Message):
@@ -1519,6 +1544,14 @@ class ExecuteSqlRequest(_messages.Message):
       compute resources. If the field is set to `true` but the request does
       not set `partition_token`, the API returns an `INVALID_ARGUMENT` error.
     directedReadOptions: Directed read options for this request.
+    lastStatement: Optional. If set to true, this statement marks the end of
+      the transaction. The transaction should be committed or aborted after
+      this statement executes, and attempts to execute any other requests
+      against this transaction (including reads and queries) will be rejected.
+      For DML statements, setting this option may cause some error reporting
+      to be deferred until commit time (e.g. validation of unique
+      constraints). Given this, successful execution of a DML statement should
+      not be assumed until a subsequent Commit call completes successfully.
     paramTypes: It is not always possible for Cloud Spanner to infer the right
       SQL type from a JSON value. For example, values of type `BYTES` and
       values of type `STRING` both appear in params as JSON strings. In these
@@ -1654,16 +1687,17 @@ class ExecuteSqlRequest(_messages.Message):
 
   dataBoostEnabled = _messages.BooleanField(1)
   directedReadOptions = _messages.MessageField('DirectedReadOptions', 2)
-  paramTypes = _messages.MessageField('ParamTypesValue', 3)
-  params = _messages.MessageField('ParamsValue', 4)
-  partitionToken = _messages.BytesField(5)
-  queryMode = _messages.EnumField('QueryModeValueValuesEnum', 6)
-  queryOptions = _messages.MessageField('QueryOptions', 7)
-  requestOptions = _messages.MessageField('RequestOptions', 8)
-  resumeToken = _messages.BytesField(9)
-  seqno = _messages.IntegerField(10)
-  sql = _messages.StringField(11)
-  transaction = _messages.MessageField('TransactionSelector', 12)
+  lastStatement = _messages.BooleanField(3)
+  paramTypes = _messages.MessageField('ParamTypesValue', 4)
+  params = _messages.MessageField('ParamsValue', 5)
+  partitionToken = _messages.BytesField(6)
+  queryMode = _messages.EnumField('QueryModeValueValuesEnum', 7)
+  queryOptions = _messages.MessageField('QueryOptions', 8)
+  requestOptions = _messages.MessageField('RequestOptions', 9)
+  resumeToken = _messages.BytesField(10)
+  seqno = _messages.IntegerField(11)
+  sql = _messages.StringField(12)
+  transaction = _messages.MessageField('TransactionSelector', 13)
 
 
 class Expr(_messages.Message):
@@ -1955,14 +1989,14 @@ class Instance(_messages.Message):
 
   Enums:
     DefaultBackupScheduleTypeValueValuesEnum: Optional. Controls the default
-      backup behavior for new databases within the instance. If
-      default_backup_schedule_type is not specified in the
-      `CreateInstanceRequest`, it defaults to `AUTOMATIC`, except for free
-      instances. Note that `AUTOMATIC` is not permitted for free instances, as
-      backups and backup schedules are not allowed for free instances. In the
-      `GetInstance` or `ListInstances` response, if the value of
-      default_backup_schedule_type is unset or NONE, no default backup
-      schedule will be created for new databases within the instance.
+      backup schedule behavior for new databases within the instance. By
+      default, a backup schedule is created automatically when a new database
+      is created in a new instance. Note that the `AUTOMATIC` value isn't
+      permitted for free instances, as backups and backup schedules aren't
+      supported for free instances. In the `GetInstance` or `ListInstances`
+      response, if the value of `default_backup_schedule_type` isn't set, or
+      set to `NONE`, Spanner doesn't create a default backup schedule for new
+      databases in the instance.
     DefaultStorageTypeValueValuesEnum: The `StorageType` of the current
       instance. If unspecified, it will default to the first StorageType in
       the list of allowed_storage_types in the `InstanceConfig` for this
@@ -1992,6 +2026,8 @@ class Instance(_messages.Message):
       disallowed. For example, representing labels as the string: name + "_" +
       value would prove problematic if we were to allow "_" in a future
       release.
+    TagsValue: Optional. Tag keys/values directly bound to this resource. For
+      example: "123/environment": "prod", "123/costCenter": "marketing"
 
   Fields:
     autoscalingConfig: Optional. The autoscaling configuration. Autoscaling is
@@ -2002,15 +2038,15 @@ class Instance(_messages.Message):
       the form `projects//instanceConfigs/`. See also InstanceConfig and
       ListInstanceConfigs.
     createTime: Output only. The time at which the instance was created.
-    defaultBackupScheduleType: Optional. Controls the default backup behavior
-      for new databases within the instance. If default_backup_schedule_type
-      is not specified in the `CreateInstanceRequest`, it defaults to
-      `AUTOMATIC`, except for free instances. Note that `AUTOMATIC` is not
-      permitted for free instances, as backups and backup schedules are not
-      allowed for free instances. In the `GetInstance` or `ListInstances`
-      response, if the value of default_backup_schedule_type is unset or NONE,
-      no default backup schedule will be created for new databases within the
-      instance.
+    defaultBackupScheduleType: Optional. Controls the default backup schedule
+      behavior for new databases within the instance. By default, a backup
+      schedule is created automatically when a new database is created in a
+      new instance. Note that the `AUTOMATIC` value isn't permitted for free
+      instances, as backups and backup schedules aren't supported for free
+      instances. In the `GetInstance` or `ListInstances` response, if the
+      value of `default_backup_schedule_type` isn't set, or set to `NONE`,
+      Spanner doesn't create a default backup schedule for new databases in
+      the instance.
     defaultStorageType: The `StorageType` of the current instance. If
       unspecified, it will default to the first StorageType in the list of
       allowed_storage_types in the `InstanceConfig` for this instance.
@@ -2050,11 +2086,8 @@ class Instance(_messages.Message):
       number of nodes allocated to the instance. If autoscaling is enabled,
       `node_count` is treated as an `OUTPUT_ONLY` field and reflects the
       current number of nodes allocated to the instance. This might be zero in
-      API responses for instances that are not yet in the `READY` state. If
-      the instance has varying node count across replicas (achieved by setting
-      asymmetric_autoscaling_options in autoscaling config), the node_count
-      here is the maximum node count across all replicas. For more
-      information, see [Compute capacity, nodes, and processing
+      API responses for instances that are not yet in the `READY` state. For
+      more information, see [Compute capacity, nodes, and processing
       units](https://cloud.google.com/spanner/docs/compute-capacity).
     processingUnits: The number of processing units allocated to this
       instance. At most, one of either `processing_units` or `node_count`
@@ -2063,13 +2096,9 @@ class Instance(_messages.Message):
       instance. If autoscaling is enabled, `processing_units` is treated as an
       `OUTPUT_ONLY` field and reflects the current number of processing units
       allocated to the instance. This might be zero in API responses for
-      instances that are not yet in the `READY` state. If the instance has
-      varying processing units per replica (achieved by setting
-      asymmetric_autoscaling_options in autoscaling config), the
-      processing_units here is the maximum processing units across all
-      replicas. For more information, see [Compute capacity, nodes and
-      processing units](https://cloud.google.com/spanner/docs/compute-
-      capacity).
+      instances that are not yet in the `READY` state. For more information,
+      see [Compute capacity, nodes and processing
+      units](https://cloud.google.com/spanner/docs/compute-capacity).
     replicaComputeCapacity: Output only. Lists the compute capacity per
       ReplicaSelection. A replica selection identifies a set of replicas with
       common properties. Replicas identified by a ReplicaSelection are scaled
@@ -2083,29 +2112,32 @@ class Instance(_messages.Message):
     state: Output only. The current instance state. For CreateInstance, the
       state must be either omitted or set to `CREATING`. For UpdateInstance,
       the state must be either omitted or set to `READY`.
+    tags: Optional. Tag keys/values directly bound to this resource. For
+      example: "123/environment": "prod", "123/costCenter": "marketing"
     updateTime: Output only. The time at which the instance was most recently
       updated.
   """
 
   class DefaultBackupScheduleTypeValueValuesEnum(_messages.Enum):
-    r"""Optional. Controls the default backup behavior for new databases
-    within the instance. If default_backup_schedule_type is not specified in
-    the `CreateInstanceRequest`, it defaults to `AUTOMATIC`, except for free
-    instances. Note that `AUTOMATIC` is not permitted for free instances, as
-    backups and backup schedules are not allowed for free instances. In the
-    `GetInstance` or `ListInstances` response, if the value of
-    default_backup_schedule_type is unset or NONE, no default backup schedule
-    will be created for new databases within the instance.
+    r"""Optional. Controls the default backup schedule behavior for new
+    databases within the instance. By default, a backup schedule is created
+    automatically when a new database is created in a new instance. Note that
+    the `AUTOMATIC` value isn't permitted for free instances, as backups and
+    backup schedules aren't supported for free instances. In the `GetInstance`
+    or `ListInstances` response, if the value of
+    `default_backup_schedule_type` isn't set, or set to `NONE`, Spanner
+    doesn't create a default backup schedule for new databases in the
+    instance.
 
     Values:
       DEFAULT_BACKUP_SCHEDULE_TYPE_UNSPECIFIED: Not specified.
-      NONE: No default backup schedule will be created automatically on
-        creation of a database within the instance.
-      AUTOMATIC: A default backup schedule will be created automatically on
-        creation of a database within the instance. The default backup
-        schedule creates a full backup every 24 hours and retains the backup
-        for a period of 7 days. Once created, the default backup schedule can
-        be edited/deleted similar to any other backup schedule.
+      NONE: A default backup schedule isn't created automatically when a new
+        database is created in the instance.
+      AUTOMATIC: A default backup schedule is created automatically when a new
+        database is created in the instance. The default backup schedule
+        creates a full backup every 24 hours. These full backups are retained
+        for 7 days. You can edit or delete the default backup schedule once
+        it's created.
     """
     DEFAULT_BACKUP_SCHEDULE_TYPE_UNSPECIFIED = 0
     NONE = 1
@@ -2210,6 +2242,31 @@ class Instance(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Tag keys/values directly bound to this resource. For
+    example: "123/environment": "prod", "123/costCenter": "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   autoscalingConfig = _messages.MessageField('AutoscalingConfig', 1)
   config = _messages.StringField(2)
   createTime = _messages.StringField(3)
@@ -2227,7 +2284,8 @@ class Instance(_messages.Message):
   replicaComputeCapacity = _messages.MessageField('ReplicaComputeCapacity', 15, repeated=True)
   ssdCache = _messages.StringField(16)
   state = _messages.EnumField('StateValueValuesEnum', 17)
-  updateTime = _messages.StringField(18)
+  tags = _messages.MessageField('TagsValue', 18)
+  updateTime = _messages.StringField(19)
 
 
 class InstanceConfig(_messages.Message):
@@ -3903,7 +3961,7 @@ class QueryPlan(_messages.Message):
     planNodes: The nodes in the query plan. Plan nodes are returned in pre-
       order starting with the plan root. Each PlanNode's `id` corresponds to
       its index in `plan_nodes`.
-    queryAdvice: Optional. The advices/recommendations for a query. Currently
+    queryAdvice: Optional. The advise/recommendations for a query. Currently
       this field will be serving index recommendations for a query.
   """
 
@@ -4342,19 +4400,19 @@ class RestoreDatabaseEncryptionConfig(_messages.Message):
       encrypt/decrypt the restored database. This field should be set only
       when encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the
       form `projects//locations//keyRings//cryptoKeys/`.
-    kmsKeyNames: Optional. Specifies the KMS configuration for the one or more
+    kmsKeyNames: Optional. Specifies the KMS configuration for one or more
       keys used to encrypt the database. Values have the form
       `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
-      kms_key_names must fully cover all regions of the database instance
-      configuration. Some examples: * For single region database instance
-      configurations, specify a single regional location KMS key. * For multi-
-      regional database instance configurations of type `GOOGLE_MANAGED`,
-      either specify a multi-regional location KMS key or multiple regional
-      location KMS keys that cover all regions in the instance configuration.
-      * For a database instance configuration of type `USER_MANAGED`, please
-      specify only regional location KMS keys to cover each region in the
-      instance configuration. Multi-regional location KMS keys are not
-      supported for USER_MANAGED instance configurations.
+      `kms_key_names` must fully cover all regions of the database's instance
+      configuration. Some examples: * For regional (single-region) instance
+      configurations, specify a regional location KMS key. * For multi-region
+      instance configurations of type `GOOGLE_MANAGED`, either specify a
+      multi-region location KMS key or multiple regional location KMS keys
+      that cover all regions in the instance configuration. * For an instance
+      configuration of type `USER_MANAGED`, specify only regional location KMS
+      keys to cover each region in the instance configuration. Multi-region
+      location KMS keys aren't supported for `USER_MANAGED` type instance
+      configurations.
   """
 
   class EncryptionTypeValueValuesEnum(_messages.Enum):
@@ -5188,15 +5246,16 @@ class SpannerProjectsInstancesBackupsCreateRequest(_messages.Message):
     encryptionConfig_kmsKeyNames: Optional. Specifies the KMS configuration
       for the one or more keys used to protect the backup. Values are of the
       form `projects//locations//keyRings//cryptoKeys/`. The keys referenced
-      by kms_key_names must fully cover all regions of the backup's instance
-      configuration. Some examples: * For single region instance configs,
-      specify a single regional location KMS key. * For multi-regional
-      instance configs of type GOOGLE_MANAGED, either specify a multi-regional
-      location KMS key or multiple regional location KMS keys that cover all
-      regions in the instance config. * For an instance config of type
-      USER_MANAGED, please specify only regional location KMS keys to cover
-      each region in the instance config. Multi-regional location KMS keys are
-      not supported for USER_MANAGED instance configs.
+      by `kms_key_names` must fully cover all regions of the backup's instance
+      configuration. Some examples: * For regional (single-region) instance
+      configurations, specify a regional location KMS key. * For multi-region
+      instance configurations of type `GOOGLE_MANAGED`, either specify a
+      multi-region location KMS key or multiple regional location KMS keys
+      that cover all regions in the instance configuration. * For an instance
+      configuration of type `USER_MANAGED`, specify only regional location KMS
+      keys to cover each region in the instance configuration. Multi-region
+      location KMS keys aren't supported for `USER_MANAGED` type instance
+      configurations.
     parent: Required. The name of the instance in which the backup will be
       created. This must be the same instance that contains the database the
       backup will be created from. The backup will be stored in the
@@ -6186,7 +6245,8 @@ class SpannerProjectsInstancesInstancePartitionOperationsListRequest(_messages.M
     instancePartitionDeadline: Optional. Deadline used while retrieving
       metadata for instance partition operations. Instance partitions whose
       operation metadata cannot be retrieved within this deadline will be
-      added to unreachable in ListInstancePartitionOperationsResponse.
+      added to unreachable_instance_partitions in
+      ListInstancePartitionOperationsResponse.
     pageSize: Optional. Number of operations to be returned in the response.
       If 0 or less, defaults to the server's maximum allowed page size.
     pageToken: Optional. If non-empty, `page_token` should contain a
@@ -7438,7 +7498,7 @@ class UpdateInstanceConfigMetadata(_messages.Message):
 
 
 class UpdateInstanceConfigRequest(_messages.Message):
-  r"""The request for UpdateInstanceConfigRequest.
+  r"""The request for UpdateInstanceConfig.
 
   Fields:
     instanceConfig: Required. The user instance configuration to update, which

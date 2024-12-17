@@ -347,6 +347,17 @@ class CloudquotasOrganizationsLocationsServicesQuotaInfosListRequest(_messages.M
   parent = _messages.StringField(3, required=True)
 
 
+class CloudquotasProjectsLocationsGetQuotaAdjusterSettingsRequest(_messages.Message):
+  r"""A CloudquotasProjectsLocationsGetQuotaAdjusterSettingsRequest object.
+
+  Fields:
+    name: Required. Name of the config. Required to be "settings", as only a
+      single setting per container will be supported initially.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
 class CloudquotasProjectsLocationsQuotaPreferencesCreateRequest(_messages.Message):
   r"""A CloudquotasProjectsLocationsQuotaPreferencesCreateRequest object.
 
@@ -513,6 +524,26 @@ class CloudquotasProjectsLocationsServicesQuotaInfosListRequest(_messages.Messag
   parent = _messages.StringField(3, required=True)
 
 
+class CloudquotasProjectsLocationsUpdateQuotaAdjusterSettingsRequest(_messages.Message):
+  r"""A CloudquotasProjectsLocationsUpdateQuotaAdjusterSettingsRequest object.
+
+  Fields:
+    name: Identifier. Name of the config would be of the format:
+      projects/12345/locations/global/quotaAdjusterSettings
+    quotaAdjusterSettings: A QuotaAdjusterSettings resource to be passed as
+      the request body.
+    updateMask: Optional. The list of fields to update.
+    validateOnly: Optional. If set to true, validate the request, but do not
+      actually update. Note that a request being valid does not mean that the
+      request is guaranteed to be fulfilled.
+  """
+
+  name = _messages.StringField(1, required=True)
+  quotaAdjusterSettings = _messages.MessageField('QuotaAdjusterSettings', 2)
+  updateMask = _messages.StringField(3)
+  validateOnly = _messages.BooleanField(4)
+
+
 class DimensionsInfo(_messages.Message):
   r"""The detailed quota information such as effective quota value for a
   combination of dimensions.
@@ -604,6 +635,47 @@ class ListQuotaPreferencesResponse(_messages.Message):
   nextPageToken = _messages.StringField(1)
   quotaPreferences = _messages.MessageField('QuotaPreference', 2, repeated=True)
   unreachable = _messages.StringField(3, repeated=True)
+
+
+class QuotaAdjusterSettings(_messages.Message):
+  r"""The QuotaAdjusterSettings resource defines the settings for the Quota
+  Adjuster.
+
+  Enums:
+    EnablementValueValuesEnum: Required. The configured value of the
+      enablement at the given resource.
+
+  Fields:
+    enablement: Required. The configured value of the enablement at the given
+      resource.
+    etag: Optional. The current etag of the QuotaAdjusterSettings. If an etag
+      is provided on update and does not match the current server's etag of
+      the QuotaAdjusterSettings, the request will be blocked and an ABORTED
+      error will be returned. See https://google.aip.dev/134#etags for more
+      details on etags.
+    name: Identifier. Name of the config would be of the format:
+      projects/12345/locations/global/quotaAdjusterSettings
+    updateTime: Output only. The timestamp when the QuotaAdjusterSettings was
+      last updated.
+  """
+
+  class EnablementValueValuesEnum(_messages.Enum):
+    r"""Required. The configured value of the enablement at the given
+    resource.
+
+    Values:
+      ENABLEMENT_UNSPECIFIED: The quota adjuster is in an unknown state.
+      ENABLED: The quota adjuster is enabled.
+      DISABLED: The quota adjuster is disabled.
+    """
+    ENABLEMENT_UNSPECIFIED = 0
+    ENABLED = 1
+    DISABLED = 2
+
+  enablement = _messages.EnumField('EnablementValueValuesEnum', 1)
+  etag = _messages.StringField(2)
+  name = _messages.StringField(3)
+  updateTime = _messages.StringField(4)
 
 
 class QuotaConfig(_messages.Message):

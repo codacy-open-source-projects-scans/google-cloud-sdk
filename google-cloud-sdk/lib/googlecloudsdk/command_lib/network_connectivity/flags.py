@@ -62,10 +62,29 @@ def AddIncludeExportRangesFlag(parser, hide_include_export_ranges_flag):
   )
 
 
-def GetCapacityArg(messages):
+def AddUpdateIncludeExportRangesFlag(
+    parser, hide_include_export_ranges_flag
+):
+  """Adds the --include-export-ranges argument to the update operation parser."""
+
+  parser.add_argument(
+      '--include-export-ranges',
+      required=False,
+      type=arg_parsers.ArgList(),
+      default=None,
+      metavar='CIDR_RANGE',
+      hidden=hide_include_export_ranges_flag,
+      help="""\
+      Only allows adding `ALL_IPV6_RANGES` to include export ranges or removing
+      `ALL_IPV6_RANGES` from include export ranges.
+      """,
+  )
+
+
+def GetCapacityArg(gateway_message):
   return arg_utils.ChoiceEnumMapper(
       arg_name='--capacity',
-      message_enum=messages.Gateway.CapacityValueValuesEnum,
+      message_enum=gateway_message.CapacityValueValuesEnum,
       custom_mappings={
           'CAPACITY_1_GBPS': ('1g', 'Gateway will have capacity of 1 Gbps'),
           'CAPACITY_5_GBPS': ('5g', 'Gateway will have capacity of 5 Gbps'),
@@ -82,8 +101,8 @@ def GetCapacityArg(messages):
   )
 
 
-def AddCapacityFlag(messages, parser):
-  GetCapacityArg(messages).choice_arg.AddToParser(parser)
+def AddCapacityFlag(gateway_message, parser):
+  GetCapacityArg(gateway_message).choice_arg.AddToParser(parser)
 
 
 def AddIpRangeReservationsFlag(parser):

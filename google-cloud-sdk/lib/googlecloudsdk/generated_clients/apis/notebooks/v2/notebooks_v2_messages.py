@@ -352,7 +352,7 @@ class DiagnoseInstanceRequest(_messages.Message):
   Fields:
     diagnosticConfig: Required. Defines flags that are used to run the
       diagnostic tool
-    timeoutMinutes: Optional. Maxmium amount of time in minutes before the
+    timeoutMinutes: Optional. Maximum amount of time in minutes before the
       operation times out.
   """
 
@@ -1451,8 +1451,8 @@ class OperationMetadata(_messages.Message):
     endpoint: API endpoint name of this operation.
     requestedCancellation: Identifies whether the user has requested
       cancellation of the operation. Operations that have successfully been
-      cancelled have Operation.error value with a google.rpc.Status.code of 1,
-      corresponding to `Code.CANCELLED`.
+      cancelled have google.longrunning.Operation.error value with a
+      google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
     statusMessage: Human-readable status of the operation, if any.
     target: Server-defined resource path for the target of the operation.
     verb: Name of the verb executed by the operation.

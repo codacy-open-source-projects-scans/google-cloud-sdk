@@ -24,11 +24,12 @@ from typing import Sequence, Set, Tuple
 from googlecloudsdk.api_lib.datastore import util
 from googlecloudsdk.api_lib.firestore import api_utils as firestore_utils
 from googlecloudsdk.api_lib.firestore import indexes as firestore_indexes
+from googlecloudsdk.appengine.datastore import datastore_index
+from googlecloudsdk.calliope import exceptions
 from googlecloudsdk.core.console import progress_tracker
 from googlecloudsdk.generated_clients.apis.datastore.v1 import datastore_v1_client
 from googlecloudsdk.generated_clients.apis.datastore.v1 import datastore_v1_messages
 from googlecloudsdk.generated_clients.apis.firestore.v1 import firestore_v1_messages
-from googlecloudsdk.third_party.appengine.datastore import datastore_index
 
 
 def GetIndexesService() -> (
@@ -148,7 +149,12 @@ def FirestoreApiMessageToIndexDefinition(
   properties = []
   for field_proto in proto.fields:
     prop_definition = datastore_index.Property(name=str(field_proto.fieldPath))
-    if field_proto.order == FIRESTORE_DESCENDING:
+    if field_proto.vectorConfig is not None:
+      prop_definition.vectorConfig = datastore_index.VectorConfig(
+          dimension=field_proto.vectorConfig.dimension,
+          flat=datastore_index.VectorFlatIndex(),
+      )
+    elif field_proto.order == FIRESTORE_DESCENDING:
       prop_definition.direction = 'desc'
     else:
       prop_definition.direction = 'asc'
@@ -186,6 +192,10 @@ def BuildIndexProto(
   for prop in properties:
     prop_proto = messages.GoogleDatastoreAdminV1IndexedProperty()
     prop_proto.name = prop.name
+    if prop.vectorConfig is not None:
+      raise ValueError(
+          'Vector Indexes cannot be created via the Datastore Admin API'
+      )
     if prop.direction == 'asc':
       prop_proto.direction = ASCENDING
     else:
@@ -199,6 +209,7 @@ def BuildIndexFirestoreProto(
     name: str,
     is_ancestor: bool,
     properties: Sequence[datastore_index.Property],
+    enable_vector: bool = True,
 ) -> firestore_v1_messages.GoogleFirestoreAdminV1Index:
   """Builds and returns a GoogleFirestoreAdminV1Index."""
   messages = firestore_utils.GetMessages()
@@ -211,7 +222,16 @@ def BuildIndexFirestoreProto(
   for prop in properties:
     field_proto = messages.GoogleFirestoreAdminV1IndexField()
     field_proto.fieldPath = prop.name
-    if prop.direction == 'asc':
+    if prop.vectorConfig is not None:
+      if not enable_vector:
+        raise exceptions.InvalidArgumentException(
+            'index.yaml',
+            'Vector Indexes are currently only supported in the Alpha Track',
+        )
+      field_proto.vectorConfig = messages.GoogleFirestoreAdminV1VectorConfig()
+      field_proto.vectorConfig.dimension = prop.vectorConfig.dimension
+      field_proto.vectorConfig.flat = messages.GoogleFirestoreAdminV1FlatIndex()
+    elif prop.direction == 'asc':
       field_proto.order = FIRESTORE_ASCENDING
     else:
       field_proto.order = FIRESTORE_DESCENDING
@@ -224,8 +244,8 @@ def BuildIndex(
     is_ancestor: bool,
     kind: str,
     properties: Sequence[Tuple[str, str]],
-) -> datastore_v1_messages.GoogleDatastoreAdminV1Index:
-  """Builds and returns an index rep via GoogleDatastoreAdminV1Index."""
+) -> datastore_index.Index:
+  """Builds and returns a datastore_index.Index YAML rep object."""
   index = datastore_index.Index(
       kind=str(kind),
       properties=[
@@ -237,27 +257,58 @@ def BuildIndex(
   return index
 
 
-def NormalizeIndexes(
+def NormalizeIndexesForDatastoreApi(
     indexes: Sequence[datastore_index.Index],
 ) -> Set[datastore_index.Index]:
   """Removes the last index property if it is __key__:asc which is redundant."""
-  if not indexes:
-    return set()
-  for index in indexes:
-    NormalizeIndex(index)
+  indexes = indexes or []
+  for index in indexes or []:
+    NormalizeIndexForDatastoreApi(index)
   return set(indexes)
 
 
-def NormalizeIndex(index: datastore_index.Index) -> datastore_index.Index:
+def NormalizeIndexForDatastoreApi(
+    index: datastore_index.Index,
+) -> datastore_index.Index:
   """Removes the last index property if it is __key__:asc which is redundant."""
   if (
       index.properties
-      and (
-          # The key property path is represented as __key__ in Datastore API
-          # and __name__ in Firestore API.
-          index.properties[-1].name == '__key__'
-          or index.properties[-1].name == '__name__'
-      )
+      # The key property path is represented as __key__ in Datastore API
+      # and __name__ in Firestore API.
+      and index.properties[-1].name in ('__key__', '__name__')
+      and index.properties[-1].direction == 'asc'
+  ):
+    index.properties.pop()
+  return index
+
+
+def NormalizeIndexesForFirestoreApi(
+    indexes: Sequence[datastore_index.Index],
+) -> Set[datastore_index.Index]:
+  """Removes the last index property if it is __name__:asc which is redundant."""
+  indexes = indexes or []
+  for index in indexes or []:
+    NormalizeIndexForFirestoreApi(index)
+  return set(indexes)
+
+
+def NormalizeIndexForFirestoreApi(
+    index: datastore_index.Index,
+) -> datastore_index.Index:
+  """Removes the last index property if it is __name__:asc which is redundant."""
+  # Firestore API returns index with '__name__' as opposed to Datastore which
+  # returns it as '__key__', normalize that here.
+  for prop in index.properties:
+    if prop.name == '__key__':
+      prop.name = '__name__'
+
+  # If the last property is '__name__ ASC', then we can remove it as the backend
+  # assumes that is the case.
+  if (
+      index.properties
+      # The key property path is represented as __key__ in Datastore API
+      # and __name__ in Firestore API.
+      and index.properties[-1].name in ('__key__', '__name__')
       and index.properties[-1].direction == 'asc'
   ):
     index.properties.pop()
@@ -295,7 +346,7 @@ def ListDatastoreIndexesViaFirestoreApi(
   }
 
 
-def CreateIndexes(
+def CreateIndexesViaDatastoreApi(
     project_id: str,
     indexes_to_create: Sequence[datastore_index.Index],
 ) -> None:
@@ -323,6 +374,7 @@ def CreateIndexesViaFirestoreApi(
     project_id: str,
     database_id: str,
     indexes_to_create: Sequence[datastore_index.Index],
+    enable_vector: bool,
 ) -> None:
   """Sends the index creation requests via the Firestore Admin API."""
   detail_message = None
@@ -335,7 +387,10 @@ def CreateIndexesViaFirestoreApi(
           database_id,
           index.kind,
           BuildIndexFirestoreProto(
-              name=None, is_ancestor=index.ancestor, properties=index.properties
+              name=None,
+              is_ancestor=index.ancestor,
+              properties=index.properties,
+              enable_vector=enable_vector,
           ),
       )
       detail_message = '{0:.0%}'.format(i / len(indexes_to_create))
@@ -386,21 +441,24 @@ def DeleteIndexesViaFirestoreApi(
       pt.Tick()
 
 
-def CreateMissingIndexes(
+def CreateMissingIndexesViaDatastoreApi(
     project_id: str,
     index_definitions: datastore_index.IndexDefinitions,
 ) -> None:
   """Creates the indexes if the index configuration is not present."""
   indexes = ListIndexes(project_id)
-  normalized_indexes = NormalizeIndexes(index_definitions.indexes)
+  normalized_indexes = NormalizeIndexesForDatastoreApi(
+      index_definitions.indexes
+  )
   new_indexes = normalized_indexes - {index for _, index in indexes}
-  CreateIndexes(project_id, new_indexes)
+  CreateIndexesViaDatastoreApi(project_id, new_indexes)
 
 
 def CreateMissingIndexesViaFirestoreApi(
     project_id: str,
     database_id: str,
     index_definitions: datastore_index.IndexDefinitions,
+    enable_vector: bool,
 ) -> None:
   """Creates the indexes via Firestore API if the index configuration is not present."""
   existing_indexes = ListDatastoreIndexesViaFirestoreApi(
@@ -408,14 +466,17 @@ def CreateMissingIndexesViaFirestoreApi(
   )
   # Firestore API returns index with '__name__' field path. Normalizing the
   # index is required.
-  existing_indexes_normalized = NormalizeIndexes(
+  existing_indexes_normalized = NormalizeIndexesForFirestoreApi(
       [index for _, index in existing_indexes]
   )
-  normalized_indexes = NormalizeIndexes(index_definitions.indexes)
+  normalized_indexes = NormalizeIndexesForFirestoreApi(
+      index_definitions.indexes
+  )
   new_indexes = normalized_indexes - existing_indexes_normalized
 
   CreateIndexesViaFirestoreApi(
       project_id=project_id,
       database_id=database_id,
       indexes_to_create=new_indexes,
+      enable_vector=enable_vector,
   )

@@ -32,6 +32,7 @@ from googlecloudsdk.core.configurations import named_configs
 from googlecloudsdk.core.configurations import properties_file as prop_files_lib
 from googlecloudsdk.core.docker import constants as const_lib
 from googlecloudsdk.core.resource import resource_printer_types as formats
+from googlecloudsdk.core.universe_descriptor import universe_descriptor
 from googlecloudsdk.core.util import encoding
 from googlecloudsdk.core.util import http_proxy_types
 from googlecloudsdk.core.util import scaled_integer
@@ -443,6 +444,7 @@ class _Sections(object):
     lifesciences: Section, The section containing lifesciencs properties for the
       Cloud SDK.
     looker: Section, The section containing looker properties for the Cloud SDK.
+    lustre: Section, The section containing lustre properties for the Cloud SDK.
     media_asset: Section, the section containing mediaasset protperties for the
       Cloud SDK.
     memcache: Section, The section containing memcache properties for the Cloud
@@ -550,6 +552,7 @@ class _Sections(object):
     self.interactive = _SectionInteractive()
     self.kuberun = _SectionKubeRun()
     self.lifesciences = _SectionLifeSciences()
+    self.lustre = _SectionLustre()
     self.looker = _SectionLooker()
     self.media_asset = _SectionMediaAsset()
     self.memcache = _SectionMemcache()
@@ -632,6 +635,7 @@ class _Sections(object):
         self.kuberun,
         self.lifesciences,
         self.looker,
+        self.lustre,
         self.media_asset,
         self.memcache,
         self.metastore,
@@ -1190,6 +1194,9 @@ class _SectionApiEndpointOverrides(_Section):
     self.apigee = self._Add('apigee', command='gcloud apigee')
     self.apihub = self._Add(
         'apihub', command='gcloud apigeeregistry', hidden=True)
+    self.apikeys = self._Add(
+        'apikeys', command='gcloud services api-keys', hidden=True
+    )
     self.appconfigmanager = self._Add(
         'appconfigmanager', command='gcloud app-config-manager', hidden=True)
     self.appengine = self._Add('appengine', command='gcloud app')
@@ -1271,7 +1278,7 @@ class _SectionApiEndpointOverrides(_Section):
     self.deploymentmanager = self._Add(
         'deploymentmanager', command='gcloud deployment-manager')
     self.developerconnect = self._Add(
-        'developerconnect', command='gcloud developerconnect', hidden=True)
+        'developerconnect', command='gcloud developer-connect')
     self.discovery = self._Add('discovery', hidden=True)
     self.dns = self._Add('dns', command='gcloud dns')
     self.domains = self._Add('domains', command='gcloud domains')
@@ -1313,6 +1320,7 @@ class _SectionApiEndpointOverrides(_Section):
     self.lifesciences = self._Add('lifesciences', command='gcloud lifesciences')
     self.logging = self._Add('logging', command='gcloud logging')
     self.looker = self._Add('looker', command='gcloud looker')
+    self.lustre = self._Add('lustre', command='gcloud lustre', hidden=True)
     self.managedflink = self._Add(
         'managedflink', command='gcloud managedflink', hidden=True
     )
@@ -1353,6 +1361,8 @@ class _SectionApiEndpointOverrides(_Section):
     self.osconfig = self._Add('osconfig', hidden=True)
     self.oslogin = self._Add('oslogin', hidden=True)
     self.parallelstore = self._Add('parallelstore', hidden=True)
+    self.parametermanager = self._Add(
+        'parametermanager', command='gcloud parameter-manager', hidden=True)
     self.policyanalyzer = self._Add(
         'policyanalyzer', command='policy-intelligence')
     self.policysimulator = self._Add('policysimulator', hidden=True)
@@ -2997,6 +3007,18 @@ class _SectionLooker(_Section):
         help_text='Default region to use when working with Cloud '
         'Looker resources. When a `region` is required but not '
         'provided by a flag, the command will fall back to this value, if set.')
+
+
+class _SectionLustre(_Section):
+  """Contains the properties for the 'lustre' section."""
+
+  def __init__(self):
+    super(_SectionLustre, self).__init__('lustre')
+    self.location = self._Add(
+        'location',
+        help_text='Default location to use when working with Cloud Lustre'
+                  ' resources. When a `location` value is required but not '
+                  'provided, the command will fall back to this value, if set.')
 
 
 class _SectionMediaAsset(_Section):
@@ -4648,11 +4670,23 @@ def GetUniverseDomain():
   return VALUES.core.universe_domain.Get()
 
 
-def GetUniverseDocumentDomain():
-  """Get the universe document domain."""
+def GetUniverseDocumentDomain() -> str:
+  """Returns the universe document domain.
 
-  # Temporary returning universe document domain
-  # this will be updated when Descriptor data is ready.
+  If the universe domain is not available, returns the default document domain.
+
+  Returns:
+    The universe document domain.
+  """
+  try:
+    universe_domain = GetUniverseDomain()
+    universe_descriptor_data = universe_descriptor.UniverseDescriptor()
+    cached_descriptor_data = universe_descriptor_data.Get(universe_domain)
+    if cached_descriptor_data and cached_descriptor_data.documentation_domain:
+      return cached_descriptor_data.documentation_domain
+  except universe_descriptor.UniverseDescriptorError:
+    pass
+
   return 'cloud.google.com'
 
 

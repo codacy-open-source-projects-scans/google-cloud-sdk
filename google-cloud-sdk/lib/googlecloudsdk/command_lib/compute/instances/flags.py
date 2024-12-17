@@ -1473,7 +1473,7 @@ def ValidateNetworkInterfaceStackTypeIpv6OnlyNotSupported(stack_type_input):
         'Invalid value for stack-type [%s].' % stack_type)
 
 
-def _ValidateNetworkInterfaceIgmpQuery(igmp_query_input):
+def ValidateNetworkInterfaceIgmpQuery(igmp_query_input):
   """Validates igmp query field, throws exception if invalid."""
   igmp_query = igmp_query_input.upper()
   if igmp_query in constants.NETWORK_INTERFACE_IGMP_QUERY_CHOICES:
@@ -1522,7 +1522,6 @@ def AddAddressArgs(parser,
                    instance_create=False,
                    containers=False,
                    support_network_queue_count=False,
-                   support_network_attachments=False,
                    support_vlan_nic=False,
                    support_ipv6_only=False,
                    support_igmp_query=False):
@@ -1539,8 +1538,6 @@ def AddAddressArgs(parser,
       to true, for create command otherwise.
     support_network_queue_count: indicates flexible networking queue count is
       supported or not.
-    support_network_attachments: indicates whether network attachments are
-      supported.
     support_vlan_nic: indicates whether VLAN network interfaces are supported.
     support_ipv6_only: indicates whether IPV6_ONLY stack type is supported.
     support_igmp_query: indicates whether setting igmp query on network
@@ -1581,8 +1578,10 @@ def AddAddressArgs(parser,
   multiple_network_interface_cards_spec[
       'nic-type'] = ValidateNetworkInterfaceNicType
 
-  multiple_network_interface_cards_spec[
-      'igmp-query'] = _ValidateNetworkInterfaceIgmpQuery
+  if support_igmp_query:
+    multiple_network_interface_cards_spec['igmp-query'] = (
+        ValidateNetworkInterfaceIgmpQuery
+    )
 
   if support_ipv6_only:
     multiple_network_interface_cards_spec[
@@ -1747,12 +1746,10 @@ def AddAddressArgs(parser,
       netmask and allocate it to this network interface.
       """)
 
-  if support_network_attachments:
-    # TODO(b/265153883): Add a link to the user guide.
-    network_interface_help_texts.append("""
+  network_interface_help_texts.append("""
       *network-attachment*::: Specifies the network attachment that this
-      interface should connect to. Mutually exclusive with *--network* and
-      *--subnet* flags.
+        interface should connect to. Mutually exclusive with *--network* and
+        *--subnet* flags.
       """)
 
   if support_vlan_nic:
@@ -1946,26 +1943,35 @@ def AddPreemptibleVmArgs(parser, is_update=False):
         '--preemptible', action='store_true', default=False, help=help_text)
 
 
-def AddProvisioningModelVmArgs(parser):
+def AddProvisioningModelVmArgs(parser, support_reservation_bound=False):
   """Set arguments for specifing provisioning model for instances."""
+  choices = {
+      'SPOT': (
+          'Compute Engine may stop a Spot VM instance whenever it needs '
+          "capacity. Because Spot VM instances don't have a guaranteed "
+          'runtime, they come at a discounted price.'
+      ),
+      'STANDARD': (
+          'The default option. The STANDARD provisioning model gives you full '
+          "control over your VM instances' runtime."
+      ),
+  }
+  if support_reservation_bound:
+    choices['RESERVATION_BOUND'] = (
+        'The VM instances run for the entire duration of their associated'
+        ' reservation. You can only specify this provisioning model if you want'
+        ' your VM instances to consume a specific reservation with either a'
+        ' calendar reservation mode or a dense deployment type.'
+    )
   parser.add_argument(
       '--provisioning-model',
-      choices={
-          'SPOT':
-              ('Spot VMs are spare capacity; Spot VMs are discounted '
-               'to have much lower prices than standard VMs '
-               'but have no guaranteed runtime. Spot VMs are the new version '
-               'of preemptible VM instances, except Spot VMs do not have '
-               'a 24-hour maximum runtime.'),
-          'STANDARD': ('Default. Standard provisioning model for VM instances, '
-                       'which has user-controlled runtime '
-                       'but no Spot discounts.')
-      },
+      choices=choices,
       type=arg_utils.ChoiceToEnumName,
       help="""\
-      Specifies provisioning model, which determines price, obtainability,
-      and runtime for the VM instance.
-      """)
+      Specifies the provisioning model for your VM instances. This choice
+      affects the price, availability, and how long your VM instances can run.
+      """,
+  )
 
 
 def AddMaxRunDurationVmArgs(parser, is_update=False):
@@ -2120,17 +2126,14 @@ def AddGracefulShutdownArgs(parser, is_create=False):
         '--graceful-shutdown',
         action=arg_parsers.StoreTrueFalseAction,
         help="""\
-        If set to true, enables graceful shutdown for the instance.
+        Enables or disables graceful shutdown for the instance.
         """,
     )
   parser.add_argument(
       '--graceful-shutdown-max-duration',
       type=arg_parsers.Duration(lower_bound='1s', upper_bound='3600s'),
       help="""
-      Specifies time needed to gracefully
-      shutdown the instance. After that time, the instance goes to STOPPING even
-      if graceful shutdown is not completed.e.g. `300s`, `1h`. See $ gcloud
-      topic datetimes for information on duration formats.
+      Specifies the maximum time for the graceful shutdown. After this time, the instance is set to STOPPING even if tasks are still running. Specify the time as the number of hours, minutes, or seconds followed by h, m, and s respectively. For example, specify 30m for 30 minutes or 20m10s for 20 minutes and 10 seconds. The value must be between 1 second and 1 hour.
       """,
   )
 

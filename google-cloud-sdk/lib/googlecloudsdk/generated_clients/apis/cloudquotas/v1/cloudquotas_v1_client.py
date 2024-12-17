@@ -681,6 +681,60 @@ class CloudquotasV1(base_api.BaseApiClient):
       self._upload_configs = {
           }
 
+    def GetQuotaAdjusterSettings(self, request, global_params=None):
+      r"""RPC Method for getting QuotaAdjusterSettings based on the request.
+
+      Args:
+        request: (CloudquotasProjectsLocationsGetQuotaAdjusterSettingsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (QuotaAdjusterSettings) The response message.
+      """
+      config = self.GetMethodConfig('GetQuotaAdjusterSettings')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetQuotaAdjusterSettings.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/quotaAdjusterSettings',
+        http_method='GET',
+        method_id='cloudquotas.projects.locations.getQuotaAdjusterSettings',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudquotasProjectsLocationsGetQuotaAdjusterSettingsRequest',
+        response_type_name='QuotaAdjusterSettings',
+        supports_download=False,
+    )
+
+    def UpdateQuotaAdjusterSettings(self, request, global_params=None):
+      r"""RPC Method for updating QuotaAdjusterSettings based on the request.
+
+      Args:
+        request: (CloudquotasProjectsLocationsUpdateQuotaAdjusterSettingsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (QuotaAdjusterSettings) The response message.
+      """
+      config = self.GetMethodConfig('UpdateQuotaAdjusterSettings')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    UpdateQuotaAdjusterSettings.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/quotaAdjusterSettings',
+        http_method='PATCH',
+        method_id='cloudquotas.projects.locations.updateQuotaAdjusterSettings',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask', 'validateOnly'],
+        relative_path='v1/{+name}',
+        request_field='quotaAdjusterSettings',
+        request_type_name='CloudquotasProjectsLocationsUpdateQuotaAdjusterSettingsRequest',
+        response_type_name='QuotaAdjusterSettings',
+        supports_download=False,
+    )
+
   class ProjectsService(base_api.BaseApiService):
     """Service class for the projects resource."""
 

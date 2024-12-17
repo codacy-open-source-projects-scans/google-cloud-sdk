@@ -22,6 +22,7 @@ import collections
 
 from googlecloudsdk.calliope import actions as calliope_actions
 from googlecloudsdk.calliope import arg_parsers
+from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.compute import completers as compute_completers
 from googlecloudsdk.command_lib.compute import flags as compute_flags
 
@@ -56,6 +57,10 @@ _REQUESTED_FEATURES_CHOICES = {
 }
 
 
+@base.UniverseCompatible
+@base.ReleaseTracks(
+    base.ReleaseTrack.ALPHA, base.ReleaseTrack.BETA, base.ReleaseTrack.GA
+)
 class InterconnectsCompleter(compute_completers.ListCommandCompleter):
 
   def __init__(self, **kwargs):
@@ -390,3 +395,18 @@ def AddMacsecPreSharedKeyNameForRomoveKey(parser):
       The name of pre-shared key being removed from MACsec configuration of the
       interconnect.
       """)
+
+
+def AddInterconnectGroups(parser):
+  """Adds groups flag to the argparse.ArgumentParser."""
+  parser.add_argument(
+      '--groups',
+      type=arg_parsers.ArgList(max_length=16),
+      hidden=True,
+      required=False,
+      default=[],
+      metavar='INTERCONNECT_GROUP',
+      help="""\
+      Interconnect groups of which the interconnect is a member.
+      """,
+  )

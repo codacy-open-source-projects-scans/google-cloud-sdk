@@ -178,7 +178,12 @@ class Binding(_messages.Message):
 
 
 class BoostConfig(_messages.Message):
-  r"""A configuration that workstations can boost to.
+  r"""A boost configuration is a set of resources that a workstation can use
+  to increase its performance. If a boost configuration is specified, when
+  starting a workstation, users can choose to use a VM provisioned under the
+  boost config by passing the boost config id in the start request. If no
+  boost config id is provided in the start request, the system will choose a
+  VM from the pool provisioned under the default config.
 
   Fields:
     accelerators: Optional. A list of the type and count of accelerator cards
@@ -208,7 +213,7 @@ class BoostConfig(_messages.Message):
       **Machine Type**: nested virtualization can only be enabled on boost
       configurations that specify a machine_type in the N1 or N2 machine
       series.
-    id: Optional. Required. The id to be used for the boost configuration.
+    id: Required. The id to be used for the boost configuration.
     machineType: Optional. The type of machine that boosted VM instances will
       use-for example, `e2-standard-4`. For more information about machine
       types that Cloud Workstations supports, see the list of [available
@@ -402,7 +407,8 @@ class GceInstance(_messages.Message):
       attached to the instance.
     boostConfigs: Optional. A list of the boost configurations that
       workstations created using this workstation configuration are allowed to
-      use.
+      use. If specified, users will have the option to choose from the list of
+      boost configs when starting a workstation.
     bootDiskSizeGb: Optional. The size of the boot disk for the VM in
       gigabytes (GB). The minimum boot disk size is `30` GB. Defaults to `50`
       GB.

@@ -1132,6 +1132,32 @@ class ComputeBeta(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def GetEffectiveSecurityPolicies(self, request, global_params=None):
+      r"""Returns effective security policies applied to this backend service.
+
+      Args:
+        request: (ComputeBackendServicesGetEffectiveSecurityPoliciesRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (BackendServicesGetEffectiveSecurityPoliciesResponse) The response message.
+      """
+      config = self.GetMethodConfig('GetEffectiveSecurityPolicies')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetEffectiveSecurityPolicies.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='GET',
+        method_id='compute.backendServices.getEffectiveSecurityPolicies',
+        ordered_params=['project', 'backendService'],
+        path_params=['backendService', 'project'],
+        query_params=[],
+        relative_path='projects/{project}/global/backendServices/{backendService}/getEffectiveSecurityPolicies',
+        request_field='',
+        request_type_name='ComputeBackendServicesGetEffectiveSecurityPoliciesRequest',
+        response_type_name='BackendServicesGetEffectiveSecurityPoliciesResponse',
+        supports_download=False,
+    )
+
     def GetHealth(self, request, global_params=None):
       r"""Gets the most recent health check results for this BackendService. Example request body: { "group": "/zones/us-east1-b/instanceGroups/lb-backend-example" }.
 
@@ -6850,7 +6876,7 @@ class ComputeBeta(base_api.BaseApiClient):
         method_id='compute.instances.delete',
         ordered_params=['project', 'zone', 'instance'],
         path_params=['instance', 'project', 'zone'],
-        query_params=['requestId'],
+        query_params=['noGracefulShutdown', 'requestId'],
         relative_path='projects/{project}/zones/{zone}/instances/{instance}',
         request_field='',
         request_type_name='ComputeInstancesDeleteRequest',
@@ -7864,7 +7890,7 @@ class ComputeBeta(base_api.BaseApiClient):
         method_id='compute.instances.stop',
         ordered_params=['project', 'zone', 'instance'],
         path_params=['instance', 'project', 'zone'],
-        query_params=['discardLocalSsd', 'requestId'],
+        query_params=['discardLocalSsd', 'noGracefulShutdown', 'requestId'],
         relative_path='projects/{project}/zones/{zone}/instances/{instance}/stop',
         request_field='',
         request_type_name='ComputeInstancesStopRequest',
@@ -10609,7 +10635,8 @@ class ComputeBeta(base_api.BaseApiClient):
 
     def __init__(self, client):
       super(ComputeBeta.NetworkProfilesService, self).__init__(client)
-      self._upload_configs = {}
+      self._upload_configs = {
+          }
 
     def Get(self, request, global_params=None):
       r"""Returns the specified network profile.
@@ -10617,12 +10644,12 @@ class ComputeBeta(base_api.BaseApiClient):
       Args:
         request: (ComputeNetworkProfilesGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (NetworkProfile) The response message.
       """
       config = self.GetMethodConfig('Get')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Get.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -16099,7 +16126,6 @@ class ComputeBeta(base_api.BaseApiClient):
       Args:
         request: (ComputeRegionMultiMigsGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (MultiMig) The response message.
       """
@@ -17314,6 +17340,32 @@ class ComputeBeta(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def SetLabels(self, request, global_params=None):
+      r"""Sets the labels on a security policy. To learn more about labels, read the Labeling Resources documentation.
+
+      Args:
+        request: (ComputeRegionSecurityPoliciesSetLabelsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('SetLabels')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SetLabels.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='compute.regionSecurityPolicies.setLabels',
+        ordered_params=['project', 'region', 'resource'],
+        path_params=['project', 'region', 'resource'],
+        query_params=['requestId'],
+        relative_path='projects/{project}/regions/{region}/securityPolicies/{resource}/setLabels',
+        request_field='regionSetLabelsRequest',
+        request_type_name='ComputeRegionSecurityPoliciesSetLabelsRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class RegionSslCertificatesService(base_api.BaseApiService):
     """Service class for the regionSslCertificates resource."""
 
@@ -18519,7 +18571,8 @@ class ComputeBeta(base_api.BaseApiClient):
 
     def __init__(self, client):
       super(ComputeBeta.ReservationBlocksService, self).__init__(client)
-      self._upload_configs = {}
+      self._upload_configs = {
+          }
 
     def Get(self, request, global_params=None):
       r"""Retrieves information about the specified reservation block.
@@ -18527,12 +18580,12 @@ class ComputeBeta(base_api.BaseApiClient):
       Args:
         request: (ComputeReservationBlocksGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (ReservationBlocksGetResponse) The response message.
       """
       config = self.GetMethodConfig('Get')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Get.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',

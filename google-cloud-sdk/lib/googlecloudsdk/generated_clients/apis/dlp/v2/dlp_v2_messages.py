@@ -3548,8 +3548,8 @@ class GooglePrivacyDlpV2BigQueryTable(_messages.Message):
 
   Fields:
     datasetId: Dataset ID of the table.
-    projectId: The Google Cloud Platform project ID of the project containing
-      the table. If omitted, project ID is inferred from the API call.
+    projectId: The Google Cloud project ID of the project containing the
+      table. If omitted, project ID is inferred from the API call.
     tableId: Name of the table.
   """
 
@@ -3587,10 +3587,12 @@ class GooglePrivacyDlpV2BigQueryTableTypes(_messages.Message):
       BIG_QUERY_TABLE_TYPE_TABLE: A normal BigQuery table.
       BIG_QUERY_TABLE_TYPE_EXTERNAL_BIG_LAKE: A table that references data
         stored in Cloud Storage.
+      BIG_QUERY_TABLE_TYPE_SNAPSHOT: A snapshot of a BigQuery table.
     """
     BIG_QUERY_TABLE_TYPE_UNSPECIFIED = 0
     BIG_QUERY_TABLE_TYPE_TABLE = 1
     BIG_QUERY_TABLE_TYPE_EXTERNAL_BIG_LAKE = 2
+    BIG_QUERY_TABLE_TYPE_SNAPSHOT = 3
 
   types = _messages.EnumField('TypesValueListEntryValuesEnum', 1, repeated=True)
 
@@ -3878,7 +3880,7 @@ class GooglePrivacyDlpV2CloudSqlProperties(_messages.Message):
       created under the parent `projects/project-id/locations/us-central1`
     databaseEngine: Required. The database engine used by the Cloud SQL
       instance that this connection configures.
-    maxConnections: Required. DLP will limit its connections to
+    maxConnections: Required. The DLP API will limit its connections to
       max_connections. Must be 2 or greater.
     usernamePassword: A username and password stored in Secret Manager.
   """
@@ -4387,8 +4389,8 @@ class GooglePrivacyDlpV2Conditions(_messages.Message):
 
 
 class GooglePrivacyDlpV2Connection(_messages.Message):
-  r"""A data connection to allow DLP to profile data in locations that require
-  additional configuration.
+  r"""A data connection to allow the DLP API to profile data in locations that
+  require additional configuration.
 
   Enums:
     StateValueValuesEnum: Required. The connection's state in its lifecycle.
@@ -4408,8 +4410,9 @@ class GooglePrivacyDlpV2Connection(_messages.Message):
 
     Values:
       CONNECTION_STATE_UNSPECIFIED: Unused
-      MISSING_CREDENTIALS: DLP automatically created this connection during an
-        initial scan, and it is awaiting full configuration by a user.
+      MISSING_CREDENTIALS: The DLP API automatically created this connection
+        during an initial scan, and it is awaiting full configuration by a
+        user.
       AVAILABLE: A configured connection that has not encountered any errors.
       ERROR: A configured connection that encountered errors during its last
         use. It will not be used again until it is set to AVAILABLE. If the
@@ -4898,7 +4901,8 @@ class GooglePrivacyDlpV2DataProfileAction(_messages.Message):
       data in context-aware
       analytics](https://cloud.google.com/chronicle/docs/detection/usecase-
       dlp-high-risk-user-download).
-    publishToScc: Publishes findings to SCC for each data profile.
+    publishToScc: Publishes findings to Security Command Center for each data
+      profile.
     tagResources: Tags the profiled resources with the specified tag values.
   """
 
@@ -4974,7 +4978,7 @@ class GooglePrivacyDlpV2DataProfileJobConfig(_messages.Message):
     otherCloudStartingLocation: Must be set only when scanning other clouds.
     projectId: The project that will run the scan. The DLP service account
       that exists within this project must have access to all resources that
-      are profiled, and the Cloud DLP API must be enabled.
+      are profiled, and the DLP API must be enabled.
   """
 
   dataProfileActions = _messages.MessageField('GooglePrivacyDlpV2DataProfileAction', 1, repeated=True)
@@ -8667,7 +8671,7 @@ class GooglePrivacyDlpV2OrgConfig(_messages.Message):
     location: The data to scan: folder, org, or project
     projectId: The project that will run the scan. The DLP service account
       that exists within this project must have access to all resources that
-      are profiled, and the Cloud DLP API must be enabled.
+      are profiled, and the DLP API must be enabled.
   """
 
   location = _messages.MessageField('GooglePrivacyDlpV2DiscoveryStartingLocation', 1)
@@ -9186,8 +9190,8 @@ class GooglePrivacyDlpV2PublishToPubSub(_messages.Message):
 
 
 class GooglePrivacyDlpV2PublishToSecurityCommandCenter(_messages.Message):
-  r"""If set, a summary finding will be created/updated in SCC for each
-  profile.
+  r"""If set, a summary finding will be created or updated in Security Command
+  Center for each profile.
   """
 
 

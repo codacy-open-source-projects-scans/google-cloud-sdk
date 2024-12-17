@@ -300,19 +300,6 @@ def GetPreviousCommitmentTermsHelpText():
   return help_text
 
 
-def GetInstanceTerminationActionFlag():
-  """--instance-termination-action flag."""
-  help_text = """\
-  Specific termination action for running instances at the end of reservation
-  duration, it can be DELETE or STOP.
-  """
-  return base.Argument(
-      '--instance-termination-action',
-      choices=['DELETE', 'STOP'],
-      help=help_text,
-  )
-
-
 def GetSchedulingTypeFlag():
   """--scheduling-type flag."""
   help_text = """\
@@ -334,19 +321,6 @@ def GetSchedulingTypeFlag():
   )
 
 
-def GetEnableOpportunisticMaintenanceFlag():
-  """--enable-opportunistic-maintenance flag."""
-  help_text = """\
-  Enable or disable opportunistic maintenance. If enabled, maintenance is
-  performed on unused reservations whenever possible.
-  """
-  return base.Argument(
-      '--enable-opportunistic-maintenance',
-      action=arg_parsers.StoreTrueFalseAction,
-      help=help_text,
-  )
-
-
 def AddCreateFlags(
     parser,
     support_location_hint=False,
@@ -358,6 +332,7 @@ def AddCreateFlags(
     support_auto_delete=False,
     support_require_specific_reservation=False,
     support_gsc=False,
+    support_cuds=False,
 ):
   """Adds all flags needed for the create command."""
   GetNamePrefixFlag().AddToParser(parser)
@@ -422,10 +397,10 @@ def AddCreateFlags(
   if support_gsc:
     GetReservationNameFlag().AddToParser(parser)
     GetDeploymentTypeFlag().AddToParser(parser)
-    AddCommitmentInfoFlags(parser)
-    GetInstanceTerminationActionFlag().AddToParser(parser)
     GetSchedulingTypeFlag().AddToParser(parser)
-    GetEnableOpportunisticMaintenanceFlag().AddToParser(parser)
+
+  if support_cuds:
+    AddCommitmentInfoFlags(parser)
 
 
 def AddUpdateFlags(
@@ -438,6 +413,7 @@ def AddUpdateFlags(
     support_auto_delete=False,
     support_require_specific_reservation=False,
     support_gsc=False,
+    support_cuds=False,
 ):
   """Adds all flags needed for the update command."""
 
@@ -515,10 +491,10 @@ def AddUpdateFlags(
   if support_gsc:
     GetReservationNameFlag().AddToParser(parser)
     GetDeploymentTypeFlag().AddToParser(parser)
-    AddCommitmentInfoFlags(parser)
-    GetInstanceTerminationActionFlag().AddToParser(parser)
     GetSchedulingTypeFlag().AddToParser(parser)
-    GetEnableOpportunisticMaintenanceFlag().AddToParser(parser)
+
+  if support_cuds:
+    AddCommitmentInfoFlags(parser)
 
 
 def AddAutoDeleteFlags(parser, is_update=False):

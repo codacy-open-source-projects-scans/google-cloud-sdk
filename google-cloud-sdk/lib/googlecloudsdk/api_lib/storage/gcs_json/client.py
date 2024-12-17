@@ -572,7 +572,10 @@ class JsonClient(cloud_api.CloudApi):
     )
 
   def list_buckets(
-      self, fields_scope=cloud_api.FieldsScope.NO_ACL, soft_deleted=False
+      self,
+      fields_scope=cloud_api.FieldsScope.NO_ACL,
+      soft_deleted=False,
+      prefix=None,
   ):
     """See super class."""
     projection = self._get_projection(
@@ -583,6 +586,7 @@ class JsonClient(cloud_api.CloudApi):
         projection=projection,
         # Avoid needlessly appending "&softDeleted=False" to URL.
         softDeleted=True if soft_deleted else None,
+        prefix=prefix,
     )
 
     global_params = None
@@ -1605,7 +1609,9 @@ class JsonClient(cloud_api.CloudApi):
   def advance_relocate_bucket(self, bucket_name, operation_id, ttl=None):
     """See CloudApi class."""
     advance_relocate_bucket_operation_request = (
-        self.messages.AdvanceRelocateBucketOperationRequest(ttl=ttl)
+        self.messages.AdvanceRelocateBucketOperationRequest(
+            ttl=str(ttl) + 's' if ttl is not None else None
+        )
     )
     request = self.messages.StorageBucketsOperationsAdvanceRelocateBucketRequest(
         advanceRelocateBucketOperationRequest=advance_relocate_bucket_operation_request,

@@ -370,7 +370,51 @@ class GenerationConfig(proto.Message):
             included in the request to the model.
 
             This field is a member of `oneof`_ ``_audio_timestamp``.
+        response_modalities (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.Modality]):
+            Optional. The modalities of the response.
+        token_resolution (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.TokenResolution):
+            Optional. If specified, the token resolution
+            specified will be used.
+
+            This field is a member of `oneof`_ ``_token_resolution``.
     """
+    class Modality(proto.Enum):
+        r"""The modalities of the response.
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Unspecified modality. Will be processed as
+                text.
+            TEXT (1):
+                Text modality.
+            IMAGE (2):
+                Image modality.
+            AUDIO (3):
+                Audio modality.
+        """
+        MODALITY_UNSPECIFIED = 0
+        TEXT = 1
+        IMAGE = 2
+        AUDIO = 3
+
+    class TokenResolution(proto.Enum):
+        r"""Token resolution for the input media.
+
+        Values:
+            TOKEN_RESOLUTION_UNSPECIFIED (0):
+                Token resolution has not been set.
+            TOKEN_RESOLUTION_LOW (1):
+                Token resolution set to low (64 tokens).
+            TOKEN_RESOLUTION_MEDIUM (2):
+                Token resolution set to medium (256 tokens).
+            TOKEN_RESOLUTION_HIGH (3):
+                Token resolution set to high (P&S with 256
+                tokens).
+        """
+        TOKEN_RESOLUTION_UNSPECIFIED = 0
+        TOKEN_RESOLUTION_LOW = 1
+        TOKEN_RESOLUTION_MEDIUM = 2
+        TOKEN_RESOLUTION_HIGH = 3
 
     class RoutingConfig(proto.Message):
         r"""The configuration for routing the request to a specific
@@ -541,6 +585,17 @@ class GenerationConfig(proto.Message):
         proto.BOOL,
         number=20,
         optional=True,
+    )
+    response_modalities: MutableSequence[Modality] = proto.RepeatedField(
+        proto.ENUM,
+        number=21,
+        enum=Modality,
+    )
+    token_resolution: TokenResolution = proto.Field(
+        proto.ENUM,
+        number=22,
+        optional=True,
+        enum=TokenResolution,
     )
 
 
@@ -826,8 +881,8 @@ class Candidate(proto.Message):
                 [content][google.cloud.aiplatform.v1beta1.Candidate.content]
                 is empty if content filters blocks the output.
             RECITATION (4):
-                Token generation stopped because the content
-                potentially contains copyright violations.
+                The token generation stopped because of
+                potential recitation.
             OTHER (5):
                 All other reasons that stopped the token
                 generation.

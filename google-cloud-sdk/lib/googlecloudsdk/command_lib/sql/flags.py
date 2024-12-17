@@ -415,7 +415,7 @@ def AddFinalbackupDescription(parser):
       '--final-backup-description',
       required=False,
       hidden=True,
-      help='Provides description for the final backup going to be taken.'
+      help='Provides description for the final backup going to be taken.',
   )
 
 
@@ -805,7 +805,8 @@ def AddFailoverDrReplicaName(parser, hidden=False):
       help=(
           'Set a Disaster Recovery (DR) replica with the specified name for '
           'the primary instance. This must be one of the existing cross region '
-          'replicas of the primary instance. Flag is only available for MySQL.'
+          'replicas of the primary instance. Flag is only available for MySQL '
+          'and PostgreSQL database instances.'
       ),
   )
 
@@ -818,7 +819,7 @@ def AddClearFailoverDrReplicaName(parser, hidden=False):
       hidden=hidden,
       help=(
           'Clear the DR replica setting for the primary instance. Flag is only '
-          'available for MySQL.'
+          'available for MySQL and PostgreSQL database instances.'
       ),
       **kwargs
   )
@@ -1827,9 +1828,7 @@ def AddBakImportKeepEncryptedArgument(parser):
       required=False,
       default=False,
       hidden=True,
-      help=(
-          'Whether or not to decrypt the imported encrypted BAK file.'
-      ),
+      help='Whether or not to decrypt the imported encrypted BAK file.',
   )
 
 
@@ -2321,6 +2320,7 @@ def GetInstanceListFormatForNetworkArchitectureUpgrade():
 
   return table_format
 
+
 INSTANCES_FORMAT_COLUMNS_WITH_TRANSACTIONAL_LOG_STORAGE_STATE = [
     'name',
     'databaseVersion',
@@ -2446,10 +2446,7 @@ def AddShowEdition(parser):
   """Show the instance or tier edition."""
   kwargs = _GetKwargsForBoolFlag(False)
   parser.add_argument(
-      '--show-edition',
-      required=False,
-      help='Show the edition field.',
-      **kwargs
+      '--show-edition', required=False, help='Show the edition field.', **kwargs
   )
 
 
@@ -2545,8 +2542,8 @@ def AddEnablePrivateServiceConnect(
       '--enable-private-service-connect',
       required=False,
       help=(
-          'When the flag is set, a Cloud SQL instance will be created with '
-          'Private Service Connect enabled.'
+          'Enable connecting to the Cloud SQL instance with Private Service'
+          ' Connect.'
       ),
       hidden=hidden,
       **kwargs
@@ -2621,6 +2618,33 @@ def AddClearPscAutoConnections(parser, hidden=False):
           'This removes all connections created automatically. Cloud SQL'
           ' uses these connections to connect to an instance using Private'
           ' Service Connect.'
+      ),
+      hidden=hidden,
+      **kwargs
+  )
+
+
+def AddCustomSubjectAlternativeNames(parser, hidden=False):
+  parser.add_argument(
+      '--custom-subject-alternative-names',
+      type=arg_parsers.ArgList(min_length=1, max_length=3),
+      metavar='DNS',
+      required=False,
+      help=(
+          'A comma-separated list of customer specified DNS names.'
+      ),
+      hidden=hidden,
+      action=arg_parsers.FlattenAction(),
+  )
+
+
+def AddClearCustomSubjectAlternativeNames(parser, hidden=False):
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--clear-custom-subject-alternative-names',
+      required=False,
+      help=(
+          'This will clear the customer specified DNS names.'
       ),
       hidden=hidden,
       **kwargs
@@ -2707,7 +2731,9 @@ def AddReplicationLagMaxSecondsForRecreate(parser):
           'Set a maximum replication lag for a MySQL read replica in '
           'seconds. If the replica lag exceeds the specified value, the read'
           'replica(s) will be recreated. Min value=300 seconds,'
-          'Max value=31536000 seconds, default value=31536000 seconds.'))
+          'Max value=31536000 seconds, default value=31536000 seconds.'
+      ),
+  )
 
 
 def AddSslMode(parser, hidden=False):
@@ -2812,18 +2838,19 @@ def AddSwitchoverDbTimeout(parser):
       type=arg_parsers.Duration(lower_bound='1s', upper_bound='1d'),
       required=False,
       help=(
-          '(MySQL only) Cloud SQL instance operations timeout, which is the sum'
-          ' of all database operations. Default value is 10 minutes and can be'
-          ' modified to a maximum value of 24h.'
-      )
+          '(MySQL and PostgreSQL only) Cloud SQL instance operations timeout,'
+          ' which is the sum of all database operations. Default value is 10'
+          ' minutes and can be modified to a maximum value of 24h.'
+      ),
   )
 
 
-def AddServerCaMode(parser):
+def AddServerCaMode(parser, hidden=False):
   """Adds the '--server-ca-mode' flag to the parser.
 
   Args:
     parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
   """
   help_text = 'Set the server CA mode of the instance.'
   parser.add_argument(
@@ -2833,14 +2860,18 @@ def AddServerCaMode(parser):
               'Google-managed self-signed internal CA.'
           ),
           'GOOGLE_MANAGED_CAS_CA': (
-              "Google-managed regional CA part of root CA hierarchy hosted on"
+              'Google-managed regional CA part of root CA hierarchy hosted on'
               " Google Cloud's Certificate Authority Service (CAS)."
+          ),
+          'CUSTOMER_MANAGED_CAS_CA': (
+              "Customer-managed CA hosted on Google Cloud's Certificate"
+              ' Authority Service (CAS).'
           ),
       },
       required=False,
       default=None,
       help=help_text,
-      hidden=False,
+      hidden=hidden,
   )
 
 
@@ -2878,9 +2909,7 @@ def AddTdeFlags(parser):
   enc_group.add_argument(
       '--certificate',
       required=True,
-      help=(
-          'Name of the encryption certificate.'
-      ),
+      help='Name of the encryption certificate.',
   )
   enc_group.add_argument(
       '--cert-path',
@@ -2929,4 +2958,131 @@ def AddRetainBackupsOnDelete(parser):
           ' even after the instance is deleted.'
       ),
       action=arg_parsers.StoreTrueFalseAction,
+  )
+
+
+def AddEnableConnectionPooling(parser):
+  """Adds --enable-connection-pooling flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--enable-connection-pooling',
+      required=False,
+      hidden=True,
+      help='Enable connection pooling for the instance.',
+      action=arg_parsers.StoreTrueFalseAction,
+  )
+
+
+def AddConnectionPoolingPoolMode(parser):
+  """Adds --connection-pooling-pool-mode flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-pool-mode',
+      choices={
+          'SESSION': 'Session mode for managed connection pooling.',
+          'TRANSACTION': 'Transaction mode for managed connection pooling.',
+      },
+      required=False,
+      default=None,
+      help='The pool mode for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddConnectionPoolingPoolSize(parser):
+  """Adds --connection-pooling-pool-size flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-pool-size',
+      type=arg_parsers.BoundedInt(lower_bound=0, upper_bound=262042),
+      required=False,
+      default=None,
+      help='The pool size for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddConnectionPoolingMaxClientConnections(parser):
+  """Adds --connection-pooling-max-client-connections flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-max-client-connections',
+      type=arg_parsers.BoundedInt(lower_bound=1, upper_bound=262042),
+      required=False,
+      default=None,
+      help='The max client connections for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddConnectionPoolingClientIdleTimeout(parser):
+  """Adds --connection-pooling-client-idle-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-client-idle-timeout',
+      required=False,
+      default=None,
+      help='The client idle timeout for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddConnectionPoolingServerIdleTimeout(parser):
+  """Adds --connection-pooling-server-idle-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-server-idle-timeout',
+      required=False,
+      default=None,
+      help='The server idle timeout for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddConnectionPoolingQueryWaitTimeout(parser):
+  """Adds --connection-pooling-query-wait-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-query-wait-timeout',
+      required=False,
+      default=None,
+      help='The query wait timeout for managed connection pooling.',
+      hidden=True,
+  )
+
+
+def AddServerCaPool(parser):
+  """Adds the '--server-ca-pool' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  help_text = 'Set the server CA pool of the instance.'
+  parser.add_argument(
+      '--server-ca-pool',
+      required=False,
+      default=None,
+      help=help_text,
+      hidden=False,
   )

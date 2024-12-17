@@ -134,30 +134,6 @@ class ActiveDirectory(_messages.Message):
   username = _messages.StringField(22)
 
 
-class AssetLocation(_messages.Message):
-  r"""Provides the mapping of a cloud asset to a direct physical location or
-  to a proxy that defines the location on its behalf.
-
-  Fields:
-    ccfeRmsPath: Spanner path of the CCFE RMS database. It is only applicable
-      for CCFE tenants that use CCFE RMS for storing resource metadata.
-    expected: Defines the customer expectation around ZI/ZS for this asset and
-      ZI/ZS state of the region at the time of asset creation.
-    extraParameters: Defines extra parameters required for specific asset
-      types.
-    locationData: Contains all kinds of physical location definitions for this
-      asset.
-    parentAsset: Defines parents assets if any in order to allow later
-      generation of child_asset_location data via child assets.
-  """
-
-  ccfeRmsPath = _messages.StringField(1)
-  expected = _messages.MessageField('IsolationExpectations', 2)
-  extraParameters = _messages.MessageField('ExtraParameter', 3, repeated=True)
-  locationData = _messages.MessageField('LocationData', 4, repeated=True)
-  parentAsset = _messages.MessageField('CloudAsset', 5, repeated=True)
-
-
 class Backup(_messages.Message):
   r"""A NetApp Backup.
 
@@ -443,41 +419,8 @@ class BackupVault(_messages.Message):
   state = _messages.EnumField('StateValueValuesEnum', 5)
 
 
-class BlobstoreLocation(_messages.Message):
-  r"""Policy ID that identified data placement in Blobstore as per
-  go/blobstore-user-guide#data-metadata-placement-and-failure-domains
-
-  Fields:
-    policyId: A string attribute.
-  """
-
-  policyId = _messages.StringField(1, repeated=True)
-
-
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
-
-
-class CloudAsset(_messages.Message):
-  r"""A CloudAsset object.
-
-  Fields:
-    assetName: A string attribute.
-    assetType: A string attribute.
-  """
-
-  assetName = _messages.StringField(1)
-  assetType = _messages.StringField(2)
-
-
-class CloudAssetComposition(_messages.Message):
-  r"""A CloudAssetComposition object.
-
-  Fields:
-    childAsset: A CloudAsset attribute.
-  """
-
-  childAsset = _messages.MessageField('CloudAsset', 1, repeated=True)
 
 
 class DailySchedule(_messages.Message):
@@ -519,16 +462,6 @@ class DestinationVolumeParameters(_messages.Message):
   volumeId = _messages.StringField(5)
 
 
-class DirectLocationAssignment(_messages.Message):
-  r"""A DirectLocationAssignment object.
-
-  Fields:
-    location: A LocationAssignment attribute.
-  """
-
-  location = _messages.MessageField('LocationAssignment', 1, repeated=True)
-
-
 class EncryptVolumesRequest(_messages.Message):
   r"""EncryptVolumesRequest specifies the KMS config to encrypt existing
   volumes.
@@ -565,17 +498,6 @@ class ExportPolicy(_messages.Message):
   """
 
   rules = _messages.MessageField('SimpleExportPolicyRule', 1, repeated=True)
-
-
-class ExtraParameter(_messages.Message):
-  r"""Defines parameters that should only be used for specific asset types.
-
-  Fields:
-    regionalMigDistributionPolicy: Details about zones used by regional
-      compute.googleapis.com/InstanceGroupManager to create instances.
-  """
-
-  regionalMigDistributionPolicy = _messages.MessageField('RegionalMigDistributionPolicy', 1)
 
 
 class GoogleProtobufEmpty(_messages.Message):
@@ -677,156 +599,6 @@ class HybridReplicationParameters(_messages.Message):
   peerSvmName = _messages.StringField(6)
   peerVolumeName = _messages.StringField(7)
   replication = _messages.StringField(8)
-
-
-class IsolationExpectations(_messages.Message):
-  r"""A IsolationExpectations object.
-
-  Enums:
-    ZiOrgPolicyValueValuesEnum:
-    ZiRegionPolicyValueValuesEnum:
-    ZiRegionStateValueValuesEnum:
-    ZoneIsolationValueValuesEnum: Deprecated: use zi_org_policy,
-      zi_region_policy and zi_region_state instead for setting ZI expectations
-      as per go/zicy-publish-physical-location.
-    ZoneSeparationValueValuesEnum: Deprecated: use zs_org_policy, and
-      zs_region_stateinstead for setting Zs expectations as per go/zicy-
-      publish-physical-location.
-    ZsOrgPolicyValueValuesEnum:
-    ZsRegionStateValueValuesEnum:
-
-  Fields:
-    requirementOverride: Explicit overrides for ZI and ZS requirements to be
-      used for resources that should be excluded from ZI/ZS verification
-      logic.
-    ziOrgPolicy: A ZiOrgPolicyValueValuesEnum attribute.
-    ziRegionPolicy: A ZiRegionPolicyValueValuesEnum attribute.
-    ziRegionState: A ZiRegionStateValueValuesEnum attribute.
-    zoneIsolation: Deprecated: use zi_org_policy, zi_region_policy and
-      zi_region_state instead for setting ZI expectations as per go/zicy-
-      publish-physical-location.
-    zoneSeparation: Deprecated: use zs_org_policy, and zs_region_stateinstead
-      for setting Zs expectations as per go/zicy-publish-physical-location.
-    zsOrgPolicy: A ZsOrgPolicyValueValuesEnum attribute.
-    zsRegionState: A ZsRegionStateValueValuesEnum attribute.
-  """
-
-  class ZiOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZiRegionPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiRegionPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_POLICY_UNSPECIFIED: <no description>
-      ZI_REGION_POLICY_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_POLICY_NOT_SET: <no description>
-      ZI_REGION_POLICY_FAIL_OPEN: <no description>
-      ZI_REGION_POLICY_FAIL_CLOSED: <no description>
-    """
-    ZI_REGION_POLICY_UNSPECIFIED = 0
-    ZI_REGION_POLICY_UNKNOWN = 1
-    ZI_REGION_POLICY_NOT_SET = 2
-    ZI_REGION_POLICY_FAIL_OPEN = 3
-    ZI_REGION_POLICY_FAIL_CLOSED = 4
-
-  class ZiRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZiRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_UNSPECIFIED: <no description>
-      ZI_REGION_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_NOT_ENABLED: <no description>
-      ZI_REGION_ENABLED: <no description>
-    """
-    ZI_REGION_UNSPECIFIED = 0
-    ZI_REGION_UNKNOWN = 1
-    ZI_REGION_NOT_ENABLED = 2
-    ZI_REGION_ENABLED = 3
-
-  class ZoneIsolationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zi_org_policy, zi_region_policy and zi_region_state
-    instead for setting ZI expectations as per go/zicy-publish-physical-
-    location.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZoneSeparationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zs_org_policy, and zs_region_stateinstead for setting
-    Zs expectations as per go/zicy-publish-physical-location.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZsOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZsRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZS_REGION_UNSPECIFIED: <no description>
-      ZS_REGION_UNKNOWN: To be used if tracking of the asset ZS-bit is not
-        available
-      ZS_REGION_NOT_ENABLED: <no description>
-      ZS_REGION_ENABLED: <no description>
-    """
-    ZS_REGION_UNSPECIFIED = 0
-    ZS_REGION_UNKNOWN = 1
-    ZS_REGION_NOT_ENABLED = 2
-    ZS_REGION_ENABLED = 3
-
-  requirementOverride = _messages.MessageField('RequirementOverride', 1)
-  ziOrgPolicy = _messages.EnumField('ZiOrgPolicyValueValuesEnum', 2)
-  ziRegionPolicy = _messages.EnumField('ZiRegionPolicyValueValuesEnum', 3)
-  ziRegionState = _messages.EnumField('ZiRegionStateValueValuesEnum', 4)
-  zoneIsolation = _messages.EnumField('ZoneIsolationValueValuesEnum', 5)
-  zoneSeparation = _messages.EnumField('ZoneSeparationValueValuesEnum', 6)
-  zsOrgPolicy = _messages.EnumField('ZsOrgPolicyValueValuesEnum', 7)
-  zsRegionState = _messages.EnumField('ZsRegionStateValueValuesEnum', 8)
 
 
 class KmsConfig(_messages.Message):
@@ -1025,6 +797,21 @@ class ListOperationsResponse(_messages.Message):
   operations = _messages.MessageField('Operation', 2, repeated=True)
 
 
+class ListQuotaRulesResponse(_messages.Message):
+  r"""ListQuotaRulesResponse is the response to a ListQuotaRulesRequest.
+
+  Fields:
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    quotaRules: List of quota rules
+    unreachable: Locations that could not be reached.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  quotaRules = _messages.MessageField('QuotaRule', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
 class ListReplicationsResponse(_messages.Message):
   r"""ListReplicationsResponse is the result of ListReplicationsRequest.
 
@@ -1166,65 +953,6 @@ class Location(_messages.Message):
   name = _messages.StringField(5)
 
 
-class LocationAssignment(_messages.Message):
-  r"""A LocationAssignment object.
-
-  Enums:
-    LocationTypeValueValuesEnum:
-
-  Fields:
-    location: A string attribute.
-    locationType: A LocationTypeValueValuesEnum attribute.
-  """
-
-  class LocationTypeValueValuesEnum(_messages.Enum):
-    r"""LocationTypeValueValuesEnum enum type.
-
-    Values:
-      UNSPECIFIED: <no description>
-      CLUSTER: 1-10: Physical failure domains.
-      POP: <no description>
-      CLOUD_ZONE: 11-20: Logical failure domains.
-      CLOUD_REGION: <no description>
-      MULTI_REGION_GEO: <no description>
-      MULTI_REGION_JURISDICTION: <no description>
-      GLOBAL: <no description>
-      OTHER: <no description>
-    """
-    UNSPECIFIED = 0
-    CLUSTER = 1
-    POP = 2
-    CLOUD_ZONE = 3
-    CLOUD_REGION = 4
-    MULTI_REGION_GEO = 5
-    MULTI_REGION_JURISDICTION = 6
-    GLOBAL = 7
-    OTHER = 8
-
-  location = _messages.StringField(1)
-  locationType = _messages.EnumField('LocationTypeValueValuesEnum', 2)
-
-
-class LocationData(_messages.Message):
-  r"""A LocationData object.
-
-  Fields:
-    blobstoreLocation: A BlobstoreLocation attribute.
-    childAssetLocation: A CloudAssetComposition attribute.
-    directLocation: A DirectLocationAssignment attribute.
-    gcpProjectProxy: A TenantProjectProxy attribute.
-    placerLocation: A PlacerLocation attribute.
-    spannerLocation: A SpannerLocation attribute.
-  """
-
-  blobstoreLocation = _messages.MessageField('BlobstoreLocation', 1)
-  childAssetLocation = _messages.MessageField('CloudAssetComposition', 2)
-  directLocation = _messages.MessageField('DirectLocationAssignment', 3)
-  gcpProjectProxy = _messages.MessageField('TenantProjectProxy', 4)
-  placerLocation = _messages.MessageField('PlacerLocation', 5)
-  spannerLocation = _messages.MessageField('SpannerLocation', 6)
-
-
 class LocationMetadata(_messages.Message):
   r"""Metadata for a given google.cloud.location.Location.
 
@@ -1284,6 +1012,7 @@ class MountOption(_messages.Message):
     export: Export string
     exportFull: Full export string
     instructions: Instructions for mounting
+    ipAddress: Output only. IP Address.
     protocol: Protocol to mount with.
   """
 
@@ -1304,7 +1033,8 @@ class MountOption(_messages.Message):
   export = _messages.StringField(1)
   exportFull = _messages.StringField(2)
   instructions = _messages.StringField(3)
-  protocol = _messages.EnumField('ProtocolValueValuesEnum', 4)
+  ipAddress = _messages.StringField(4)
+  protocol = _messages.EnumField('ProtocolValueValuesEnum', 5)
 
 
 class NetappProjectsLocationsActiveDirectoriesCreateRequest(_messages.Message):
@@ -1995,6 +1725,84 @@ class NetappProjectsLocationsVolumesPatchRequest(_messages.Message):
   volume = _messages.MessageField('Volume', 3)
 
 
+class NetappProjectsLocationsVolumesQuotaRulesCreateRequest(_messages.Message):
+  r"""A NetappProjectsLocationsVolumesQuotaRulesCreateRequest object.
+
+  Fields:
+    parent: Required. Parent value for CreateQuotaRuleRequest
+    quotaRule: A QuotaRule resource to be passed as the request body.
+    quotaRuleId: Required. ID of the quota rule to create. Must be unique
+      within the parent resource. Must contain only letters, numbers,
+      underscore and hyphen, with the first character a letter or underscore,
+      the last a letter or underscore or a number, and a 63 character maximum.
+  """
+
+  parent = _messages.StringField(1, required=True)
+  quotaRule = _messages.MessageField('QuotaRule', 2)
+  quotaRuleId = _messages.StringField(3)
+
+
+class NetappProjectsLocationsVolumesQuotaRulesDeleteRequest(_messages.Message):
+  r"""A NetappProjectsLocationsVolumesQuotaRulesDeleteRequest object.
+
+  Fields:
+    name: Required. Name of the quota rule.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetappProjectsLocationsVolumesQuotaRulesGetRequest(_messages.Message):
+  r"""A NetappProjectsLocationsVolumesQuotaRulesGetRequest object.
+
+  Fields:
+    name: Required. Name of the quota rule
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetappProjectsLocationsVolumesQuotaRulesListRequest(_messages.Message):
+  r"""A NetappProjectsLocationsVolumesQuotaRulesListRequest object.
+
+  Fields:
+    filter: Optional. Filtering results
+    orderBy: Optional. Hint for how to order the results
+    pageSize: Optional. Requested page size. Server may return fewer items
+      than requested. If unspecified, the server will pick an appropriate
+      default.
+    pageToken: Optional. A token identifying a page of results the server
+      should return.
+    parent: Required. Parent value for ListQuotaRulesRequest
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetappProjectsLocationsVolumesQuotaRulesPatchRequest(_messages.Message):
+  r"""A NetappProjectsLocationsVolumesQuotaRulesPatchRequest object.
+
+  Fields:
+    name: Identifier. The resource name of the active directory. Format: `proj
+      ects/{project_number}/locations/{location_id}/quotaRules/{quota_rule_id}
+      `.
+    quotaRule: A QuotaRule resource to be passed as the request body.
+    updateMask: Optional. Field mask is used to specify the fields to be
+      overwritten in the Quota Rule resource by the update. The fields
+      specified in the update_mask are relative to the resource, not the full
+      request. A field will be overwritten if it is in the mask. If the user
+      does not provide a mask then all fields will be overwritten.
+  """
+
+  name = _messages.StringField(1, required=True)
+  quotaRule = _messages.MessageField('QuotaRule', 2)
+  updateMask = _messages.StringField(3)
+
+
 class NetappProjectsLocationsVolumesReplicationsCreateRequest(_messages.Message):
   r"""A NetappProjectsLocationsVolumesReplicationsCreateRequest object.
 
@@ -2380,30 +2188,100 @@ class OperationMetadata(_messages.Message):
   verb = _messages.StringField(7)
 
 
-class PlacerLocation(_messages.Message):
-  r"""Message describing that the location of the customer resource is tied to
-  placer allocations
+class QuotaRule(_messages.Message):
+  r"""QuotaRule specifies the maximum disk space a user or group can use
+  within a volume. They can be used for creating default and individual quota
+  rules.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the quota rule
+    TypeValueValuesEnum: Required. The type of quota rule.
+
+  Messages:
+    LabelsValue: Optional. Labels of the quota rule
 
   Fields:
-    placerConfig: Directory with a config related to it in placer (e.g.
-      "/placer/prod/home/my-root/my-dir")
+    createTime: Output only. Create time of the quota rule
+    description: Optional. Description of the quota rule
+    diskLimitMib: Required. The maximum allowed disk space in MiB.
+    labels: Optional. Labels of the quota rule
+    name: Identifier. The resource name of the active directory. Format: `proj
+      ects/{project_number}/locations/{location_id}/quotaRules/{quota_rule_id}
+      `.
+    state: Output only. State of the quota rule
+    stateDetails: Output only. State details of the quota rule
+    target: Optional. The quota rule applies to the specified user or group,
+      identified by a Unix UID/GID, Windows SID, or null for default.
+    type: Required. The type of quota rule.
   """
 
-  placerConfig = _messages.StringField(1)
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the quota rule
 
+    Values:
+      STATE_UNSPECIFIED: Unspecified state for quota rule
+      CREATING: Quota rule is creating
+      UPDATING: Quota rule is updating
+      DELETING: Quota rule is deleting
+      READY: Quota rule is ready
+      ERROR: Quota rule is in error state.
+    """
+    STATE_UNSPECIFIED = 0
+    CREATING = 1
+    UPDATING = 2
+    DELETING = 3
+    READY = 4
+    ERROR = 5
 
-class RegionalMigDistributionPolicy(_messages.Message):
-  r"""To be used for specifying the intended distribution of regional
-  compute.googleapis.com/InstanceGroupManager instances
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""Required. The type of quota rule.
 
-  Fields:
-    targetShape: The shape in which the group converges around distribution of
-      resources. Instance of proto2 enum
-    zones: Cloud zones used by regional MIG to create instances.
-  """
+    Values:
+      TYPE_UNSPECIFIED: Unspecified type for quota rule
+      INDIVIDUAL_USER_QUOTA: Individual user quota rule
+      INDIVIDUAL_GROUP_QUOTA: Individual group quota rule
+      DEFAULT_USER_QUOTA: Default user quota rule
+      DEFAULT_GROUP_QUOTA: Default group quota rule
+    """
+    TYPE_UNSPECIFIED = 0
+    INDIVIDUAL_USER_QUOTA = 1
+    INDIVIDUAL_GROUP_QUOTA = 2
+    DEFAULT_USER_QUOTA = 3
+    DEFAULT_GROUP_QUOTA = 4
 
-  targetShape = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  zones = _messages.MessageField('ZoneConfiguration', 2, repeated=True)
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels of the quota rule
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  diskLimitMib = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  labels = _messages.MessageField('LabelsValue', 4)
+  name = _messages.StringField(5)
+  state = _messages.EnumField('StateValueValuesEnum', 6)
+  stateDetails = _messages.StringField(7)
+  target = _messages.StringField(8)
+  type = _messages.EnumField('TypeValueValuesEnum', 9)
 
 
 class Replication(_messages.Message):
@@ -2578,52 +2456,6 @@ class Replication(_messages.Message):
   state = _messages.EnumField('StateValueValuesEnum', 15)
   stateDetails = _messages.StringField(16)
   transferStats = _messages.MessageField('TransferStats', 17)
-
-
-class RequirementOverride(_messages.Message):
-  r"""A RequirementOverride object.
-
-  Enums:
-    ZiOverrideValueValuesEnum:
-    ZsOverrideValueValuesEnum:
-
-  Fields:
-    ziOverride: A ZiOverrideValueValuesEnum attribute.
-    zsOverride: A ZsOverrideValueValuesEnum attribute.
-  """
-
-  class ZiOverrideValueValuesEnum(_messages.Enum):
-    r"""ZiOverrideValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZsOverrideValueValuesEnum(_messages.Enum):
-    r"""ZsOverrideValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  ziOverride = _messages.EnumField('ZiOverrideValueValuesEnum', 1)
-  zsOverride = _messages.EnumField('ZsOverrideValueValuesEnum', 2)
 
 
 class RestoreParameters(_messages.Message):
@@ -2818,20 +2650,6 @@ class SnapshotPolicy(_messages.Message):
   hourlySchedule = _messages.MessageField('HourlySchedule', 3)
   monthlySchedule = _messages.MessageField('MonthlySchedule', 4)
   weeklySchedule = _messages.MessageField('WeeklySchedule', 5)
-
-
-class SpannerLocation(_messages.Message):
-  r"""A SpannerLocation object.
-
-  Fields:
-    backupName: Set of backups used by the resource with name in the same
-      format as what is available at
-      http://table/spanner_automon.backup_metadata
-    dbName: Set of databases used by the resource in format /span//
-  """
-
-  backupName = _messages.StringField(1, repeated=True)
-  dbName = _messages.StringField(2, repeated=True)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -3122,16 +2940,6 @@ class SyncReplicationRequest(_messages.Message):
   r"""SyncReplicationRequest syncs the replication from source to destination.
   """
 
-
-
-class TenantProjectProxy(_messages.Message):
-  r"""A TenantProjectProxy object.
-
-  Fields:
-    projectNumbers: A string attribute.
-  """
-
-  projectNumbers = _messages.StringField(1, repeated=True)
 
 
 class TieringPolicy(_messages.Message):
@@ -3524,16 +3332,6 @@ class WeeklySchedule(_messages.Message):
   hour = _messages.FloatField(2)
   minute = _messages.FloatField(3)
   snapshotsToKeep = _messages.FloatField(4)
-
-
-class ZoneConfiguration(_messages.Message):
-  r"""A ZoneConfiguration object.
-
-  Fields:
-    zone: A string attribute.
-  """
-
-  zone = _messages.StringField(1)
 
 
 encoding.AddCustomJsonFieldMapping(

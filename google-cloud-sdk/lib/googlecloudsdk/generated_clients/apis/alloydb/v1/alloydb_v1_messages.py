@@ -252,6 +252,19 @@ class AlloydbProjectsLocationsClustersDeleteRequest(_messages.Message):
   validateOnly = _messages.BooleanField(5)
 
 
+class AlloydbProjectsLocationsClustersExportRequest(_messages.Message):
+  r"""A AlloydbProjectsLocationsClustersExportRequest object.
+
+  Fields:
+    exportClusterRequest: A ExportClusterRequest resource to be passed as the
+      request body.
+    name: Required. The resource name of the cluster.
+  """
+
+  exportClusterRequest = _messages.MessageField('ExportClusterRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
 class AlloydbProjectsLocationsClustersGetRequest(_messages.Message):
   r"""A AlloydbProjectsLocationsClustersGetRequest object.
 
@@ -1748,6 +1761,30 @@ class ContinuousBackupSource(_messages.Message):
   pointInTime = _messages.StringField(2)
 
 
+class CsvExportOptions(_messages.Message):
+  r"""Options for exporting data in CSV format. For now, we only support a
+  query to get the data that needs to be exported.
+
+  Fields:
+    escapeCharacter: Optional. Specifies the character that should appear
+      before a data character that needs to be escaped. The default is the
+      same as quote character. The value of this argument has to be a
+      character in Hex ASCII Code.
+    fieldDelimiter: Optional. Specifies the character that separates columns
+      within each row (line) of the file. The default is comma. The value of
+      this argument has to be a character in Hex ASCII Code.
+    quoteCharacter: Optional. Specifies the quoting character to be used when
+      a data value is quoted. The default is double-quote. The value of this
+      argument has to be a character in Hex ASCII Code.
+    selectQuery: Required. The select_query used to extract the data.
+  """
+
+  escapeCharacter = _messages.StringField(1)
+  fieldDelimiter = _messages.StringField(2)
+  quoteCharacter = _messages.StringField(3)
+  selectQuery = _messages.StringField(4)
+
+
 class Empty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
@@ -1803,6 +1840,36 @@ class EncryptionInfo(_messages.Message):
   kmsKeyVersions = _messages.StringField(2, repeated=True)
 
 
+class ExportClusterRequest(_messages.Message):
+  r"""Export cluster request.
+
+  Fields:
+    csvExportOptions: Options for exporting data in CSV format. Required field
+      to be set for CSV file type.
+    database: Required. Name of the database where the query will be executed.
+      Note - Value provided should be the same as expected from `SELECT
+      current_database();` and NOT as a resource reference.
+    gcsDestination: Required. Option to export data to cloud storage.
+    sqlExportOptions: Options for exporting data in SQL format. Required field
+      to be set for SQL file type.
+  """
+
+  csvExportOptions = _messages.MessageField('CsvExportOptions', 1)
+  database = _messages.StringField(2)
+  gcsDestination = _messages.MessageField('GcsDestination', 3)
+  sqlExportOptions = _messages.MessageField('SqlExportOptions', 4)
+
+
+class ExportClusterResponse(_messages.Message):
+  r"""Response of export cluster rpc.
+
+  Fields:
+    gcsDestination: Required. Option to export data to cloud storage.
+  """
+
+  gcsDestination = _messages.MessageField('GcsDestination', 1)
+
+
 class FailoverInstanceRequest(_messages.Message):
   r"""Message for triggering failover on an Instance
 
@@ -1825,6 +1892,19 @@ class FailoverInstanceRequest(_messages.Message):
 
   requestId = _messages.StringField(1)
   validateOnly = _messages.BooleanField(2)
+
+
+class GcsDestination(_messages.Message):
+  r"""Destination for Export. Export will be done to cloud storage.
+
+  Fields:
+    uri: Required. The path to the file in Google Cloud Storage where the
+      export will be stored. The URI is in the form
+      `gs://bucketName/fileName`. If the file already exists, the request
+      succeeds, but the operation fails.
+  """
+
+  uri = _messages.StringField(1)
 
 
 class GoogleCloudLocationListLocationsResponse(_messages.Message):
@@ -2003,11 +2083,13 @@ class Instance(_messages.Message):
     AnnotationsValue: Annotations to allow client tools to store small amount
       of arbitrary data. This is distinct from labels.
       https://google.aip.dev/128
-    DatabaseFlagsValue: Database flags. Set at instance level. * They are
-      copied from primary instance on read instance creation. * Read instances
-      can set new or override existing flags that are relevant for reads, e.g.
-      for enabling columnar cache on a read instance. Flags set on read
-      instance may or may not be present on primary. This is a list of "key":
+    DatabaseFlagsValue: Database flags. Set at the instance level. They are
+      copied from the primary instance on secondary instance creation. Flags
+      that have restrictions default to the value at primary instance on read
+      instances during creation. Read instances can set new flags or override
+      existing flags that are relevant for reads, for example, for enabling
+      columnar cache on a read instance. Flags set on read instance might or
+      might not be present on the primary instance. This is a list of "key":
       "value" pairs. "key": The name of the flag. These flags are passed at
       instance setup time, so include both server options and system variables
       for Postgres. Flags are specified with underscores, not hyphens.
@@ -2027,16 +2109,19 @@ class Instance(_messages.Message):
     clientConnectionConfig: Optional. Client connection specific
       configurations
     createTime: Output only. Create time stamp
-    databaseFlags: Database flags. Set at instance level. * They are copied
-      from primary instance on read instance creation. * Read instances can
-      set new or override existing flags that are relevant for reads, e.g. for
-      enabling columnar cache on a read instance. Flags set on read instance
-      may or may not be present on primary. This is a list of "key": "value"
-      pairs. "key": The name of the flag. These flags are passed at instance
-      setup time, so include both server options and system variables for
-      Postgres. Flags are specified with underscores, not hyphens. "value":
-      The value of the flag. Booleans are set to **on** for true and **off**
-      for false. This field must be omitted if the flag doesn't take a value.
+    databaseFlags: Database flags. Set at the instance level. They are copied
+      from the primary instance on secondary instance creation. Flags that
+      have restrictions default to the value at primary instance on read
+      instances during creation. Read instances can set new flags or override
+      existing flags that are relevant for reads, for example, for enabling
+      columnar cache on a read instance. Flags set on read instance might or
+      might not be present on the primary instance. This is a list of "key":
+      "value" pairs. "key": The name of the flag. These flags are passed at
+      instance setup time, so include both server options and system variables
+      for Postgres. Flags are specified with underscores, not hyphens.
+      "value": The value of the flag. Booleans are set to **on** for true and
+      **off** for false. This field must be omitted if the flag doesn't take a
+      value.
     deleteTime: Output only. Delete time stamp
     displayName: User-settable and human-readable display name for the
       Instance.
@@ -2185,16 +2270,18 @@ class Instance(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class DatabaseFlagsValue(_messages.Message):
-    r"""Database flags. Set at instance level. * They are copied from primary
-    instance on read instance creation. * Read instances can set new or
-    override existing flags that are relevant for reads, e.g. for enabling
-    columnar cache on a read instance. Flags set on read instance may or may
-    not be present on primary. This is a list of "key": "value" pairs. "key":
-    The name of the flag. These flags are passed at instance setup time, so
-    include both server options and system variables for Postgres. Flags are
-    specified with underscores, not hyphens. "value": The value of the flag.
-    Booleans are set to **on** for true and **off** for false. This field must
-    be omitted if the flag doesn't take a value.
+    r"""Database flags. Set at the instance level. They are copied from the
+    primary instance on secondary instance creation. Flags that have
+    restrictions default to the value at primary instance on read instances
+    during creation. Read instances can set new flags or override existing
+    flags that are relevant for reads, for example, for enabling columnar
+    cache on a read instance. Flags set on read instance might or might not be
+    present on the primary instance. This is a list of "key": "value" pairs.
+    "key": The name of the flag. These flags are passed at instance setup
+    time, so include both server options and system variables for Postgres.
+    Flags are specified with underscores, not hyphens. "value": The value of
+    the flag. Booleans are set to **on** for true and **off** for false. This
+    field must be omitted if the flag doesn't take a value.
 
     Messages:
       AdditionalProperty: An additional property for a DatabaseFlagsValue
@@ -2708,8 +2795,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -2933,6 +3021,26 @@ class SecondaryConfig(_messages.Message):
   """
 
   primaryClusterName = _messages.StringField(1)
+
+
+class SqlExportOptions(_messages.Message):
+  r"""Options for exporting data in SQL format.
+
+  Fields:
+    cleanTargetObjects: Optional. If true, output commands to DROP all the
+      dumped database objects prior to outputting the commands for creating
+      them.
+    ifExistTargetObjects: Optional. If true, use DROP ... IF EXISTS commands
+      to check for the object's existence before dropping it in
+      clean_target_objects mode.
+    schemaOnly: Optional. If true, only export the schema.
+    tables: Optional. Tables to export from.
+  """
+
+  cleanTargetObjects = _messages.BooleanField(1)
+  ifExistTargetObjects = _messages.BooleanField(2)
+  schemaOnly = _messages.BooleanField(3)
+  tables = _messages.StringField(4, repeated=True)
 
 
 class SslConfig(_messages.Message):

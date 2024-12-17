@@ -115,13 +115,9 @@ _CONTAINER_NAME_TYPE = arg_parsers.RegexpValidator(
     ' less than 64 characters.',
 )
 
-_SCALING_MODES = {
-    'automatic': (
-        'The number of instances is scaled automatically based on the usage'
-        ' metrics.'
-    ),
-    'manual': 'The number of instances is fixed to a provided config value.',
-}
+_SCALING_MODE_AUTOMATIC = 'automatic'
+
+_SCALING_MODE_MANUAL = 'manual'
 
 
 def _StripKeys(d):
@@ -204,9 +200,20 @@ def AddAllowUnauthenticatedFlag(parser):
   )
 
 
-def AddAsyncFlag(
-    parser, default_async_for_cluster=False
-):
+def AddAllowUnencryptedBuildFlag(parser):
+  """Add the --allow-unencrypted-build flag."""
+  parser.add_argument(
+      '--allow-unencrypted-build',
+      action=arg_parsers.StoreTrueFalseAction,
+      help=(
+          'Whether to allow customer-managed encryption key (CMEK) deployments'
+          ' without encrypting the build process. This means that only the'
+          ' deployed container will be encrypted.'
+      ),
+  )
+
+
+def AddAsyncFlag(parser, default_async_for_cluster=False):
   """Add an async flag."""
   help_text = """\
     Return immediately, without waiting for the operation in progress to
@@ -907,9 +914,9 @@ def AddMutexEnvVarsFlagsForCreate(parser):
   )
 
 
-def AddOverrideEnvVarsFlag(parser):
-  """Add the --update-env-vars flag."""
-  parser.add_argument(
+def OverrideEnvVarsFlag():
+  """Creates a flag for overrding container's evn vars args."""
+  return base.Argument(
       '--update-env-vars',
       metavar='KEY=VALUE',
       action=arg_parsers.UpdateAction,
@@ -926,6 +933,11 @@ def AddOverrideEnvVarsFlag(parser):
           ' are used.'
       ),
   )
+
+
+def AddOverrideEnvVarsFlag(parser):
+  """Add the --update-env-vars flag."""
+  OverrideEnvVarsFlag().AddToParser(parser)
 
 
 def MemoryFlag():
@@ -1363,6 +1375,31 @@ class _ScaleValue:
         )
 
 
+class ScalingValue:
+  """Type for --scaling flag values.
+
+  Input values could be either 'auto' for automatic scaling or integer to
+  support manual scaling mode with the integer value as instance count.
+  """
+
+  def __init__(self, value):
+    self.auto_scaling = value == 'auto'
+    if not self.auto_scaling:
+      try:
+        self.instance_count = int(value)
+      except (TypeError, ValueError):
+        raise serverless_exceptions.ArgumentError(
+            "Input value '%s' for --scaling flag is not an integer nor 'auto'."
+            % value
+        )
+
+      if self.instance_count < 0:
+        raise serverless_exceptions.ArgumentError(
+            "Input value '%s' for --scaling flag should be a positive integer"
+            " or 'auto'." % value
+        )
+
+
 def AddMinInstancesFlag(parser, resource_kind='service'):
   """Add min scaling flag."""
   help_text = (
@@ -1385,8 +1422,19 @@ def AddMinInstancesFlag(parser, resource_kind='service'):
 def AddServiceMinInstancesFlag(parser):
   """Add service-level min scaling flag."""
   parser.add_argument(
+      '--min',
+      type=_ScaleValue,
+      help=(
+          'The minimum number of container instances for this Service to run '
+          "or 'default' to remove any minimum. These instances will be divided "
+          'among all Revisions receiving a percentage of traffic.'
+      ),
+  )
+
+  parser.add_argument(
       '--service-min-instances',
       type=_ScaleValue,
+      hidden=True,
       help=(
           'The minimum number of container instances for this Service to run '
           "or 'default' to remove any minimum. These instances will be divided "
@@ -1398,8 +1446,20 @@ def AddServiceMinInstancesFlag(parser):
 def AddServiceMaxInstancesFlag(parser):
   """Add service-level max scaling flag."""
   parser.add_argument(
+      '--max',
+      type=_ScaleValue,
+      help=(
+          'The maximum number of container instances for this Service to run. '
+          'This instance limit will be divided among all Revisions receiving a '
+          'percentage of traffic. Once service-max-instances is enabled for a '
+          'service, it cannot be disabled.'
+      ),
+  )
+
+  parser.add_argument(
       '--service-max-instances',
       type=_ScaleValue,
+      hidden=True,
       help=(
           'The maximum number of container instances for this Service to run. '
           'This instance limit will be divided among all Revisions receiving a '
@@ -1504,12 +1564,17 @@ def AddMaxUnavailableFlag(parser, resource_kind='service'):
   )
 
 
-def AddScalingModeFlag(parser):
-  """Add scaling mode flag."""
+def AddScalingFlag(parser):
+  """Add scaling flag."""
   parser.add_argument(
       '--scaling',
-      choices=_SCALING_MODES,
-      help='The scaling mode to use for this resource.',
+      type=ScalingValue,
+      help=(
+          'The scaling mode to use for this resource. Flag value could be'
+          ' either "auto" for automatic scaling, or a positive integer to'
+          ' configure manual scaling with the given integer as a fixed instance'
+          ' count.'
+      ),
   )
 
 
@@ -2038,7 +2103,7 @@ def AddRuntimeFlag(parser):
   )
 
 
-def _HasChanges(args, flags):
+def HasChanges(args, flags):
   """True iff any of the passed flags are set."""
   return any(FlagIsExplicitlySet(args, flag) for flag in flags)
 
@@ -2052,7 +2117,7 @@ def _HasEnvChanges(args):
       'clear_env_vars',
       'env_vars_file',
   ]
-  return _HasChanges(args, env_flags)
+  return HasChanges(args, env_flags)
 
 
 def _HasCloudSQLChanges(args):
@@ -2063,7 +2128,7 @@ def _HasCloudSQLChanges(args):
       'remove_cloudsql_instances',
       'clear_cloudsql_instances',
   ]
-  return _HasChanges(args, instances_flags)
+  return HasChanges(args, instances_flags)
 
 
 def _EnabledCloudSqlApiRequired(args):
@@ -2072,13 +2137,13 @@ def _EnabledCloudSqlApiRequired(args):
       'add_cloudsql_instances',
       'set_cloudsql_instances',
   )
-  return _HasChanges(args, instances_flags)
+  return HasChanges(args, instances_flags)
 
 
 def _HasLabelChanges(args):
   """True iff any of the label flags are set."""
   label_flags = ['labels', 'update_labels', 'clear_labels', 'remove_labels']
-  return _HasChanges(args, label_flags)
+  return HasChanges(args, label_flags)
 
 
 def _HasSecretsChanges(args):
@@ -2089,7 +2154,7 @@ def _HasSecretsChanges(args):
       'remove_secrets',
       'clear_secrets',
   ]
-  return _HasChanges(args, secret_flags)
+  return HasChanges(args, secret_flags)
 
 
 def _HasConfigMapsChanges(args):
@@ -2100,25 +2165,25 @@ def _HasConfigMapsChanges(args):
       'remove_config_maps',
       'clear_config_maps',
   ]
-  return _HasChanges(args, config_maps_flags)
+  return HasChanges(args, config_maps_flags)
 
 
 def _HasTrafficTagsChanges(args):
   """True iff any of the traffic tags flags are set."""
   tags_flags = ['update_tags', 'set_tags', 'remove_tags', 'clear_tags']
-  return _HasChanges(args, tags_flags)
+  return HasChanges(args, tags_flags)
 
 
 def _HasTrafficChanges(args):
   """True iff any of the traffic flags are set."""
   traffic_flags = ['to_revisions', 'to_tags', 'to_latest']
-  return _HasChanges(args, traffic_flags) or _HasTrafficTagsChanges(args)
+  return HasChanges(args, traffic_flags) or _HasTrafficTagsChanges(args)
 
 
 def _HasInstanceSplitChanges(args):
   """True iff any of the instance split flags are set."""
   traffic_flags = ['to_revisions', 'to_latest']
-  return _HasChanges(args, traffic_flags)
+  return HasChanges(args, traffic_flags)
 
 
 def _HasCustomAudiencesChanges(args):
@@ -2129,7 +2194,7 @@ def _HasCustomAudiencesChanges(args):
       'remove_custom_audiences',
       'clear_custom_audiences',
   ]
-  return _HasChanges(args, instances_flags)
+  return HasChanges(args, instances_flags)
 
 
 def HasExecutionOverrides(args):
@@ -2139,15 +2204,23 @@ def HasExecutionOverrides(args):
       'task_timeout',
       'tasks',
   ]
-  return _HasChanges(args, overrides_flags)
+  return HasChanges(args, overrides_flags) or FlagIsExplicitlySet(
+      args, 'containers'
+  )
 
 
 def HasContainerOverrides(args):
+  return HasTopLevelContainerOverride(args) or FlagIsExplicitlySet(
+      args, 'containers'
+  )
+
+
+def HasTopLevelContainerOverride(args):
   overrides_flags = [
       'args',
       'update_env_vars',
   ]
-  return _HasChanges(args, overrides_flags)
+  return HasChanges(args, overrides_flags)
 
 
 def _GetEnvChanges(args, **kwargs):
@@ -2204,9 +2277,10 @@ def _GetScalingChanges(args):
 def _GetServiceScalingChanges(args):
   """Return the changes for service-level scaling for the given args."""
   result = []
-  if 'service_min_instances' in args and args.service_min_instances is not None:
-    scale_value = args.service_min_instances
-    if scale_value.restore_default or scale_value.instance_count == 0:
+  min_scale_value = (getattr(args, 'service_min_instances', None)
+                     or getattr(args, 'min', None))
+  if min_scale_value is not None:
+    if min_scale_value.restore_default or min_scale_value.instance_count == 0:
       result.append(
           config_changes.DeleteAnnotationChange(
               service.SERVICE_MIN_SCALE_ANNOTATION
@@ -2216,14 +2290,23 @@ def _GetServiceScalingChanges(args):
       result.append(
           config_changes.SetAnnotationChange(
               service.SERVICE_MIN_SCALE_ANNOTATION,
-              str(scale_value.instance_count),
+              str(min_scale_value.instance_count),
           )
       )
-  if 'service_max_instances' in args and args.service_max_instances is not None:
+
+  max_scale_value = (getattr(args, 'service_max_instances', None)
+                     or getattr(args, 'max', None))
+  if max_scale_value is not None:
+    if getattr(args, 'scaling', None) and not args.scaling.auto_scaling:
+      # TODO(b/373873152): this validation should expand to service min instance
+      # once we enforce the use of manual instance count for manual scaling.
+      raise serverless_exceptions.ConfigurationError(
+          'Cannot set service max instances when scaling mode is manual.'
+      )
     result.append(
         config_changes.SetAnnotationChange(
             service.SERVICE_MAX_SCALE_ANNOTATION,
-            str(args.service_max_instances.instance_count),
+            str(max_scale_value.instance_count),
         )
     )
   if 'max_surge' in args and args.max_surge is not None:
@@ -2257,17 +2340,53 @@ def _GetServiceScalingChanges(args):
           )
       )
   if 'scaling' in args and args.scaling is not None:
-    result.append(
-        config_changes.SetAnnotationChange(
-            service.SERVICE_SCALING_MODE_ANNOTATION,
-            args.scaling,
-        )
-    )
+    scaling_val = args.scaling
+    # Automatic scaling mode
+    if scaling_val.auto_scaling:
+      # Remove manual instance count annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.MANUAL_INSTANCE_COUNT_ANNOTATION
+          )
+      )
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.SERVICE_SCALING_MODE_ANNOTATION,
+              _SCALING_MODE_AUTOMATIC,
+          )
+      )
+    # Manual scaling mode with flag value as an instance count.
+    else:
+      # Remove service min annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.SERVICE_MIN_SCALE_ANNOTATION
+          )
+      )
+      # Remove service max annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.SERVICE_MAX_SCALE_ANNOTATION
+          )
+      )
+      # Add scaling mode 'manual' and manual instance count annotation
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.SERVICE_SCALING_MODE_ANNOTATION,
+              _SCALING_MODE_MANUAL,
+          )
+      )
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.MANUAL_INSTANCE_COUNT_ANNOTATION,
+              str(scaling_val.instance_count),
+          )
+      )
   return result
 
 
 def _GetWorkerScalingChanges(args):
-  """Return the changes for engine-level scaling for Worker resources for the given args."""
+  """Return the changes for service-level scaling for Worker resources for the given args."""
   result = []
   # TODO(b/322180968): Once Worker API is ready, replace Service related
   # references.
@@ -2287,6 +2406,16 @@ def _GetWorkerScalingChanges(args):
           )
       )
   if 'max_instances' in args and args.max_instances is not None:
+    if (
+        'scaling' in args
+        and args.scaling is not None
+        and not args.scaling.auto_scaling
+    ):
+      # TODO(b/373873152): this validation should expand to service min instance
+      # once we enforce the use of manual instance count for manual scaling.
+      raise serverless_exceptions.ConfigurationError(
+          'Cannot set max instances when scaling mode is manual.'
+      )
     scale_value = args.max_instances
     if scale_value.restore_default:
       result.append(
@@ -2317,12 +2446,48 @@ def _GetWorkerScalingChanges(args):
           )
       )
   if 'scaling' in args and args.scaling is not None:
-    result.append(
-        config_changes.SetAnnotationChange(
-            service.SERVICE_SCALING_MODE_ANNOTATION,
-            args.scaling,
-        )
-    )
+    scaling_val = args.scaling
+    # Automatic scaling mode
+    if scaling_val.auto_scaling:
+      # Remove manual instance count annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.MANUAL_INSTANCE_COUNT_ANNOTATION
+          )
+      )
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.SERVICE_SCALING_MODE_ANNOTATION,
+              _SCALING_MODE_AUTOMATIC,
+          )
+      )
+    # Manual scaling mode with flag value as an instance count.
+    else:
+      # Remove service min annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.SERVICE_MIN_SCALE_ANNOTATION
+          )
+      )
+      # Remove service max annotation
+      result.append(
+          config_changes.DeleteAnnotationChange(
+              service.SERVICE_MAX_SCALE_ANNOTATION
+          )
+      )
+      # Add scaling mode 'manual' and manual instance count annotation
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.SERVICE_SCALING_MODE_ANNOTATION,
+              _SCALING_MODE_MANUAL,
+          )
+      )
+      result.append(
+          config_changes.SetAnnotationChange(
+              service.MANUAL_INSTANCE_COUNT_ANNOTATION,
+              str(scaling_val.instance_count),
+          )
+      )
   return result
 
 
@@ -3155,21 +3320,34 @@ def GetJobConfigurationChanges(args, release_track=base.ReleaseTrack.GA):
   return changes
 
 
-def GetRunJobConfigurationOverrides(args):
-  """Returns a list of overrides to the job config."""
-  overrides = []
+def GetExecutionOverridesChangesForValidation(args):
+  """Returns a list of config changes caused by overrides for validation."""
+  changes = []
+  # Include env var overrides to prevent from overriding secrets/config_maps
+  # that could also be mapped as env vars.
   if FlagIsExplicitlySet(args, 'update_env_vars'):
-    overrides.append(
+    changes.append(
         config_changes.EnvVarLiteralChanges(
             updates=_StripKeys(getattr(args, 'update_env_vars', None) or {}),
         )
     )
-  return overrides
+  if FlagIsExplicitlySet(args, 'containers'):
+    for container_name, container_args in args.containers.items():
+      if _HasEnvChanges(container_args):
+        changes.append(
+            config_changes.EnvVarLiteralChanges(
+                updates=_StripKeys(
+                    getattr(container_args, 'update_env_vars', None) or {}
+                ),
+                container_name=container_name,
+            )
+        )
+  return changes
 
 
 # TODO(b/322180968): There exist a few configurations that are "locked" while
 # calling Services API for Workers.
-# These will be done in the server side once Worker API is ready.
+# This method could be cleaned up once experiment launch is over.
 def GetWorkerConfigurationChanges(
     args, release_track=base.ReleaseTrack.ALPHA, for_update=False
 ):
@@ -4393,8 +4571,8 @@ def PromptForDefaultSource(container_name=None):
     source = console_io.PromptWithDefault(message=message, default=cwd)
 
     log.status.Print(
-        'Next time, use `gcloud run deploy --source .` '
-        'to deploy the current directory.\n'
+        'Next time, you can use `--source .` argument to deploy the current'
+        ' directory.\n'
     )
     return source
 

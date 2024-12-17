@@ -14,6 +14,68 @@ from apitools.base.py import extra_types
 package = 'developerconnect'
 
 
+class BitbucketCloudConfig(_messages.Message):
+  r"""Configuration for connections to an instance of Bitbucket Cloud.
+
+  Fields:
+    authorizerCredential: Required. An access token with the minimum
+      `repository`, `pullrequest` and `webhook` scope access. It can either be
+      a workspace, project or repository access token. This is needed to
+      create webhooks. It's recommended to use a system account to generate
+      these credentials.
+    readAuthorizerCredential: Required. An access token with the minimum
+      `repository` access. It can either be a workspace, project or repository
+      access token. It's recommended to use a system account to generate the
+      credentials.
+    webhookSecretSecretVersion: Required. Immutable. SecretManager resource
+      containing the webhook secret used to verify webhook events, formatted
+      as `projects/*/secrets/*/versions/*`. This is used to validate and
+      create webhooks.
+    workspace: Required. The Bitbucket Cloud Workspace ID to be connected to
+      Google Cloud Platform.
+  """
+
+  authorizerCredential = _messages.MessageField('UserCredential', 1)
+  readAuthorizerCredential = _messages.MessageField('UserCredential', 2)
+  webhookSecretSecretVersion = _messages.StringField(3)
+  workspace = _messages.StringField(4)
+
+
+class BitbucketDataCenterConfig(_messages.Message):
+  r"""Configuration for connections to an instance of Bitbucket Data Center.
+
+  Fields:
+    authorizerCredential: Required. An http access token with the minimum
+      `Repository admin` scope access. This is needed to create webhooks. It's
+      recommended to use a system account to generate these credentials.
+    hostUri: Required. The URI of the Bitbucket Data Center host this
+      connection is for.
+    readAuthorizerCredential: Required. An http access token with the minimum
+      `Repository read` access. It's recommended to use a system account to
+      generate the credentials.
+    serverVersion: Output only. Version of the Bitbucket Data Center server
+      running on the `host_uri`.
+    serviceDirectoryConfig: Optional. Configuration for using Service
+      Directory to privately connect to a Bitbucket Data Center instance. This
+      should only be set if the Bitbucket Data Center is hosted on-premises
+      and not reachable by public internet. If this field is left empty, calls
+      to the Bitbucket Data Center will be made over the public internet.
+    sslCaCertificate: Optional. SSL certificate authority to trust when making
+      requests to Bitbucket Data Center.
+    webhookSecretSecretVersion: Required. Immutable. SecretManager resource
+      containing the webhook secret used to verify webhook events, formatted
+      as `projects/*/secrets/*/versions/*`. This is used to validate webhooks.
+  """
+
+  authorizerCredential = _messages.MessageField('UserCredential', 1)
+  hostUri = _messages.StringField(2)
+  readAuthorizerCredential = _messages.MessageField('UserCredential', 3)
+  serverVersion = _messages.StringField(4)
+  serviceDirectoryConfig = _messages.MessageField('ServiceDirectoryConfig', 5)
+  sslCaCertificate = _messages.StringField(6)
+  webhookSecretSecretVersion = _messages.StringField(7)
+
+
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
 
@@ -29,6 +91,10 @@ class Connection(_messages.Message):
   Fields:
     annotations: Optional. Allows clients to store small amounts of arbitrary
       data.
+    bitbucketCloudConfig: Configuration for connections to an instance of
+      Bitbucket Clouds.
+    bitbucketDataCenterConfig: Configuration for connections to an instance of
+      Bitbucket Data Center.
     createTime: Output only. [Output only] Create timestamp
     cryptoKeyConfig: Optional. The crypto key configuration. This field is
       used by the Customer-Managed Encryption Keys (CMEK) feature.
@@ -39,6 +105,9 @@ class Connection(_messages.Message):
     etag: Optional. This checksum is computed by the server based on the value
       of other fields, and may be sent on update and delete requests to ensure
       the client has an up-to-date value before proceeding.
+    gitProxyConfig: Optional. Configuration for the git proxy feature.
+      Enabling the git proxy allows clients to perform git operations on the
+      repositories linked in the connection.
     githubConfig: Configuration for connections to github.com.
     githubEnterpriseConfig: Configuration for connections to an instance of
       GitHub Enterprise.
@@ -51,8 +120,7 @@ class Connection(_messages.Message):
       `projects/{project}/locations/{location}/connections/{connection_id}`.
     reconciling: Output only. Set to true when the connection is being set up
       or updated in the background.
-    uid: Output only. A system-assigned unique identifier for a the
-      GitRepositoryLink.
+    uid: Output only. A system-assigned unique identifier for the Connection.
     updateTime: Output only. [Output only] Update timestamp
   """
 
@@ -106,21 +174,24 @@ class Connection(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   annotations = _messages.MessageField('AnnotationsValue', 1)
-  createTime = _messages.StringField(2)
-  cryptoKeyConfig = _messages.MessageField('CryptoKeyConfig', 3)
-  deleteTime = _messages.StringField(4)
-  disabled = _messages.BooleanField(5)
-  etag = _messages.StringField(6)
-  githubConfig = _messages.MessageField('GitHubConfig', 7)
-  githubEnterpriseConfig = _messages.MessageField('GitHubEnterpriseConfig', 8)
-  gitlabConfig = _messages.MessageField('GitLabConfig', 9)
-  gitlabEnterpriseConfig = _messages.MessageField('GitLabEnterpriseConfig', 10)
-  installationState = _messages.MessageField('InstallationState', 11)
-  labels = _messages.MessageField('LabelsValue', 12)
-  name = _messages.StringField(13)
-  reconciling = _messages.BooleanField(14)
-  uid = _messages.StringField(15)
-  updateTime = _messages.StringField(16)
+  bitbucketCloudConfig = _messages.MessageField('BitbucketCloudConfig', 2)
+  bitbucketDataCenterConfig = _messages.MessageField('BitbucketDataCenterConfig', 3)
+  createTime = _messages.StringField(4)
+  cryptoKeyConfig = _messages.MessageField('CryptoKeyConfig', 5)
+  deleteTime = _messages.StringField(6)
+  disabled = _messages.BooleanField(7)
+  etag = _messages.StringField(8)
+  gitProxyConfig = _messages.MessageField('GitProxyConfig', 9)
+  githubConfig = _messages.MessageField('GitHubConfig', 10)
+  githubEnterpriseConfig = _messages.MessageField('GitHubEnterpriseConfig', 11)
+  gitlabConfig = _messages.MessageField('GitLabConfig', 12)
+  gitlabEnterpriseConfig = _messages.MessageField('GitLabEnterpriseConfig', 13)
+  installationState = _messages.MessageField('InstallationState', 14)
+  labels = _messages.MessageField('LabelsValue', 15)
+  name = _messages.StringField(16)
+  reconciling = _messages.BooleanField(17)
+  uid = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
 
 
 class CryptoKeyConfig(_messages.Message):
@@ -400,6 +471,39 @@ class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksListRequest(
   parent = _messages.StringField(5, required=True)
 
 
+class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabEnterpriseWebhookRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessG
+  itLabEnterpriseWebhookRequest object.
+
+  Fields:
+    name: Required. The GitRepositoryLink resource where the webhook will be
+      received. Format:
+      `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
+    processGitLabEnterpriseWebhookRequest: A
+      ProcessGitLabEnterpriseWebhookRequest resource to be passed as the
+      request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  processGitLabEnterpriseWebhookRequest = _messages.MessageField('ProcessGitLabEnterpriseWebhookRequest', 2)
+
+
+class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabWebhookRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessG
+  itLabWebhookRequest object.
+
+  Fields:
+    name: Required. The GitRepositoryLink resource where the webhook will be
+      received. Format:
+      `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
+    processGitLabWebhookRequest: A ProcessGitLabWebhookRequest resource to be
+      passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  processGitLabWebhookRequest = _messages.MessageField('ProcessGitLabWebhookRequest', 2)
+
+
 class DeveloperconnectProjectsLocationsConnectionsListRequest(_messages.Message):
   r"""A DeveloperconnectProjectsLocationsConnectionsListRequest object.
 
@@ -443,8 +547,8 @@ class DeveloperconnectProjectsLocationsConnectionsPatchRequest(_messages.Message
       This prevents clients from accidentally creating duplicate commitments.
       The request ID must be a valid UUID with the exception that zero UUID is
       not supported (00000000-0000-0000-0000-000000000000).
-    updateMask: Optional. Required. Field mask is used to specify the fields
-      to be overwritten in the Connection resource by the update. The fields
+    updateMask: Required. Field mask is used to specify the fields to be
+      overwritten in the Connection resource by the update. The fields
       specified in the update_mask are relative to the resource, not the full
       request. A field will be overwritten if it is in the mask. If the user
       does not provide a mask then all fields will be overwritten.
@@ -458,6 +562,22 @@ class DeveloperconnectProjectsLocationsConnectionsPatchRequest(_messages.Message
   requestId = _messages.StringField(4)
   updateMask = _messages.StringField(5)
   validateOnly = _messages.BooleanField(6)
+
+
+class DeveloperconnectProjectsLocationsConnectionsProcessGitHubEnterpriseWebhookRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsConnectionsProcessGitHubEnterpriseWeb
+  hookRequest object.
+
+  Fields:
+    parent: Required. Project and location where the webhook will be received.
+      Format: `projects/*/locations/*`.
+    processGitHubEnterpriseWebhookRequest: A
+      ProcessGitHubEnterpriseWebhookRequest resource to be passed as the
+      request body.
+  """
+
+  parent = _messages.StringField(1, required=True)
+  processGitHubEnterpriseWebhookRequest = _messages.MessageField('ProcessGitHubEnterpriseWebhookRequest', 2)
 
 
 class DeveloperconnectProjectsLocationsGetRequest(_messages.Message):
@@ -765,6 +885,18 @@ class GitLabEnterpriseConfig(_messages.Message):
   webhookSecretSecretVersion = _messages.StringField(7)
 
 
+class GitProxyConfig(_messages.Message):
+  r"""The git proxy configuration.
+
+  Fields:
+    enabled: Optional. Setting this to true allows the git proxy to be used
+      for performing git operations on the repositories linked in the
+      connection.
+  """
+
+  enabled = _messages.BooleanField(1)
+
+
 class GitRepositoryLink(_messages.Message):
   r"""Message describing the GitRepositoryLink object
 
@@ -782,12 +914,15 @@ class GitRepositoryLink(_messages.Message):
     etag: Optional. This checksum is computed by the server based on the value
       of other fields, and may be sent on update and delete requests to ensure
       the client has an up-to-date value before proceeding.
+    gitProxyUri: Output only. URI to access the linked repository through the
+      Git Proxy. This field is only populated if the git proxy is enabled for
+      the connection.
     labels: Optional. Labels as key value pairs
     name: Identifier. Resource name of the repository, in the format
       `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
     reconciling: Output only. Set to true when the connection is being set up
       or updated in the background.
-    uid: Output only. A system-assigned unique identifier for a the
+    uid: Output only. A system-assigned unique identifier for the
       GitRepositoryLink.
     updateTime: Output only. [Output only] Update timestamp
     webhookId: Output only. External ID of the webhook created for the
@@ -848,12 +983,74 @@ class GitRepositoryLink(_messages.Message):
   createTime = _messages.StringField(3)
   deleteTime = _messages.StringField(4)
   etag = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  name = _messages.StringField(7)
-  reconciling = _messages.BooleanField(8)
-  uid = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
-  webhookId = _messages.StringField(11)
+  gitProxyUri = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  reconciling = _messages.BooleanField(9)
+  uid = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
+  webhookId = _messages.StringField(12)
+
+
+class HttpBody(_messages.Message):
+  r"""Message that represents an arbitrary HTTP body. It should only be used
+  for payload formats that can't be represented as JSON, such as raw binary or
+  an HTML page. This message can be used both in streaming and non-streaming
+  API methods in the request as well as the response. It can be used as a top-
+  level request field, which is convenient if one wants to extract parameters
+  from either the URL or HTTP template into the request fields and also want
+  access to the raw HTTP body. Example: message GetResourceRequest { // A
+  unique request id. string request_id = 1; // The raw HTTP body is bound to
+  this field. google.api.HttpBody http_body = 2; } service ResourceService {
+  rpc GetResource(GetResourceRequest) returns (google.api.HttpBody); rpc
+  UpdateResource(google.api.HttpBody) returns (google.protobuf.Empty); }
+  Example with streaming methods: service CaldavService { rpc
+  GetCalendar(stream google.api.HttpBody) returns (stream
+  google.api.HttpBody); rpc UpdateCalendar(stream google.api.HttpBody) returns
+  (stream google.api.HttpBody); } Use of this type only changes how the
+  request and response bodies are handled, all other features will continue to
+  work unchanged.
+
+  Messages:
+    ExtensionsValueListEntry: A ExtensionsValueListEntry object.
+
+  Fields:
+    contentType: The HTTP Content-Type header value specifying the content
+      type of the body.
+    data: The HTTP request/response body as raw binary.
+    extensions: Application specific response metadata. Must be set in the
+      first response for streaming APIs.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ExtensionsValueListEntry(_messages.Message):
+    r"""A ExtensionsValueListEntry object.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        ExtensionsValueListEntry object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ExtensionsValueListEntry object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  contentType = _messages.StringField(1)
+  data = _messages.BytesField(2)
+  extensions = _messages.MessageField('ExtensionsValueListEntry', 3, repeated=True)
 
 
 class Installation(_messages.Message):
@@ -1191,8 +1388,8 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have been
-      cancelled successfully have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      cancelled successfully have google.longrunning.Operation.error value
+      with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -1207,6 +1404,38 @@ class OperationMetadata(_messages.Message):
   statusMessage = _messages.StringField(5)
   target = _messages.StringField(6)
   verb = _messages.StringField(7)
+
+
+class ProcessGitHubEnterpriseWebhookRequest(_messages.Message):
+  r"""RPC request object accepted by the ProcessGitHubEnterpriseWebhook RPC
+  method.
+
+  Fields:
+    body: Required. HTTP request body.
+  """
+
+  body = _messages.MessageField('HttpBody', 1)
+
+
+class ProcessGitLabEnterpriseWebhookRequest(_messages.Message):
+  r"""RPC request object accepted by the ProcessGitLabEnterpriseWebhook RPC
+  method.
+
+  Fields:
+    body: Required. HTTP request body.
+  """
+
+  body = _messages.MessageField('HttpBody', 1)
+
+
+class ProcessGitLabWebhookRequest(_messages.Message):
+  r"""RPC request object accepted by the ProcessGitLabWebhook RPC method.
+
+  Fields:
+    body: Required. HTTP request body.
+  """
+
+  body = _messages.MessageField('HttpBody', 1)
 
 
 class ServiceDirectoryConfig(_messages.Message):

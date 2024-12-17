@@ -1169,6 +1169,32 @@ class ComputeAlpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def GetEffectiveSecurityPolicies(self, request, global_params=None):
+      r"""Returns effective security policies applied to this backend service.
+
+      Args:
+        request: (ComputeBackendServicesGetEffectiveSecurityPoliciesRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (BackendServicesGetEffectiveSecurityPoliciesResponse) The response message.
+      """
+      config = self.GetMethodConfig('GetEffectiveSecurityPolicies')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetEffectiveSecurityPolicies.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='GET',
+        method_id='compute.backendServices.getEffectiveSecurityPolicies',
+        ordered_params=['project', 'backendService'],
+        path_params=['backendService', 'project'],
+        query_params=[],
+        relative_path='projects/{project}/global/backendServices/{backendService}/getEffectiveSecurityPolicies',
+        request_field='',
+        request_type_name='ComputeBackendServicesGetEffectiveSecurityPoliciesRequest',
+        response_type_name='BackendServicesGetEffectiveSecurityPoliciesResponse',
+        supports_download=False,
+    )
+
     def GetHealth(self, request, global_params=None):
       r"""Gets the most recent health check results for this BackendService. Example request body: { "group": "/zones/us-east1-b/instanceGroups/lb-backend-example" }.
 
@@ -1462,7 +1488,8 @@ class ComputeAlpha(base_api.BaseApiClient):
 
     def __init__(self, client):
       super(ComputeAlpha.CrossSiteNetworksService, self).__init__(client)
-      self._upload_configs = {}
+      self._upload_configs = {
+          }
 
     def Delete(self, request, global_params=None):
       r"""Deletes the specified cross-site network in the given scope.
@@ -1470,12 +1497,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeCrossSiteNetworksDeleteRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Delete')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Delete.method_config = lambda: base_api.ApiMethodInfo(
         http_method='DELETE',
@@ -1496,12 +1523,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeCrossSiteNetworksGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (CrossSiteNetwork) The response message.
       """
       config = self.GetMethodConfig('Get')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Get.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -1522,12 +1549,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeCrossSiteNetworksInsertRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Insert')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Insert.method_config = lambda: base_api.ApiMethodInfo(
         http_method='POST',
@@ -1548,7 +1575,6 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeCrossSiteNetworksListRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (CrossSiteNetworkList) The response message.
       """
@@ -1570,27 +1596,24 @@ class ComputeAlpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates the specified cross-site network with the data included in the request.
-
-      This method supports PATCH semantics and uses the JSON merge patch format
-      and processing rules.
+      r"""Updates the specified cross-site network with the data included in the request. This method supports PATCH semantics and uses the JSON merge patch format and processing rules.
 
       Args:
         request: (ComputeCrossSiteNetworksPatchRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Patch')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Patch.method_config = lambda: base_api.ApiMethodInfo(
         http_method='PATCH',
         method_id='compute.crossSiteNetworks.patch',
         ordered_params=['project', 'crossSiteNetwork'],
         path_params=['crossSiteNetwork', 'project'],
-        query_params=['requestId', 'validateOnly'],
+        query_params=['requestId', 'updateMask', 'validateOnly'],
         relative_path='projects/{project}/global/crossSiteNetworks/{crossSiteNetwork}',
         request_field='crossSiteNetworkResource',
         request_type_name='ComputeCrossSiteNetworksPatchRequest',
@@ -1920,12 +1943,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeDisksGetAsyncReplicationStatusRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (GetAsyncReplicationStatusResponse) The response message.
       """
       config = self.GetMethodConfig('GetAsyncReplicationStatus')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     GetAsyncReplicationStatus.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -2258,12 +2281,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeDisksWaitForReplicationCatchUpRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('WaitForReplicationCatchUp')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     WaitForReplicationCatchUp.method_config = lambda: base_api.ApiMethodInfo(
         http_method='POST',
@@ -7049,7 +7072,7 @@ class ComputeAlpha(base_api.BaseApiClient):
     )
 
     def AddNetworkInterface(self, request, global_params=None):
-      r"""Adds a network interface to an instance.
+      r"""Adds one dynamic network interface to an active instance.
 
       Args:
         request: (ComputeInstancesAddNetworkInterfaceRequest) input message
@@ -7231,7 +7254,7 @@ class ComputeAlpha(base_api.BaseApiClient):
     )
 
     def DeleteNetworkInterface(self, request, global_params=None):
-      r"""Deletes one network interface from an active instance. InstancesDeleteNetworkInterfaceRequest indicates: - instance from which to delete, using project+zone+resource_id fields; - network interface to be deleted, using network_interface_name field; Only VLAN interface deletion is supported for now.
+      r"""Deletes one dynamic network interface from an active instance. InstancesDeleteNetworkInterfaceRequest indicates: - instance from which to delete, using project+zone+resource_id fields; - dynamic network interface to be deleted, using network_interface_name field;.
 
       Args:
         request: (ComputeInstancesDeleteNetworkInterfaceRequest) input message
@@ -10398,6 +10421,32 @@ class ComputeAlpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Update(self, request, global_params=None):
+      r"""Updates a License resource in the specified project. *Caution* This resource is intended for use only by third-party partners who are creating Cloud Marketplace images. .
+
+      Args:
+        request: (ComputeLicensesUpdateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Update')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Update.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='PATCH',
+        method_id='compute.licenses.update',
+        ordered_params=['project', 'license'],
+        path_params=['license', 'project'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='projects/{project}/global/licenses/{license}',
+        request_field='licenseResource',
+        request_type_name='ComputeLicensesUpdateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class MachineImagesService(base_api.BaseApiService):
     """Service class for the machineImages resource."""
 
@@ -13284,7 +13333,8 @@ class ComputeAlpha(base_api.BaseApiClient):
         (SecurityPoliciesListPreconfiguredExpressionSetsResponse) The response message.
       """
       config = self.GetMethodConfig('ListPreconfiguredExpressionSets')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     ListPreconfiguredExpressionSets.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -15483,15 +15533,14 @@ class ComputeAlpha(base_api.BaseApiClient):
       r"""Gets the status of current async replication for a given device.
 
       Args:
-        request: (ComputeRegionDisksGetAsyncReplicationStatusRequest) input
-          message
+        request: (ComputeRegionDisksGetAsyncReplicationStatusRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (GetAsyncReplicationStatusResponse) The response message.
       """
       config = self.GetMethodConfig('GetAsyncReplicationStatus')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     GetAsyncReplicationStatus.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -15822,15 +15871,14 @@ class ComputeAlpha(base_api.BaseApiClient):
       r"""Wait for replication to catch up on the secondary disk.
 
       Args:
-        request: (ComputeRegionDisksWaitForReplicationCatchUpRequest) input
-          message
+        request: (ComputeRegionDisksWaitForReplicationCatchUpRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('WaitForReplicationCatchUp')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     WaitForReplicationCatchUp.method_config = lambda: base_api.ApiMethodInfo(
         http_method='POST',
@@ -17823,7 +17871,6 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeRegionMultiMigsGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (MultiMig) The response message.
       """
@@ -19086,6 +19133,32 @@ class ComputeAlpha(base_api.BaseApiClient):
         relative_path='projects/{project}/regions/{region}/securityPolicies/{securityPolicy}/removeRule',
         request_field='',
         request_type_name='ComputeRegionSecurityPoliciesRemoveRuleRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def SetLabels(self, request, global_params=None):
+      r"""Sets the labels on a security policy. To learn more about labels, read the Labeling Resources documentation.
+
+      Args:
+        request: (ComputeRegionSecurityPoliciesSetLabelsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('SetLabels')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SetLabels.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='compute.regionSecurityPolicies.setLabels',
+        ordered_params=['project', 'region', 'resource'],
+        path_params=['project', 'region', 'resource'],
+        query_params=['requestId'],
+        relative_path='projects/{project}/regions/{region}/securityPolicies/{resource}/setLabels',
+        request_field='regionSetLabelsRequest',
+        request_type_name='ComputeRegionSecurityPoliciesSetLabelsRequest',
         response_type_name='Operation',
         supports_download=False,
     )
@@ -20630,6 +20703,32 @@ class ComputeAlpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def PerformMaintenance(self, request, global_params=None):
+      r"""Allows customers to perform maintenance on a reservation block.
+
+      Args:
+        request: (ComputeReservationBlocksPerformMaintenanceRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('PerformMaintenance')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    PerformMaintenance.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='compute.reservationBlocks.performMaintenance',
+        ordered_params=['project', 'zone', 'reservation', 'reservationBlock'],
+        path_params=['project', 'reservation', 'reservationBlock', 'zone'],
+        query_params=['requestId'],
+        relative_path='projects/{project}/zones/{zone}/reservations/{reservation}/reservationBlocks/{reservationBlock}/performMaintenance',
+        request_field='reservationsBlocksPerformMaintenanceRequest',
+        request_type_name='ComputeReservationBlocksPerformMaintenanceRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class ReservationsService(base_api.BaseApiService):
     """Service class for the reservations resource."""
 
@@ -20793,6 +20892,32 @@ class ComputeAlpha(base_api.BaseApiClient):
         request_field='',
         request_type_name='ComputeReservationsListRequest',
         response_type_name='ReservationList',
+        supports_download=False,
+    )
+
+    def PerformMaintenance(self, request, global_params=None):
+      r"""Perform maintenance on an extended reservation.
+
+      Args:
+        request: (ComputeReservationsPerformMaintenanceRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('PerformMaintenance')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    PerformMaintenance.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='compute.reservations.performMaintenance',
+        ordered_params=['project', 'zone', 'reservation'],
+        path_params=['project', 'reservation', 'zone'],
+        query_params=['requestId'],
+        relative_path='projects/{project}/zones/{zone}/reservations/{reservation}/performMaintenance',
+        request_field='reservationsPerformMaintenanceRequest',
+        request_type_name='ComputeReservationsPerformMaintenanceRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
@@ -26493,7 +26618,8 @@ class ComputeAlpha(base_api.BaseApiClient):
 
     def __init__(self, client):
       super(ComputeAlpha.WireGroupsService, self).__init__(client)
-      self._upload_configs = {}
+      self._upload_configs = {
+          }
 
     def Delete(self, request, global_params=None):
       r"""Deletes the specified wire group in the given scope.
@@ -26501,12 +26627,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeWireGroupsDeleteRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Delete')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Delete.method_config = lambda: base_api.ApiMethodInfo(
         http_method='DELETE',
@@ -26527,12 +26653,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeWireGroupsGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (WireGroup) The response message.
       """
       config = self.GetMethodConfig('Get')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Get.method_config = lambda: base_api.ApiMethodInfo(
         http_method='GET',
@@ -26553,12 +26679,12 @@ class ComputeAlpha(base_api.BaseApiClient):
       Args:
         request: (ComputeWireGroupsInsertRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Insert')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Insert.method_config = lambda: base_api.ApiMethodInfo(
         http_method='POST',
@@ -26600,20 +26726,17 @@ class ComputeAlpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates the specified wire group resource with the data included in the request.
-
-      This method supports PATCH semantics and uses JSON merge patch format and
-      processing rules.
+      r"""Updates the specified wire group resource with the data included in the request. This method supports PATCH semantics and uses JSON merge patch format and processing rules.
 
       Args:
         request: (ComputeWireGroupsPatchRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
-
       Returns:
         (Operation) The response message.
       """
       config = self.GetMethodConfig('Patch')
-      return self._RunMethod(config, request, global_params=global_params)
+      return self._RunMethod(
+          config, request, global_params=global_params)
 
     Patch.method_config = lambda: base_api.ApiMethodInfo(
         http_method='PATCH',

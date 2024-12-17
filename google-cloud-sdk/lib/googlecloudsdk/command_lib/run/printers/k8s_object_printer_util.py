@@ -31,7 +31,7 @@ from googlecloudsdk.core.resource import custom_printer_base as cp
 
 
 def OrderByKey(map_):
-  for k in sorted(map_):
+  for k in sorted(k if k is not None else '' for k in map_):
     yield k, (map_.get(k) if map_.get(k) is not None else '')
 
 
@@ -85,15 +85,16 @@ def GetLabels(labels):
   )
 
 
-def BuildHeader(record):
+def BuildHeader(record, is_multi_region=False):
   con = console_attr.GetConsoleAttr()
   status = con.Colorize(*record.ReadySymbolAndColor())
   try:
-    place = 'region ' + record.region
+    place = ('regions ' if is_multi_region else 'region ') + record.region
   except KeyError:
     place = 'namespace ' + record.namespace
+  kind = ('Multi-Region ' if is_multi_region else '') + record.Kind()
   return con.Emphasize(
-      '{} {} {} in {}'.format(status, record.Kind(), record.name, place)
+      '{} {} {} in {}'.format(status, kind, record.name, place)
   )
 
 

@@ -156,6 +156,10 @@ class Artifacts(_messages.Message):
       Registry upon successful completion of all build steps. The build
       service account credentials will be used to perform the upload. If any
       objects fail to be pushed, the build is marked FAILURE.
+    testResults: Optional. Files in the workspace matching specified paths
+      globs will be uploaded to the specified Cloud Storage location using the
+      builder service account's credentials. Will also contain the format of
+      the test which by default will be JUnit
   """
 
   images = _messages.StringField(1, repeated=True)
@@ -163,6 +167,7 @@ class Artifacts(_messages.Message):
   npmPackages = _messages.MessageField('NpmPackage', 3, repeated=True)
   objects = _messages.MessageField('ArtifactObjects', 4)
   pythonPackages = _messages.MessageField('PythonPackage', 5, repeated=True)
+  testResults = _messages.MessageField('TestResults', 6)
 
 
 class BatchCreateBitbucketServerConnectedRepositoriesRequest(_messages.Message):
@@ -709,6 +714,8 @@ class BuildOptions(_messages.Message):
       [running builds in a private
       pool](https://cloud.google.com/build/docs/private-pools/run-builds-in-
       private-pool) for more information.
+    pubsubTopic: Optional. Option to specify the Pub/Sub topic to receive
+      build status updates.
     requestedVerifyOption: Requested verifiability options.
     secretEnv: A list of global environment variables, which are encrypted
       using a Cloud Key Management Service crypto key. These values must be
@@ -871,12 +878,13 @@ class BuildOptions(_messages.Message):
   logging = _messages.EnumField('LoggingValueValuesEnum', 11)
   machineType = _messages.EnumField('MachineTypeValueValuesEnum', 12)
   pool = _messages.MessageField('PoolOption', 13)
-  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 14)
-  secretEnv = _messages.StringField(15, repeated=True)
-  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 16, repeated=True)
-  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 17)
-  volumes = _messages.MessageField('Volume', 18, repeated=True)
-  workerPool = _messages.StringField(19)
+  pubsubTopic = _messages.StringField(14)
+  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 15)
+  secretEnv = _messages.StringField(16, repeated=True)
+  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 17, repeated=True)
+  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 18)
+  volumes = _messages.MessageField('Volume', 19, repeated=True)
+  workerPool = _messages.StringField(20)
 
 
 class BuildStep(_messages.Message):
@@ -1041,6 +1049,9 @@ class BuildTrigger(_messages.Message):
     cron: CronConfig describes the configuration of a trigger that creates a
       build whenever a Cloud Scheduler event is received.
     description: Human-readable description of this trigger.
+    developerConnectEventConfig: Optional. The configuration of a trigger that
+      creates a build whenever an event from the DeveloperConnect API is
+      received.
     disabled: If true, the trigger will never automatically execute a build.
     eventType: EventType allows the user to explicitly set the type of event
       to which this BuildTrigger should respond. This field will be validated
@@ -1173,27 +1184,28 @@ class BuildTrigger(_messages.Message):
   createTime = _messages.StringField(5)
   cron = _messages.MessageField('CronConfig', 6)
   description = _messages.StringField(7)
-  disabled = _messages.BooleanField(8)
-  eventType = _messages.EnumField('EventTypeValueValuesEnum', 9)
-  filename = _messages.StringField(10)
-  filter = _messages.StringField(11)
-  gitFileSource = _messages.MessageField('GitFileSource', 12)
-  github = _messages.MessageField('GitHubEventsConfig', 13)
-  gitlabEnterpriseEventsConfig = _messages.MessageField('GitLabEventsConfig', 14)
-  id = _messages.StringField(15)
-  ignoredFiles = _messages.StringField(16, repeated=True)
-  includeBuildLogs = _messages.EnumField('IncludeBuildLogsValueValuesEnum', 17)
-  includedFiles = _messages.StringField(18, repeated=True)
-  name = _messages.StringField(19)
-  pubsubConfig = _messages.MessageField('PubsubConfig', 20)
-  repositoryEventConfig = _messages.MessageField('RepositoryEventConfig', 21)
-  resourceName = _messages.StringField(22)
-  serviceAccount = _messages.StringField(23)
-  sourceToBuild = _messages.MessageField('GitRepoSource', 24)
-  substitutions = _messages.MessageField('SubstitutionsValue', 25)
-  tags = _messages.StringField(26, repeated=True)
-  triggerTemplate = _messages.MessageField('RepoSource', 27)
-  webhookConfig = _messages.MessageField('WebhookConfig', 28)
+  developerConnectEventConfig = _messages.MessageField('DeveloperConnectEventConfig', 8)
+  disabled = _messages.BooleanField(9)
+  eventType = _messages.EnumField('EventTypeValueValuesEnum', 10)
+  filename = _messages.StringField(11)
+  filter = _messages.StringField(12)
+  gitFileSource = _messages.MessageField('GitFileSource', 13)
+  github = _messages.MessageField('GitHubEventsConfig', 14)
+  gitlabEnterpriseEventsConfig = _messages.MessageField('GitLabEventsConfig', 15)
+  id = _messages.StringField(16)
+  ignoredFiles = _messages.StringField(17, repeated=True)
+  includeBuildLogs = _messages.EnumField('IncludeBuildLogsValueValuesEnum', 18)
+  includedFiles = _messages.StringField(19, repeated=True)
+  name = _messages.StringField(20)
+  pubsubConfig = _messages.MessageField('PubsubConfig', 21)
+  repositoryEventConfig = _messages.MessageField('RepositoryEventConfig', 22)
+  resourceName = _messages.StringField(23)
+  serviceAccount = _messages.StringField(24)
+  sourceToBuild = _messages.MessageField('GitRepoSource', 25)
+  substitutions = _messages.MessageField('SubstitutionsValue', 26)
+  tags = _messages.StringField(27, repeated=True)
+  triggerTemplate = _messages.MessageField('RepoSource', 28)
+  webhookConfig = _messages.MessageField('WebhookConfig', 29)
 
 
 class BuiltImage(_messages.Message):
@@ -2903,6 +2915,46 @@ class DeveloperConnectConfig(_messages.Message):
   revision = _messages.StringField(3)
 
 
+class DeveloperConnectEventConfig(_messages.Message):
+  r"""The configuration of a trigger that creates a build whenever an event
+  from the DeveloperConnect API is received.
+
+  Enums:
+    GitRepositoryLinkTypeValueValuesEnum: Output only. The type of
+      DeveloperConnect GitRepositoryLink.
+
+  Fields:
+    gitRepositoryLink: Required. The Developer Connect Git repository link,
+      formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`.
+    gitRepositoryLinkType: Output only. The type of DeveloperConnect
+      GitRepositoryLink.
+    pullRequest: Filter to match changes in pull requests.
+    push: Filter to match changes in refs like branches and tags.
+  """
+
+  class GitRepositoryLinkTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The type of DeveloperConnect GitRepositoryLink.
+
+    Values:
+      GIT_REPOSITORY_LINK_TYPE_UNSPECIFIED: If unspecified,
+        GitRepositoryLinkType defaults to GITHUB.
+      GITHUB: The SCM repo is GITHUB.
+      GITHUB_ENTERPRISE: The SCM repo is GITHUB_ENTERPRISE.
+      GITLAB: The SCM repo is GITLAB.
+      GITLAB_ENTERPRISE: The SCM repo is GITLAB_ENTERPRISE.
+    """
+    GIT_REPOSITORY_LINK_TYPE_UNSPECIFIED = 0
+    GITHUB = 1
+    GITHUB_ENTERPRISE = 2
+    GITLAB = 3
+    GITLAB_ENTERPRISE = 4
+
+  gitRepositoryLink = _messages.StringField(1)
+  gitRepositoryLinkType = _messages.EnumField('GitRepositoryLinkTypeValueValuesEnum', 2)
+  pullRequest = _messages.MessageField('PullRequestFilter', 3)
+  push = _messages.MessageField('PushFilter', 4)
+
+
 class Empty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
@@ -3584,9 +3636,12 @@ class HttpConfig(_messages.Message):
       user-specified Service Account) should have
       `secretmanager.versions.access` permissions on this secret. The proxy
       URL should be in format `protocol://@]proxyhost[:port]`.
+    proxySslCaInfo: Optional. Cloud Storage object storing the certificate to
+      use with the HTTP proxy.
   """
 
   proxySecretVersionName = _messages.StringField(1)
+  proxySslCaInfo = _messages.MessageField('GCSLocation', 2)
 
 
 class HybridPoolConfig(_messages.Message):
@@ -4075,8 +4130,8 @@ class OperationMetadata(_messages.Message):
     apiVersion: Output only. API version used to start the operation.
     cancelRequested: Output only. Identifies whether the user has requested
       cancellation of the operation. Operations that have been cancelled
-      successfully have Operation.error value with a google.rpc.Status.code of
-      1, corresponding to `Code.CANCELLED`.
+      successfully have google.longrunning.Operation.error value with a
+      google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
     createTime: Output only. The time the operation was created.
     endTime: Output only. The time the operation finished running.
     statusDetail: Output only. Human-readable status of the operation, if any.
@@ -4979,6 +5034,38 @@ class StorageSourceManifest(_messages.Message):
   bucket = _messages.StringField(1)
   generation = _messages.IntegerField(2)
   object = _messages.StringField(3)
+
+
+class TestResults(_messages.Message):
+  r"""Files in the workspace to upload to Cloud Storage upon successful
+  completion of all build steps.
+
+  Enums:
+    FormatValueValuesEnum: Optional. Format of the test results.
+
+  Fields:
+    bucketUri: Optional. Cloud Storage bucket and optional object path, in the
+      form "gs://bucket/path/to/somewhere/". (see [Bucket Name
+      Requirements](https://cloud.google.com/storage/docs/bucket-
+      naming#requirements)). Files in the workspace matching any path pattern
+      will be uploaded to Cloud Storage with this location as a prefix.
+    format: Optional. Format of the test results.
+    paths: Optional. Path globs used to match files in the build's workspace.
+  """
+
+  class FormatValueValuesEnum(_messages.Enum):
+    r"""Optional. Format of the test results.
+
+    Values:
+      FORMAT_UNSPECIFIED: The default format is JUnit.
+      JUNIT: The test results are in JUnit format.
+    """
+    FORMAT_UNSPECIFIED = 0
+    JUNIT = 1
+
+  bucketUri = _messages.StringField(1)
+  format = _messages.EnumField('FormatValueValuesEnum', 2)
+  paths = _messages.StringField(3, repeated=True)
 
 
 class TimeSpan(_messages.Message):

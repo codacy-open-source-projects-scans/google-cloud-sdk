@@ -244,6 +244,60 @@ class DeveloperconnectV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def ProcessGitLabEnterpriseWebhook(self, request, global_params=None):
+      r"""ProcessGitLabEnterpriseWebhook is called by the external GitLab Enterprise instances for notifying events.
+
+      Args:
+        request: (DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabEnterpriseWebhookRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('ProcessGitLabEnterpriseWebhook')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ProcessGitLabEnterpriseWebhook.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/gitRepositoryLinks/{gitRepositoryLinksId}:processGitLabEnterpriseWebhook',
+        http_method='POST',
+        method_id='developerconnect.projects.locations.connections.gitRepositoryLinks.processGitLabEnterpriseWebhook',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:processGitLabEnterpriseWebhook',
+        request_field='processGitLabEnterpriseWebhookRequest',
+        request_type_name='DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabEnterpriseWebhookRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def ProcessGitLabWebhook(self, request, global_params=None):
+      r"""ProcessGitLabWebhook is called by the GitLab.com for notifying events.
+
+      Args:
+        request: (DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabWebhookRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('ProcessGitLabWebhook')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ProcessGitLabWebhook.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/gitRepositoryLinks/{gitRepositoryLinksId}:processGitLabWebhook',
+        http_method='POST',
+        method_id='developerconnect.projects.locations.connections.gitRepositoryLinks.processGitLabWebhook',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:processGitLabWebhook',
+        request_field='processGitLabWebhookRequest',
+        request_type_name='DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabWebhookRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
   class ProjectsLocationsConnectionsService(base_api.BaseApiService):
     """Service class for the projects_locations_connections resource."""
 
@@ -443,6 +497,33 @@ class DeveloperconnectV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def ProcessGitHubEnterpriseWebhook(self, request, global_params=None):
+      r"""ProcessGitHubEnterpriseWebhook is called by the external GitHub Enterprise instances for notifying events.
+
+      Args:
+        request: (DeveloperconnectProjectsLocationsConnectionsProcessGitHubEnterpriseWebhookRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('ProcessGitHubEnterpriseWebhook')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ProcessGitHubEnterpriseWebhook.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/connections:processGitHubEnterpriseWebhook',
+        http_method='POST',
+        method_id='developerconnect.projects.locations.connections.processGitHubEnterpriseWebhook',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1/{+parent}/connections:processGitHubEnterpriseWebhook',
+        request_field='processGitHubEnterpriseWebhookRequest',
+        request_type_name='DeveloperconnectProjectsLocationsConnectionsProcessGitHubEnterpriseWebhookRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
   class ProjectsLocationsOperationsService(base_api.BaseApiService):
     """Service class for the projects_locations_operations resource."""
 
@@ -454,7 +535,7 @@ class DeveloperconnectV1(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (DeveloperconnectProjectsLocationsOperationsCancelRequest) input message

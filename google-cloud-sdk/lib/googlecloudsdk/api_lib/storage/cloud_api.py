@@ -333,13 +333,15 @@ class CloudApi(object):
     """
     raise NotImplementedError('get_bucket_iam_policy must be overridden.')
 
-  def list_buckets(self, fields_scope=None, soft_deleted=False):
+  def list_buckets(self, fields_scope=None, soft_deleted=False, prefix=None):
     """Lists bucket metadata for the given project.
 
     Args:
       fields_scope (FieldsScope): Determines the fields and projection
         parameters of API call.
       soft_deleted (bool): If true, only soft-deleted bucket versions will be
+        returned.
+      prefix (str): If provided, only buckets with the given prefix will be
         returned.
 
     Yields:
@@ -1171,9 +1173,10 @@ class CloudApi(object):
     Args:
       bucket_name (str): Name of the bucket to advance the relocate for.
       operation_id (str): ID of the operation resource.
-      ttl (str | None): Specifies the duration after which the relocation will
-        revert to the sync stage if the relocation hasn't succeeded. Optional,
-        if not supplied, a default value of 12h will be used.
+      ttl (int | None): Specifies the duration in int seconds, after which the
+        relocation will revert to the sync stage if the relocation hasn't
+        succeeded. Optional, if not supplied, a default value of 12h will be
+        used.
 
     Raises:
       CloudApiError: API returned an error.

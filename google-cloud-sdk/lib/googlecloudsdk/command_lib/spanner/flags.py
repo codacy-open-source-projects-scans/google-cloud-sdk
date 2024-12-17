@@ -27,6 +27,7 @@ from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope import exceptions as c_exceptions
 from googlecloudsdk.command_lib.spanner import ddl_parser
+from googlecloudsdk.command_lib.spanner import split_file_parser
 from googlecloudsdk.command_lib.util import completers
 from googlecloudsdk.core.util import files
 
@@ -441,17 +442,41 @@ def Edition(
   )
 
 
-# TODO(b/370068996): Unhide the flag.
 def DefaultBackupScheduleType(
+    choices=None,
     required=False,
-    hidden=True,
-    text='The type of the default backup schedule to use for the instance.',
+    text='The default backup schedule type that is used in the instance.',
 ):
   return base.Argument(
       '--default-backup-schedule-type',
       required=required,
-      hidden=hidden,
       help=text,
+      choices=choices,
+  )
+
+
+def SplitsFile(help_text):
+  return base.Argument(
+      '--splits-file',
+      required=True,
+      completer=FilesCompleter,
+      help=help_text,
+  )
+
+
+def SplitExpirationDate(help_text):
+  return base.Argument(
+      '--split-expiration-date',
+      required=False,
+      help=help_text,
+  )
+
+
+def Initiator(help_text):
+  return base.Argument(
+      '--initiator',
+      required=False,
+      help=help_text,
   )
 
 
@@ -953,3 +978,7 @@ def GetSpannerMigrationDataflowTemplateFlag():
           ' template to use to run the migration job.'
       ),
   )
+
+
+def GetSplitPoints(args):
+  return split_file_parser.ParseSplitPoints(args)

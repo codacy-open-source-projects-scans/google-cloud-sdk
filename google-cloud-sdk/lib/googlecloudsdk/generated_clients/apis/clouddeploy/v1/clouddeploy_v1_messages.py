@@ -512,9 +512,9 @@ class AutomationRun(_messages.Message):
     state: Output only. Current state of the `AutomationRun`.
     stateDescription: Output only. Explains the current state of the
       `AutomationRun`. Present only when an explanation is needed.
-    targetId: Output only. The ID of the target that represents the promotion
-      stage that initiates the `AutomationRun`. The value of this field is the
-      last segment of a target name.
+    targetId: Output only. The ID of the source target that initiates the
+      `AutomationRun`. The value of this field is the last segment of a target
+      name.
     timedPromoteReleaseOperation: Output only. Promotes a release to a
       specified 'Target' as defined in a Timed Promote Release rule.
     updateTime: Output only. Time at which the automationRun was updated.
@@ -3413,21 +3413,26 @@ class GkeCluster(_messages.Message):
   Fields:
     cluster: Optional. Information specifying a GKE Cluster. Format is
       `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`.
+    dnsEndpoint: Optional. If set, the cluster will be accessed using the DNS
+      endpoint. Note that `dns_endpoint` and `internal_ip` cannot both be set
+      to true.
     internalIp: Optional. If true, `cluster` is accessed using the private IP
       address of the control plane endpoint. Otherwise, the default IP address
       of the control plane endpoint is used. The default IP address is the
       private IP address for clusters with private control-plane endpoints and
       the public IP address otherwise. Only specify this option when `cluster`
       is a [private GKE cluster](https://cloud.google.com/kubernetes-
-      engine/docs/concepts/private-cluster-concept).
+      engine/docs/concepts/private-cluster-concept). Note that `internal_ip`
+      and `dns_endpoint` cannot both be set to true.
     proxyUrl: Optional. If set, used to configure a
       [proxy](https://kubernetes.io/docs/concepts/configuration/organize-
       cluster-access-kubeconfig/#proxy) to the Kubernetes server.
   """
 
   cluster = _messages.StringField(1)
-  internalIp = _messages.BooleanField(2)
-  proxyUrl = _messages.StringField(3)
+  dnsEndpoint = _messages.BooleanField(2)
+  internalIp = _messages.BooleanField(3)
+  proxyUrl = _messages.StringField(4)
 
 
 class IgnoreJobRequest(_messages.Message):
@@ -4051,8 +4056,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -4580,8 +4586,8 @@ class Release(_messages.Message):
       URI.
     skaffoldConfigUri: Cloud Storage URI of tar.gz archive containing Skaffold
       configuration.
-    skaffoldVersion: The Skaffold version to use when operating on this
-      release, such as "1.20.0". Not all versions are valid; Cloud Deploy
+    skaffoldVersion: Optional. The Skaffold version to use when operating on
+      this release, such as "1.20.0". Not all versions are valid; Cloud Deploy
       supports a specific set of versions. If unset, the most recent supported
       Skaffold version will be used.
     targetArtifacts: Output only. Map from target ID to the target artifacts

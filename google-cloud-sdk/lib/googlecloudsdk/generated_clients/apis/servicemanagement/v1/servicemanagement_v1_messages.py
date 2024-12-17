@@ -1485,13 +1485,18 @@ class ExperimentalFeatures(_messages.Message):
   default.
 
   Fields:
+    protobufPythonicTypesEnabled: Enables generation of protobuf code using
+      new types that are more Pythonic which are included in
+      `protobuf>=5.29.x`. This feature will be enabled by default 1 month
+      after launching the feature in preview packages.
     restAsyncIoEnabled: Enables generation of asynchronous REST clients if
       `rest` transport is enabled. By default, asynchronous REST clients will
       not be generated. This feature will be enabled by default 1 month after
       launching the feature in preview packages.
   """
 
-  restAsyncIoEnabled = _messages.BooleanField(1)
+  protobufPythonicTypesEnabled = _messages.BooleanField(1)
+  restAsyncIoEnabled = _messages.BooleanField(2)
 
 
 class Expr(_messages.Message):
@@ -3602,9 +3607,9 @@ class QuotaLimit(_messages.Message):
       characters as well as '-'. The maximum length of the limit name is 64
       characters.
     unit: Specify the unit of the quota limit. It uses the same syntax as
-      Metric.unit. The supported unit kinds are determined by the quota
-      backend system. Here are some examples: * "1/min/{project}" for quota
-      per minute per project. Note: the order of unit components is
+      MetricDescriptor.unit. The supported unit kinds are determined by the
+      quota backend system. Here are some examples: * "1/min/{project}" for
+      quota per minute per project. Note: the order of unit components is
       insignificant. The "1" at the beginning is required to follow the metric
       unit syntax.
     values: Tiered limit values. You must specify this as a key:value pair,

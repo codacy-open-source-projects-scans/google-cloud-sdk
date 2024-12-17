@@ -192,30 +192,6 @@ class AllocationAffinity(_messages.Message):
   values = _messages.StringField(3, repeated=True)
 
 
-class AssetLocation(_messages.Message):
-  r"""Provides the mapping of a cloud asset to a direct physical location or
-  to a proxy that defines the location on its behalf.
-
-  Fields:
-    ccfeRmsPath: Spanner path of the CCFE RMS database. It is only applicable
-      for CCFE tenants that use CCFE RMS for storing resource metadata.
-    expected: Defines the customer expectation around ZI/ZS for this asset and
-      ZI/ZS state of the region at the time of asset creation.
-    extraParameters: Defines extra parameters required for specific asset
-      types.
-    locationData: Contains all kinds of physical location definitions for this
-      asset.
-    parentAsset: Defines parents assets if any in order to allow later
-      generation of child_asset_location data via child assets.
-  """
-
-  ccfeRmsPath = _messages.StringField(1)
-  expected = _messages.MessageField('IsolationExpectations', 2)
-  extraParameters = _messages.MessageField('ExtraParameter', 3, repeated=True)
-  locationData = _messages.MessageField('LocationData', 4, repeated=True)
-  parentAsset = _messages.MessageField('CloudAsset', 5, repeated=True)
-
-
 class AttachedDisk(_messages.Message):
   r"""An instance-attached disk resource.
 
@@ -452,6 +428,8 @@ class Backup(_messages.Message):
       datasource.
     resourceSizeBytes: Output only. source resource size in bytes at the time
       of the backup.
+    satisfiesPzi: Optional. Output only. Reserved for future use.
+    satisfiesPzs: Optional. Output only. Reserved for future use.
     serviceLocks: Output only. The list of BackupLocks taken by the service to
       prevent the deletion of the backup.
     state: Output only. The Backup resource instance state.
@@ -526,9 +504,11 @@ class Backup(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 13)
   name = _messages.StringField(14)
   resourceSizeBytes = _messages.IntegerField(15)
-  serviceLocks = _messages.MessageField('BackupLock', 16, repeated=True)
-  state = _messages.EnumField('StateValueValuesEnum', 17)
-  updateTime = _messages.StringField(18)
+  satisfiesPzi = _messages.BooleanField(16)
+  satisfiesPzs = _messages.BooleanField(17)
+  serviceLocks = _messages.MessageField('BackupLock', 18, repeated=True)
+  state = _messages.EnumField('StateValueValuesEnum', 19)
+  updateTime = _messages.StringField(20)
 
 
 class BackupApplianceBackupConfig(_messages.Message):
@@ -696,12 +676,16 @@ class BackupPlan(_messages.Message):
       prevent stale resources.
     labels: Optional. This collection of key/value pairs allows for custom
       labels to be supplied by the user. Example, {"tag": "Weekly"}.
+    logRetentionDays: Optional. Required for CloudSQL resource_type Configures
+      how long logs will be stored. It is defined in "days". This value should
+      be greater than or equal to minimum enforced log retention duration of
+      the backup vault.
     name: Output only. Identifier. The resource name of the `BackupPlan`.
       Format:
       `projects/{project}/locations/{location}/backupPlans/{backup_plan}`
     resourceType: Required. The resource type to which the `BackupPlan` will
       be applied. Examples include, "compute.googleapis.com/Instance",
-      "sqladmin.googleapis.com/Instance" and "storage.googleapis.com/Bucket".
+      "sqladmin.googleapis.com/Instance", or "alloydb.googleapis.com/Cluster".
     state: Output only. The `State` for the `BackupPlan`.
     updateTime: Output only. When the `BackupPlan` was last updated.
   """
@@ -754,10 +738,11 @@ class BackupPlan(_messages.Message):
   description = _messages.StringField(5)
   etag = _messages.StringField(6)
   labels = _messages.MessageField('LabelsValue', 7)
-  name = _messages.StringField(8)
-  resourceType = _messages.StringField(9)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
-  updateTime = _messages.StringField(11)
+  logRetentionDays = _messages.IntegerField(8)
+  name = _messages.StringField(9)
+  resourceType = _messages.StringField(10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  updateTime = _messages.StringField(12)
 
 
 class BackupPlanAssociation(_messages.Message):
@@ -773,17 +758,16 @@ class BackupPlanAssociation(_messages.Message):
       applied on workload. Format:
       projects/{project}/locations/{location}/backupPlans/{backupPlanId}
     createTime: Output only. The time when the instance was created.
-    dataSource: Output only. Output Only. Resource name of data source which
-      will be used as storage location for backups taken. Format : projects/{p
-      roject}/locations/{location}/backupVaults/{backupvault}/dataSources/{dat
-      asource}
+    dataSource: Output only. Resource name of data source which will be used
+      as storage location for backups taken. Format : projects/{project}/locat
+      ions/{location}/backupVaults/{backupvault}/dataSources/{datasource}
     name: Output only. Identifier. The resource name of BackupPlanAssociation
       in below format Format : projects/{project}/locations/{location}/backupP
       lanAssociations/{backupPlanAssociationId}
     resource: Required. Immutable. Resource name of workload on which
       backupplan is applied
-    resourceType: Optional. Resource type of workload on which backupplan is
-      applied
+    resourceType: Required. Immutable. Resource type of workload on which
+      backupplan is applied
     rulesConfigInfo: Output only. The config info related to backup rules.
     state: Output only. The BackupPlanAssociation resource state.
     updateTime: Output only. The time when the instance was updated.
@@ -824,7 +808,12 @@ class BackupRule(_messages.Message):
   Fields:
     backupRetentionDays: Required. Configures the duration for which backup
       data will be kept. It is defined in "days". The value should be greater
-      than or equal to minimum enforced retention of the backup vault.
+      than or equal to minimum enforced retention of the backup vault. Minimum
+      value is 1 and maximum value is 90 for hourly backups. Minimum value is
+      1 and maximum value is 90 for daily backups. Minimum value is 7 and
+      maximum value is 186 for weekly backups. Minimum value is 30 and maximum
+      value is 732 for monthly backups. Minimum value is 365 and maximum value
+      is 36159 for yearly backups.
     ruleId: Required. Immutable. The unique id of this `BackupRule`. The
       `rule_id` is unique per `BackupPlan`.The `rule_id` must start with a
       lowercase letter followed by up to 62 lowercase letters, numbers, or
@@ -843,9 +832,9 @@ class BackupVault(_messages.Message):
 
   Enums:
     AccessRestrictionValueValuesEnum: Optional. Note: This field is added for
-      future use case and will not be supported in the current release.
-      Optional. Access restriction for the backup vault. Default value is
-      WITHIN_ORGANIZATION if not provided during creation.
+      future use case and will not be supported in the current release. Access
+      restriction for the backup vault. Default value is WITHIN_ORGANIZATION
+      if not provided during creation.
     StateValueValuesEnum: Output only. The BackupVault resource instance
       state.
 
@@ -858,9 +847,9 @@ class BackupVault(_messages.Message):
 
   Fields:
     accessRestriction: Optional. Note: This field is added for future use case
-      and will not be supported in the current release. Optional. Access
-      restriction for the backup vault. Default value is WITHIN_ORGANIZATION
-      if not provided during creation.
+      and will not be supported in the current release. Access restriction for
+      the backup vault. Default value is WITHIN_ORGANIZATION if not provided
+      during creation.
     annotations: Optional. User annotations. See
       https://google.aip.dev/128#annotations Stores small amounts of arbitrary
       data.
@@ -891,29 +880,34 @@ class BackupVault(_messages.Message):
     state: Output only. The BackupVault resource instance state.
     totalStoredBytes: Output only. Total size of the storage used by all
       backup resources.
-    uid: Output only. Output only Immutable after resource creation until
-      resource deletion.
+    uid: Output only. Immutable after resource creation until resource
+      deletion.
     updateTime: Output only. The time when the instance was updated.
   """
 
   class AccessRestrictionValueValuesEnum(_messages.Enum):
     r"""Optional. Note: This field is added for future use case and will not
-    be supported in the current release. Optional. Access restriction for the
-    backup vault. Default value is WITHIN_ORGANIZATION if not provided during
+    be supported in the current release. Access restriction for the backup
+    vault. Default value is WITHIN_ORGANIZATION if not provided during
     creation.
 
     Values:
-      ACCESS_RESTRICTION_UNSPECIFIED: Access restriction not set.
+      ACCESS_RESTRICTION_UNSPECIFIED: Access restriction not set. If user does
+        not provide any value or pass this value, it will be changed to
+        WITHIN_ORGANIZATION.
       WITHIN_PROJECT: Access to or from resources outside your current project
         will be denied.
       WITHIN_ORGANIZATION: Access to or from resources outside your current
         organization will be denied.
       UNRESTRICTED: No access restriction.
+      WITHIN_ORG_BUT_UNRESTRICTED_FOR_BA: Access to or from resources outside
+        your current organization will be denied except for backup appliance.
     """
     ACCESS_RESTRICTION_UNSPECIFIED = 0
     WITHIN_PROJECT = 1
     WITHIN_ORGANIZATION = 2
     UNRESTRICTED = 3
+    WITHIN_ORG_BUT_UNRESTRICTED_FOR_BA = 4
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The BackupVault resource instance state.
@@ -2105,41 +2099,8 @@ class Binding(_messages.Message):
   role = _messages.StringField(3)
 
 
-class BlobstoreLocation(_messages.Message):
-  r"""Policy ID that identified data placement in Blobstore as per
-  go/blobstore-user-guide#data-metadata-placement-and-failure-domains
-
-  Fields:
-    policyId: A string attribute.
-  """
-
-  policyId = _messages.StringField(1, repeated=True)
-
-
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
-
-
-class CloudAsset(_messages.Message):
-  r"""A CloudAsset object.
-
-  Fields:
-    assetName: A string attribute.
-    assetType: A string attribute.
-  """
-
-  assetName = _messages.StringField(1)
-  assetType = _messages.StringField(2)
-
-
-class CloudAssetComposition(_messages.Message):
-  r"""A CloudAssetComposition object.
-
-  Fields:
-    childAsset: A CloudAsset attribute.
-  """
-
-  childAsset = _messages.MessageField('CloudAsset', 1, repeated=True)
 
 
 class CloudSQLInstanceBackupProperties(_messages.Message):
@@ -2674,16 +2635,6 @@ class DataSourceGcpResource(_messages.Message):
   type = _messages.StringField(5)
 
 
-class DirectLocationAssignment(_messages.Message):
-  r"""A DirectLocationAssignment object.
-
-  Fields:
-    location: A LocationAssignment attribute.
-  """
-
-  location = _messages.MessageField('LocationAssignment', 1, repeated=True)
-
-
 class DisplayDevice(_messages.Message):
   r"""A set of Display Device options
 
@@ -2752,17 +2703,6 @@ class Expr(_messages.Message):
   expression = _messages.StringField(2)
   location = _messages.StringField(3)
   title = _messages.StringField(4)
-
-
-class ExtraParameter(_messages.Message):
-  r"""Defines parameters that should only be used for specific asset types.
-
-  Fields:
-    regionalMigDistributionPolicy: Details about zones used by regional
-      compute.googleapis.com/InstanceGroupManager to create instances.
-  """
-
-  regionalMigDistributionPolicy = _messages.MessageField('RegionalMigDistributionPolicy', 1)
 
 
 class FetchAccessTokenRequest(_messages.Message):
@@ -3068,156 +3008,6 @@ class InstanceParams(_messages.Message):
   resourceManagerTags = _messages.MessageField('ResourceManagerTagsValue', 1)
 
 
-class IsolationExpectations(_messages.Message):
-  r"""A IsolationExpectations object.
-
-  Enums:
-    ZiOrgPolicyValueValuesEnum:
-    ZiRegionPolicyValueValuesEnum:
-    ZiRegionStateValueValuesEnum:
-    ZoneIsolationValueValuesEnum: Deprecated: use zi_org_policy,
-      zi_region_policy and zi_region_state instead for setting ZI expectations
-      as per go/zicy-publish-physical-location.
-    ZoneSeparationValueValuesEnum: Deprecated: use zs_org_policy, and
-      zs_region_stateinstead for setting Zs expectations as per go/zicy-
-      publish-physical-location.
-    ZsOrgPolicyValueValuesEnum:
-    ZsRegionStateValueValuesEnum:
-
-  Fields:
-    requirementOverride: Explicit overrides for ZI and ZS requirements to be
-      used for resources that should be excluded from ZI/ZS verification
-      logic.
-    ziOrgPolicy: A ZiOrgPolicyValueValuesEnum attribute.
-    ziRegionPolicy: A ZiRegionPolicyValueValuesEnum attribute.
-    ziRegionState: A ZiRegionStateValueValuesEnum attribute.
-    zoneIsolation: Deprecated: use zi_org_policy, zi_region_policy and
-      zi_region_state instead for setting ZI expectations as per go/zicy-
-      publish-physical-location.
-    zoneSeparation: Deprecated: use zs_org_policy, and zs_region_stateinstead
-      for setting Zs expectations as per go/zicy-publish-physical-location.
-    zsOrgPolicy: A ZsOrgPolicyValueValuesEnum attribute.
-    zsRegionState: A ZsRegionStateValueValuesEnum attribute.
-  """
-
-  class ZiOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZiRegionPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiRegionPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_POLICY_UNSPECIFIED: <no description>
-      ZI_REGION_POLICY_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_POLICY_NOT_SET: <no description>
-      ZI_REGION_POLICY_FAIL_OPEN: <no description>
-      ZI_REGION_POLICY_FAIL_CLOSED: <no description>
-    """
-    ZI_REGION_POLICY_UNSPECIFIED = 0
-    ZI_REGION_POLICY_UNKNOWN = 1
-    ZI_REGION_POLICY_NOT_SET = 2
-    ZI_REGION_POLICY_FAIL_OPEN = 3
-    ZI_REGION_POLICY_FAIL_CLOSED = 4
-
-  class ZiRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZiRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_UNSPECIFIED: <no description>
-      ZI_REGION_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_NOT_ENABLED: <no description>
-      ZI_REGION_ENABLED: <no description>
-    """
-    ZI_REGION_UNSPECIFIED = 0
-    ZI_REGION_UNKNOWN = 1
-    ZI_REGION_NOT_ENABLED = 2
-    ZI_REGION_ENABLED = 3
-
-  class ZoneIsolationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zi_org_policy, zi_region_policy and zi_region_state
-    instead for setting ZI expectations as per go/zicy-publish-physical-
-    location.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZoneSeparationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zs_org_policy, and zs_region_stateinstead for setting
-    Zs expectations as per go/zicy-publish-physical-location.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZsOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZsRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZS_REGION_UNSPECIFIED: <no description>
-      ZS_REGION_UNKNOWN: To be used if tracking of the asset ZS-bit is not
-        available
-      ZS_REGION_NOT_ENABLED: <no description>
-      ZS_REGION_ENABLED: <no description>
-    """
-    ZS_REGION_UNSPECIFIED = 0
-    ZS_REGION_UNKNOWN = 1
-    ZS_REGION_NOT_ENABLED = 2
-    ZS_REGION_ENABLED = 3
-
-  requirementOverride = _messages.MessageField('RequirementOverride', 1)
-  ziOrgPolicy = _messages.EnumField('ZiOrgPolicyValueValuesEnum', 2)
-  ziRegionPolicy = _messages.EnumField('ZiRegionPolicyValueValuesEnum', 3)
-  ziRegionState = _messages.EnumField('ZiRegionStateValueValuesEnum', 4)
-  zoneIsolation = _messages.EnumField('ZoneIsolationValueValuesEnum', 5)
-  zoneSeparation = _messages.EnumField('ZoneSeparationValueValuesEnum', 6)
-  zsOrgPolicy = _messages.EnumField('ZsOrgPolicyValueValuesEnum', 7)
-  zsRegionState = _messages.EnumField('ZsRegionStateValueValuesEnum', 8)
-
-
 class ListBackupPlanAssociationsResponse(_messages.Message):
   r"""Response message for List BackupPlanAssociation
 
@@ -3446,65 +3236,6 @@ class Location(_messages.Message):
   name = _messages.StringField(5)
 
 
-class LocationAssignment(_messages.Message):
-  r"""A LocationAssignment object.
-
-  Enums:
-    LocationTypeValueValuesEnum:
-
-  Fields:
-    location: A string attribute.
-    locationType: A LocationTypeValueValuesEnum attribute.
-  """
-
-  class LocationTypeValueValuesEnum(_messages.Enum):
-    r"""LocationTypeValueValuesEnum enum type.
-
-    Values:
-      UNSPECIFIED: <no description>
-      CLUSTER: 1-10: Physical failure domains.
-      POP: <no description>
-      CLOUD_ZONE: 11-20: Logical failure domains.
-      CLOUD_REGION: <no description>
-      MULTI_REGION_GEO: <no description>
-      MULTI_REGION_JURISDICTION: <no description>
-      GLOBAL: <no description>
-      OTHER: <no description>
-    """
-    UNSPECIFIED = 0
-    CLUSTER = 1
-    POP = 2
-    CLOUD_ZONE = 3
-    CLOUD_REGION = 4
-    MULTI_REGION_GEO = 5
-    MULTI_REGION_JURISDICTION = 6
-    GLOBAL = 7
-    OTHER = 8
-
-  location = _messages.StringField(1)
-  locationType = _messages.EnumField('LocationTypeValueValuesEnum', 2)
-
-
-class LocationData(_messages.Message):
-  r"""A LocationData object.
-
-  Fields:
-    blobstoreLocation: A BlobstoreLocation attribute.
-    childAssetLocation: A CloudAssetComposition attribute.
-    directLocation: A DirectLocationAssignment attribute.
-    gcpProjectProxy: A TenantProjectProxy attribute.
-    placerLocation: A PlacerLocation attribute.
-    spannerLocation: A SpannerLocation attribute.
-  """
-
-  blobstoreLocation = _messages.MessageField('BlobstoreLocation', 1)
-  childAssetLocation = _messages.MessageField('CloudAssetComposition', 2)
-  directLocation = _messages.MessageField('DirectLocationAssignment', 3)
-  gcpProjectProxy = _messages.MessageField('TenantProjectProxy', 4)
-  placerLocation = _messages.MessageField('PlacerLocation', 5)
-  spannerLocation = _messages.MessageField('SpannerLocation', 6)
-
-
 class ManagementServer(_messages.Message):
   r"""ManagementServer describes a single BackupDR ManagementServer instance.
 
@@ -3532,8 +3263,9 @@ class ManagementServer(_messages.Message):
       endpoints, used by clients to connect to AGM/RD graphical user interface
       and APIs.
     name: Output only. Identifier. The resource name.
-    networks: Required. VPC networks to which the ManagementServer instance is
-      connected. For this version, only a single network is supported.
+    networks: Optional. VPC networks to which the ManagementServer instance is
+      connected. For this version, only a single network is supported. This
+      field is optional if MS is created without PSA
     oauth2ClientId: Output only. The OAuth 2.0 client id is required to make
       API calls to the BackupDR instance API of this ManagementServer. This is
       the value that should be provided in the 'aud' field of the OIDC ID
@@ -3976,8 +3708,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to 'Code.CANCELLED'.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      'Code.CANCELLED'.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -4033,18 +3766,6 @@ class PiTRWindow(_messages.Message):
   endTime = _messages.StringField(1)
   logRetentionDays = _messages.IntegerField(2)
   startTime = _messages.StringField(3)
-
-
-class PlacerLocation(_messages.Message):
-  r"""Message describing that the location of the customer resource is tied to
-  placer allocations
-
-  Fields:
-    placerConfig: Directory with a config related to it in placer (e.g.
-      "/placer/prod/home/my-root/my-dir")
-  """
-
-  placerConfig = _messages.StringField(1)
 
 
 class Policy(_messages.Message):
@@ -4125,20 +3846,6 @@ class Policy(_messages.Message):
   version = _messages.IntegerField(4, variant=_messages.Variant.INT32)
 
 
-class RegionalMigDistributionPolicy(_messages.Message):
-  r"""To be used for specifying the intended distribution of regional
-  compute.googleapis.com/InstanceGroupManager instances
-
-  Fields:
-    targetShape: The shape in which the group converges around distribution of
-      resources. Instance of proto2 enum
-    zones: Cloud zones used by regional MIG to create instances.
-  """
-
-  targetShape = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  zones = _messages.MessageField('ZoneConfiguration', 2, repeated=True)
-
-
 class RemoveDataSourceRequest(_messages.Message):
   r"""Message for deleting a DataSource.
 
@@ -4157,52 +3864,6 @@ class RemoveDataSourceRequest(_messages.Message):
   """
 
   requestId = _messages.StringField(1)
-
-
-class RequirementOverride(_messages.Message):
-  r"""A RequirementOverride object.
-
-  Enums:
-    ZiOverrideValueValuesEnum:
-    ZsOverrideValueValuesEnum:
-
-  Fields:
-    ziOverride: A ZiOverrideValueValuesEnum attribute.
-    zsOverride: A ZsOverrideValueValuesEnum attribute.
-  """
-
-  class ZiOverrideValueValuesEnum(_messages.Enum):
-    r"""ZiOverrideValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZsOverrideValueValuesEnum(_messages.Enum):
-    r"""ZsOverrideValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  ziOverride = _messages.EnumField('ZiOverrideValueValuesEnum', 1)
-  zsOverride = _messages.EnumField('ZsOverrideValueValuesEnum', 2)
 
 
 class RestoreBackupRequest(_messages.Message):
@@ -4250,12 +3911,12 @@ class RuleConfigInfo(_messages.Message):
       rule.
 
   Fields:
-    lastBackupError: Output only. Output Only. google.rpc.Status object to
-      store the last backup error.
+    lastBackupError: Output only. google.rpc.Status object to store the last
+      backup error.
     lastBackupState: Output only. The last backup state for rule.
     lastSuccessfulBackupConsistencyTime: Output only. The point in time when
       the last successful backup was captured from the source.
-    ruleId: Output only. Output Only. Backup Rule id fetched from backup plan.
+    ruleId: Output only. Backup Rule id fetched from backup plan.
   """
 
   class LastBackupStateValueValuesEnum(_messages.Enum):
@@ -4468,20 +4129,6 @@ class SetInternalStatusRequest(_messages.Message):
 
 class SetInternalStatusResponse(_messages.Message):
   r"""Response message from SetStatusInternal method."""
-
-
-class SpannerLocation(_messages.Message):
-  r"""A SpannerLocation object.
-
-  Fields:
-    backupName: Set of backups used by the resource with name in the same
-      format as what is available at
-      http://table/spanner_automon.backup_metadata
-    dbName: Set of databases used by the resource in format /span//
-  """
-
-  backupName = _messages.StringField(1, repeated=True)
-  dbName = _messages.StringField(2, repeated=True)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -4755,16 +4402,6 @@ class TargetResource(_messages.Message):
   gcpResource = _messages.MessageField('GcpResource', 1)
 
 
-class TenantProjectProxy(_messages.Message):
-  r"""A TenantProjectProxy object.
-
-  Fields:
-    projectNumbers: A string attribute.
-  """
-
-  projectNumbers = _messages.StringField(1, repeated=True)
-
-
 class TestIamPermissionsRequest(_messages.Message):
   r"""Request message for `TestIamPermissions` method.
 
@@ -4896,16 +4533,6 @@ class WorkforceIdentityBasedOAuth2ClientID(_messages.Message):
 
   firstPartyOauth2ClientId = _messages.StringField(1)
   thirdPartyOauth2ClientId = _messages.StringField(2)
-
-
-class ZoneConfiguration(_messages.Message):
-  r"""A ZoneConfiguration object.
-
-  Fields:
-    zone: A string attribute.
-  """
-
-  zone = _messages.StringField(1)
 
 
 encoding.AddCustomJsonFieldMapping(

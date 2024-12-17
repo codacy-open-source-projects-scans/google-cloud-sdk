@@ -493,6 +493,9 @@ class Instance(_messages.Message):
     stateNote: Output only. An optional field providing information about the
       current instance state.
     updateTime: Output only. Update timestamp.
+    workforceIdentityFederationConfig: Optional. Configuration for Workforce
+      Identity Federation to support third party identity provider. If unset,
+      defaults to the Google OIDC IdP.
   """
 
   class StateNoteValueValuesEnum(_messages.Enum):
@@ -562,6 +565,7 @@ class Instance(_messages.Message):
   state = _messages.EnumField('StateValueValuesEnum', 7)
   stateNote = _messages.EnumField('StateNoteValueValuesEnum', 8)
   updateTime = _messages.StringField(9)
+  workforceIdentityFederationConfig = _messages.MessageField('WorkforceIdentityFederationConfig', 10)
 
 
 class IssueRedirectTicketInternalRequest(_messages.Message):
@@ -984,9 +988,9 @@ class Repository(_messages.Message):
     instance: Optional. The name of the instance in which the repository is
       hosted, formatted as `projects/{project_number}/locations/{location_id}/
       instances/{instance_id}` When creating repository via
-      *.sourcemanager.dev (Data Plane API), this field is output only. When
-      creating repository via securesourcemanager.googleapis.com (Control
-      Plane API), this field is used as input.
+      securesourcemanager.googleapis.com (Control Plane API), this field is
+      used as input. When creating repository via *.sourcemanager.dev (Data
+      Plane API), this field is output only.
     name: Optional. A unique identifier for a repository. The name should be
       of the format: `projects/{project}/locations/{location_id}/repositories/
       {repository_id}`
@@ -1429,9 +1433,9 @@ class SecuresourcemanagerProjectsLocationsRepositoriesListRequest(_messages.Mess
     instance: Optional. The name of the instance in which the repository is
       hosted, formatted as `projects/{project_number}/locations/{location_id}/
       instances/{instance_id}`. When listing repositories via
-      *.sourcemanager.dev (Data Plane API), this field is ignored. When
-      listing repositories via securesourcemanager.googleapis.com (Control
-      Plane API), this field is required.
+      securesourcemanager.googleapis.com (Control Plane API), this field is
+      required. When listing repositories via *.sourcemanager.dev (Data Plane
+      API), this field is ignored.
     pageSize: Optional. Requested page size. Server may return fewer items
       than requested. If unspecified, server will pick an appropriate default.
     pageToken: A token identifying a page of results the server should return.
@@ -1648,6 +1652,18 @@ class URIs(_messages.Message):
   api = _messages.StringField(1)
   gitHttps = _messages.StringField(2)
   html = _messages.StringField(3)
+
+
+class WorkforceIdentityFederationConfig(_messages.Message):
+  r"""WorkforceIdentityFederationConfig allows this instance to support users
+  from external identity providers.
+
+  Fields:
+    enabled: Optional. Immutable. Whether Workforce Identity Federation is
+      enabled.
+  """
+
+  enabled = _messages.BooleanField(1)
 
 
 encoding.AddCustomJsonFieldMapping(

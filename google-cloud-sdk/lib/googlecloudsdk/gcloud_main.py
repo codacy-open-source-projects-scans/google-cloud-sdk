@@ -136,6 +136,10 @@ def CreateCLI(surfaces, translator=None):
       base.ReleaseTrack.BETA,
       os.path.join(pkg_root, 'surface', 'beta'),
       component='beta')
+  loader.AddReleaseTrack(
+      base.ReleaseTrack.PREVIEW,
+      os.path.join(pkg_root, 'surface', 'preview'),
+      component='preview')
 
   for dot_path, dir_path in surfaces:
     loader.AddModule(dot_path, dir_path, component=None)
@@ -161,17 +165,6 @@ def CreateCLI(surfaces, translator=None):
       os.path.join(pkg_root, 'surface', 'bigtable', 'instances', 'tables'),
   )
 
-  # TODO(b/371581942): Remove colab-enterprise alias and surface specs after
-  # deprecation period.
-  # Clone 'colab' surface into 'colab-enterprise' for backward compatibility.
-  loader.AddModule(
-      'colab_enterprise', os.path.join(pkg_root, 'surface', 'colab')
-  )
-  loader.RegisterPreRunHook(
-      _IssueColabAliasWarning,
-      include_commands=r'gcloud\..*beta\..*colab-enterprise\..*',
-  )
-
   # Check for updates on shutdown but not for any of the updater commands.
   # Skip update checks for 'gcloud version' command as it does that manually.
   exclude_commands = r'gcloud\.components\..*|gcloud\.version'
@@ -186,14 +179,6 @@ def _IssueAIPlatformAliasWarning(command_path=None):
   log.warning(
       'The `gcloud ml-engine` commands have been renamed and will soon be '
       'removed. Please use `gcloud ai-platform` instead.'
-  )
-
-
-def _IssueColabAliasWarning(command_path=None):
-  del command_path
-  log.warning(
-      'The `gcloud beta colab-enterprise` commands have been renamed and will'
-      ' soon be removed. Please use `gcloud beta colab` instead.'
   )
 
 

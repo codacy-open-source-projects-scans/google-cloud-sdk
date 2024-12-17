@@ -44,28 +44,44 @@ class AOFConfig(_messages.Message):
   appendFsync = _messages.EnumField('AppendFsyncValueValuesEnum', 1)
 
 
-class AssetLocation(_messages.Message):
-  r"""Provides the mapping of a cloud asset to a direct physical location or
-  to a proxy that defines the location on its behalf.
+class AutomatedBackupConfig(_messages.Message):
+  r"""The automated backup config for a cluster.
+
+  Enums:
+    AutomatedBackupModeValueValuesEnum: Optional. The automated backup mode.
+      If the mode is disabled, the other fields will be ignored.
 
   Fields:
-    ccfeRmsPath: Spanner path of the CCFE RMS database. It is only applicable
-      for CCFE tenants that use CCFE RMS for storing resource metadata.
-    expected: Defines the customer expectation around ZI/ZS for this asset and
-      ZI/ZS state of the region at the time of asset creation.
-    extraParameters: Defines extra parameters required for specific asset
-      types.
-    locationData: Contains all kinds of physical location definitions for this
-      asset.
-    parentAsset: Defines parents assets if any in order to allow later
-      generation of child_asset_location data via child assets.
+    automatedBackupMode: Optional. The automated backup mode. If the mode is
+      disabled, the other fields will be ignored.
+    fixedFrequencySchedule: Optional. Trigger automated backups at a fixed
+      frequency.
+    retention: Optional. How long to keep automated backups before the backups
+      are deleted. The value should be between 1 day and 365 days. If not
+      specified, the default value is 35 days.
   """
 
-  ccfeRmsPath = _messages.StringField(1)
-  expected = _messages.MessageField('IsolationExpectations', 2)
-  extraParameters = _messages.MessageField('ExtraParameter', 3, repeated=True)
-  locationData = _messages.MessageField('LocationData', 4, repeated=True)
-  parentAsset = _messages.MessageField('CloudAsset', 5, repeated=True)
+  class AutomatedBackupModeValueValuesEnum(_messages.Enum):
+    r"""Optional. The automated backup mode.
+
+    If the mode is disabled, the other fields will be ignored.
+
+    Values:
+      AUTOMATED_BACKUP_MODE_UNSPECIFIED: Default value. Automated backup
+        config is not specified.
+      DISABLED: Automated backup config disabled.
+      ENABLED: Automated backup config enabled.
+    """
+
+    AUTOMATED_BACKUP_MODE_UNSPECIFIED = 0
+    DISABLED = 1
+    ENABLED = 2
+
+  automatedBackupMode = _messages.EnumField(
+      'AutomatedBackupModeValueValuesEnum', 1
+  )
+  fixedFrequencySchedule = _messages.MessageField('FixedFrequencySchedule', 2)
+  retention = _messages.StringField(3)
 
 
 class AvailabilityConfiguration(_messages.Message):
@@ -122,13 +138,17 @@ class Backup(_messages.Message):
   r"""Backup of a cluster.
 
   Enums:
+    BackupTypeValueValuesEnum: Output only. Type of the backup.
     NodeTypeValueValuesEnum: Output only. Node type of the cluster.
+    StateValueValuesEnum: Output only. State of the backup.
 
   Fields:
     backupFiles: Output only. List of backup files of the backup.
+    backupType: Output only. Type of the backup.
     cluster: Output only. Cluster resource path of this backup.
     clusterUid: Output only. Cluster uid of this backup.
     createTime: Output only. The time when the backup was created.
+    encryptionInfo: Output only. Encryption information of the backup.
     engineVersion: Output only. redis-7.2, valkey-7.5
     expireTime: Output only. The time when the backup will expire.
     name: Identifier. Full resource path of the backup. the last part of the
@@ -138,8 +158,21 @@ class Backup(_messages.Message):
     nodeType: Output only. Node type of the cluster.
     replicaCount: Output only. Number of replicas for the cluster.
     shardCount: Output only. Number of shards for the cluster.
+    state: Output only. State of the backup.
     totalSizeBytes: Output only. Total size of the backup in bytes.
   """
+
+  class BackupTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. Type of the backup.
+
+    Values:
+      BACKUP_TYPE_UNSPECIFIED: The default value, not set.
+      ON_DEMAND: On-demand backup.
+      AUTOMATED: Automated backup.
+    """
+    BACKUP_TYPE_UNSPECIFIED = 0
+    ON_DEMAND = 1
+    AUTOMATED = 2
 
   class NodeTypeValueValuesEnum(_messages.Enum):
     r"""Output only. Node type of the cluster.
@@ -157,17 +190,34 @@ class Backup(_messages.Message):
     REDIS_HIGHMEM_XLARGE = 3
     REDIS_STANDARD_SMALL = 4
 
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the backup.
+
+    Values:
+      STATE_UNSPECIFIED: The default value, not set.
+      CREATING: The backup is being created.
+      ACTIVE: The backup is active to be used.
+      DELETING: The backup is being deleted.
+    """
+    STATE_UNSPECIFIED = 0
+    CREATING = 1
+    ACTIVE = 2
+    DELETING = 3
+
   backupFiles = _messages.MessageField('BackupFile', 1, repeated=True)
-  cluster = _messages.StringField(2)
-  clusterUid = _messages.StringField(3)
-  createTime = _messages.StringField(4)
-  engineVersion = _messages.StringField(5)
-  expireTime = _messages.StringField(6)
-  name = _messages.StringField(7)
-  nodeType = _messages.EnumField('NodeTypeValueValuesEnum', 8)
-  replicaCount = _messages.IntegerField(9, variant=_messages.Variant.INT32)
-  shardCount = _messages.IntegerField(10, variant=_messages.Variant.INT32)
-  totalSizeBytes = _messages.IntegerField(11)
+  backupType = _messages.EnumField('BackupTypeValueValuesEnum', 2)
+  cluster = _messages.StringField(3)
+  clusterUid = _messages.StringField(4)
+  createTime = _messages.StringField(5)
+  encryptionInfo = _messages.MessageField('EncryptionInfo', 6)
+  engineVersion = _messages.StringField(7)
+  expireTime = _messages.StringField(8)
+  name = _messages.StringField(9)
+  nodeType = _messages.EnumField('NodeTypeValueValuesEnum', 10)
+  replicaCount = _messages.IntegerField(11, variant=_messages.Variant.INT32)
+  shardCount = _messages.IntegerField(12, variant=_messages.Variant.INT32)
+  state = _messages.EnumField('StateValueValuesEnum', 13)
+  totalSizeBytes = _messages.IntegerField(14)
 
 
 class BackupClusterRequest(_messages.Message):
@@ -176,8 +226,8 @@ class BackupClusterRequest(_messages.Message):
   Fields:
     backupId: Optional. The id of the backup to be created. If not specified,
       the default value ([YYYYMMDDHHMMSS]_[Shortened Cluster UID] is used.
-    ttl: Optional. TTL for the backup to expire. If not specified, the default
-      value is infinite, the backup never expires.
+    ttl: Optional. TTL for the backup to expire. Value range is 1 day to 100
+      years. If not specified, the default value is 100 years.
   """
 
   backupId = _messages.StringField(1)
@@ -188,12 +238,19 @@ class BackupCollection(_messages.Message):
   r"""BackupCollection of a cluster.
 
   Fields:
-    clusterId: Output only. The cluster name of the backup collection.
+    cluster: Output only. The full resource path of the cluster the backup
+      collection belongs to. Example:
+      projects/{project}/locations/{location}/clusters/{cluster}
     clusterUid: Output only. The cluster uid of the backup collection.
+    kmsKey: Output only. The KMS key used to encrypt the backups under this
+      backup collection.
+    name: Identifier. Full resource path of the backup collection.
   """
 
-  clusterId = _messages.StringField(1)
+  cluster = _messages.StringField(1)
   clusterUid = _messages.StringField(2)
+  kmsKey = _messages.StringField(3)
+  name = _messages.StringField(4)
 
 
 class BackupConfiguration(_messages.Message):
@@ -212,16 +269,6 @@ class BackupConfiguration(_messages.Message):
   automatedBackupEnabled = _messages.BooleanField(1)
   backupRetentionSettings = _messages.MessageField('RetentionSettings', 2)
   pointInTimeRecoveryEnabled = _messages.BooleanField(3)
-
-
-class BackupExportConfig(_messages.Message):
-  r"""Backup export configuration.
-
-  Fields:
-    gcsDestination: Google Cloud Storage destination.
-  """
-
-  gcsDestination = _messages.StringField(1)
 
 
 class BackupFile(_messages.Message):
@@ -270,17 +317,6 @@ class BackupRun(_messages.Message):
   status = _messages.EnumField('StatusValueValuesEnum', 4)
 
 
-class BlobstoreLocation(_messages.Message):
-  r"""Policy ID that identified data placement in Blobstore as per
-  go/blobstore-user-guide#data-metadata-placement-and-failure-domains
-
-  Fields:
-    policyId: A string attribute.
-  """
-
-  policyId = _messages.StringField(1, repeated=True)
-
-
 class CertChain(_messages.Message):
   r"""A CertChain object.
 
@@ -306,28 +342,6 @@ class CertificateAuthority(_messages.Message):
   name = _messages.StringField(2)
 
 
-class CloudAsset(_messages.Message):
-  r"""A CloudAsset object.
-
-  Fields:
-    assetName: A string attribute.
-    assetType: A string attribute.
-  """
-
-  assetName = _messages.StringField(1)
-  assetType = _messages.StringField(2)
-
-
-class CloudAssetComposition(_messages.Message):
-  r"""A CloudAssetComposition object.
-
-  Fields:
-    childAsset: A CloudAsset attribute.
-  """
-
-  childAsset = _messages.MessageField('CloudAsset', 1, repeated=True)
-
-
 class Cluster(_messages.Message):
   r"""A cluster instance.
 
@@ -351,6 +365,11 @@ class Cluster(_messages.Message):
   Fields:
     authorizationMode: Optional. The authorization mode of the Redis cluster.
       If not provided, auth feature is disabled for the cluster.
+    automatedBackupConfig: Optional. The automated backup config for the
+      cluster.
+    backupCollection: Optional. Output only. The backup collection full
+      resource name. Example:
+      projects/{project}/locations/{location}/backupCollections/{collection}
     clusterEndpoints: Optional. A list of cluster enpoints.
     createTime: Output only. The timestamp associated with the cluster
       creation request.
@@ -360,10 +379,14 @@ class Cluster(_messages.Message):
     discoveryEndpoints: Output only. Endpoints created on each given network,
       for Redis clients to connect to the cluster. Currently only one
       discovery endpoint is supported.
+    encryptionInfo: Output only. Encryption information of the data at rest of
+      the cluster.
     gcsSource: Optional. Backups stored in Cloud Storage buckets. The Cloud
       Storage buckets need to be the same region as the clusters. Read
       permission is required to import from the provided Cloud Storage
       objects.
+    kmsKey: Optional. The KMS key used to encrypt the at-rest data of the
+      cluster.
     maintenancePolicy: Optional. ClusterMaintenancePolicy determines when to
       allow or deny updates.
     maintenanceSchedule: Output only. ClusterMaintenanceSchedule Output only
@@ -375,21 +398,28 @@ class Cluster(_messages.Message):
       `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`
     nodeType: Optional. The type of a redis node in the cluster. NodeType
       determines the underlying machine-type of a redis node.
+    ondemandMaintenance: Optional. Input only. Ondemand maintenance for the
+      cluster. This field can be used to trigger ondemand critical update on
+      the cluster.
     persistenceConfig: Optional. Persistence config (RDB, AOF) for the
       cluster.
     preciseSizeGb: Output only. Precise value of redis memory size in GB for
       the entire cluster.
-    pscConfigs: Required. Each PscConfig configures the consumer network where
+    pscConfigs: Optional. Each PscConfig configures the consumer network where
       IPs will be designated to the cluster for client access through Private
       Service Connect Automation. Currently, only one PscConfig is supported.
     pscConnections: Output only. The list of PSC connections that are auto-
       created through service connectivity automation.
+    pscServiceAttachments: Output only. Service attachment details to
+      configure Psc connections
     redisConfigs: Optional. Key/Value pairs of customer overrides for mutable
       Redis Configs
     replicaCount: Optional. The number of replica nodes per shard.
     satisfiesPzi: Optional. Output only. Reserved for future use.
     satisfiesPzs: Optional. Output only. Reserved for future use.
     shardCount: Optional. Number of shards for the Redis cluster.
+    simulateMaintenanceEvent: Optional. Input only. Simulate a maintenance
+      event.
     sizeGb: Output only. Redis memory size in GB for the entire cluster
       rounded up to the next integer.
     state: Output only. The current state of this cluster. Can be CREATING,
@@ -492,32 +522,47 @@ class Cluster(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   authorizationMode = _messages.EnumField('AuthorizationModeValueValuesEnum', 1)
-  clusterEndpoints = _messages.MessageField('ClusterEndpoint', 2, repeated=True)
-  createTime = _messages.StringField(3)
-  crossClusterReplicationConfig = _messages.MessageField('CrossClusterReplicationConfig', 4)
-  deletionProtectionEnabled = _messages.BooleanField(5)
-  discoveryEndpoints = _messages.MessageField('DiscoveryEndpoint', 6, repeated=True)
-  gcsSource = _messages.MessageField('GcsBackupSource', 7)
-  maintenancePolicy = _messages.MessageField('ClusterMaintenancePolicy', 8)
-  maintenanceSchedule = _messages.MessageField('ClusterMaintenanceSchedule', 9)
-  managedBackupSource = _messages.MessageField('ManagedBackupSource', 10)
-  name = _messages.StringField(11)
-  nodeType = _messages.EnumField('NodeTypeValueValuesEnum', 12)
-  persistenceConfig = _messages.MessageField('ClusterPersistenceConfig', 13)
-  preciseSizeGb = _messages.FloatField(14)
-  pscConfigs = _messages.MessageField('PscConfig', 15, repeated=True)
-  pscConnections = _messages.MessageField('PscConnection', 16, repeated=True)
-  redisConfigs = _messages.MessageField('RedisConfigsValue', 17)
-  replicaCount = _messages.IntegerField(18, variant=_messages.Variant.INT32)
-  satisfiesPzi = _messages.BooleanField(19)
-  satisfiesPzs = _messages.BooleanField(20)
-  shardCount = _messages.IntegerField(21, variant=_messages.Variant.INT32)
-  sizeGb = _messages.IntegerField(22, variant=_messages.Variant.INT32)
-  state = _messages.EnumField('StateValueValuesEnum', 23)
-  stateInfo = _messages.MessageField('StateInfo', 24)
-  transitEncryptionMode = _messages.EnumField('TransitEncryptionModeValueValuesEnum', 25)
-  uid = _messages.StringField(26)
-  zoneDistributionConfig = _messages.MessageField('ZoneDistributionConfig', 27)
+  automatedBackupConfig = _messages.MessageField('AutomatedBackupConfig', 2)
+  backupCollection = _messages.StringField(3)
+  clusterEndpoints = _messages.MessageField('ClusterEndpoint', 4, repeated=True)
+  createTime = _messages.StringField(5)
+  crossClusterReplicationConfig = _messages.MessageField(
+      'CrossClusterReplicationConfig', 6
+  )
+  deletionProtectionEnabled = _messages.BooleanField(7)
+  discoveryEndpoints = _messages.MessageField(
+      'DiscoveryEndpoint', 8, repeated=True
+  )
+  encryptionInfo = _messages.MessageField('EncryptionInfo', 9)
+  gcsSource = _messages.MessageField('GcsBackupSource', 10)
+  kmsKey = _messages.StringField(11)
+  maintenancePolicy = _messages.MessageField('ClusterMaintenancePolicy', 12)
+  maintenanceSchedule = _messages.MessageField('ClusterMaintenanceSchedule', 13)
+  managedBackupSource = _messages.MessageField('ManagedBackupSource', 14)
+  name = _messages.StringField(15)
+  nodeType = _messages.EnumField('NodeTypeValueValuesEnum', 16)
+  ondemandMaintenance = _messages.BooleanField(17)
+  persistenceConfig = _messages.MessageField('ClusterPersistenceConfig', 18)
+  preciseSizeGb = _messages.FloatField(19)
+  pscConfigs = _messages.MessageField('PscConfig', 20, repeated=True)
+  pscConnections = _messages.MessageField('PscConnection', 21, repeated=True)
+  pscServiceAttachments = _messages.MessageField(
+      'PscServiceAttachment', 22, repeated=True
+  )
+  redisConfigs = _messages.MessageField('RedisConfigsValue', 23)
+  replicaCount = _messages.IntegerField(24, variant=_messages.Variant.INT32)
+  satisfiesPzi = _messages.BooleanField(25)
+  satisfiesPzs = _messages.BooleanField(26)
+  shardCount = _messages.IntegerField(27, variant=_messages.Variant.INT32)
+  simulateMaintenanceEvent = _messages.BooleanField(28)
+  sizeGb = _messages.IntegerField(29, variant=_messages.Variant.INT32)
+  state = _messages.EnumField('StateValueValuesEnum', 30)
+  stateInfo = _messages.MessageField('StateInfo', 31)
+  transitEncryptionMode = _messages.EnumField(
+      'TransitEncryptionModeValueValuesEnum', 32
+  )
+  uid = _messages.StringField(33)
+  zoneDistributionConfig = _messages.MessageField('ZoneDistributionConfig', 34)
 
 
 class ClusterDenyMaintenancePeriod(_messages.Message):
@@ -1857,16 +1902,6 @@ class Date(_messages.Message):
   year = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
-class DirectLocationAssignment(_messages.Message):
-  r"""A DirectLocationAssignment object.
-
-  Fields:
-    location: A LocationAssignment attribute.
-  """
-
-  location = _messages.MessageField('LocationAssignment', 1, repeated=True)
-
-
 class DiscoveryEndpoint(_messages.Message):
   r"""Endpoints on each network, for Redis clients to connect to the cluster.
 
@@ -1891,6 +1926,70 @@ class Empty(_messages.Message):
   Bar(google.protobuf.Empty) returns (google.protobuf.Empty); }
   """
 
+
+class EncryptionInfo(_messages.Message):
+  r"""EncryptionInfo describes the encryption information of a cluster or a
+
+  backup.
+
+  Enums:
+    EncryptionTypeValueValuesEnum: Output only. Type of encryption.
+    KmsKeyPrimaryStateValueValuesEnum: Output only. The state of the primary
+      version of the KMS key perceived by the system. This field is not
+      populated in backups.
+
+  Fields:
+    encryptionType: Output only. Type of encryption.
+    kmsKeyPrimaryState: Output only. The state of the primary version of the
+      KMS key perceived by the system. This field is not populated in backups.
+    kmsKeyVersions: Output only. KMS key versions that are being used to
+      protect the data at-rest.
+    lastUpdateTime: Output only. The most recent time when the encryption info
+      was updated.
+  """
+
+  class EncryptionTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. Type of encryption.
+
+    Values:
+      TYPE_UNSPECIFIED: Encryption type not specified. Defaults to
+        GOOGLE_DEFAULT_ENCRYPTION.
+      GOOGLE_DEFAULT_ENCRYPTION: The data is encrypted at rest with a key that
+        is fully managed by Google. No key version will be populated. This is
+        the default state.
+      CUSTOMER_MANAGED_ENCRYPTION: The data is encrypted at rest with a key
+        that is managed by the customer. KMS key versions will be populated.
+    """
+
+    TYPE_UNSPECIFIED = 0
+    GOOGLE_DEFAULT_ENCRYPTION = 1
+    CUSTOMER_MANAGED_ENCRYPTION = 2
+
+  class KmsKeyPrimaryStateValueValuesEnum(_messages.Enum):
+    r"""Output only.
+
+    The state of the primary version of the KMS key perceived by the system.
+    This field is not populated in backups.
+
+    Values:
+      KMS_KEY_STATE_UNSPECIFIED: The default value. This value is unused.
+      ENABLED: The KMS key is enabled and correctly configured.
+      PERMISSION_DENIED: Permission denied on the KMS key.
+      DISABLED: The KMS key is disabled, destroyed, or scheduled to be
+        destroyed.
+    """
+
+    KMS_KEY_STATE_UNSPECIFIED = 0
+    ENABLED = 1
+    PERMISSION_DENIED = 2
+    DISABLED = 3
+
+  encryptionType = _messages.EnumField('EncryptionTypeValueValuesEnum', 1)
+  kmsKeyPrimaryState = _messages.EnumField(
+      'KmsKeyPrimaryStateValueValuesEnum', 2
+  )
+  kmsKeyVersions = _messages.StringField(3, repeated=True)
+  lastUpdateTime = _messages.StringField(4)
 
 
 class Entitlement(_messages.Message):
@@ -1941,10 +2040,10 @@ class ExportBackupRequest(_messages.Message):
   r"""Request for [ExportBackup].
 
   Fields:
-    backupExportConfig: Required. Export configuration
+    gcsBucket: Google Cloud Storage bucket, like "my-bucket".
   """
 
-  backupExportConfig = _messages.MessageField('BackupExportConfig', 1)
+  gcsBucket = _messages.StringField(1)
 
 
 class ExportInstanceRequest(_messages.Message):
@@ -1955,17 +2054,6 @@ class ExportInstanceRequest(_messages.Message):
   """
 
   outputConfig = _messages.MessageField('OutputConfig', 1)
-
-
-class ExtraParameter(_messages.Message):
-  r"""Defines parameters that should only be used for specific asset types.
-
-  Fields:
-    regionalMigDistributionPolicy: Details about zones used by regional
-      compute.googleapis.com/InstanceGroupManager to create instances.
-  """
-
-  regionalMigDistributionPolicy = _messages.MessageField('RegionalMigDistributionPolicy', 1)
 
 
 class FailoverInstanceRequest(_messages.Message):
@@ -2002,6 +2090,19 @@ class FailoverInstanceRequest(_messages.Message):
     FORCE_DATA_LOSS = 2
 
   dataProtectionMode = _messages.EnumField('DataProtectionModeValueValuesEnum', 1)
+
+
+class FixedFrequencySchedule(_messages.Message):
+  r"""This schedule allows the backup to be triggered at a fixed frequency
+
+  (currently only daily is supported).
+
+  Fields:
+    startTime: Required. The start time of every automated backup in UTC. It
+      must be set to the start of an hour. This field is required.
+  """
+
+  startTime = _messages.MessageField('TimeOfDay', 1)
 
 
 class GcsBackupSource(_messages.Message):
@@ -2044,8 +2145,8 @@ class GoogleCloudCommonOperationMetadata(_messages.Message):
     apiVersion: Output only. API version used to start the operation.
     cancelRequested: Output only. Identifies whether the user has requested
       cancellation of the operation. Operations that have been cancelled
-      successfully have Operation.error value with a google.rpc.Status.code of
-      1, corresponding to `Code.CANCELLED`.
+      successfully have google.longrunning.Operation.error value with a
+      google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
     createTime: Output only. The time the operation was created.
     endTime: Output only. The time the operation finished running.
     statusDetail: Output only. Human-readable status of the operation, if any.
@@ -2117,7 +2218,6 @@ class GoogleCloudRedisV1beta1ZoneMetadata(_messages.Message):
   r"""Defines specific information for a particular zone. Currently empty and
   reserved for future use only.
   """
-
 
 
 class ImportInstanceRequest(_messages.Message):
@@ -2530,156 +2630,6 @@ class InternalResourceMetadata(_messages.Message):
   resourceName = _messages.StringField(5)
 
 
-class IsolationExpectations(_messages.Message):
-  r"""A IsolationExpectations object.
-
-  Enums:
-    ZiOrgPolicyValueValuesEnum:
-    ZiRegionPolicyValueValuesEnum:
-    ZiRegionStateValueValuesEnum:
-    ZoneIsolationValueValuesEnum: Deprecated: use zi_org_policy,
-      zi_region_policy and zi_region_state instead for setting ZI expectations
-      as per go/zicy-publish-physical-location.
-    ZoneSeparationValueValuesEnum: Deprecated: use zs_org_policy, and
-      zs_region_stateinstead for setting Zs expectations as per go/zicy-
-      publish-physical-location.
-    ZsOrgPolicyValueValuesEnum:
-    ZsRegionStateValueValuesEnum:
-
-  Fields:
-    requirementOverride: Explicit overrides for ZI and ZS requirements to be
-      used for resources that should be excluded from ZI/ZS verification
-      logic.
-    ziOrgPolicy: A ZiOrgPolicyValueValuesEnum attribute.
-    ziRegionPolicy: A ZiRegionPolicyValueValuesEnum attribute.
-    ziRegionState: A ZiRegionStateValueValuesEnum attribute.
-    zoneIsolation: Deprecated: use zi_org_policy, zi_region_policy and
-      zi_region_state instead for setting ZI expectations as per go/zicy-
-      publish-physical-location.
-    zoneSeparation: Deprecated: use zs_org_policy, and zs_region_stateinstead
-      for setting Zs expectations as per go/zicy-publish-physical-location.
-    zsOrgPolicy: A ZsOrgPolicyValueValuesEnum attribute.
-    zsRegionState: A ZsRegionStateValueValuesEnum attribute.
-  """
-
-  class ZiOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZiRegionPolicyValueValuesEnum(_messages.Enum):
-    r"""ZiRegionPolicyValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_POLICY_UNSPECIFIED: <no description>
-      ZI_REGION_POLICY_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_POLICY_NOT_SET: <no description>
-      ZI_REGION_POLICY_FAIL_OPEN: <no description>
-      ZI_REGION_POLICY_FAIL_CLOSED: <no description>
-    """
-    ZI_REGION_POLICY_UNSPECIFIED = 0
-    ZI_REGION_POLICY_UNKNOWN = 1
-    ZI_REGION_POLICY_NOT_SET = 2
-    ZI_REGION_POLICY_FAIL_OPEN = 3
-    ZI_REGION_POLICY_FAIL_CLOSED = 4
-
-  class ZiRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZiRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZI_REGION_UNSPECIFIED: <no description>
-      ZI_REGION_UNKNOWN: To be used if tracking is not available
-      ZI_REGION_NOT_ENABLED: <no description>
-      ZI_REGION_ENABLED: <no description>
-    """
-    ZI_REGION_UNSPECIFIED = 0
-    ZI_REGION_UNKNOWN = 1
-    ZI_REGION_NOT_ENABLED = 2
-    ZI_REGION_ENABLED = 3
-
-  class ZoneIsolationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zi_org_policy, zi_region_policy and zi_region_state
-    instead for setting ZI expectations as per go/zicy-publish-physical-
-    location.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZoneSeparationValueValuesEnum(_messages.Enum):
-    r"""Deprecated: use zs_org_policy, and zs_region_stateinstead for setting
-    Zs expectations as per go/zicy-publish-physical-location.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsOrgPolicyValueValuesEnum(_messages.Enum):
-    r"""ZsOrgPolicyValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  class ZsRegionStateValueValuesEnum(_messages.Enum):
-    r"""ZsRegionStateValueValuesEnum enum type.
-
-    Values:
-      ZS_REGION_UNSPECIFIED: <no description>
-      ZS_REGION_UNKNOWN: To be used if tracking of the asset ZS-bit is not
-        available
-      ZS_REGION_NOT_ENABLED: <no description>
-      ZS_REGION_ENABLED: <no description>
-    """
-    ZS_REGION_UNSPECIFIED = 0
-    ZS_REGION_UNKNOWN = 1
-    ZS_REGION_NOT_ENABLED = 2
-    ZS_REGION_ENABLED = 3
-
-  requirementOverride = _messages.MessageField('RequirementOverride', 1)
-  ziOrgPolicy = _messages.EnumField('ZiOrgPolicyValueValuesEnum', 2)
-  ziRegionPolicy = _messages.EnumField('ZiRegionPolicyValueValuesEnum', 3)
-  ziRegionState = _messages.EnumField('ZiRegionStateValueValuesEnum', 4)
-  zoneIsolation = _messages.EnumField('ZoneIsolationValueValuesEnum', 5)
-  zoneSeparation = _messages.EnumField('ZoneSeparationValueValuesEnum', 6)
-  zsOrgPolicy = _messages.EnumField('ZsOrgPolicyValueValuesEnum', 7)
-  zsRegionState = _messages.EnumField('ZsRegionStateValueValuesEnum', 8)
-
-
 class ListBackupCollectionsResponse(_messages.Message):
   r"""Response for [ListBackupCollections].
 
@@ -2875,67 +2825,9 @@ class Location(_messages.Message):
   name = _messages.StringField(5)
 
 
-class LocationAssignment(_messages.Message):
-  r"""A LocationAssignment object.
-
-  Enums:
-    LocationTypeValueValuesEnum:
-
-  Fields:
-    location: A string attribute.
-    locationType: A LocationTypeValueValuesEnum attribute.
-  """
-
-  class LocationTypeValueValuesEnum(_messages.Enum):
-    r"""LocationTypeValueValuesEnum enum type.
-
-    Values:
-      UNSPECIFIED: <no description>
-      CLUSTER: 1-10: Physical failure domains.
-      POP: <no description>
-      CLOUD_ZONE: 11-20: Logical failure domains.
-      CLOUD_REGION: <no description>
-      MULTI_REGION_GEO: <no description>
-      MULTI_REGION_JURISDICTION: <no description>
-      GLOBAL: <no description>
-      OTHER: <no description>
-    """
-    UNSPECIFIED = 0
-    CLUSTER = 1
-    POP = 2
-    CLOUD_ZONE = 3
-    CLOUD_REGION = 4
-    MULTI_REGION_GEO = 5
-    MULTI_REGION_JURISDICTION = 6
-    GLOBAL = 7
-    OTHER = 8
-
-  location = _messages.StringField(1)
-  locationType = _messages.EnumField('LocationTypeValueValuesEnum', 2)
-
-
-class LocationData(_messages.Message):
-  r"""A LocationData object.
-
-  Fields:
-    blobstoreLocation: A BlobstoreLocation attribute.
-    childAssetLocation: A CloudAssetComposition attribute.
-    directLocation: A DirectLocationAssignment attribute.
-    gcpProjectProxy: A TenantProjectProxy attribute.
-    placerLocation: A PlacerLocation attribute.
-    spannerLocation: A SpannerLocation attribute.
-  """
-
-  blobstoreLocation = _messages.MessageField('BlobstoreLocation', 1)
-  childAssetLocation = _messages.MessageField('CloudAssetComposition', 2)
-  directLocation = _messages.MessageField('DirectLocationAssignment', 3)
-  gcpProjectProxy = _messages.MessageField('TenantProjectProxy', 4)
-  placerLocation = _messages.MessageField('PlacerLocation', 5)
-  spannerLocation = _messages.MessageField('SpannerLocation', 6)
-
-
 class MachineConfiguration(_messages.Message):
   r"""MachineConfiguration describes the configuration of a machine specific
+
   to Database Resource.
 
   Fields:
@@ -2944,11 +2836,14 @@ class MachineConfiguration(_messages.Message):
     memorySizeInBytes: Memory size in bytes. TODO(b/342344482, b/342346271)
       add proto validations again after bug fix.
     shardCount: Optional. Number of shards (if applicable).
+    vcpuCount: Optional. The number of vCPUs. TODO(b/342344482, b/342346271)
+      add proto validations again after bug fix.
   """
 
   cpuCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   memorySizeInBytes = _messages.IntegerField(2)
   shardCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  vcpuCount = _messages.FloatField(4)
 
 
 class MaintenancePolicy(_messages.Message):
@@ -3403,18 +3298,6 @@ class PersistenceConfig(_messages.Message):
   rdbSnapshotStartTime = _messages.StringField(4)
 
 
-class PlacerLocation(_messages.Message):
-  r"""Message describing that the location of the customer resource is tied to
-  placer allocations
-
-  Fields:
-    placerConfig: Directory with a config related to it in placer (e.g.
-      "/placer/prod/home/my-root/my-dir")
-  """
-
-  placerConfig = _messages.StringField(1)
-
-
 class Product(_messages.Message):
   r"""Product specification for Condor resources.
 
@@ -3517,6 +3400,7 @@ class Product(_messages.Message):
 
 class PscAutoConnection(_messages.Message):
   r"""Details of consumer resources in a PSC connection that is created
+
   through Service Connectivity Automation.
 
   Enums:
@@ -3558,6 +3442,98 @@ class PscAutoConnection(_messages.Message):
       CONNECTION_TYPE_READER: Cluster endpoint that will be used as reader
         endpoint to access replicas.
     """
+
+    CONNECTION_TYPE_UNSPECIFIED = 0
+    CONNECTION_TYPE_DISCOVERY = 1
+    CONNECTION_TYPE_PRIMARY = 2
+    CONNECTION_TYPE_READER = 3
+
+  class PscConnectionStatusValueValuesEnum(_messages.Enum):
+    r"""Output only. The status of the PSC connection.
+
+    Please note that this value is updated periodically. Please use Private
+    Service Connect APIs for the latest status.
+
+    Values:
+      PSC_CONNECTION_STATUS_UNSPECIFIED: PSC connection status is not
+        specified.
+      PSC_CONNECTION_STATUS_ACTIVE: The connection is active
+      PSC_CONNECTION_STATUS_NOT_FOUND: Connection not found
+    """
+
+    PSC_CONNECTION_STATUS_UNSPECIFIED = 0
+    PSC_CONNECTION_STATUS_ACTIVE = 1
+    PSC_CONNECTION_STATUS_NOT_FOUND = 2
+
+  address = _messages.StringField(1)
+  connectionType = _messages.EnumField('ConnectionTypeValueValuesEnum', 2)
+  forwardingRule = _messages.StringField(3)
+  network = _messages.StringField(4)
+  projectId = _messages.StringField(5)
+  pscConnectionId = _messages.StringField(6)
+  pscConnectionStatus = _messages.EnumField(
+      'PscConnectionStatusValueValuesEnum', 7
+  )
+  serviceAttachment = _messages.StringField(8)
+
+
+class PscConfig(_messages.Message):
+  r"""A PscConfig object.
+
+  Fields:
+    network: Required. The network where the IP address of the discovery
+      endpoint will be reserved, in the form of
+      projects/{network_project}/global/networks/{network_id}.
+  """
+
+  network = _messages.StringField(1)
+
+
+class PscConnection(_messages.Message):
+  r"""Details of consumer resources in a PSC connection.
+
+  Enums:
+    ConnectionTypeValueValuesEnum: Output only. Type of the PSC connection.
+    PscConnectionStatusValueValuesEnum: Output only. The status of the PSC
+      connection. Please note that this value is updated periodically. To get
+      the latest status of a PSC connection, follow
+      https://cloud.google.com/vpc/docs/configure-private-service-connect-
+      services#endpoint-details.
+
+  Fields:
+    address: Required. The IP allocated on the consumer network for the PSC
+      forwarding rule.
+    connectionType: Output only. Type of the PSC connection.
+    forwardingRule: Required. The URI of the consumer side forwarding rule.
+      Example: projects/{projectNumOrId}/regions/us-
+      east1/forwardingRules/{resourceId}.
+    network: Required. The consumer network where the IP address resides, in
+      the form of projects/{project_id}/global/networks/{network_id}.
+    projectId: Optional. Project ID of the consumer project where the
+      forwarding rule is created in.
+    pscConnectionId: Required. The PSC connection id of the forwarding rule
+      connected to the service attachment.
+    pscConnectionStatus: Output only. The status of the PSC connection. Please
+      note that this value is updated periodically. To get the latest status
+      of a PSC connection, follow https://cloud.google.com/vpc/docs/configure-
+      private-service-connect-services#endpoint-details.
+    serviceAttachment: Required. The service attachment which is the target of
+      the PSC connection, in the form of projects/{project-
+      id}/regions/{region}/serviceAttachments/{service-attachment-id}.
+  """
+
+  class ConnectionTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. Type of the PSC connection.
+
+    Values:
+      CONNECTION_TYPE_UNSPECIFIED: Cluster endpoint Type is not set
+      CONNECTION_TYPE_DISCOVERY: Cluster endpoint that will be used as for
+        cluster topology discovery.
+      CONNECTION_TYPE_PRIMARY: Cluster endpoint that will be used as primary
+        endpoint to access primary.
+      CONNECTION_TYPE_READER: Cluster endpoint that will be used as reader
+        endpoint to access replicas.
+    """
     CONNECTION_TYPE_UNSPECIFIED = 0
     CONNECTION_TYPE_DISCOVERY = 1
     CONNECTION_TYPE_PRIMARY = 2
@@ -3565,8 +3541,9 @@ class PscAutoConnection(_messages.Message):
 
   class PscConnectionStatusValueValuesEnum(_messages.Enum):
     r"""Output only. The status of the PSC connection. Please note that this
-    value is updated periodically. Please use Private Service Connect APIs for
-    the latest status.
+    value is updated periodically. To get the latest status of a PSC
+    connection, follow https://cloud.google.com/vpc/docs/configure-private-
+    service-connect-services#endpoint-details.
 
     Values:
       PSC_CONNECTION_STATUS_UNSPECIFIED: PSC connection status is not
@@ -3588,44 +3565,41 @@ class PscAutoConnection(_messages.Message):
   serviceAttachment = _messages.StringField(8)
 
 
-class PscConfig(_messages.Message):
-  r"""A PscConfig object.
+class PscServiceAttachment(_messages.Message):
+  r"""Configuration of a service attachment of the cluster, for creating PSC
+  connections.
+
+  Enums:
+    ConnectionTypeValueValuesEnum: Output only. Type of a PSC connection
+      targeting this service attachment.
 
   Fields:
-    network: Required. The network where the IP address of the discovery
-      endpoint will be reserved, in the form of
-      projects/{network_project}/global/networks/{network_id}.
+    connectionType: Output only. Type of a PSC connection targeting this
+      service attachment.
+    serviceAttachment: Output only. Service attachment URI which your self-
+      created PscConnection should use as target
   """
 
-  network = _messages.StringField(1)
+  class ConnectionTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. Type of a PSC connection targeting this service
+    attachment.
 
+    Values:
+      CONNECTION_TYPE_UNSPECIFIED: Cluster endpoint Type is not set
+      CONNECTION_TYPE_DISCOVERY: Cluster endpoint that will be used as for
+        cluster topology discovery.
+      CONNECTION_TYPE_PRIMARY: Cluster endpoint that will be used as primary
+        endpoint to access primary.
+      CONNECTION_TYPE_READER: Cluster endpoint that will be used as reader
+        endpoint to access replicas.
+    """
+    CONNECTION_TYPE_UNSPECIFIED = 0
+    CONNECTION_TYPE_DISCOVERY = 1
+    CONNECTION_TYPE_PRIMARY = 2
+    CONNECTION_TYPE_READER = 3
 
-class PscConnection(_messages.Message):
-  r"""Details of consumer resources in a PSC connection.
-
-  Fields:
-    address: Required. The IP allocated on the consumer network for the PSC
-      forwarding rule.
-    forwardingRule: Required. The URI of the consumer side forwarding rule.
-      Example: projects/{projectNumOrId}/regions/us-
-      east1/forwardingRules/{resourceId}.
-    network: Required. The consumer network where the IP address resides, in
-      the form of projects/{project_id}/global/networks/{network_id}.
-    projectId: Optional. Project ID of the consumer project where the
-      forwarding rule is created in.
-    pscConnectionId: Required. The PSC connection id of the forwarding rule
-      connected to the service attachment.
-    serviceAttachment: Required. The service attachment which is the target of
-      the PSC connection, in the form of projects/{project-
-      id}/regions/{region}/serviceAttachments/{service-attachment-id}.
-  """
-
-  address = _messages.StringField(1)
-  forwardingRule = _messages.StringField(2)
-  network = _messages.StringField(3)
-  projectId = _messages.StringField(4)
-  pscConnectionId = _messages.StringField(5)
-  serviceAttachment = _messages.StringField(6)
+  connectionType = _messages.EnumField('ConnectionTypeValueValuesEnum', 1)
+  serviceAttachment = _messages.StringField(2)
 
 
 class RDBConfig(_messages.Message):
@@ -4173,20 +4147,6 @@ class RedisProjectsLocationsOperationsListRequest(_messages.Message):
   pageToken = _messages.StringField(4)
 
 
-class RegionalMigDistributionPolicy(_messages.Message):
-  r"""To be used for specifying the intended distribution of regional
-  compute.googleapis.com/InstanceGroupManager instances
-
-  Fields:
-    targetShape: The shape in which the group converges around distribution of
-      resources. Instance of proto2 enum
-    zones: Cloud zones used by regional MIG to create instances.
-  """
-
-  targetShape = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  zones = _messages.MessageField('ZoneConfiguration', 2, repeated=True)
-
-
 class RemoteCluster(_messages.Message):
   r"""Details of the remote cluster associated with this cluster in a cross
   cluster replication setup.
@@ -4199,52 +4159,6 @@ class RemoteCluster(_messages.Message):
 
   cluster = _messages.StringField(1)
   uid = _messages.StringField(2)
-
-
-class RequirementOverride(_messages.Message):
-  r"""A RequirementOverride object.
-
-  Enums:
-    ZiOverrideValueValuesEnum:
-    ZsOverrideValueValuesEnum:
-
-  Fields:
-    ziOverride: A ZiOverrideValueValuesEnum attribute.
-    zsOverride: A ZsOverrideValueValuesEnum attribute.
-  """
-
-  class ZiOverrideValueValuesEnum(_messages.Enum):
-    r"""ZiOverrideValueValuesEnum enum type.
-
-    Values:
-      ZI_UNSPECIFIED: <no description>
-      ZI_UNKNOWN: To be used if tracking is not available
-      ZI_NOT_REQUIRED: <no description>
-      ZI_PREFERRED: <no description>
-      ZI_REQUIRED: <no description>
-    """
-    ZI_UNSPECIFIED = 0
-    ZI_UNKNOWN = 1
-    ZI_NOT_REQUIRED = 2
-    ZI_PREFERRED = 3
-    ZI_REQUIRED = 4
-
-  class ZsOverrideValueValuesEnum(_messages.Enum):
-    r"""ZsOverrideValueValuesEnum enum type.
-
-    Values:
-      ZS_UNSPECIFIED: <no description>
-      ZS_UNKNOWN: To be used if tracking is not available
-      ZS_NOT_REQUIRED: <no description>
-      ZS_REQUIRED: <no description>
-    """
-    ZS_UNSPECIFIED = 0
-    ZS_UNKNOWN = 1
-    ZS_NOT_REQUIRED = 2
-    ZS_REQUIRED = 3
-
-  ziOverride = _messages.EnumField('ZiOverrideValueValuesEnum', 1)
-  zsOverride = _messages.EnumField('ZsOverrideValueValuesEnum', 2)
 
 
 class RescheduleClusterMaintenanceRequest(_messages.Message):
@@ -4357,20 +4271,6 @@ class RetentionSettings(_messages.Message):
   retentionUnit = _messages.EnumField('RetentionUnitValueValuesEnum', 3)
   timeBasedRetention = _messages.StringField(4)
   timestampBasedRetentionTime = _messages.StringField(5)
-
-
-class SpannerLocation(_messages.Message):
-  r"""A SpannerLocation object.
-
-  Fields:
-    backupName: Set of backups used by the resource with name in the same
-      format as what is available at
-      http://table/spanner_automon.backup_metadata
-    dbName: Set of databases used by the resource in format /span//
-  """
-
-  backupName = _messages.StringField(1, repeated=True)
-  dbName = _messages.StringField(2, repeated=True)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -4535,16 +4435,6 @@ class Tags(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   tags = _messages.MessageField('TagsValue', 1)
-
-
-class TenantProjectProxy(_messages.Message):
-  r"""A TenantProjectProxy object.
-
-  Fields:
-    projectNumbers: A string attribute.
-  """
-
-  projectNumbers = _messages.StringField(1, repeated=True)
 
 
 class TimeOfDay(_messages.Message):
@@ -4712,16 +4602,6 @@ class WeeklyMaintenanceWindow(_messages.Message):
   day = _messages.EnumField('DayValueValuesEnum', 1)
   duration = _messages.StringField(2)
   startTime = _messages.MessageField('TimeOfDay', 3)
-
-
-class ZoneConfiguration(_messages.Message):
-  r"""A ZoneConfiguration object.
-
-  Fields:
-    zone: A string attribute.
-  """
-
-  zone = _messages.StringField(1)
 
 
 class ZoneDistributionConfig(_messages.Message):

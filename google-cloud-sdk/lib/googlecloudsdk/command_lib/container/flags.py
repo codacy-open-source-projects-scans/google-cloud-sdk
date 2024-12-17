@@ -595,7 +595,7 @@ def AddAutoscalingProfilesFlag(parser, hidden=False):
   )
 
 
-def AddHPAProfilesFlag(parser, hidden=True):
+def AddHPAProfilesFlag(parser, hidden=False):
   """Adds workload autoscaling profiles flag to parser.
 
   HPA profile flag is --hpa-profile.
@@ -609,8 +609,7 @@ def AddHPAProfilesFlag(parser, hidden=True):
       required=False,
       default=None,
       help="""\
-         Setting HPA behavior. Choices are 'performance' and 'none'.
-         Default is 'none'.
+         Setting Horizontal Pod Autoscaler behavior, which is none by default.
       """,
       hidden=hidden,
       choices=['none', 'performance'],
@@ -1396,7 +1395,7 @@ def AddManagedPrometheusFlags(parser, for_create=False):
     )
 
 
-def AddAutoMonitoringScopeFlags(parser, hidden=True):
+def AddAutoMonitoringScopeFlags(parser, hidden):
   """Adds --auto-monitoring-scope flags to parser."""
   help_text = """
   Enables Auto-Monitoring for a specific scope within the cluster.
@@ -2472,9 +2471,7 @@ def AddILBSubsettingFlags(parser, hidden=False):
   )
 
 
-def AddClusterDNSFlags(
-    parser, release_track=base.ReleaseTrack.GA, hidden=False
-):
+def AddClusterDNSFlags(parser, hidden=False):
   """Adds flags related to clusterDNS to parser.
 
   This includes:
@@ -2486,7 +2483,6 @@ def AddClusterDNSFlags(
 
   Args:
     parser: A given parser.
-    release_track: Release track the flags are being added to.
     hidden: Indicates that the flags are hidden.
   """
   group = parser.add_argument_group('ClusterDNS', hidden=hidden)
@@ -2515,12 +2511,10 @@ def AddClusterDNSFlags(
             """,
       hidden=hidden,
   )
-  AddAdditiveVPCScopeFlags(group, release_track=release_track, hidden=hidden)
+  AddAdditiveVPCScopeFlags(group, hidden=hidden)
 
 
-def AddAdditiveVPCScopeFlags(
-    parser, release_track=base.ReleaseTrack.GA, hidden=False
-):
+def AddAdditiveVPCScopeFlags(parser, hidden=False):
   """Adds flags related to DNS Additive VPC scope to parser.
 
   This includes:
@@ -2529,29 +2523,25 @@ def AddAdditiveVPCScopeFlags(
 
   Args:
     parser: A given parser.
-    release_track: Release track the flags are being added to.
     hidden: Indicates that the flags are hidden.
   """
-  if release_track != base.ReleaseTrack.GA:
-    mutex = parser.add_argument_group(
-        'ClusterDNS_AdditiveVPCScope_EnabledDisable', hidden=hidden, mutex=True
-    )
-    mutex.add_argument(
-        '--disable-additive-vpc-scope',
-        default=None,
-        action='store_true',
-        hidden=hidden,
-        help='Disables Additive VPC Scope.',
-    )
-    mutex.add_argument(
-        '--additive-vpc-scope-dns-domain',
-        default=None,
-        hidden=hidden,
-        help=(
-            'The domain used in Additive VPC scope. Only works with Cluster'
-            ' Scope.'
-        ),
-    )
+  mutex = parser.add_argument_group(hidden=hidden, mutex=True)
+  mutex.add_argument(
+      '--disable-additive-vpc-scope',
+      default=None,
+      action='store_true',
+      hidden=hidden,
+      help='Disables Additive VPC Scope.',
+  )
+  mutex.add_argument(
+      '--additive-vpc-scope-dns-domain',
+      default=None,
+      hidden=hidden,
+      help=(
+          'The domain used in Additive VPC scope. Only works with Cluster'
+          ' Scope.'
+      ),
+  )
 
 
 def AddPrivateClusterFlags(parser, default=None, with_deprecated=False):
@@ -3585,8 +3575,6 @@ def AddAddonsFlagsWithOptions(parser, addon_options):
       not in [
           api_adapter.APPLICATIONMANAGER,
           api_adapter.STATEFULHA,
-          # TODO(b/314808639): Remove at AGA time
-          api_adapter.PARALLELSTORECSIDRIVER,
           api_adapter.HIGHSCALECHECKPOINTING,
       ]
   ]
@@ -4324,6 +4312,22 @@ def AddStackTypeFlag(parser, hidden=False):
       hidden=hidden,
       help=help_text,
       choices=['ipv4', 'ipv4-ipv6'],
+  )
+
+
+def AddLocalSsdEncryptionModeFlag(
+    parser, for_node_pool=False, hidden=False):
+  """Adds --local-ssd-encryption-mode flag to the given parser."""
+  target = 'node pool' if for_node_pool else 'cluster'
+  help_text = """
+Encryption mode for Local SSDs on the {}.
+""".format(target)
+  parser.add_argument(
+      '--local-ssd-encryption-mode',
+      help=help_text,
+      default=None,
+      choices=['STANDARD_ENCRYPTION', 'EPHEMERAL_KEY_ENCRYPTION'],
+      hidden=hidden,
   )
 
 
@@ -5139,7 +5143,7 @@ https://cloud.google.com/kubernetes-engine/docs/how-to/encrypting-secrets.
 """,
       required=False,
       type=arg_parsers.RegexpValidator(
-          r'^projects/[^/]+/locations/[^/]+/keyRings/[^/]+/cryptoKeys/[^/]+$',
+          r'^projects/[^/]+/locations/[^/]+/keyRings/[^/]+/cryptoKeys/[^/]+(\/grants\/[^/]+)?$',
           'Must be in format of'
           " 'projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]'",
       ),
@@ -5205,6 +5209,9 @@ net.core.somaxconn                         | Must be [128, 2147483647]
 net.ipv4.tcp_rmem                          | Any positive integer tuple
 net.ipv4.tcp_wmem                          | Any positive integer tuple
 net.ipv4.tcp_tw_reuse                      | Must be {0, 1}
+kernel.shmmni                              | Must be [4096, 32768]
+kernel.shmmax                              | Must be [0, 18446744073692774399]
+kernel.shmall                              | Must be [0, 18446744073692774399]
 
 List of supported hugepage size in 'hugepageConfig'.
 
@@ -6720,7 +6727,7 @@ def AddControlPlaneKeysFlags(parser):
     parser: A given parser.
   """
 
-  group = parser.add_group(help='Control Plane Keys', hidden=True, mutex=False)
+  group = parser.add_group(help='Control Plane Keys', mutex=False)
 
   group.add_argument(
       '--cluster-ca',
@@ -6916,19 +6923,18 @@ Autopilot cluster:
   )
 
 
-def AddClusterTierFlag(parser, hidden=True):
+def AddClusterTierFlag(parser):
   """Adds a --tier flag to the given cluster parser."""
-  help_text = ' '
+  help_text = 'Set the desired tier for the cluster.'
   parser.add_argument(
       '--tier',
-      metavar='tier=TIER',
+      metavar='TIER',
       help=help_text,
-      hidden=hidden,
       choices=['standard', 'enterprise'],
   )
 
 
-def AddAutoprovisioningCgroupModeFlag(parser, hidden=True):
+def AddAutoprovisioningCgroupModeFlag(parser, hidden=False):
   """Adds a --autoprovisioning-cgroup-mode to the given cluster parser."""
   help_text = textwrap.dedent("""\
       Sets the cgroup mode for auto-provisioned nodes.

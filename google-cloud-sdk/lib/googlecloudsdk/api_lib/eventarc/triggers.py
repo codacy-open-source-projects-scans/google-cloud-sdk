@@ -22,7 +22,6 @@ from apitools.base.py import list_pager
 from googlecloudsdk.api_lib.eventarc import common
 from googlecloudsdk.api_lib.eventarc.base import EventarcClientBase
 from googlecloudsdk.api_lib.util import apis
-from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.eventarc import types
 from googlecloudsdk.core import exceptions
 from googlecloudsdk.core import resources
@@ -34,14 +33,6 @@ MAX_ACTIVE_DELAY_MINUTES = 2
 
 class NoFieldsSpecifiedError(exceptions.Error):
   """Error when no fields were specified for a Patch operation."""
-
-
-def CreateTriggersClient(release_track):
-  api_version = common.GetApiVersion(release_track)
-  if release_track == base.ReleaseTrack.GA:
-    return _TriggersClient(api_version)
-  else:
-    return None
 
 
 def GetTriggerURI(resource):
@@ -74,10 +65,9 @@ def TriggerActiveTime(event_type, update_time):
 class _BaseTriggersClient(EventarcClientBase):
   """Base Triggers Client."""
 
-  def __init__(self, api_version):
-    super(_BaseTriggersClient, self).__init__(common.API_NAME, api_version,
-                                              'trigger')
-    client = apis.GetClientInstance(common.API_NAME, api_version)
+  def __init__(self):
+    super(_BaseTriggersClient, self).__init__(common.API_NAME, 'v1', 'trigger')
+    client = apis.GetClientInstance(common.API_NAME, 'v1')
     self._messages = client.MESSAGES_MODULE
     self._service = client.projects_locations_triggers
     self._operation_service = client.projects_locations_operations
@@ -166,7 +156,7 @@ class _BaseTriggersClient(EventarcClientBase):
     return self._service.Patch(patch_req)
 
 
-class _TriggersClient(_BaseTriggersClient):
+class TriggersClientV1(_BaseTriggersClient):
   """Client for Triggers service in the Eventarc GA API."""
 
   def BuildTriggerMessage(
@@ -179,6 +169,7 @@ class _TriggersClient(_BaseTriggersClient):
       destination_message,
       transport_topic_ref,
       channel_ref,
+      labels,
   ):
     """Builds a Trigger message with the given data.
 
@@ -194,6 +185,7 @@ class _TriggersClient(_BaseTriggersClient):
         destination.
       transport_topic_ref: Resource or None, the user-provided transport topic.
       channel_ref: Resource or None, the channel for 3p events
+      labels: dict or None, the Trigger's labels.
 
     Returns:
       A Trigger message with a destination service.
@@ -222,6 +214,7 @@ class _TriggersClient(_BaseTriggersClient):
         destination=destination_message,
         transport=transport,
         channel=channel,
+        labels=labels,
     )
 
   def BuildCloudRunDestinationMessage(self, destination_run_service,
@@ -356,6 +349,7 @@ class _TriggersClient(_BaseTriggersClient):
       destination_workflow_location,
       destination_function,
       destination_function_location,
+      labels,
   ):
     """Builds an update mask for updating a Cloud Run trigger.
 
@@ -385,6 +379,7 @@ class _TriggersClient(_BaseTriggersClient):
       destination_function: bool, whether to update the destination function.
       destination_function_location: bool, whether to update the destination
         function location.
+      labels: bool, whether to update the labels.
 
     Returns:
       The update mask as a string.
@@ -417,6 +412,8 @@ class _TriggersClient(_BaseTriggersClient):
       update_mask.append('serviceAccount')
     if event_data_content_type:
       update_mask.append('eventDataContentType')
+    if labels:
+      update_mask.append('labels')
     if not update_mask:
       raise NoFieldsSpecifiedError('Must specify at least one field to update.')
     return ','.join(update_mask)
@@ -424,3 +421,7 @@ class _TriggersClient(_BaseTriggersClient):
   def GetEventType(self, trigger_message):
     """Gets the Trigger's event type."""
     return types.EventFiltersMessageToType(trigger_message.eventFilters)
+
+  def LabelsValueClass(self):
+    """Returns the labels value class."""
+    return self._messages.Trigger.LabelsValue

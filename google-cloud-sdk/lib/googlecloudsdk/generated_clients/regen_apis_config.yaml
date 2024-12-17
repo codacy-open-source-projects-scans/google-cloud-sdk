@@ -149,6 +149,10 @@ apis:
     v1alpha:
       discovery_doc: appconfigmanager_v1alpha.json
       default: true
+  parametermanager:
+    v1:
+      discovery_doc: parametermanager_v1.json
+      default: true
   appengine:
     v1alpha:
       discovery_doc: appengine_v1alpha.json
@@ -163,8 +167,6 @@ apis:
         projects:
           path: projects/{projectId}
   artifactregistry:
-    v1alpha1:
-      discovery_doc: artifactregistry_v1alpha1.json
     v1beta1:
       discovery_doc: artifactregistry_v1beta1.json
     v1beta2:
@@ -684,6 +686,8 @@ apis:
           path: projects/{projectsId}/secrets/{secretsId}/versions/{versionsId}
         projects.locations.keyRings.cryptoKeys:
           path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
+        projects.locations.namespaces.services:
+          path: projects/{projectsId}/locations/{locationsId}/namespaces/{namespacesId}/services/{servicesId}
     v1alpha:
       discovery_doc: developerconnect_v1alpha.json
       resources:
@@ -914,6 +918,34 @@ apis:
       default: true
     v2alpha:
       discovery_doc: osconfig_v2alpha.json
+      resources:
+        projects:
+          path: projects/{projectsId}
+        projects.locations.global:
+          path: projects/{projectsId}/locations/global
+        folders:
+          path: folders/{foldersId}
+        folders.locations.global:
+          path: folders/{foldersId}/locations/global
+        organizations:
+          path: organizations/{organizationsId}
+        organizations.locations.global:
+          path: organizations/{organizationsId}/locations/global
+    v2beta:
+      discovery_doc: osconfig_v2beta.json
+      resources:
+        projects:
+          path: projects/{projectsId}
+        projects.locations.global:
+          path: projects/{projectsId}/locations/global
+        folders:
+          path: folders/{foldersId}
+        folders.locations.global:
+          path: folders/{foldersId}/locations/global
+        organizations:
+          path: organizations/{organizationsId}
+        organizations.locations.global:
+          path: organizations/{organizationsId}/locations/global
   iam:
     v1beta:
       discovery_doc: iam_v1beta.json
@@ -1004,6 +1036,10 @@ apis:
   lifesciences:
     v2beta:
       discovery_doc: lifesciences_v2beta.json
+      default: true
+  lustre:
+    v1alpha:
+      discovery_doc: lustre_v1alpha.json
       default: true
   managedflink:
     v1alpha:
@@ -1169,6 +1205,15 @@ apis:
           path: projects/{projectsId}/serviceAccounts/{serviceAccountsId}
     v1beta:
       discovery_doc: parallelstore_v1beta.json
+      resources:
+        projects.networks:
+          path: projects/{projectsId}/global/networks/{networksId}
+        projects.regions.addresses:
+          path: projects/{projectsId}/regions/{regionsId}/addresses/{addressesId}
+        projects.serviceAccounts:
+          path: projects/{projectsId}/serviceAccounts/{serviceAccountsId}
+    v1:
+      discovery_doc: parallelstore_v1.json
       resources:
         projects.networks:
           path: projects/{projectsId}/global/networks/{networksId}
@@ -1443,6 +1488,11 @@ apis:
   cloudquotas:
     v1:
       discovery_doc: cloudquotas_v1.json
+      default: true
+    v1alpha:
+      discovery_doc: cloudquotas_v1alpha.json
+    v1beta:
+      discovery_doc: cloudquotas_v1beta.json
   source:
     v1:
       discovery_doc: source_v1.json
@@ -1826,6 +1876,10 @@ canonical_surfaces:
     name: appconfigmanager
     command: app-config-manager
     hidden: true
+  parametermanager:
+    name: parametermanager
+    command: parameter-manager
+    hidden: true
   apigee:
     name: apigee
     command: apigee
@@ -1865,6 +1919,7 @@ canonical_surfaces:
     hidden: true
   beyondcorp:
     name: beyondcorp
+    command: beyondcorp
     hidden: true
   bigquery:
     name: bigquery
@@ -1937,6 +1992,7 @@ canonical_surfaces:
     command: composer
   compute:
     name: compute
+    command: compute
     help_text: |-
       'Overrides API endpoint for `gcloud compute` command group. '
       'For Private Service Connect usage, see '
@@ -1983,6 +2039,7 @@ canonical_surfaces:
     command: dataproc
   dataprocgdc:
     name: dataprocgdc
+    command: dataproc-gdc
     hidden: true
   datastore:
     name: datastore

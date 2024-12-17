@@ -77,6 +77,15 @@ def UpdateMaintenanceWindowAny(unused_cluster_ref, args, patch_request):
   return patch_request
 
 
+def UpdateOnDemandMaintenance(unused_cluster_ref, args, patch_request):
+  """Hook to update on demand maintenance to the update mask of the request."""
+  if args.IsSpecified('ondemand_maintenance'):
+    patch_request = AddFieldToUpdateMask(
+        'ondemand_maintenance', patch_request
+    )
+  return patch_request
+
+
 def UpdateShardCount(unused_cluster_ref, args, patch_request):
   """Hook to add shard count to the redis cluster update request."""
   if args.IsSpecified('shard_count'):
@@ -143,6 +152,19 @@ def UpdatePersistenceConfig(unused_cluster_ref, args, patch_request):
       patch_request.cluster.persistenceConfig.rdbConfig = None
     if not args.IsSpecified('aof_append_fsync'):
       patch_request.cluster.persistenceConfig.aofConfig = None
+  return patch_request
+
+
+def UpdateAutomatedBackupConfig(unused_cluster_ref, args, patch_request):
+  """Hook to add automated backup config to the redis cluster update request."""
+  if (
+      args.IsSpecified('automated_backup_ttl')
+      or args.IsSpecified('automated_backup_start_time')
+      or args.IsSpecified('automated_backup_mode')
+  ):
+    patch_request = AddFieldToUpdateMask(
+        'automated_backup_config', patch_request
+    )
   return patch_request
 
 

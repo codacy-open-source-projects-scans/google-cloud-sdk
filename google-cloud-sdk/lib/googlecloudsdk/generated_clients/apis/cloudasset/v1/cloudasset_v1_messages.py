@@ -135,7 +135,7 @@ class AnalyzeIamPolicyResponse(_messages.Message):
     mainAnalysis: The main analysis that matches the original request.
     serviceAccountImpersonationAnalysis: The service account impersonation
       analysis if
-      AnalyzeIamPolicyRequest.analyze_service_account_impersonation is
+      IamPolicyAnalysisQuery.Options.analyze_service_account_impersonation is
       enabled.
   """
 
@@ -2047,8 +2047,8 @@ class EffectiveTagDetails(_messages.Message):
 
   Fields:
     attachedResource: The [full resource name](https://cloud.google.com/asset-
-      inventory/docs/resource-name-format) of the ancestor from which an
-      effective_tag is inherited, according to [tag
+      inventory/docs/resource-name-format) of the ancestor from which
+      effective_tags are inherited, according to [tag
       inheritance](https://cloud.google.com/resource-manager/docs/tags/tags-
       overview#inheritance).
     effectiveTags: The effective tags inherited from the attached_resource.
@@ -2253,6 +2253,50 @@ class Expr(_messages.Message):
   title = _messages.StringField(4)
 
 
+class FeatureEnablement(_messages.Message):
+  r"""The feature enablement status.
+
+  Enums:
+    EnablementValueValuesEnum: Optional. The enablement status.
+    FeatureIdValueValuesEnum: Required. The feature ID.
+
+  Fields:
+    enablement: Optional. The enablement status.
+    featureId: Required. The feature ID.
+  """
+
+  class EnablementValueValuesEnum(_messages.Enum):
+    r"""Optional. The enablement status.
+
+    Values:
+      ENABLEMENT_UNSPECIFIED: Unspecified.
+      NOT_ELIGIBLE: The feature is not eligible for the connection.
+      ELIGIBLE: The feature is eligible for the connection.
+      EXPLICIT_OPTED_IN: The feature is explicitly opted in for the
+        connection.
+      IMPLICIT_OPTED_IN: The feature is implicitly opted in for the
+        connection.
+    """
+    ENABLEMENT_UNSPECIFIED = 0
+    NOT_ELIGIBLE = 1
+    ELIGIBLE = 2
+    EXPLICIT_OPTED_IN = 3
+    IMPLICIT_OPTED_IN = 4
+
+  class FeatureIdValueValuesEnum(_messages.Enum):
+    r"""Required. The feature ID.
+
+    Values:
+      FEATURE_ID_UNSPECIFIED: Unspecified.
+      COLLECT_AWS_OU: Collect AWS ORGANIZATIONS and OUs for Security Posture.
+    """
+    FEATURE_ID_UNSPECIFIED = 0
+    COLLECT_AWS_OU = 1
+
+  enablement = _messages.EnumField('EnablementValueValuesEnum', 1)
+  featureId = _messages.EnumField('FeatureIdValueValuesEnum', 2)
+
+
 class Feed(_messages.Message):
   r"""An asset feed used to export asset updates to a destinations. An asset
   feed filter controls what updates are exported. The asset feed must be
@@ -2442,10 +2486,10 @@ class GoogleCloudAssetV1AnalyzeOrgPolicyGovernedAssetsResponseGovernedAsset(_mes
       the AnalyzeOrgPolicyGovernedAssetsRequest.constraint.
     governedResource: A Google Cloud resource governed by the organization
       policies of the AnalyzeOrgPolicyGovernedAssetsRequest.constraint.
-    policyBundle: The ordered list of all organization policies from the Analy
-      zeOrgPoliciesResponse.OrgPolicyResult.consolidated_policy.attached_resou
-      rce to the scope specified in the request. If the constraint is defined
-      with default policy, it will also appear in the list.
+    policyBundle: The ordered list of all organization policies from the
+      consolidated_policy.attached_resource to the scope specified in the
+      request. If the constraint is defined with default policy, it will also
+      appear in the list.
   """
 
   consolidatedPolicy = _messages.MessageField('AnalyzerOrgPolicy', 1)
@@ -2843,10 +2887,10 @@ class GoogleCloudAssetV1GovernedContainer(_messages.Message):
     parent: The [full resource name] (https://cloud.google.com/asset-
       inventory/docs/resource-name-format) of the parent of AnalyzeOrgPolicyGo
       vernedContainersResponse.GovernedContainer.full_resource_name.
-    policyBundle: The ordered list of all organization policies from the Analy
-      zeOrgPoliciesResponse.OrgPolicyResult.consolidated_policy.attached_resou
-      rce. to the scope specified in the request. If the constraint is defined
-      with default policy, it will also appear in the list.
+    policyBundle: The ordered list of all organization policies from the
+      consolidated_policy.attached_resource. to the scope specified in the
+      request. If the constraint is defined with default policy, it will also
+      appear in the list.
     project: The project that this resource belongs to, in the format of
       projects/{PROJECT_NUMBER}. This field is available when the resource
       belongs to a project.
@@ -4107,6 +4151,10 @@ class GoogleIdentityAccesscontextmanagerV1ServicePerimeter(_messages.Message):
   Fields:
     description: Description of the `ServicePerimeter` and its use. Does not
       affect behavior.
+    etag: Optional. An opaque identifier for the current version of the
+      `ServicePerimeter`. Clients should not expect this to be in any specific
+      format. If etag is not provided, the operation will be performed as if a
+      valid etag is provided.
     name: Identifier. Resource name for the `ServicePerimeter`. Format:
       `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`.
       The `service_perimeter` component must begin with a letter, followed by
@@ -4155,12 +4203,13 @@ class GoogleIdentityAccesscontextmanagerV1ServicePerimeter(_messages.Message):
     PERIMETER_TYPE_BRIDGE = 1
 
   description = _messages.StringField(1)
-  name = _messages.StringField(2)
-  perimeterType = _messages.EnumField('PerimeterTypeValueValuesEnum', 3)
-  spec = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig', 4)
-  status = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig', 5)
-  title = _messages.StringField(6)
-  useExplicitDryRunSpec = _messages.BooleanField(7)
+  etag = _messages.StringField(2)
+  name = _messages.StringField(3)
+  perimeterType = _messages.EnumField('PerimeterTypeValueValuesEnum', 4)
+  spec = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig', 5)
+  status = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig', 6)
+  title = _messages.StringField(7)
+  useExplicitDryRunSpec = _messages.BooleanField(8)
 
 
 class GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig(_messages.Message):
@@ -4595,9 +4644,15 @@ class InvalidCollectorAccount(_messages.Message):
   r"""For AWS, this includes the details about an invalid Collector account.
   For Azure, this includes the details about an missing required role type.
 
+  Enums:
+    AccountStatusCategoryValueValuesEnum: Optional. The account status
+      category.
+    StatusCategoryValueValuesEnum: Optional. The status category.
+
   Fields:
     accountId: Required. The account id of the invalid AWS Collector account.
       This is only used for AWS.
+    accountStatusCategory: Optional. The account status category.
     cause: Optional. The detailed reason for the invalidity.
     role: Optional. For AWS, this is the invalid Collector Role name of the
       invalid AWS account. For Azure, this is the missing role types. It will
@@ -4607,12 +4662,56 @@ class InvalidCollectorAccount(_messages.Message):
       AWS_COLLECTOR_ROLE_POLICY_MISSING_REQUIRED_PERMISSION. For Azure, it
       should be either AZURE_FAILED_TO_ASSUME_MANAGED_IDENTITY or
       AZURE_MANAGED_IDENTITY_MISSING_REQUIRED_PERMISSION.
+    statusCategory: Optional. The status category.
   """
 
+  class AccountStatusCategoryValueValuesEnum(_messages.Enum):
+    r"""Optional. The account status category.
+
+    Values:
+      ACCOUNT_STATUS_CATEGORY_UNSPECIFIED: Unknown.
+      ACCOUNT_INOPERATIVE: The collector account is inoperative, meaning it
+        cannot be used to perform any actions. This is the case when the
+        fundamental setup of the connection is broken.
+      ACCOUNT_MISSING_EXPECTED_PERMISSIONS: The collector account is missing
+        required permissions, including the basic permission set and the
+        permissions required for opted-in features.
+      ACCOUNT_MISSING_OPTIONAL_PERMISSIONS: The collector account has all
+        required permissions and is missing permissions required by available
+        and not yet opted-in features.
+    """
+    ACCOUNT_STATUS_CATEGORY_UNSPECIFIED = 0
+    ACCOUNT_INOPERATIVE = 1
+    ACCOUNT_MISSING_EXPECTED_PERMISSIONS = 2
+    ACCOUNT_MISSING_OPTIONAL_PERMISSIONS = 3
+
+  class StatusCategoryValueValuesEnum(_messages.Enum):
+    r"""Optional. The status category.
+
+    Values:
+      STATUS_CATEGORY_UNSPECIFIED: Unknown.
+      INOPERATIVE: The AWS collector account or Azure/Microsoft Entra Role is
+        inoperative, meaning it cannot be used to perform any actions. This is
+        the case when the fundamental setup of the connection is broken.
+      MISSING_EXPECTED_PERMISSIONS: The AWS collector account or
+        Azure/Microsoft Entra Role is missing required permissions, including
+        the basic permission set and the permissions required for opted-in
+        features.
+      MISSING_OPTIONAL_PERMISSIONS: The AWS collector account or
+        Azure/Microsoft Entra Role has all required permissions and is missing
+        permissions required by available and not yet opted-in features.
+    """
+    STATUS_CATEGORY_UNSPECIFIED = 0
+    INOPERATIVE = 1
+    MISSING_EXPECTED_PERMISSIONS = 2
+    MISSING_OPTIONAL_PERMISSIONS = 3
+
   accountId = _messages.StringField(1)
-  cause = _messages.StringField(2)
-  role = _messages.StringField(3)
-  status = _messages.StringField(4)
+  accountStatusCategory = _messages.EnumField('AccountStatusCategoryValueValuesEnum', 2)
+  cause = _messages.StringField(3)
+  role = _messages.StringField(4)
+  status = _messages.StringField(5)
+  statusCategory = _messages.EnumField('StatusCategoryValueValuesEnum', 6)
 
 
 class Inventory(_messages.Message):
@@ -5034,10 +5133,9 @@ class OrgPolicyResult(_messages.Message):
   Fields:
     consolidatedPolicy: The consolidated organization policy for the analyzed
       resource. The consolidated organization policy is computed by merging
-      and evaluating AnalyzeOrgPoliciesResponse.policy_bundle. The evaluation
-      will respect the organization policy [hierarchy
-      rules](https://cloud.google.com/resource-manager/docs/organization-
-      policy/understanding-hierarchy).
+      and evaluating policy_bundle. The evaluation will respect the
+      organization policy [hierarchy rules](https://cloud.google.com/resource-
+      manager/docs/organization-policy/understanding-hierarchy).
     folders: The folder(s) that this consolidated policy belongs to, in the
       format of folders/{FOLDER_NUMBER}. This field is available when the
       consolidated policy belongs (directly or cascadingly) to one or more
@@ -5046,10 +5144,10 @@ class OrgPolicyResult(_messages.Message):
       in the format of organizations/{ORGANIZATION_NUMBER}. This field is
       available when the consolidated policy belongs (directly or cascadingly)
       to an organization.
-    policyBundle: The ordered list of all organization policies from the Analy
-      zeOrgPoliciesResponse.OrgPolicyResult.consolidated_policy.attached_resou
-      rce. to the scope specified in the request. If the constraint is defined
-      with default policy, it will also appear in the list.
+    policyBundle: The ordered list of all organization policies from the
+      consolidated_policy.attached_resource. to the scope specified in the
+      request. If the constraint is defined with default policy, it will also
+      appear in the list.
     project: The project that this consolidated policy belongs to, in the
       format of projects/{PROJECT_NUMBER}. This field is available when the
       consolidated policy belongs to a project.
@@ -5195,9 +5293,9 @@ class OtherCloudAssetId(_messages.Message):
 
 
 class OtherCloudConnection(_messages.Message):
-  r"""LINT.IfChange An Other-Cloud Connection is a set of settings to allow
-  Google Cloud to connect to an other-cloud provider(such as AWS, Azure, etc.)
-  to collect their asset config data for Google Cloud products' use.
+  r"""An Other-Cloud Connection is a set of settings to allow Google Cloud to
+  connect to an other-cloud provider(such as AWS, Azure, etc.) to collect
+  their asset config data for Google Cloud products' use.
 
   Enums:
     ConnectionTypeValueValuesEnum: Required. The other-cloud connection type.
@@ -5209,6 +5307,7 @@ class OtherCloudConnection(_messages.Message):
     createTime: Output only. The absolute point in time when the other-cloud
       connection was created.
     description: Optional. Connection description.
+    featureEnablements: Optional. A list of feature enablement status.
     name: Output only. Immutable. The relative resource name of an other-cloud
       connection, which is unique across Google Cloud organizations. This
       field is used to uniquely identify other-cloud connection resource. It
@@ -5245,9 +5344,10 @@ class OtherCloudConnection(_messages.Message):
   connectionType = _messages.EnumField('ConnectionTypeValueValuesEnum', 3)
   createTime = _messages.StringField(4)
   description = _messages.StringField(5)
-  name = _messages.StringField(6)
-  serviceAgentId = _messages.StringField(7)
-  validationResults = _messages.MessageField('ValidationResult', 8, repeated=True)
+  featureEnablements = _messages.MessageField('FeatureEnablement', 6, repeated=True)
+  name = _messages.StringField(7)
+  serviceAgentId = _messages.StringField(8)
+  validationResults = _messages.MessageField('ValidationResult', 9, repeated=True)
 
 
 class OtherCloudProperties(_messages.Message):
@@ -6669,6 +6769,8 @@ class ValidationResult(_messages.Message):
   Enums:
     ConnectionStateValueValuesEnum: NOTE: Deprecated The state of the other-
       cloud connection
+    ConnectionStatusCategoryValueValuesEnum: Optional. The connection status
+      Type.
 
   Fields:
     additionalInfo: Required. The detailed information about the validation
@@ -6714,6 +6816,7 @@ class ValidationResult(_messages.Message):
       assumption failed for one role type and missing required permissions for
       another role type. Role type can be either "Azure Role" or "Microsoft
       Entra Role".
+    connectionStatusCategory: Optional. The connection status Type.
     validationTime: Required. The time when the connection was validated.
   """
 
@@ -6736,11 +6839,43 @@ class ValidationResult(_messages.Message):
     FAILED_TO_ASSUME_DELEGATED_ROLE = 2
     INVALID_FOR_OTHER_REASON = 3
 
+  class ConnectionStatusCategoryValueValuesEnum(_messages.Enum):
+    r"""Optional. The connection status Type.
+
+    Values:
+      CONNECTION_STATUS_CATEGORY_UNSPECIFIED: Unknown.
+      CONNECTION_FULLY_OPERATIONAL: The connection has all required
+        permissions, including the basic permission set and the permissions
+        required for opted-in features. And there is no available but not yet
+        opted-in features for this connection.
+      CONNECTION_INOPERATIVE: The connection is inoperative, meaning it cannot
+        be used to perform any actions. This is the case when the fundamental
+        setup of the connection is broken.
+      CONNECTION_PARTIALLY_INOPERATIVE: The connection is partially inoperable
+        to perform some actions. For AWS, this means that part of the
+        collector accounts are completely inoperable. For example, having
+        AWS_FAILED_TO_ASSUME_COLLECTOR_ROLE status. For Azure, this means
+        either Azure Role or Microsoft Entra Role is completely inoperable.
+      CONNECTION_MISSING_EXPECTED_PERMISSIONS: The connection is missing
+        required permissions, including the basic permission set and the
+        permissions required for opted-in features.
+      CONNECTION_MISSING_OPTIONAL_PERMISSIONS: The connection has all required
+        permissions and is missing permissions required by available and not
+        yet opted-in features.
+    """
+    CONNECTION_STATUS_CATEGORY_UNSPECIFIED = 0
+    CONNECTION_FULLY_OPERATIONAL = 1
+    CONNECTION_INOPERATIVE = 2
+    CONNECTION_PARTIALLY_INOPERATIVE = 3
+    CONNECTION_MISSING_EXPECTED_PERMISSIONS = 4
+    CONNECTION_MISSING_OPTIONAL_PERMISSIONS = 5
+
   additionalInfo = _messages.MessageField('AdditionalInfo', 1)
   cause = _messages.StringField(2)
   connectionState = _messages.EnumField('ConnectionStateValueValuesEnum', 3)
   connectionStatus = _messages.StringField(4)
-  validationTime = _messages.StringField(5)
+  connectionStatusCategory = _messages.EnumField('ConnectionStatusCategoryValueValuesEnum', 5)
+  validationTime = _messages.StringField(6)
 
 
 class VerifyOtherCloudConnectionRequest(_messages.Message):

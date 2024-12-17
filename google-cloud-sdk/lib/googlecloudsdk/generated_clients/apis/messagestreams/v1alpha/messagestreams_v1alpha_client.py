@@ -40,6 +40,7 @@ class MessagestreamsV1alpha(base_api.BaseApiClient):
         additional_http_headers=additional_http_headers,
         response_encoding=response_encoding)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
+    self.projects_locations_streams_retryPolicies = self.ProjectsLocationsStreamsRetryPoliciesService(self)
     self.projects_locations_streams = self.ProjectsLocationsStreamsService(self)
     self.projects_locations = self.ProjectsLocationsService(self)
     self.projects = self.ProjectsService(self)
@@ -159,6 +160,124 @@ class MessagestreamsV1alpha(base_api.BaseApiClient):
         request_field='',
         request_type_name='MessagestreamsProjectsLocationsOperationsListRequest',
         response_type_name='ListOperationsResponse',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsStreamsRetryPoliciesService(base_api.BaseApiService):
+    """Service class for the projects_locations_streams_retryPolicies resource."""
+
+    _NAME = 'projects_locations_streams_retryPolicies'
+
+    def __init__(self, client):
+      super(MessagestreamsV1alpha.ProjectsLocationsStreamsRetryPoliciesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Create a new retry policy.
+
+      Args:
+        request: (MessagestreamsProjectsLocationsStreamsRetryPoliciesCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/streams/{streamsId}/retryPolicies',
+        http_method='POST',
+        method_id='messagestreams.projects.locations.streams.retryPolicies.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['retryPolicyId'],
+        relative_path='v1alpha/{+parent}/retryPolicies',
+        request_field='retryPolicy',
+        request_type_name='MessagestreamsProjectsLocationsStreamsRetryPoliciesCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Delete a retry policy.
+
+      Args:
+        request: (MessagestreamsProjectsLocationsStreamsRetryPoliciesDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/streams/{streamsId}/retryPolicies/{retryPoliciesId}',
+        http_method='DELETE',
+        method_id='messagestreams.projects.locations.streams.retryPolicies.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='MessagestreamsProjectsLocationsStreamsRetryPoliciesDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Get a retry policy.
+
+      Args:
+        request: (MessagestreamsProjectsLocationsStreamsRetryPoliciesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (RetryPolicy) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/streams/{streamsId}/retryPolicies/{retryPoliciesId}',
+        http_method='GET',
+        method_id='messagestreams.projects.locations.streams.retryPolicies.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='MessagestreamsProjectsLocationsStreamsRetryPoliciesGetRequest',
+        response_type_name='RetryPolicy',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""List retry policies.
+
+      Args:
+        request: (MessagestreamsProjectsLocationsStreamsRetryPoliciesListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListRetryPoliciesResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/streams/{streamsId}/retryPolicies',
+        http_method='GET',
+        method_id='messagestreams.projects.locations.streams.retryPolicies.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v1alpha/{+parent}/retryPolicies',
+        request_field='',
+        request_type_name='MessagestreamsProjectsLocationsStreamsRetryPoliciesListRequest',
+        response_type_name='ListRetryPoliciesResponse',
         supports_download=False,
     )
 

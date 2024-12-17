@@ -137,6 +137,22 @@ class BigQueryProfile(_messages.Message):
   r"""BigQuery warehouse profile."""
 
 
+class BinaryLogParser(_messages.Message):
+  r"""Configuration to use Binary Log Parser CDC technique.
+
+  Fields:
+    logFileDirectories: Use Oracle directories.
+    oracleAsmLogFileAccess: Use Oracle ASM.
+  """
+
+  logFileDirectories = _messages.MessageField('LogFileDirectories', 1)
+  oracleAsmLogFileAccess = _messages.MessageField('OracleAsmLogFileAccess', 2)
+
+
+class BinaryLogPosition(_messages.Message):
+  r"""Use Binary log position based replication."""
+
+
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
 
@@ -1043,6 +1059,10 @@ class GcsProfile(_messages.Message):
   rootPath = _messages.StringField(2)
 
 
+class Gtid(_messages.Message):
+  r"""Use GTID based replication."""
+
+
 class JsonFileFormat(_messages.Message):
   r"""JSON file format configuration.
 
@@ -1263,6 +1283,22 @@ class Location(_messages.Message):
   name = _messages.StringField(5)
 
 
+class LogFileDirectories(_messages.Message):
+  r"""Configuration to specify the Oracle directories to access the log files.
+
+  Fields:
+    archivedLogDirectory: Required. Oracle directory for archived logs.
+    onlineLogDirectory: Required. Oracle directory for online logs.
+  """
+
+  archivedLogDirectory = _messages.StringField(1)
+  onlineLogDirectory = _messages.StringField(2)
+
+
+class LogMiner(_messages.Message):
+  r"""Configuration to use LogMiner CDC method."""
+
+
 class LookupStreamObjectRequest(_messages.Message):
   r"""Request for looking up a specific stream object by its source object
   identifier.
@@ -1386,7 +1422,9 @@ class MysqlSourceConfig(_messages.Message):
   r"""MySQL source configuration
 
   Fields:
+    binaryLogPosition: Use Binary log position based replication.
     excludeObjects: MySQL objects to exclude from the stream.
+    gtid: Use GTID based replication.
     includeObjects: MySQL objects to retrieve from the source.
     maxConcurrentBackfillTasks: Maximum number of concurrent backfill tasks.
       The number should be non negative. If not set (or set to 0), the
@@ -1396,10 +1434,12 @@ class MysqlSourceConfig(_messages.Message):
       value will be used.
   """
 
-  excludeObjects = _messages.MessageField('MysqlRdbms', 1)
-  includeObjects = _messages.MessageField('MysqlRdbms', 2)
-  maxConcurrentBackfillTasks = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  maxConcurrentCdcTasks = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  binaryLogPosition = _messages.MessageField('BinaryLogPosition', 1)
+  excludeObjects = _messages.MessageField('MysqlRdbms', 2)
+  gtid = _messages.MessageField('Gtid', 3)
+  includeObjects = _messages.MessageField('MysqlRdbms', 4)
+  maxConcurrentBackfillTasks = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  maxConcurrentCdcTasks = _messages.IntegerField(6, variant=_messages.Variant.INT32)
 
 
 class MysqlSslConfig(_messages.Message):
@@ -1567,8 +1607,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -1586,6 +1627,61 @@ class OperationMetadata(_messages.Message):
   target = _messages.StringField(6)
   validationResult = _messages.MessageField('ValidationResult', 7)
   verb = _messages.StringField(8)
+
+
+class OracleAsmConfig(_messages.Message):
+  r"""Configuration for Oracle Automatic Storage Management (ASM) connection.
+
+  Messages:
+    ConnectionAttributesValue: Optional. Connection string attributes
+
+  Fields:
+    asmService: Required. ASM service name for the Oracle ASM connection.
+    connectionAttributes: Optional. Connection string attributes
+    hostname: Required. Hostname for the Oracle ASM connection.
+    oracleSslConfig: Optional. SSL configuration for the Oracle connection.
+    password: Required. Password for the Oracle ASM connection.
+    port: Required. Port for the Oracle ASM connection.
+    username: Required. Username for the Oracle ASM connection.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ConnectionAttributesValue(_messages.Message):
+    r"""Optional. Connection string attributes
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        ConnectionAttributesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        ConnectionAttributesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ConnectionAttributesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  asmService = _messages.StringField(1)
+  connectionAttributes = _messages.MessageField('ConnectionAttributesValue', 2)
+  hostname = _messages.StringField(3)
+  oracleSslConfig = _messages.MessageField('OracleSslConfig', 4)
+  password = _messages.StringField(5)
+  port = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  username = _messages.StringField(7)
+
+
+class OracleAsmLogFileAccess(_messages.Message):
+  r"""Configuration to use Oracle ASM to access the log files."""
 
 
 class OracleColumn(_messages.Message):
@@ -1636,10 +1732,14 @@ class OracleProfile(_messages.Message):
     connectionAttributes: Connection string attributes
     databaseService: Required. Database for the Oracle connection.
     hostname: Required. Hostname for the Oracle connection.
+    oracleAsmConfig: Optional. Configuration for Oracle ASM connection.
     oracleSslConfig: Optional. SSL configuration for the Oracle connection.
     password: Optional. Password for the Oracle connection. Mutually exclusive
       with the `secret_manager_stored_password` field.
     port: Port for the Oracle connection, default value is 1521.
+    secretManagerStoredPassword: Optional. A reference to a Secret Manager
+      resource name storing the Oracle connection password. Mutually exclusive
+      with the `password` field.
     username: Required. Username for the Oracle connection.
   """
 
@@ -1672,10 +1772,12 @@ class OracleProfile(_messages.Message):
   connectionAttributes = _messages.MessageField('ConnectionAttributesValue', 1)
   databaseService = _messages.StringField(2)
   hostname = _messages.StringField(3)
-  oracleSslConfig = _messages.MessageField('OracleSslConfig', 4)
-  password = _messages.StringField(5)
-  port = _messages.IntegerField(6, variant=_messages.Variant.INT32)
-  username = _messages.StringField(7)
+  oracleAsmConfig = _messages.MessageField('OracleAsmConfig', 4)
+  oracleSslConfig = _messages.MessageField('OracleSslConfig', 5)
+  password = _messages.StringField(6)
+  port = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  secretManagerStoredPassword = _messages.StringField(8)
+  username = _messages.StringField(9)
 
 
 class OracleRdbms(_messages.Message):
@@ -1714,9 +1816,11 @@ class OracleSourceConfig(_messages.Message):
   r"""Oracle data source configuration
 
   Fields:
+    binaryLogParser: Use Binary Log Parser.
     dropLargeObjects: Drop large object values.
     excludeObjects: Oracle objects to exclude from the stream.
     includeObjects: Oracle objects to include in the stream.
+    logMiner: Use LogMiner.
     maxConcurrentBackfillTasks: Maximum number of concurrent backfill tasks.
       The number should be non-negative. If not set (or set to 0), the
       system's default value is used.
@@ -1726,12 +1830,14 @@ class OracleSourceConfig(_messages.Message):
     streamLargeObjects: Stream large object values.
   """
 
-  dropLargeObjects = _messages.MessageField('DropLargeObjects', 1)
-  excludeObjects = _messages.MessageField('OracleRdbms', 2)
-  includeObjects = _messages.MessageField('OracleRdbms', 3)
-  maxConcurrentBackfillTasks = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  maxConcurrentCdcTasks = _messages.IntegerField(5, variant=_messages.Variant.INT32)
-  streamLargeObjects = _messages.MessageField('StreamLargeObjects', 6)
+  binaryLogParser = _messages.MessageField('BinaryLogParser', 1)
+  dropLargeObjects = _messages.MessageField('DropLargeObjects', 2)
+  excludeObjects = _messages.MessageField('OracleRdbms', 3)
+  includeObjects = _messages.MessageField('OracleRdbms', 4)
+  logMiner = _messages.MessageField('LogMiner', 5)
+  maxConcurrentBackfillTasks = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  maxConcurrentCdcTasks = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  streamLargeObjects = _messages.MessageField('StreamLargeObjects', 8)
 
 
 class OracleSslConfig(_messages.Message):
@@ -1798,7 +1904,7 @@ class PostgresqlObjectIdentifier(_messages.Message):
 
 
 class PostgresqlProfile(_messages.Message):
-  r"""PostgreSQL database profile. Next ID: 7.
+  r"""PostgreSQL database profile.
 
   Fields:
     database: Required. Database for the PostgreSQL connection.

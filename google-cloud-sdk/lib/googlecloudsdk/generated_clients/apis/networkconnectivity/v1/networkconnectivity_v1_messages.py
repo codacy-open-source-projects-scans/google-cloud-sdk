@@ -1459,7 +1459,7 @@ class LinkedInterconnectAttachments(_messages.Message):
 
 
 class LinkedProducerVpcNetwork(_messages.Message):
-  r"""Next ID: 7
+  r"""A LinkedProducerVpcNetwork object.
 
   Fields:
     excludeExportRanges: Optional. IP ranges encompassing the subnets to be
@@ -1632,7 +1632,7 @@ class ListLocationsResponse(_messages.Message):
 
 
 class ListPolicyBasedRoutesResponse(_messages.Message):
-  r"""Response for PolicyBasedRouting.ListPolicyBasedRoutes method.
+  r"""Response for PolicyBasedRoutingService.ListPolicyBasedRoutes method.
 
   Fields:
     nextPageToken: The next pagination token in the List response. It should
@@ -3730,8 +3730,8 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have been
-      cancelled successfully have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      cancelled successfully have google.longrunning.Operation.error value
+      with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -4160,7 +4160,6 @@ class PscPropagationStatus(_messages.Message):
       CODE_UNSPECIFIED: The code is unspecified.
       READY: The propagated PSC connection is ready.
       PROPAGATING: PSC connection is propagating. This is a transient state.
-      PENDING: PSC connection is pending. This is a transient state.
       ERROR_PRODUCER_PROPAGATED_CONNECTION_LIMIT_EXCEEDED: The PSC connection
         propagation failed because the VPC network or the project of the
         target spoke has exceeded the connection limit set by the producer.
@@ -4179,11 +4178,10 @@ class PscPropagationStatus(_messages.Message):
     CODE_UNSPECIFIED = 0
     READY = 1
     PROPAGATING = 2
-    PENDING = 3
-    ERROR_PRODUCER_PROPAGATED_CONNECTION_LIMIT_EXCEEDED = 4
-    ERROR_PRODUCER_NAT_IP_SPACE_EXHAUSTED = 5
-    ERROR_PRODUCER_QUOTA_EXCEEDED = 6
-    ERROR_CONSUMER_QUOTA_EXCEEDED = 7
+    ERROR_PRODUCER_PROPAGATED_CONNECTION_LIMIT_EXCEEDED = 3
+    ERROR_PRODUCER_NAT_IP_SPACE_EXHAUSTED = 4
+    ERROR_PRODUCER_QUOTA_EXCEEDED = 5
+    ERROR_CONSUMER_QUOTA_EXCEEDED = 6
 
   code = _messages.EnumField('CodeValueValuesEnum', 1)
   message = _messages.StringField(2)
@@ -4227,7 +4225,8 @@ class RegionalEndpoint(_messages.Message):
       address is provided, an IP from the subnetwork is allocated. Use one of
       the following formats: * IPv4 address as in `10.0.0.1` * Address
       resource URI as in
-      `projects/{project}/regions/{region}/addresses/{address_name}`
+      `projects/{project}/regions/{region}/addresses/{address_name}` for an
+      IPv4 or IPv6 address.
     createTime: Output only. Time when the RegionalEndpoint was created.
     description: Optional. A description of this resource.
     ipAddress: Output only. The literal IP address of the PSC Forwarding Rule
@@ -4614,7 +4613,7 @@ class RoutingVPC(_messages.Message):
 
 
 class ServiceClass(_messages.Message):
-  r"""The ServiceClass resource. Next id: 9
+  r"""The ServiceClass resource.
 
   Messages:
     LabelsValue: User-defined labels.
@@ -4669,7 +4668,7 @@ class ServiceClass(_messages.Message):
 
 
 class ServiceConnectionMap(_messages.Message):
-  r"""The ServiceConnectionMap resource. Next id: 15
+  r"""The ServiceConnectionMap resource.
 
   Enums:
     InfrastructureValueValuesEnum: Output only. The infrastructure used for
@@ -4758,7 +4757,7 @@ class ServiceConnectionMap(_messages.Message):
 
 
 class ServiceConnectionPolicy(_messages.Message):
-  r"""The ServiceConnectionPolicy resource. Next id: 12
+  r"""The ServiceConnectionPolicy resource.
 
   Enums:
     InfrastructureValueValuesEnum: Output only. The type of underlying
@@ -4847,7 +4846,7 @@ class ServiceConnectionPolicy(_messages.Message):
 
 
 class ServiceConnectionToken(_messages.Message):
-  r"""The ServiceConnectionToken resource. Next id: 10
+  r"""The ServiceConnectionToken resource.
 
   Messages:
     LabelsValue: User-defined labels.
@@ -4963,8 +4962,7 @@ class Spoke(_messages.Message):
     name: Immutable. The name of the spoke. Spoke names must be unique. They
       use the following form:
       `projects/{project_number}/locations/{region}/spokes/{spoke_id}`
-    reasons: Output only. The reasons for current state of the spoke. Only
-      present when the spoke is in the `INACTIVE` state.
+    reasons: Output only. The reasons for current state of the spoke.
     spokeType: Output only. The type of resource associated with the spoke.
     state: Output only. The current lifecycle state of this spoke.
     uniqueId: Output only. The Google-generated UUID for the spoke. This value
@@ -5135,12 +5133,20 @@ class SpokeStateReasonCount(_messages.Message):
       PAUSED: The spoke has been deactivated internally.
       FAILED: Network Connectivity Center encountered errors while accepting
         the spoke.
+      UPDATE_PENDING_REVIEW: The proposed spoke update is pending review.
+      UPDATE_REJECTED: The proposed spoke update has been rejected by the hub
+        administrator.
+      UPDATE_FAILED: Network Connectivity Center encountered errors while
+        accepting the spoke update.
     """
     CODE_UNSPECIFIED = 0
     PENDING_REVIEW = 1
     REJECTED = 2
     PAUSED = 3
     FAILED = 4
+    UPDATE_PENDING_REVIEW = 5
+    UPDATE_REJECTED = 6
+    UPDATE_FAILED = 7
 
   count = _messages.IntegerField(1)
   stateReasonCode = _messages.EnumField('StateReasonCodeValueValuesEnum', 2)
@@ -5287,12 +5293,20 @@ class StateReason(_messages.Message):
       PAUSED: The spoke has been deactivated internally.
       FAILED: Network Connectivity Center encountered errors while accepting
         the spoke.
+      UPDATE_PENDING_REVIEW: The proposed spoke update is pending review.
+      UPDATE_REJECTED: The proposed spoke update has been rejected by the hub
+        administrator.
+      UPDATE_FAILED: Network Connectivity Center encountered errors while
+        accepting the spoke update.
     """
     CODE_UNSPECIFIED = 0
     PENDING_REVIEW = 1
     REJECTED = 2
     PAUSED = 3
     FAILED = 4
+    UPDATE_PENDING_REVIEW = 5
+    UPDATE_REJECTED = 6
+    UPDATE_FAILED = 7
 
   code = _messages.EnumField('CodeValueValuesEnum', 1)
   message = _messages.StringField(2)

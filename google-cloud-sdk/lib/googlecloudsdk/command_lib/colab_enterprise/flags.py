@@ -46,9 +46,7 @@ def GetRegionAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
       name='region',
       help_text='Cloud region for the {resource}.',
-      fallthroughs=[
-          deps.PropertyFallthrough(properties.VALUES.colab.region)
-      ],
+      fallthroughs=[deps.PropertyFallthrough(properties.VALUES.colab.region)],
   )
 
 
@@ -114,7 +112,7 @@ def AddRuntimeResourceArg(parser, verb):
       'runtime',
       GetRuntimeResourceSpec(),
       'Unique name of the runtime {}. This was optionally provided by setting'
-      ' --runtime-id in the assign runtime command, or was system-generated if'
+      ' --runtime-id in the create runtime command, or was system-generated if'
       ' unspecified.'.format(verb),
       required=True,
   ).AddToParser(parser)
@@ -460,10 +458,10 @@ def AddRemoveIamPolicyBindingFlags(parser):
   iam_util.AddArgsForRemoveIamPolicyBinding(parser)
 
 
-def AddAssignRuntimeFlags(parser):
-  """Construct arguments for assigning a runtime."""
+def AddCreateRuntimeFlags(parser):
+  """Construct arguments for creating a runtime."""
 
-  AddRegionResourceArg(parser, verb='to assign runtime')
+  AddRegionResourceArg(parser, verb='to create runtime')
 
   AddRuntimeTemplateResourceArg(
       parser, 'to configure the runtime with', is_positional=False
@@ -472,14 +470,14 @@ def AddAssignRuntimeFlags(parser):
       '--runtime-id',
       required=False,
       help=(
-          'The id of the runtime to assign. If not specified, a random id will'
+          'The id of the runtime to create. If not specified, a random id will'
           ' be generated.'
       ),
   )
   parser.add_argument(
       '--display-name',
       required=True,
-      help='The display name of the runtime to assign.',
+      help='The display name of the runtime to create.',
   )
   parser.add_argument('--description', required=False, help='The description')
   parser.add_argument(
@@ -527,4 +525,10 @@ def AddUpgradeRuntimeFlags(parser):
 def AddStartRuntimeFlags(parser):
   """Construct arguments specific to starting a stopped runtime."""
   AddRuntimeResourceArg(parser, verb='to start')
+  AddAsyncFlag(parser)
+
+
+def AddStopRuntimeFlags(parser):
+  """Construct arguments specific to stopping a runtime."""
+  AddRuntimeResourceArg(parser, verb='to stop')
   AddAsyncFlag(parser)

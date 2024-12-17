@@ -360,6 +360,19 @@ class CloudfunctionsProjectsLocationsFunctionsDeleteRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class CloudfunctionsProjectsLocationsFunctionsDetachFunctionRequest(_messages.Message):
+  r"""A CloudfunctionsProjectsLocationsFunctionsDetachFunctionRequest object.
+
+  Fields:
+    detachFunctionRequest: A DetachFunctionRequest resource to be passed as
+      the request body.
+    name: Required. The name of the function for which should be detached.
+  """
+
+  detachFunctionRequest = _messages.MessageField('DetachFunctionRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
 class CloudfunctionsProjectsLocationsFunctionsGenerateDownloadUrlRequest(_messages.Message):
   r"""A CloudfunctionsProjectsLocationsFunctionsGenerateDownloadUrlRequest
   object.
@@ -650,6 +663,10 @@ class Date(_messages.Message):
   day = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   month = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   year = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class DetachFunctionRequest(_messages.Message):
+  r"""Request for the `DetachFunction` method."""
 
 
 class EventFilter(_messages.Message):
@@ -2141,8 +2158,8 @@ class TestIamPermissionsResponse(_messages.Message):
 
 class UpgradeInfo(_messages.Message):
   r"""Information related to: * A function's eligibility for 1st Gen to 2nd
-  Gen migration * Current state of migration for function undergoing
-  migration.
+  Gen migration and 2nd Gen to CRf detach. * Current state of migration for
+  function undergoing migration/detach.
 
   Enums:
     UpgradeStateValueValuesEnum: UpgradeState of the function
@@ -2183,6 +2200,8 @@ class UpgradeInfo(_messages.Message):
         API was un-successful.
       COMMIT_FUNCTION_UPGRADE_ERROR: CommitFunctionUpgrade API was un-
         successful.
+      DETACH_IN_PROGRESS: Function is requested to be detached from 2nd Gen to
+        CRf.
     """
     UPGRADE_STATE_UNSPECIFIED = 0
     ELIGIBLE_FOR_2ND_GEN_UPGRADE = 1
@@ -2194,6 +2213,7 @@ class UpgradeInfo(_messages.Message):
     REDIRECT_FUNCTION_UPGRADE_TRAFFIC_ERROR = 7
     ROLLBACK_FUNCTION_UPGRADE_TRAFFIC_ERROR = 8
     COMMIT_FUNCTION_UPGRADE_ERROR = 9
+    DETACH_IN_PROGRESS = 10
 
   buildConfig = _messages.MessageField('BuildConfig', 1)
   eventTrigger = _messages.MessageField('EventTrigger', 2)

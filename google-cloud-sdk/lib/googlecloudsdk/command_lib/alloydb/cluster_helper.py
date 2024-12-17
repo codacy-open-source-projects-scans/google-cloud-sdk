@@ -306,6 +306,11 @@ def _ConstructClusterResourceForRestoreRequest(alloydb_messages, args):
   if args.enable_private_service_connect:
     cluster_resource.pscConfig = alloydb_messages.PscConfig(pscEnabled=True)
 
+  if args.tags:
+    cluster_resource.tags = flags.GetTagsFromArgs(
+        args, alloydb_messages.Cluster.TagsValue
+    )
+
   return cluster_resource
 
 
@@ -353,6 +358,43 @@ def ConstructRestoreRequestFromArgsAlpha(
           alloydb_messages, resource_parser, args
       )
   )
+  cluster_resource.tags = flags.GetTagsFromArgs(
+      args, alloydb_messages.Cluster.TagsValue
+  )
+  return alloydb_messages.AlloydbProjectsLocationsClustersRestoreRequest(
+      parent=location_ref.RelativeName(),
+      restoreClusterRequest=alloydb_messages.RestoreClusterRequest(
+          backupSource=backup_source,
+          continuousBackupSource=continuous_backup_source,
+          clusterId=args.cluster,
+          cluster=cluster_resource,
+      ),
+  )
+
+
+def _ConstructClusterResourceForRestoreRequestBeta(alloydb_messages, args):
+  """Returns the cluster resource for restore request."""
+  cluster_resource = _ConstructClusterResourceForRestoreRequest(
+      alloydb_messages, args
+  )
+
+  return cluster_resource
+
+
+def ConstructRestoreRequestFromArgsBeta(
+    alloydb_messages, location_ref, resource_parser, args
+):
+  """Returns the cluster restore request for Beta track based on args."""
+  cluster_resource = _ConstructClusterResourceForRestoreRequestBeta(
+      alloydb_messages, args
+  )
+
+  backup_source, continuous_backup_source = (
+      _ConstructBackupAndContinuousBackupSourceForRestoreRequest(
+          alloydb_messages, resource_parser, args
+      )
+  )
+
   return alloydb_messages.AlloydbProjectsLocationsClustersRestoreRequest(
       parent=location_ref.RelativeName(),
       restoreClusterRequest=alloydb_messages.RestoreClusterRequest(
@@ -533,11 +575,8 @@ def ConstructUpgradeRequestFromArgs(alloydb_messages, cluster_ref, args):
   )
 
 
-def ConstructCreatesecondaryRequestFromArgs(
-    alloydb_messages, cluster_ref, args
-):
-  """Returns the cluster create-secondary request based on args."""
-
+def _ConstructClusterForCreateSecondaryRequestGA(alloydb_messages, args):
+  """Returns the cluster for GA create-secondary request based on args."""
   cluster = alloydb_messages.Cluster()
   cluster.secondaryConfig = alloydb_messages.SecondaryConfig(
       primaryClusterName=args.primary_cluster
@@ -574,6 +613,32 @@ def ConstructCreatesecondaryRequestFromArgs(
         allocatedIpRange=args.allocated_ip_range_name
     )
 
+  if args.tags:
+    cluster.tags = flags.GetTagsFromArgs(
+        args, alloydb_messages.Cluster.TagsValue
+    )
+  return cluster
+
+
+def _ConstructClusterForCreateSecondaryRequestBeta(
+    alloydb_messages, args):
+  cluster = _ConstructClusterForCreateSecondaryRequestGA(alloydb_messages, args)
+
+  return cluster
+
+
+def _ConstructClusterForCreateSecondaryRequestAlpha(
+    alloydb_messages, args):
+  cluster = _ConstructClusterForCreateSecondaryRequestBeta(
+      alloydb_messages, args)
+  return cluster
+
+
+def ConstructCreatesecondaryRequestFromArgsGA(
+    alloydb_messages, cluster_ref, args
+):
+  """Returns the cluster create-secondary request For GA release track based on args."""
+  cluster = _ConstructClusterForCreateSecondaryRequestGA(alloydb_messages, args)
   return (
       alloydb_messages.AlloydbProjectsLocationsClustersCreatesecondaryRequest(
           cluster=cluster,
@@ -583,8 +648,42 @@ def ConstructCreatesecondaryRequestFromArgs(
   )
 
 
-def ConstructExportRequestFromArgsAlpha(alloydb_messages, cluster_ref, args):
-  """Returns the cluster export request for Alpha release track based on args."""
+def ConstructCreatesecondaryRequestFromArgsBeta(
+    alloydb_messages, cluster_ref, args
+):
+  """Returns the cluster create-secondary request for Beta release track based on args."""
+
+  cluster = _ConstructClusterForCreateSecondaryRequestBeta(
+      alloydb_messages, args)
+
+  return (
+      alloydb_messages.AlloydbProjectsLocationsClustersCreatesecondaryRequest(
+          cluster=cluster,
+          clusterId=args.cluster,
+          parent=cluster_ref.RelativeName(),
+      )
+  )
+
+
+def ConstructCreatesecondaryRequestFromArgsAlpha(
+    alloydb_messages, cluster_ref, args
+):
+  """Returns the cluster create-secondary request for Alpha release track based on args."""
+
+  cluster = _ConstructClusterForCreateSecondaryRequestAlpha(
+      alloydb_messages, args)
+
+  return (
+      alloydb_messages.AlloydbProjectsLocationsClustersCreatesecondaryRequest(
+          cluster=cluster,
+          clusterId=args.cluster,
+          parent=cluster_ref.RelativeName(),
+      )
+  )
+
+
+def ConstructExportRequestFromArgs(alloydb_messages, cluster_ref, args):
+  """Returns the cluster export request based on args."""
   export_cluster_request = alloydb_messages.ExportClusterRequest()
   export_cluster_request.database = args.database
   if args.csv:

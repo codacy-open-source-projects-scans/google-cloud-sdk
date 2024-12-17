@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import re
 
 from googlecloudsdk.api_lib.sql import constants
+from googlecloudsdk.api_lib.sql import exceptions as sql_exceptions
 from googlecloudsdk.api_lib.sql import instance_prop_reducers as reducers
 from googlecloudsdk.api_lib.sql import instances as api_util
 from googlecloudsdk.api_lib.sql import validate
@@ -463,6 +464,13 @@ class _BaseInstances(object):
     if args.enable_dataplex_integration is not None:
       settings.enableDataplexIntegration = args.enable_dataplex_integration
 
+    if args.IsKnownAndSpecified('server_ca_mode'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      settings.ipConfiguration.serverCaMode = _ParseServerCaMode(
+          sql_messages, args.server_ca_mode
+      )
+
     # BETA args.
     if IsBetaOrNewer(release_track):
       if args.IsSpecified('storage_auto_increase_limit'):
@@ -491,12 +499,43 @@ class _BaseInstances(object):
             args.replication_lag_max_seconds_for_recreate
         )
 
-      if args.IsKnownAndSpecified('server_ca_mode'):
+      if args.IsKnownAndSpecified('server_ca_pool'):
         if not settings.ipConfiguration:
           settings.ipConfiguration = sql_messages.IpConfiguration()
-        settings.ipConfiguration.serverCaMode = _ParseServerCaMode(
-            sql_messages, args.server_ca_mode
+        settings.ipConfiguration.serverCaPool = args.server_ca_pool
+        if (
+            settings.ipConfiguration.serverCaMode
+            != sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
+        ):
+          raise sql_exceptions.ArgumentError(
+              '`--server-ca-pool` can only be specified when the server CA mode'
+              ' is CUSTOMER_MANAGED_CAS_CA.'
+          )
+      elif (
+          settings.ipConfiguration
+          and settings.ipConfiguration.serverCaMode
+          == sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
+      ):
+        raise exceptions.RequiredArgumentException(
+            '--server-ca-pool',
+            (
+                'To create an instance with server CA mode '
+                'CUSTOMER_MANAGED_CAS_CA, [--server-ca-pool] must be '
+                'specified.'
+            ),
         )
+
+      if args.IsKnownAndSpecified('custom_subject_alternative_names'):
+        if not settings.ipConfiguration:
+          settings.ipConfiguration = sql_messages.IpConfiguration()
+        settings.ipConfiguration.customSubjectAlternativeNames = (
+            args.custom_subject_alternative_names
+        )
+
+      if args.IsKnownAndSpecified('clear_custom_subject_alternative_names'):
+        if not settings.ipConfiguration:
+          settings.ipConfiguration = sql_messages.IpConfiguration()
+        settings.ipConfiguration.customSubjectAlternativeNames = []
 
       if args.retain_backups_on_delete is not None:
         settings.retainBackupsOnDelete = args.retain_backups_on_delete
@@ -620,6 +659,20 @@ class _BaseInstances(object):
         if not settings.ipConfiguration:
           settings.ipConfiguration = sql_messages.IpConfiguration()
         settings.ipConfiguration.allocatedIpRange = args.allocated_ip_range_name
+
+      # MCP settings.
+      mcp_config = reducers.ConnectionPoolConfig(
+          sql_messages,
+          enable_connection_pooling=args.enable_connection_pooling,
+          connection_pooling_pool_mode=args.connection_pooling_pool_mode,
+          connection_pooling_pool_size=args.connection_pooling_pool_size,
+          connection_pooling_max_client_connections=args.connection_pooling_max_client_connections,
+          connection_pooling_client_idle_timeout=args.connection_pooling_client_idle_timeout,
+          connection_pooling_server_idle_timeout=args.connection_pooling_server_idle_timeout,
+          connection_pooling_query_wait_timeout=args.connection_pooling_query_wait_timeout,
+      )
+      if mcp_config is not None:
+        settings.connectionPoolConfig = mcp_config
 
     # ALPHA args.
     if _IsAlpha(release_track):
@@ -775,6 +828,20 @@ class _BaseInstances(object):
         if not settings.ipConfiguration.pscConfig:
           settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
         settings.ipConfiguration.pscConfig.pscAutoConnections = []
+
+      # MCP settings.
+      updated_config = reducers.ConnectionPoolConfig(
+          sql_messages,
+          enable_connection_pooling=args.enable_connection_pooling,
+          connection_pooling_pool_mode=args.connection_pooling_pool_mode,
+          connection_pooling_pool_size=args.connection_pooling_pool_size,
+          connection_pooling_max_client_connections=args.connection_pooling_max_client_connections,
+          connection_pooling_client_idle_timeout=args.connection_pooling_client_idle_timeout,
+          connection_pooling_server_idle_timeout=args.connection_pooling_server_idle_timeout,
+          connection_pooling_query_wait_timeout=args.connection_pooling_query_wait_timeout,
+      )
+      if updated_config is not None:
+        settings.connectionPoolConfig = updated_config
 
     return settings
 
@@ -993,17 +1060,17 @@ class _BaseInstances(object):
     ):
       api_util.InstancesV1Beta4.PrintAndConfirmSimulatedMaintenanceEvent()
 
-    # BETA args.
+    if args.IsKnownAndSpecified('failover_dr_replica_name'):
+      replication_cluster = sql_messages.ReplicationCluster()
+      replication_cluster.failoverDrReplicaName = (
+          args.failover_dr_replica_name
+      )
+      instance_resource.replicationCluster = replication_cluster
+    if args.IsKnownAndSpecified('clear_failover_dr_replica_name'):
+      if instance_resource.replicationCluster is not None:
+        instance_resource.replicationCluster.ClearFailoverDrReplicaName()
+
     if IsBetaOrNewer(release_track):
-      if args.IsKnownAndSpecified('failover_dr_replica_name'):
-        replication_cluster = sql_messages.ReplicationCluster()
-        replication_cluster.failoverDrReplicaName = (
-            args.failover_dr_replica_name
-        )
-        instance_resource.replicationCluster = replication_cluster
-      if args.IsKnownAndSpecified('clear_failover_dr_replica_name'):
-        if instance_resource.replicationCluster is not None:
-          instance_resource.replicationCluster.ClearFailoverDrReplicaName()
       if args.IsKnownAndSpecified('include_replicas_for_major_version_upgrade'):
         instance_resource.includeReplicasForMajorVersionUpgrade = (
             args.include_replicas_for_major_version_upgrade
