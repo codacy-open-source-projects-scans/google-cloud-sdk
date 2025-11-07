@@ -23,7 +23,13 @@ from googlecloudsdk.api_lib.eventarc import base
 from googlecloudsdk.api_lib.eventarc import common
 from googlecloudsdk.api_lib.util import apis
 from googlecloudsdk.core import exceptions
+from googlecloudsdk.core import log
 from googlecloudsdk.core import resources
+
+NO_NA_FOR_HTTP_ENDPOINTS_WARNING = """\
+Specifying a network attachment for a pipeline with an HTTP endpoint is not GA
+and the pipeline will be limited to pre-GA features.
+"""
 
 
 class NoFieldsSpecifiedError(exceptions.Error):
@@ -162,6 +168,7 @@ class PipelineClientV1(base.EventarcClientBase):
       max_retry_delay,
       crypto_key_name,
       labels,
+      error_message_bus_ref,
   ):
     return self._messages.Pipeline(
         name=pipeline_ref.RelativeName(),
@@ -178,6 +185,11 @@ class PipelineClientV1(base.EventarcClientBase):
         ),
         cryptoKeyName=crypto_key_name,
         labels=labels,
+        errorMessageBus=(
+            error_message_bus_ref.RelativeName()
+            if error_message_bus_ref
+            else None
+        ),
     )
 
   def BuildUpdateMask(
@@ -194,6 +206,8 @@ class PipelineClientV1(base.EventarcClientBase):
       crypto_key,
       clear_crypto_key,
       labels,
+      error_message_bus,
+      clear_error_message_bus,
   ):
     """Builds an update mask for updating a pipeline.
 
@@ -213,6 +227,8 @@ class PipelineClientV1(base.EventarcClientBase):
       crypto_key: bool, whether to update the crypto_key.
       clear_crypto_key: bool, whether to clear the crypto_key.
       labels: bool, whether to update the labels.
+      error_message_bus: bool, whether to update the error_message_bus.
+      clear_error_message_bus: bool, whether to clear the error_message_bus.
 
     Returns:
       The update mask as a string.
@@ -245,6 +261,8 @@ class PipelineClientV1(base.EventarcClientBase):
       update_mask.append('cryptoKeyName')
     if labels:
       update_mask.append('labels')
+    if error_message_bus or clear_error_message_bus:
+      update_mask.append('errorMessageBus')
 
     if not update_mask:
       raise NoFieldsSpecifiedError('Must specify at least one field to update.')
@@ -332,11 +350,22 @@ class PipelineClientV1(base.EventarcClientBase):
     return f'projects/{project}/topics/{destination.get("pubsub_topic")}'
 
   def _BuildDestinationNetworkConfig(self, pipeline_ref, destination):
-    if destination.get('network_attachment') is None:
-      raise InvalidDestinationsArgumentError('network_attachment must be set')
-    return self._messages.GoogleCloudEventarcV1PipelineDestinationNetworkConfig(
-        networkAttachment=f'projects/{pipeline_ref.projectsId}/regions/{pipeline_ref.locationsId}/networkAttachments/{destination.get("network_attachment")}',
-    )
+    if destination.get('http_endpoint_uri') is not None:
+      # Network attachments are optional for HTTP destinations.
+      if destination.get('network_attachment') is not None:
+        log.warning(NO_NA_FOR_HTTP_ENDPOINTS_WARNING)
+        return self._messages.GoogleCloudEventarcV1PipelineDestinationNetworkConfig(
+            networkAttachment=f'projects/{pipeline_ref.projectsId}/regions/{pipeline_ref.locationsId}/networkAttachments/{destination.get("network_attachment")}',
+        )
+      return None
+
+    # Workflows, Pub/Sub topic and Message Bus destinations cannot have a
+    # network attachment.
+    if destination.get('network_attachment') is not None:
+      raise InvalidDestinationsArgumentError(
+          'network_attachment must not be set'
+      )
+    return None
 
   def _BuildDestinationAuthenticationConfig(self, destination):
     google_oidc = self._BuildDestinationAuthenticationGoogleOidc(destination)

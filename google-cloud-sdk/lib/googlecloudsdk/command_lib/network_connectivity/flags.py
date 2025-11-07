@@ -74,10 +74,23 @@ def AddUpdateIncludeExportRangesFlag(
       default=None,
       metavar='CIDR_RANGE',
       hidden=hide_include_export_ranges_flag,
-      help="""\
-      Only allows adding `ALL_IPV6_RANGES` to include export ranges or removing
-      `ALL_IPV6_RANGES` from include export ranges.
-      """,
+      help="""New include export ranges of the spoke.""",
+  )
+
+
+def AddUpdateExcludeExportRangesFlag(
+    parser, hide_exclude_export_ranges_flag
+):
+  """Adds the --exclude-export-ranges argument to the update operation parser."""
+
+  parser.add_argument(
+      '--exclude-export-ranges',
+      required=False,
+      type=arg_parsers.ArgList(),
+      default=None,
+      metavar='CIDR_RANGE',
+      hidden=hide_exclude_export_ranges_flag,
+      help="""New exclude export ranges of the spoke.""",
   )
 
 
@@ -87,10 +100,7 @@ def GetCapacityArg(gateway_message):
       message_enum=gateway_message.CapacityValueValuesEnum,
       custom_mappings={
           'CAPACITY_1_GBPS': ('1g', 'Gateway will have capacity of 1 Gbps'),
-          'CAPACITY_5_GBPS': ('5g', 'Gateway will have capacity of 5 Gbps'),
           'CAPACITY_10_GBPS': ('10g', 'Gateway will have capacity of 10 Gbps'),
-          'CAPACITY_25_GBPS': ('25g', 'Gateway will have capacity of 25 Gbps'),
-          'CAPACITY_50_GBPS': ('50g', 'Gateway will have capacity of 50 Gbps'),
           'CAPACITY_100_GBPS': (
               '100g',
               'Gateway will have capacity of 100 Gbps',
@@ -122,7 +132,6 @@ def AddLandingNetworkFlag(parser):
   # TODO: b/233653552 - Parse this with a resource argument.
   parser.add_argument(
       '--landing-network',
-      required=True,
       help="""The landing network for the spoke. The network must already
       exist.""",
   )
@@ -135,7 +144,7 @@ def AddAsyncFlag(parser):
 
 def AddHubFlag(parser):
   """Adds the --hub argument to the given parser."""
-  # TODO(b/233653552) Parse this with a resouce argument.
+  # TODO(b/233653552) Parse this with a resource argument.
   parser.add_argument(
       '--hub',
       required=True,
@@ -150,9 +159,17 @@ def AddSpokeFlag(parser, help_text):
       help=help_text)
 
 
+def AddSpokeEtagFlag(parser, help_text):
+  """Adds the --spoke-etag flag to the given parser."""
+  parser.add_argument(
+      '--spoke-etag',
+      required=True,
+      help=help_text)
+
+
 def AddGroupFlag(parser, required=False):
   """Adds the --group argument to the given parser."""
-  # TODO(b/233653552) Parse this with a resouce argument.
+  # TODO(b/233653552) Parse this with a resource argument.
   if required:
     parser.add_argument(
         '--group',
@@ -451,3 +468,43 @@ def AddRegionResourceArg(
   )
   concept_parsers.ConceptParser([presentation_spec]).AddToParser(parser)
 
+
+def AddPscGroup(parser):
+  """Add a group which contains the PSC-related arguments to the given parser."""
+  psc_group = parser.add_group(required=False, mutex=True)
+  AddExportPscFlag(psc_group)
+  psc_gapi_group = psc_group.add_group(required=False, mutex=False, hidden=True)
+  AddExportPscPublishedServicesAndRegionalGoogleApisFlag(psc_gapi_group)
+  AddExportPscGlobalGoogleApisFlag(psc_gapi_group)
+
+
+def AddExportPscFlag(parser):
+  """Add the --export-psc flag to the given parser."""
+  parser.add_argument(
+      '--export-psc',
+      action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      help="""Whether Private Service Connect propagation is enabled for the hub.""",
+  )
+
+
+def AddExportPscPublishedServicesAndRegionalGoogleApisFlag(parser):
+  """Add the --export-psc-published-services-and-regional-google-apis flag to the given parser."""
+  parser.add_argument(
+      '--export-psc-published-services-and-regional-google-apis',
+      action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      hidden=True,
+      help="""Whether propagation for Private Service Connect for published services and regional Google APIs is enabled for the hub.""",
+  )
+
+
+def AddExportPscGlobalGoogleApisFlag(parser):
+  """Add the --export-psc-global-google-apis flag to the given parser."""
+  parser.add_argument(
+      '--export-psc-global-google-apis',
+      action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      hidden=True,
+      help="""Whether propagation for Private Service Connect for global Google APIs is enabled for the hub.""",
+  )

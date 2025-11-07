@@ -136,33 +136,6 @@ class LookerV1alpha2(base_api.BaseApiClient):
         supports_download=False,
     )
 
-    def GetIamPolicy(self, request, global_params=None):
-      r"""Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesBackupsGetIamPolicyRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (Policy) The response message.
-      """
-      config = self.GetMethodConfig('GetIamPolicy')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    GetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}/backups/{backupsId}:getIamPolicy',
-        http_method='GET',
-        method_id='looker.projects.locations.instances.backups.getIamPolicy',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=['options_requestedPolicyVersion'],
-        relative_path='v1alpha2/{+resource}:getIamPolicy',
-        request_field='',
-        request_type_name='LookerProjectsLocationsInstancesBackupsGetIamPolicyRequest',
-        response_type_name='Policy',
-        supports_download=False,
-    )
-
     def List(self, request, global_params=None):
       r"""List backups of Looker instance.
 
@@ -187,60 +160,6 @@ class LookerV1alpha2(base_api.BaseApiClient):
         request_field='',
         request_type_name='LookerProjectsLocationsInstancesBackupsListRequest',
         response_type_name='ListInstanceBackupsResponse',
-        supports_download=False,
-    )
-
-    def SetIamPolicy(self, request, global_params=None):
-      r"""Sets the access control policy on the specified resource. Replaces any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesBackupsSetIamPolicyRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (Policy) The response message.
-      """
-      config = self.GetMethodConfig('SetIamPolicy')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    SetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}/backups/{backupsId}:setIamPolicy',
-        http_method='POST',
-        method_id='looker.projects.locations.instances.backups.setIamPolicy',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=[],
-        relative_path='v1alpha2/{+resource}:setIamPolicy',
-        request_field='setIamPolicyRequest',
-        request_type_name='LookerProjectsLocationsInstancesBackupsSetIamPolicyRequest',
-        response_type_name='Policy',
-        supports_download=False,
-    )
-
-    def TestIamPermissions(self, request, global_params=None):
-      r"""Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may "fail open" without warning.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesBackupsTestIamPermissionsRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (TestIamPermissionsResponse) The response message.
-      """
-      config = self.GetMethodConfig('TestIamPermissions')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    TestIamPermissions.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}/backups/{backupsId}:testIamPermissions',
-        http_method='POST',
-        method_id='looker.projects.locations.instances.backups.testIamPermissions',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=[],
-        relative_path='v1alpha2/{+resource}:testIamPermissions',
-        request_field='testIamPermissionsRequest',
-        request_type_name='LookerProjectsLocationsInstancesBackupsTestIamPermissionsRequest',
-        response_type_name='TestIamPermissionsResponse',
         supports_download=False,
     )
 
@@ -362,33 +281,6 @@ class LookerV1alpha2(base_api.BaseApiClient):
         supports_download=False,
     )
 
-    def GetIamPolicy(self, request, global_params=None):
-      r"""Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesGetIamPolicyRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (Policy) The response message.
-      """
-      config = self.GetMethodConfig('GetIamPolicy')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    GetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:getIamPolicy',
-        http_method='GET',
-        method_id='looker.projects.locations.instances.getIamPolicy',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=['options_requestedPolicyVersion'],
-        relative_path='v1alpha2/{+resource}:getIamPolicy',
-        request_field='',
-        request_type_name='LookerProjectsLocationsInstancesGetIamPolicyRequest',
-        response_type_name='Policy',
-        supports_download=False,
-    )
-
     def Import(self, request, global_params=None):
       r"""Import instance.
 
@@ -470,6 +362,33 @@ class LookerV1alpha2(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def ProxySearchDirectGroups(self, request, global_params=None):
+      r"""Proxy Google Groups SearchDirectGroups API.
+
+      Args:
+        request: (LookerProjectsLocationsInstancesProxySearchDirectGroupsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ProxySearchDirectGroupsResponse) The response message.
+      """
+      config = self.GetMethodConfig('ProxySearchDirectGroups')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ProxySearchDirectGroups.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:proxySearchDirectGroups',
+        http_method='POST',
+        method_id='looker.projects.locations.instances.proxySearchDirectGroups',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha2/{+name}:proxySearchDirectGroups',
+        request_field='proxySearchDirectGroupsRequest',
+        request_type_name='LookerProjectsLocationsInstancesProxySearchDirectGroupsRequest',
+        response_type_name='ProxySearchDirectGroupsResponse',
+        supports_download=False,
+    )
+
     def Restart(self, request, global_params=None):
       r"""Restart instance.
 
@@ -524,60 +443,6 @@ class LookerV1alpha2(base_api.BaseApiClient):
         supports_download=False,
     )
 
-    def SetIamPolicy(self, request, global_params=None):
-      r"""Sets the access control policy on the specified resource. Replaces any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesSetIamPolicyRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (Policy) The response message.
-      """
-      config = self.GetMethodConfig('SetIamPolicy')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    SetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:setIamPolicy',
-        http_method='POST',
-        method_id='looker.projects.locations.instances.setIamPolicy',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=[],
-        relative_path='v1alpha2/{+resource}:setIamPolicy',
-        request_field='setIamPolicyRequest',
-        request_type_name='LookerProjectsLocationsInstancesSetIamPolicyRequest',
-        response_type_name='Policy',
-        supports_download=False,
-    )
-
-    def TestIamPermissions(self, request, global_params=None):
-      r"""Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may "fail open" without warning.
-
-      Args:
-        request: (LookerProjectsLocationsInstancesTestIamPermissionsRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (TestIamPermissionsResponse) The response message.
-      """
-      config = self.GetMethodConfig('TestIamPermissions')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    TestIamPermissions.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1alpha2/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:testIamPermissions',
-        http_method='POST',
-        method_id='looker.projects.locations.instances.testIamPermissions',
-        ordered_params=['resource'],
-        path_params=['resource'],
-        query_params=[],
-        relative_path='v1alpha2/{+resource}:testIamPermissions',
-        request_field='testIamPermissionsRequest',
-        request_type_name='LookerProjectsLocationsInstancesTestIamPermissionsRequest',
-        response_type_name='TestIamPermissionsResponse',
-        supports_download=False,
-    )
-
   class ProjectsLocationsOperationsService(base_api.BaseApiService):
     """Service class for the projects_locations_operations resource."""
 
@@ -589,7 +454,7 @@ class LookerV1alpha2(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (LookerProjectsLocationsOperationsCancelRequest) input message
@@ -688,7 +553,7 @@ class LookerV1alpha2(base_api.BaseApiClient):
         method_id='looker.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1alpha2/{+name}/operations',
         request_field='',
         request_type_name='LookerProjectsLocationsOperationsListRequest',
@@ -752,7 +617,7 @@ class LookerV1alpha2(base_api.BaseApiClient):
         method_id='looker.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1alpha2/{+name}/locations',
         request_field='',
         request_type_name='LookerProjectsLocationsListRequest',

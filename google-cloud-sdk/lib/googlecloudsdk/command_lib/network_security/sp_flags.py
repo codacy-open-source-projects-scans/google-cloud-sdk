@@ -15,6 +15,7 @@
 """Flags for Security Profile Threat Prevention commands."""
 
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import unicode_literals
 
@@ -30,10 +31,12 @@ DEFAULT_ACTIONS = ["DEFAULT_ACTION", "ALLOW", "ALERT", "DENY"]
 DEFAULT_PROFILE_TYPES = ["THREAT_PREVENTION"]
 
 
-def AddSeverityorThreatIDArg(parser, required=True):
-  """Adds --severities or --threat-ids flag."""
-  severity_threatid_args = parser.add_group(mutex=True, required=required)
-  severity_threatid_args.add_argument(
+def AddSeverityorThreatIDorAntivirusArg(parser, required=True):
+  """Adds --antivirus, --severities, or --threat-ids flag."""
+  severity_threatid_antivirus_args = parser.add_group(
+      mutex=True, required=required
+  )
+  severity_threatid_antivirus_args.add_argument(
       "--severities",
       type=arg_parsers.ArgList(),
       metavar="SEVERITY_LEVEL",
@@ -42,7 +45,7 @@ def AddSeverityorThreatIDArg(parser, required=True):
           " indicates the severity of the threat."
       ),
   )
-  severity_threatid_args.add_argument(
+  severity_threatid_antivirus_args.add_argument(
       "--threat-ids",
       type=arg_parsers.ArgList(),
       metavar="THREAT-ID",
@@ -50,6 +53,15 @@ def AddSeverityorThreatIDArg(parser, required=True):
           "List of comma-separated threat identifiers where each identifier in"
           " the list is a vendor-specified Signature ID representing a threat"
           " type. "
+      ),
+  )
+  severity_threatid_antivirus_args.add_argument(
+      "--antivirus",
+      type=arg_parsers.ArgList(),
+      metavar="PROTOCOL",
+      help=(
+          "List of comma-separated protocols where each value in the list"
+          " indicates the protocol of the antivirus threat."
       ),
   )
 
@@ -60,7 +72,7 @@ def AddActionArg(parser, actions=None, required=True):
       "--action",
       required=required,
       choices=choices,
-      help="Action associated with severity or threat-id",
+      help="Action associated with antivirus, severity, or threat-id",
   )
 
 
@@ -170,3 +182,20 @@ def AddLocationResourceArg(
       group_help=help_text,
       required=required,
   ).AddToParser(parser)
+
+
+def AddCustomMirroringDeploymentGroupsArg(
+    parser: parser_arguments.ArgumentInterceptor,
+    help_text: str = "List of comma-separated full names of mirroring-deployment-group resources.",
+    required: bool = False,
+    default: list[str] | None = None,
+):
+  """Adds the `mirroringDeploymentGroups` arg for CustomMirroring SPs (Broker)."""
+  parser.add_argument(
+      "--mirroring-deployment-groups",
+      type=arg_parsers.ArgList(),
+      metavar="MIRRORING_DEPLOYMENT_GROUPS",
+      help=help_text,
+      required=required,
+      default=default,
+  )

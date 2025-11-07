@@ -30,22 +30,38 @@ def MakeFutureReservationMessageFromArgs(messages, resources, args,
                                               getattr(args, 'local_ssd', None))
   accelerators = reservation_util.MakeGuestAccelerators(
       messages, getattr(args, 'accelerator', None))
+
   allocated_instance_properties = MakeAllocatedInstanceProperties(
-      messages, args.machine_type, args.min_cpu_platform, local_ssds,
-      accelerators, getattr(args, 'location_hint', None),
+      messages,
+      args.machine_type,
+      args.min_cpu_platform,
+      local_ssds,
+      accelerators,
+      getattr(args, 'location_hint', None),
       getattr(args, 'maintenance_freeze_duration', None),
-      getattr(args, 'maintenance_interval', None))
+      getattr(args, 'maintenance_interval', None),
+  )
+
   source_instance_template_ref = (
       reservation_util.ResolveSourceInstanceTemplate(args, resources)
       if getattr(args, 'source_instance_template', None)
       else None
   )
+
   sku_properties = MakeSpecificSKUPropertiesMessage(
       messages,
       allocated_instance_properties,
       args.total_count,
       source_instance_template_ref,
   )
+
+  aggregate_reservation_properties = MakeAggregateReservationPropertiesMessage(
+      messages,
+      getattr(args, 'tpu_version', None),
+      getattr(args, 'chip_count', None),
+      getattr(args, 'workload_type', None),
+  )
+
   time_window = MakeTimeWindowMessage(messages, args.start_time,
                                       getattr(args, 'end_time', None),
                                       getattr(args, 'duration', None))
@@ -89,13 +105,26 @@ def MakeFutureReservationMessageFromArgs(messages, resources, args,
         messages, getattr(args, 'scheduling_type', None)
     )
 
+  reservation_mode = None
+  if args.IsKnownAndSpecified('reservation_mode'):
+    reservation_mode = MakeReservationMode(
+        messages, getattr(args, 'reservation_mode', None)
+    )
+
+  enable_emergent_maintenance = None
+  if args.IsKnownAndSpecified('enable_emergent_maintenance'):
+    enable_emergent_maintenance = getattr(
+        args, 'enable_emergent_maintenance', None
+    )
+
   return MakeFutureReservationMessage(
       messages,
       future_reservation_ref.Name(),
-      sku_properties,
       time_window,
       share_settings,
       planning_status,
+      aggregate_reservation_properties,
+      sku_properties,
       enable_auto_delete_reservations,
       auto_created_reservations_delete_time,
       auto_created_reservations_duration,
@@ -104,6 +133,8 @@ def MakeFutureReservationMessageFromArgs(messages, resources, args,
       deployment_type,
       commitment_info,
       scheduling_type,
+      reservation_mode,
+      enable_emergent_maintenance,
   )
 
 
@@ -116,6 +147,9 @@ def MakeAllocatedInstanceProperties(messages,
                                     freeze_duration=None,
                                     freeze_interval=None):
   """Constructs an instance propteries for reservations message object."""
+  if machine_type is None:
+    return None
+
   prop_msgs = (
       messages.AllocationSpecificSKUAllocationReservedInstanceProperties)
   instance_properties = prop_msgs(
@@ -140,7 +174,10 @@ def MakeSpecificSKUPropertiesMessage(
     total_count,
     source_instance_template_ref=None,
 ):
-  """Constructs a specific sku properties message object."""
+  """Constructs a specific sku properties message object if any is specified."""
+  if instance_properties is None and source_instance_template_ref is None:
+    return None
+
   properties = None
   source_instance_template_url = None
   if source_instance_template_ref:
@@ -151,6 +188,56 @@ def MakeSpecificSKUPropertiesMessage(
       totalCount=total_count,
       sourceInstanceTemplate=source_instance_template_url,
       instanceProperties=properties)
+
+
+def MakeAggregateReservationPropertiesMessage(
+    messages, tpu_version, chip_count, workload_type
+):
+  """Constructs an aggregate reservation properties message object."""
+  if not tpu_version:
+    return None
+
+  # Static mapping of TPU version to VM family.
+  tpu_version_to_vm_family = {
+      'V5E': (
+          messages.AllocationAggregateReservation.VmFamilyValueValuesEnum.VM_FAMILY_CLOUD_TPU_LITE_POD_SLICE_CT5LP
+      ),
+      'V5P': (
+          messages.AllocationAggregateReservation.VmFamilyValueValuesEnum.VM_FAMILY_CLOUD_TPU_POD_SLICE_CT5P
+      ),
+      'V6E': (
+          messages.AllocationAggregateReservation.VmFamilyValueValuesEnum.VM_FAMILY_CLOUD_TPU_LITE_POD_SLICE_CT6E
+      ),
+      'TPU7X': (
+          messages.AllocationAggregateReservation.VmFamilyValueValuesEnum.VM_FAMILY_CLOUD_TPU_POD_SLICE_TPU7X
+      ),
+  }
+
+  reserved_resources = []
+  accelerator = (
+      messages.AllocationAggregateReservationReservedResourceInfoAccelerator(
+          acceleratorCount=chip_count,
+      )
+  )
+  reserved_resources.append(
+      messages.AllocationAggregateReservationReservedResourceInfo(
+          accelerator=accelerator
+      )
+  )
+  aggregate_reservation_properties = messages.AllocationAggregateReservation(
+      vmFamily=messages.AllocationAggregateReservation.VmFamilyValueValuesEnum(
+          tpu_version_to_vm_family[tpu_version]
+      ),
+      reservedResources=reserved_resources,
+  )
+
+  if workload_type:
+    aggregate_reservation_properties.workloadType = (
+        messages.AllocationAggregateReservation.WorkloadTypeValueValuesEnum(
+            workload_type
+        )
+    )
+  return aggregate_reservation_properties
 
 
 def MakeTimeWindowMessage(messages, start_time, end_time, duration):
@@ -183,9 +270,21 @@ def MakeShareSettings(messages, args, setting_configs):
       return messages.ShareSettings(
           shareType=messages.ShareSettings.ShareTypeValueValuesEnum
           .SPECIFIC_PROJECTS,
-          projects=getattr(args, 'share_with', None))
+          projectMap=MakeProjectMapFromProjectList(
+              messages, getattr(args, 'share_with', None)))
   else:
     return None
+
+
+def MakeProjectMapFromProjectList(messages, projects):
+  additional_properties = []
+  for project in projects:
+    additional_properties.append(
+        messages.ShareSettings.ProjectMapValue.AdditionalProperty(
+            key=project,
+            value=messages.ShareSettingsProjectConfig(projectId=project)))
+  return messages.ShareSettings.ProjectMapValue(
+      additionalProperties=additional_properties)
 
 
 def MakePlanningStatus(messages, planning_status):
@@ -193,6 +292,8 @@ def MakePlanningStatus(messages, planning_status):
   if planning_status:
     if planning_status == 'SUBMITTED':
       return messages.FutureReservation.PlanningStatusValueValuesEnum.SUBMITTED
+    if planning_status == 'DRAFT':
+      return messages.FutureReservation.PlanningStatusValueValuesEnum.DRAFT
   return None
 
 
@@ -260,13 +361,24 @@ def MakeSchedulingType(messages, scheduling_type):
   return None
 
 
+def MakeReservationMode(messages, reservation_mode):
+  """Constructs the reservation mode enum value."""
+  if reservation_mode:
+    if reservation_mode == 'CALENDAR':
+      return messages.FutureReservation.ReservationModeValueValuesEnum.CALENDAR
+    if reservation_mode == 'DEFAULT':
+      return messages.FutureReservation.ReservationModeValueValuesEnum.DEFAULT
+  return None
+
+
 def MakeFutureReservationMessage(
     messages,
     future_reservation_name,
-    sku_properties,
     time_window,
     share_settings,
     planning_status,
+    aggregate_reservation_properties=None,
+    sku_properties=None,
     enable_auto_delete_reservations=None,
     auto_created_reservations_delete_time=None,
     auto_created_reservations_duration=None,
@@ -275,13 +387,23 @@ def MakeFutureReservationMessage(
     deployment_type=None,
     commitment_info=None,
     scheduling_type=None,
+    reservation_mode=None,
+    enable_emergent_maintenance=None,
 ):
   """Constructs a future reservation message object."""
   future_reservation_message = messages.FutureReservation(
       name=future_reservation_name,
-      specificSkuProperties=sku_properties,
       timeWindow=time_window,
-      planningStatus=planning_status)
+      planningStatus=planning_status,
+  )
+
+  if aggregate_reservation_properties:
+    future_reservation_message.aggregateReservation = (
+        aggregate_reservation_properties
+    )
+  if sku_properties:
+    future_reservation_message.specificSkuProperties = sku_properties
+
   if share_settings:
     future_reservation_message.shareSettings = share_settings
 
@@ -311,4 +433,11 @@ def MakeFutureReservationMessage(
     future_reservation_message.commitmentInfo = commitment_info
   if scheduling_type is not None:
     future_reservation_message.schedulingType = scheduling_type
+  if reservation_mode is not None:
+    future_reservation_message.reservationMode = reservation_mode
+  if enable_emergent_maintenance is not None:
+    future_reservation_message.enableEmergentMaintenance = (
+        enable_emergent_maintenance
+    )
+
   return future_reservation_message

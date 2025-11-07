@@ -44,6 +44,7 @@ def ListPackages(args):
   page_size = args.page_size
   order_by = common_args.ParseSortByArg(args.sort_by)
   _, server_filter = filter_rewriter.Rewriter().Rewrite(args.filter)
+  limit = args.limit
 
   if order_by is not None:
     if "," in order_by:
@@ -53,19 +54,22 @@ def ListPackages(args):
 
   if args.limit is not None and args.filter is not None:
     if server_filter is not None:
-      # Use server-side paging with server-side filtering.
+      # Apply limit to server-side page_size to improve performance when
+      # server-side filter is used.
       page_size = args.limit
-      args.page_size = args.limit
     else:
       # Fall back to client-side paging with client-side filtering.
       page_size = None
+      limit = None
 
   repo_path = resources.Resource.RelativeName(
       resources.REGISTRY.Create(
           "artifactregistry.projects.locations.repositories",
           projectsId=project,
           locationsId=location,
-          repositoriesId=repo))
+          repositoriesId=repo,
+      )
+  )
 
   server_args = {
       "client": client,
@@ -73,11 +77,12 @@ def ListPackages(args):
       "repo": repo_path,
       "server_filter": server_filter,
       "page_size": page_size,
-      "order_by": order_by
+      "order_by": order_by,
+      "limit": limit,
   }
   server_args_skipped, lpkgs = util.RetryOnInvalidArguments(
-      requests.ListPackages,
-      **server_args)
+      requests.ListPackages, **server_args
+  )
 
   if not server_args_skipped:
     # If server-side filter or sort-by is parsed correctly and the request
@@ -88,6 +93,8 @@ def ListPackages(args):
       args.sort_by = None
   log.status.Print(
       "Listing items under project {}, location {}, repository {}.\n".format(
-          project, location, repo))
+          project, location, repo
+      )
+  )
 
   return util.UnescapePackageName(lpkgs, None)

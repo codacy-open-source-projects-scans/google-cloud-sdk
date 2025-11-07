@@ -34,6 +34,8 @@ class AuditReport(_messages.Message):
     reportSummary: Output only. Report summary with compliance, violation
       counts etc.
     scope: Output only. The parent scope on which the report was generated.
+    scopeId: Output only. The ID/ Number for the scope on which the audit
+      report was generated.
   """
 
   class ReportGenerationStateValueValuesEnum(_messages.Enum):
@@ -67,6 +69,7 @@ class AuditReport(_messages.Message):
   reportGenerationState = _messages.EnumField('ReportGenerationStateValueValuesEnum', 8)
   reportSummary = _messages.MessageField('ReportSummary', 9)
   scope = _messages.StringField(10)
+  scopeId = _messages.StringField(11)
 
 
 class AuditScopeReport(_messages.Message):
@@ -298,12 +301,20 @@ class AuditmanagerOrganizationsLocationsOperationsListRequest(_messages.Message)
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AuditmanagerOrganizationsLocationsResourceEnrollmentStatusesGetRequest(_messages.Message):
@@ -444,6 +455,9 @@ class AuditmanagerProjectsLocationsListRequest(_messages.Message):
   r"""A AuditmanagerProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -454,10 +468,11 @@ class AuditmanagerProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class AuditmanagerProjectsLocationsOperationDetailsGetRequest(_messages.Message):
@@ -521,12 +536,20 @@ class AuditmanagerProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AuditmanagerProjectsLocationsResourceEnrollmentStatusesGetRequest(_messages.Message):
@@ -573,6 +596,8 @@ class Control(_messages.Message):
       Access Control.
 
   Fields:
+    controlFamily: Output only. Regulatory Family of the control E.g. Access
+      Control
     customerResponsibilityDescription: Output only. Description of the
       customer responsibility for implementing this control.
     customerResponsibilityImplementation: Output only. Implementation of the
@@ -634,15 +659,16 @@ class Control(_messages.Message):
     SI = 17
     SR = 18
 
-  customerResponsibilityDescription = _messages.StringField(1)
-  customerResponsibilityImplementation = _messages.StringField(2)
-  description = _messages.StringField(3)
-  displayName = _messages.StringField(4)
-  family = _messages.EnumField('FamilyValueValuesEnum', 5)
-  googleResponsibilityDescription = _messages.StringField(6)
-  googleResponsibilityImplementation = _messages.StringField(7)
-  id = _messages.StringField(8)
-  responsibilityType = _messages.StringField(9)
+  controlFamily = _messages.MessageField('ControlFamily', 1)
+  customerResponsibilityDescription = _messages.StringField(2)
+  customerResponsibilityImplementation = _messages.StringField(3)
+  description = _messages.StringField(4)
+  displayName = _messages.StringField(5)
+  family = _messages.EnumField('FamilyValueValuesEnum', 6)
+  googleResponsibilityDescription = _messages.StringField(7)
+  googleResponsibilityImplementation = _messages.StringField(8)
+  id = _messages.StringField(9)
+  responsibilityType = _messages.StringField(10)
 
 
 class ControlDetails(_messages.Message):
@@ -656,6 +682,8 @@ class ControlDetails(_messages.Message):
     complianceState: Output only. Overall status of the findings for the
       control.
     control: The control for which the findings are being reported.
+    controlReportSummary: Report summary with compliance, violation counts
+      etc.
   """
 
   class ComplianceStateValueValuesEnum(_messages.Enum):
@@ -667,15 +695,30 @@ class ControlDetails(_messages.Message):
       VIOLATION: Violation.
       MANUAL_REVIEW_NEEDED: MANUAL_REVIEW_NEEDED, requires manual review
       ERROR: Error while computing status.
+      AUDIT_NOT_SUPPORTED: Cannot be audited
     """
     COMPLIANCE_STATE_UNSPECIFIED = 0
     COMPLIANT = 1
     VIOLATION = 2
     MANUAL_REVIEW_NEEDED = 3
     ERROR = 4
+    AUDIT_NOT_SUPPORTED = 5
 
   complianceState = _messages.EnumField('ComplianceStateValueValuesEnum', 1)
   control = _messages.MessageField('Control', 2)
+  controlReportSummary = _messages.MessageField('ReportSummary', 3)
+
+
+class ControlFamily(_messages.Message):
+  r"""Regulatory Family of the control
+
+  Fields:
+    displayName: Display name of the regulatory control family.
+    familyId: ID of the regulatory control family.
+  """
+
+  displayName = _messages.StringField(1)
+  familyId = _messages.StringField(2)
 
 
 class DestinationDetails(_messages.Message):
@@ -858,10 +901,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListResourceEnrollmentStatusesResponse(_messages.Message):

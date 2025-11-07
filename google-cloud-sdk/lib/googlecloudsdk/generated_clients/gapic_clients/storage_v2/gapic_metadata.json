@@ -10,6 +10,11 @@
         "grpc": {
           "libraryClient": "StorageClient",
           "rpcs": {
+            "BidiReadObject": {
+              "methods": [
+                "bidi_read_object"
+              ]
+            },
             "BidiWriteObject": {
               "methods": [
                 "bidi_write_object"
@@ -68,6 +73,11 @@
             "LockBucketRetentionPolicy": {
               "methods": [
                 "lock_bucket_retention_policy"
+              ]
+            },
+            "MoveObject": {
+              "methods": [
+                "move_object"
               ]
             },
             "QueryWriteStatus": {
@@ -125,6 +135,11 @@
         "grpc-async": {
           "libraryClient": "StorageAsyncClient",
           "rpcs": {
+            "BidiReadObject": {
+              "methods": [
+                "bidi_read_object"
+              ]
+            },
             "BidiWriteObject": {
               "methods": [
                 "bidi_write_object"
@@ -183,6 +198,11 @@
             "LockBucketRetentionPolicy": {
               "methods": [
                 "lock_bucket_retention_policy"
+              ]
+            },
+            "MoveObject": {
+              "methods": [
+                "move_object"
               ]
             },
             "QueryWriteStatus": {
@@ -240,6 +260,11 @@
         "rest": {
           "libraryClient": "StorageClient",
           "rpcs": {
+            "BidiReadObject": {
+              "methods": [
+                "bidi_read_object"
+              ]
+            },
             "BidiWriteObject": {
               "methods": [
                 "bidi_write_object"
@@ -298,6 +323,11 @@
             "LockBucketRetentionPolicy": {
               "methods": [
                 "lock_bucket_retention_policy"
+              ]
+            },
+            "MoveObject": {
+              "methods": [
+                "move_object"
               ]
             },
             "QueryWriteStatus": {

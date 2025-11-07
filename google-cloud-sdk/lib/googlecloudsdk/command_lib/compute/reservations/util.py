@@ -54,6 +54,10 @@ def MakeReservationMessageFromArgs(messages, args, reservation_ref, resources):
       messages, reservation_ref, getattr(args, 'resource_policies', None),
       resources)
 
+  scheduling_type = None
+  if args.IsKnownAndSpecified('scheduling_type'):
+    scheduling_type = getattr(args, 'scheduling_type', None)
+
   return MakeReservationMessage(
       messages,
       reservation_ref.Name(),
@@ -65,6 +69,8 @@ def MakeReservationMessageFromArgs(messages, args, reservation_ref, resources):
       getattr(args, 'delete_at_time', None),
       getattr(args, 'delete_after_duration', None),
       getattr(args, 'reservation_sharing_policy', None),
+      getattr(args, 'enable_emergent_maintenance', None),
+      scheduling_type,
   )
 
 
@@ -105,7 +111,6 @@ def MakeLocalSsds(messages, ssd_configs):
       messages
       .AllocationSpecificSKUAllocationAllocatedInstancePropertiesReservedDisk)
   interface_msg = disk_msg.InterfaceValueValuesEnum
-  total_partitions = 0
   for s in ssd_configs:
     if s['interface'].upper() == 'NVME':
       interface = interface_msg.NVME
@@ -119,21 +124,12 @@ def MakeLocalSsds(messages, ssd_configs):
       )
     m = disk_msg(diskSizeGb=s['size'], interface=interface)
     partitions = s.get('count', 1)
-    if partitions not in range(24 + 1):
+    if partitions < 1:
       raise exceptions.InvalidArgumentException(
           '--local-ssd',
-          'The number of SSDs attached to an instance must be in the range of'
-          ' 1-24.',
+          'Must specify a valid count (>= 1) for SSDs attached to the '
+          'reservation.',
       )
-
-    total_partitions += partitions
-    if total_partitions > 24:
-      raise exceptions.InvalidArgumentException(
-          '--local-ssd',
-          'The total number of SSDs attached to an instance must not'
-          ' exceed 24.',
-      )
-
     local_ssds.extend([m] * partitions)
 
   return local_ssds
@@ -149,7 +145,7 @@ def MakeShareSettingsWithArgs(messages,
       return messages.ShareSettings(shareType=messages.ShareSettings
                                     .ShareTypeValueValuesEnum.ORGANIZATION)
     if setting_configs == 'local':
-      if args.IsSpecified(share_with):
+      if args.IsSpecified(share_with) and share_with != 'remove_share_with':
         raise exceptions.InvalidArgumentException(
             '--share_with',
             'The scope this reservation is to be shared with must not be '
@@ -162,11 +158,14 @@ def MakeShareSettingsWithArgs(messages,
             '--share_with',
             'The projects this reservation is to be shared with must be '
             'specified.')
+      project_map = None
+      if share_with != 'remove_share_with':
+        project_map = MakeProjectMapFromProjectList(
+            messages, getattr(args, share_with, None))
       return messages.ShareSettings(
           shareType=messages.ShareSettings.ShareTypeValueValuesEnum
           .SPECIFIC_PROJECTS,
-          projectMap=MakeProjectMapFromProjectList(
-              messages, getattr(args, share_with, None)))
+          projectMap=project_map)
     if setting_configs == 'folders':
       if not args.IsSpecified(share_with):
         raise exceptions.InvalidArgumentException(
@@ -281,6 +280,8 @@ def MakeReservationMessage(
     delete_at_time=None,
     delete_after_duration=None,
     reservation_sharing_policy=None,
+    enable_emergent_maintenance=None,
+    scheduling_type=None,
 ):
   """Constructs a single reservations message object."""
   reservation_message = messages.Reservation(
@@ -306,6 +307,14 @@ def MakeReservationMessage(
         MakeReservationSharingPolicyMessage(
             messages, reservation_sharing_policy
         )
+    )
+
+  if enable_emergent_maintenance is not None:
+    reservation_message.enableEmergentMaintenance = enable_emergent_maintenance
+
+  if scheduling_type is not None:
+    reservation_message.schedulingType = (
+        MakeSchedulingType(messages, scheduling_type)
     )
 
   return reservation_message
@@ -393,6 +402,16 @@ def MakeReservationBlocksMaintenanceScope(messages, maintenance_scope):
     )
   else:
     return None
+
+
+def MakeSchedulingType(messages, scheduling_type):
+  """Constructs the scheduling type enum value."""
+  if scheduling_type:
+    if scheduling_type == 'GROUPED':
+      return messages.Reservation.SchedulingTypeValueValuesEnum.GROUPED
+    if scheduling_type == 'INDEPENDENT':
+      return messages.Reservation.SchedulingTypeValueValuesEnum.INDEPENDENT
+  return None
 
 
 def MakeUrl(resources, value, reservation_ref):

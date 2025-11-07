@@ -81,6 +81,8 @@ apis:
       discovery_doc: aiplatform_v1beta1.json
       gcloud_gapic_library: google/cloud/aiplatform/v1beta1:aiplatform_v1beta1_py
       resources:
+        projects.locations:
+          path: projects/{projectsId}/locations/{locationsId}
         projects.locations.models.operations:
           path: projects/{projectsId}/locations/{locationsId}/models/{modelsId}/operations/{operationsId}
         projects.locations.indexes.operations:
@@ -93,6 +95,8 @@ apis:
       discovery_doc: aiplatform_v1.json
       gcloud_gapic_library: google/cloud/aiplatform/v1:aiplatform_v1_py
       resources:
+        projects.locations:
+          path: projects/{projectsId}/locations/{locationsId}
         projects.locations.models.operations:
           path: projects/{projectsId}/locations/{locationsId}/models/{modelsId}/operations/{operationsId}
         projects.locations.indexes.operations:
@@ -145,14 +149,14 @@ apis:
     v1:
       discovery_doc: apihub_v1.json
       default: true
-  appconfigmanager:
-    v1alpha:
-      discovery_doc: appconfigmanager_v1alpha.json
-      default: true
+
   parametermanager:
     v1:
       discovery_doc: parametermanager_v1.json
       default: true
+      resources:
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
   appengine:
     v1alpha:
       discovery_doc: appengine_v1alpha.json
@@ -174,6 +178,10 @@ apis:
     v1:
       discovery_doc: artifactregistry_v1.json
       default: true
+  artifactscanguard:
+    v1alpha:
+      discovery_doc: artifactscanguard_v1alpha.json
+      default: false
   assuredworkloads:
     v1beta1:
       discovery_doc: assuredworkloads_v1beta1.json
@@ -197,6 +205,10 @@ apis:
       discovery_doc: batch_v1alpha1.json
     v1:
       discovery_doc: batch_v1.json
+      default: true
+  biglake:
+    v1:
+      discovery_doc: biglake_v1.json
       default: true
   bigtableadmin:
     v2:
@@ -393,15 +405,20 @@ apis:
     v1:
       discovery_doc: cloudkms_v1.json
       default: true
+  cloudlocationfinder:
+    v1alpha:
+      discovery_doc: cloudlocationfinder_v1alpha.json
+    v1:
+      discovery_doc: cloudlocationfinder_v1.json
+      default: true
+  cloudsecuritycompliance:
+    v1:
+      discovery_doc: cloudsecuritycompliance_v1.json
+      default: true
   cloudnumberregistry:
     v1alpha:
       discovery_doc: cloudnumberregistry_v1alpha.json
       default: true
-      resources:
-        projects.locations.registryBooks.nodeEvents:
-          path: projects/{projectsId}/locations/{locationsId}/registryBooks/{registryBooksId}/nodeEvents
-        projects.locations.registryBooks.historicalEvents:
-          path: projects/{projectsId}/locations/{locationsId}/registryBooks/{registryBooksId}/historicalEvents
   cloudresourcemanager:
     v1beta1:
       discovery_doc: cloudresourcemanager_v1beta1.json
@@ -426,11 +443,11 @@ apis:
   cloudshell:
     v1alpha1:
       discovery_doc: cloudshell_v1alpha1.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
     v1:
       discovery_doc: cloudshell_v1.json
-      enable_mtls: false
+      enable_mtls: true
   cloudtasks:
     v2beta2:
       discovery_doc: cloudtasks_v2beta2.json
@@ -466,16 +483,26 @@ apis:
     alpha:
       discovery_doc: compute_alpha.json
       resources:
+        globalVmExtensionPolicies:
+          path: projects/{project}/global/vmExtensionPolicies/{globalVmExtensionPolicy}
         regionAcceleratorTypes:
           path: projects/{project}/regions/{region}/acceleratorTypes/{acceleratorType}
         regionMachineTypes:
           path: projects/{project}/regions/{region}/machineTypes/{machineType}
         nextHopGateways:
           path: projects/{project}/global/gateways/{nextHopGateway}
+        previewFeatures:
+          path: projects/{project}/global/previewFeatures/{previewFeature}
         regionSecurityPolicyRules:
           path: projects/{project}/regions/{region}/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
         securityPolicyRules:
           path: projects/{project}/global/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
+        wireGroups:
+          path: projects/{project}/global/crossSiteNetworks/{crossSiteNetwork}/wireGroups/{wireGroup}
+        zones:
+          path: projects/{project}/zones/{zone}
+        zoneVmExtensionPolicies:
+          path: projects/{project}/zones/{zone}/vmExtensionPolicies/{vmExtensionPolicy}
     beta:
       discovery_doc: compute_beta.json
       unelidable_request_methods:
@@ -485,10 +512,16 @@ apis:
           path: projects/{project}/regions/{region}/acceleratorTypes/{acceleratorType}
         nextHopGateways:
           path: projects/{project}/global/gateways/{nextHopGateway}
+        previewFeatures:
+          path: projects/{project}/global/previewFeatures/{previewFeature}
         regionSecurityPolicyRules:
           path: projects/{project}/regions/{region}/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
         securityPolicyRules:
           path: projects/{project}/global/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
+        zones:
+          path: projects/{project}/zones/{zone}
+        zoneVmExtensionPolicies:
+          path: projects/{project}/zones/{zone}/vmExtensionPolicies/{vmExtensionPolicy}
     v1:
       discovery_doc: compute_v1.json
       default: true
@@ -499,10 +532,25 @@ apis:
           path: projects/{project}/regions/{region}/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
         securityPolicyRules:
           path: projects/{project}/global/securityPolicies/{securityPolicy}/securityPolicyRules/{securityPolicyRule}
+        zones:
+          path: projects/{project}/zones/{zone}
   configdelivery:
     v1alpha:
       discovery_doc: configdelivery_v1alpha.json
       default: true
+      resources:
+        projects.locations.connections.repositories:
+          path: projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/repositories/{repositoriesId}
+    v1beta:
+      discovery_doc: configdelivery_v1beta.json
+      resources:
+        projects.locations.connections.repositories:
+          path: projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/repositories/{repositoriesId}
+    v1:
+      discovery_doc: configdelivery_v1.json
+      resources:
+        projects.locations.connections.repositories:
+          path: projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/repositories/{repositoriesId}
   connectgateway:
     v1alpha1:
       discovery_doc: connectgateway_v1alpha1.json
@@ -590,7 +638,7 @@ apis:
   datafusion:
     v1beta1:
       discovery_doc: datafusion_v1beta1.json
-      enable_mtls: false
+      enable_mtls: true
       resources:
         projects.locations.keyRings.cryptoKeys:
           path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
@@ -701,6 +749,13 @@ apis:
       resources:
         projects.agent:
           path: projects/{projectsId}/agent
+  designcenter:
+    v1alpha:
+      discovery_doc: designcenter_v1alpha.json
+      default: true
+      resources:
+        projects.locations.connections.gitRepositoryLinks:
+          path: projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/gitRepositoryLinks/{gitRepositoryLinksId}
   discovery:
     v1:
       discovery_doc: discovery_v1.json
@@ -734,32 +789,35 @@ apis:
   domains:
     v1:
       discovery_doc: domains_v1.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
     v1beta1:
       discovery_doc: domains_v1beta1.json
-      enable_mtls: false
+      enable_mtls: true
     v1alpha2:
       discovery_doc: domains_v1alpha2.json
-      enable_mtls: false
+      enable_mtls: true
   edgecontainer:
     v1:
       discovery_doc: edgecontainer_v1.json
-      enable_mtls: false
+      enable_mtls: true
     v1beta:
       discovery_doc: edgecontainer_v1beta.json
-      enable_mtls: false
+      enable_mtls: true
     v1alpha:
       discovery_doc: edgecontainer_v1alpha.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
+      resources:
+        projects.locations.zones:
+          path: projects/{projectsId}/locations/{locationsId}/zones/{zonesId}
   edgenetwork:
     v1:
       discovery_doc: edgenetwork_v1.json
-      enable_mtls: false
+      enable_mtls: true
     v1alpha1:
       discovery_doc: edgenetwork_v1alpha1.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
   essentialcontacts:
     v1alpha1:
@@ -851,6 +909,12 @@ apis:
   gkeonprem:
     v1:
       discovery_doc: gkeonprem_v1.json
+  gkerecommender:
+    v1alpha1:
+      discovery_doc: gkerecommender_v1alpha1.json
+    v1:
+      discovery_doc: gkerecommender_v1.json
+      default: true
   gsuiteaddons:
     v1:
       discovery_doc: gsuiteaddons_v1.json
@@ -881,6 +945,13 @@ apis:
       resources:
         projects.locations.services.nlp:
           path: projects/{projectsId}/locations/{locationsId}/services/nlp
+  hypercomputecluster:
+    v1alpha:
+      discovery_doc: hypercomputecluster_v1alpha.json
+      default: true
+      resources:
+        projects.locations:
+          path: projects/{projectsId}/locations/{locationsId}
   oslogin:
     v1alpha:
       discovery_doc: oslogin_v1alpha.json
@@ -933,6 +1004,21 @@ apis:
           path: organizations/{organizationsId}/locations/global
     v2beta:
       discovery_doc: osconfig_v2beta.json
+      resources:
+        projects:
+          path: projects/{projectsId}
+        projects.locations.global:
+          path: projects/{projectsId}/locations/global
+        folders:
+          path: folders/{foldersId}
+        folders.locations.global:
+          path: folders/{foldersId}/locations/global
+        organizations:
+          path: organizations/{organizationsId}
+        organizations.locations.global:
+          path: organizations/{organizationsId}/locations/global
+    v2:
+      discovery_doc: osconfig_v2.json
       resources:
         projects:
           path: projects/{projectsId}
@@ -1001,7 +1087,7 @@ apis:
   ids:
     v1:
       discovery_doc: ids_v1.json
-      enable_mtls: false
+      enable_mtls: true
       resources:
         projects:
           path: projects/{projectId}
@@ -1038,9 +1124,21 @@ apis:
       discovery_doc: lifesciences_v2beta.json
       default: true
   lustre:
+    v1:
+      discovery_doc: lustre_v1.json
+      resources:
+        projects.serviceAccounts:
+          path: projects/{projectsId}/serviceAccounts/{serviceAccountsId}
+        projects.networks:
+          path: projects/{projectsId}/global/networks/{networksId}
     v1alpha:
       discovery_doc: lustre_v1alpha.json
       default: true
+      resources:
+        projects.serviceAccounts:
+          path: projects/{projectsId}/serviceAccounts/{serviceAccountsId}
+        projects.networks:
+          path: projects/{projectsId}/global/networks/{networksId}
   managedflink:
     v1alpha:
       discovery_doc: managedflink_v1alpha.json
@@ -1078,10 +1176,19 @@ apis:
     v1:
       discovery_doc: memorystore_v1.json
       default: true
+      resources:
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
     v1alpha:
       discovery_doc: memorystore_v1alpha.json
+      resources:
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
     v1beta:
       discovery_doc: memorystore_v1beta.json
+      resources:
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
   metastore:
     v1alpha:
       discovery_doc: metastore_v1alpha.json
@@ -1155,25 +1262,25 @@ apis:
   networkservices:
     v1alpha1:
       discovery_doc: networkservices_v1alpha1.json
-      enable_mtls: false
+      enable_mtls: true
     v1beta1:
       discovery_doc: networkservices_v1beta1.json
-      enable_mtls: false
+      enable_mtls: true
     v1:
       discovery_doc: networkservices_v1.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
   networksecurity:
     v1:
       discovery_doc: networksecurity_v1.json
-      enable_mtls: false
+      enable_mtls: true
       default: true
     v1beta1:
       discovery_doc: networksecurity_v1beta1.json
-      enable_mtls: false
+      enable_mtls: true
     v1alpha1:
       discovery_doc: networksecurity_v1alpha1.json
-      enable_mtls: false
+      enable_mtls: true
   notebooks:
     v1:
       discovery_doc: notebooks_v1.json
@@ -1182,6 +1289,9 @@ apis:
       discovery_doc: notebooks_v1beta1.json
     v2:
       discovery_doc: notebooks_v2.json
+  observability:
+    v1:
+      discovery_doc: observability_v1.json
   orglifecycle:
     v1:
       discovery_doc: orglifecycle_v1.json
@@ -1223,38 +1333,38 @@ apis:
           path: projects/{projectsId}/serviceAccounts/{serviceAccountsId}
   policytroubleshooter:
     v1beta:
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
       discovery_doc: policytroubleshooter_v1beta.json
     v1:
       default: true
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
       discovery_doc: policytroubleshooter_v1.json
     v2alpha1:
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
       discovery_doc: policytroubleshooter_v2alpha1.json
     v3alpha:
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
       discovery_doc: policytroubleshooter_v3alpha.json
     v3beta:
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
       discovery_doc: policytroubleshooter_v3beta.json
     v3:
-      enable_mtls: false
+      enable_mtls: true
       resources:
         iam:
           path: iam
@@ -1298,13 +1408,13 @@ apis:
     v1:
       default: true
       discovery_doc: publicca_v1.json
-      enable_mtls: false
+      enable_mtls: true
     v1beta1:
       discovery_doc: publicca_v1beta1.json
-      enable_mtls: false
+      enable_mtls: true
     v1alpha1:
       discovery_doc: publicca_v1alpha1.json
-      enable_mtls: false
+      enable_mtls: true
   pubsub:
     v1:
       discovery_doc: pubsub_v1.json
@@ -1335,26 +1445,6 @@ apis:
     v1:
       discovery_doc: redis_v1.json
       default: true
-  resourcesettings:
-    v1alpha1:
-      discovery_doc: resourcesettings_v1alpha1.json
-      unelidable_request_methods:
-      - resourcesettings.folders.settings.value.create
-      - resourcesettings.folders.settings.updateValue
-      - resourcesettings.organizations.settings.value.create
-      - resourcesettings.organizations.settings.updateValue
-      - resourcesettings.projects.settings.value.create
-      - resourcesettings.projects.settings.updateValue
-    v1:
-      discovery_doc: resourcesettings_v1.json
-      unelidable_request_methods:
-      - resourcesettings.folders.settings.get
-      - resourcesettings.folders.settings.patch
-      - resourcesettings.organizations.settings.get
-      - resourcesettings.organizations.settings.patch
-      - resourcesettings.projects.settings.get
-      - resourcesettings.projects.settings.patch
-      default: true
   run:
     v1alpha1:
       discovery_doc: run_v1alpha1.json
@@ -1364,6 +1454,8 @@ apis:
       resources:
         projects.locations.jobs:
           path: projects/{projectsId}/locations/{locationsId}/jobs/{jobsId}
+        projects.locations.workerpools:
+          path: projects/{projectsId}/locations/{locationsId}/workerpools/{workerpoolsId}
     v2:
       discovery_doc: run_v2.json
       gcloud_gapic_library: google/cloud/run/v2:run_v2_py
@@ -1377,6 +1469,8 @@ apis:
     v1alpha1:
       discovery_doc: saasservicemgmt_v1alpha1.json
       default: true
+    v1beta1:
+      discovery_doc: saasservicemgmt_v1beta1.json
   sasportal:
     v1alpha1:
       discovery_doc: sasportal_v1alpha1.json
@@ -1392,11 +1486,6 @@ apis:
       default: true
     v1beta2:
       discovery_doc: secretmanager_v1beta2.json
-  securedlandingzone:
-    v1beta:
-      discovery_doc: securedlandingzone_v1beta.json
-      mtls_endpoint_override: https://securedlandingzone.mtls.googleapis.com/
-      default: true
   securitycenter:
     v1beta2:
       discovery_doc: securitycenter_v1beta2.json
@@ -1485,6 +1574,8 @@ apis:
       default: true
     v2alpha:
       discovery_doc: serviceusage_v2alpha.json
+    v2beta:
+      discovery_doc: serviceusage_v2beta.json
   cloudquotas:
     v1:
       discovery_doc: cloudquotas_v1.json
@@ -1667,9 +1758,20 @@ apis:
   bigquerydatatransfer:
     v1:
       discovery_doc: bigquerydatatransfer_v1.json
+  bigquerymigration:
+    v2:
+      discovery_doc: bigquerymigration_v2.json
+      default: true
   websecurityscanner:
     v1beta:
       discovery_doc: websecurityscanner_v1beta.json
+      default: true
+      resources:
+        projects.scanConfigs.scanRuns.crawledUrls:
+          path: projects/{projectsId}/scanConfigs/{scanConfigsId}/scanRuns/{scanRunsId}
+          enable_uri_parsing: false
+    v1:
+      discovery_doc: websecurityscanner_v1.json
       resources:
         projects.scanConfigs.scanRuns.crawledUrls:
           path: projects/{projectsId}/scanConfigs/{scanConfigsId}/scanRuns/{scanRunsId}
@@ -1737,11 +1839,11 @@ apis:
   baremetalsolution:
     v1:
       discovery_doc: baremetalsolution_v1.json
-      enable_mtls: false
+      enable_mtls: true
     v2:
       discovery_doc: baremetalsolution_v2.json
       default: true
-      enable_mtls: false
+      enable_mtls: true
       resources:
         projects.locations.sshKeys:
           path: projects/{projectsId}/locations/{locationsId}/sshKeys/{sshKeysId}
@@ -1766,16 +1868,6 @@ apis:
     v1:
       discovery_doc: telcoautomation_v1.json
       default: true
-  workloadcertificate:
-    v1alpha1:
-      discovery_doc: workloadcertificate_v1alpha1.json
-      default: true
-      # Include projects.locations.workloadCertificateFeature collection explicitly.
-      # This is not imported automatically since gcloud skips collections that do not have a GET
-      # method. Workload Certificate Feature only implemented GetWorkloadCertificateFeature.
-      resources:
-        projects.locations.workloadCertificateFeature:
-          path: projects/{projectsId}/locations/global/workloadCertificateFeature
   messagestreams:
     v1alpha:
       discovery_doc: messagestreams_v1alpha.json
@@ -1808,9 +1900,13 @@ apis:
     v1alpha1:
       discovery_doc: vmmigration_v1alpha1.json
   modelarmor:
+    v1:
+      discovery_doc: modelarmor_v1.json
+      default: true
     v1alpha:
       discovery_doc: modelarmor_v1alpha.json
-      default: true
+    v1beta:
+      discovery_doc: modelarmor_v1beta.json
   cloudaicompanion:
     v1alpha:
       discovery_doc: cloudaicompanion_v1alpha.json
@@ -1830,6 +1926,8 @@ apis:
           path: projects/{projectsId}/locations/{locationsId}/cloudExadataInfrastructures/{cloudExadataInfrastructuresId}/dbServers/{dbServersId}
         projects.locations.cloudVmClusters.dbNodes:
           path: projects/{projectsId}/locations/{locationsId}/cloudVmClusters/{cloudVmClustersId}/dbNodes/{dbNodesId}
+        projects.locations.exadbVmClusters.dbNodes:
+          path: projects/{projectsId}/locations/{locationsId}/exadbVmClusters/{exadbVmClustersId}/dbNodes/{dbNodesId}
         projects.locations.dbSystemShapes:
           path: projects/{projectsId}/locations/{locationsId}/dbSystemShapes/{dbSystemShapesId}
         projects.locations.giVersions:
@@ -1840,6 +1938,16 @@ apis:
           path: projects/{projectsId}/locations/{locationsId}/autonomousDatabaseBackups/{autonomousDatabaseBackupsId}
         projects.networks:
           path: projects/{projectsId}/global/networks/{networksId}
+        projects.locations.databaseCharacterSets:
+          path: projects/{projectsId}/locations/{locationsId}/databaseCharacterSets/{databaseCharacterSetsId}
+        projects.locations.dbSystemInitialStorageSizes:
+          path: projects/{projectsId}/locations/{locationsId}/dbSystemInitialStorageSizes/{dbSystemInitialStorageSizesId}
+        projects.locations.dbVersions:
+          path: projects/{projectsId}/locations/{locationsId}/dbVersions/{dbVersionsId}
+        projects.locations.giVersions.minorVersions:
+          path: projects/{projectsId}/locations/{locationsId}/giVersions/{giVersionsId}/minorVersions/{minorVersionsId}
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
     v1alpha:
       discovery_doc: oracledatabase_v1alpha.json
       resources:
@@ -1847,6 +1955,12 @@ apis:
           path: projects/{projectsId}/locations/{locationsId}/autonomousDatabaseBackups/{autonomousDatabaseBackupsId}
         projects.networks:
           path: projects/{projectsId}/global/networks/{networksId}
+        projects.locations.keyRings.cryptoKeys:
+          path: projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
+  geminicloudassist:
+    v1alpha:
+      discovery_doc: geminicloudassist_v1alpha.json
+      default: true
 canonical_surfaces:
   accessapproval:
     name: accessapproval
@@ -1872,10 +1986,6 @@ canonical_surfaces:
   apigateway:
     name: apigateway
     command: api-gateway
-  appconfigmanager:
-    name: appconfigmanager
-    command: app-config-manager
-    hidden: true
   parametermanager:
     name: parametermanager
     command: parameter-manager
@@ -1921,8 +2031,16 @@ canonical_surfaces:
     name: beyondcorp
     command: beyondcorp
     hidden: true
+  biglake:
+    name: biglake
+    command: biglake
+    hidden: true
   bigquery:
     name: bigquery
+    hidden: true
+  bigquerymigration:
+    name: bigquerymigration
+    command: bq
     hidden: true
   bigtableadmin:
     name: bigtableadmin
@@ -1969,9 +2087,17 @@ canonical_surfaces:
   cloudkms:
     name: cloudkms
     command: kms
+  cloudlocationfinder:
+    name: cloudlocationfinder
+    command: cloudlocationfinder
+  cloudsecuritycompliance:
+    name: cloudsecuritycompliance
+    hidden: true
+    command: compliance-manager
   cloudnumberregistry:
     name: cloudnumberregistry
     hidden: true
+    command: number-registry
   cloudresourcemanager:
     name: cloudresourcemanager
     command: projects
@@ -1981,6 +2107,10 @@ canonical_surfaces:
   cloudscheduler:
     name: cloudscheduler
     command: scheduler
+  cloudshell:
+    name: cloudshell
+    command: cloud-shell
+    hidden: true
   cloudtasks:
     name: cloudtasks
     command: tasks
@@ -2054,6 +2184,10 @@ canonical_surfaces:
     name: developerconnect
     command: developerconnect
     hidden: true
+  designcenter:
+    name: designcenter
+    command: design-center
+    hidden: true
   discovery:
     name: discovery
     hidden: true
@@ -2090,6 +2224,10 @@ canonical_surfaces:
   firebasedataconnect:
     name: firebasedataconnect
     command: firebase-data-connect
+  geminicloudassist:
+    name: geminicloudassist
+    command: geminicloudassist
+    hidden: true
   genomics:
     name: genomics
     command: genomics
@@ -2108,9 +2246,16 @@ canonical_surfaces:
   gkeonprem:
     name: gkeonprem
     hidden: true
+  gkerecommender:
+    name: gkerecommender
+    command: profiles
+    hidden: true
   healthcare:
     name: healthcare
     command: healthcare
+  hypercomputecluster:
+    name: hypercomputecluster
+    command: cluster-director
   iam:
     name: iam
     command: iam
@@ -2141,6 +2286,9 @@ canonical_surfaces:
   looker:
     name: looker
     command: looker
+  lustre:
+    name: lustre
+    command: lustre
   managedflink:
     name: managedflink
     command: managedflink
@@ -2202,6 +2350,9 @@ canonical_surfaces:
   notebooks:
     name: notebooks
     command: notebooks
+  observability:
+    name: observability
+    command: observability
   ondemandscanning:
     name: ondemandscanning
     hidden: true
@@ -2280,7 +2431,7 @@ canonical_surfaces:
     command: runtime-config
   saasservicemgmt:
     name: saasservicemgmt
-    command: saas
+    command: saas_runtime
     hidden: true
   sasportal:
     name: sasportal
@@ -2302,10 +2453,6 @@ canonical_surfaces:
   secrets:
     name: secretmanager
     command: secrets
-  securedlandingzone:
-    name: securedlandingzone
-    command: scc slz-overwatch
-    hidden: true
   securityposture:
     name: securityposture
     hidden: true
@@ -2344,7 +2491,7 @@ canonical_surfaces:
     name: speech
     command: ml speech
   sql:
-    name: sql
+    name: sqladmin
     command: sql
   storage:
     name: storage

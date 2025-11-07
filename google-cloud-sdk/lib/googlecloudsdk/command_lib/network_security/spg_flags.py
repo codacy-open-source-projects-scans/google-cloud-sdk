@@ -50,6 +50,7 @@ def AddSecurityProfileResource(
     release_track,
     arg_name: str,
     help_text="Path to Security Profile resource.",
+    group=None,
     required=False,
     arg_aliases: List[str] = None,
 ):
@@ -61,6 +62,7 @@ def AddSecurityProfileResource(
     arg_name: The name used for the arg, e.g. "--threat-prevention-profile" or
       "--custom-mirroring-profile".
     help_text: The help text for the resource.
+    group: The group that the resource is an argument of.
     required: Whether the resource is required.
     arg_aliases: The list of aliases for the arg, for backwards compatibility.
       Sub-flags named {alias}-organization and {alias}-location will be added to
@@ -77,7 +79,7 @@ def AddSecurityProfileResource(
     arg_name = arg_name[2:]
 
   organization_resource_spec = concepts.ResourceParameterAttributeConfig(
-      f"{arg_name}-organization",
+      "organization",
       "Organization ID of the Security Profile.",
       parameter_name="organizationsId",
       fallthroughs=[
@@ -95,7 +97,7 @@ def AddSecurityProfileResource(
   )
 
   location_resource_spec = concepts.ResourceParameterAttributeConfig(
-      "{prefix}-location".format(prefix=arg_name),
+      "location",
       """
       Location of the {resource}.
       NOTE: Only `global` security profiles are supported.
@@ -116,7 +118,7 @@ def AddSecurityProfileResource(
   )
 
   profile_id_resource_spec = concepts.ResourceParameterAttributeConfig(
-      "{prefix}-profile".format(prefix=arg_name),
+      "name",
       "Name of security profile {resource}.",
       parameter_name="securityProfilesId",
   )
@@ -137,7 +139,7 @@ def AddSecurityProfileResource(
           hidden=True,
           help="Flag to preserve backward compatibility.",
       )
-      # Insert at beginning of fallthroughs, otherwis the fallthrough that
+      # Insert at beginning of fallthroughs, otherwise the fallthrough that
       # takes the value from the SPG resource will be used.
       organization_resource_spec.fallthroughs.insert(
           0, deps.ArgFallthrough(org_flag_alias)
@@ -160,6 +162,8 @@ def AddSecurityProfileResource(
       concept_spec=resource_spec,
       required=required,
       group_help=help_text,
+      group=group,
+      prefixes=True,
   )
   return concept_parsers.ConceptParser([presentation_spec]).AddToParser(parser)
 

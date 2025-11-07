@@ -33,7 +33,9 @@ import pytz
 
 
 VALID_PLANS = ['12-month', '36-month']
+EXTENDED_VALID_PLANS = ['12-month', '24-month', '36-month', '60-month']
 VALID_UPDATE_PLANS = ['36-month']
+EXTENDED_VALID_UPDATE_PLANS = ['24-month', '36-month', '60-month']
 RFC3339_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 DATE_ONLY_FORMAT = '%Y-%m-%d'
 _REQUIRED_RESOURCES = sorted(['vcpu', 'memory'])
@@ -50,10 +52,17 @@ class RegionCommitmentsCompleter(compute_completers.ListCommandCompleter):
 
 
 def _GetFlagToPlanMap(messages):
-  return {
+  result = {
       '12-month': messages.Commitment.PlanValueValuesEnum.TWELVE_MONTH,
       '36-month': messages.Commitment.PlanValueValuesEnum.THIRTY_SIX_MONTH,
   }
+  if hasattr(messages.Commitment.PlanValueValuesEnum, 'TWENTY_FOUR_MONTH'):
+    result['24-month'] = (
+        messages.Commitment.PlanValueValuesEnum.TWENTY_FOUR_MONTH
+    )
+  if hasattr(messages.Commitment.PlanValueValuesEnum, 'SIXTY_MONTH'):
+    result['60-month'] = messages.Commitment.PlanValueValuesEnum.SIXTY_MONTH
+  return result
 
 
 def TranslatePlanArg(messages, plan_arg):
@@ -89,10 +98,10 @@ def TranslateCustomEndTimeArg(args):
     if try_date_only_parse:
       try:
         # try to parse the date string in the format of YYYY-MM-DD
-        tz = pytz.timezone('US/Pacific')
-        midnight_date_time_mtv = tz.localize(datetime.datetime.strptime(
-            args.custom_end_time, DATE_ONLY_FORMAT
-        ))
+        tz = pytz.timezone('America/Los_Angeles')
+        midnight_date_time_mtv = tz.localize(
+            datetime.datetime.strptime(args.custom_end_time, DATE_ONLY_FORMAT)
+        )
         final_date_time = midnight_date_time_mtv.astimezone(pytz.utc).strftime(
             RFC3339_FORMAT
         )
@@ -173,9 +182,11 @@ def AddCreateFlags(
     support_stable_fleet=False,
     support_existing_reservation=False,
     support_reservation_sharing_policy=False,
+    support_60_month_plan=False,
+    support_24_month_plan=False,
 ):
   """Add general arguments for `commitments create` flag."""
-  AddPlanForCreate(parser)
+  AddPlanForCreate(parser, support_60_month_plan, support_24_month_plan)
   AddReservationArgGroup(
       parser,
       support_share_setting,
@@ -189,26 +200,32 @@ def AddCreateFlags(
   AddCustomEndTime(parser)
 
 
-def AddUpdateFlags(parser):
+def AddUpdateFlags(
+    parser, support_60_month_plan=False, support_24_month_plan=False
+):
   """Add general arguments for `commitments update` flag."""
   AddAutoRenew(parser)
-  AddPlanForUpdate(parser)
+  AddPlanForUpdate(parser, support_60_month_plan, support_24_month_plan)
 
 
-def AddPlanForCreate(parser):
+def AddPlanForCreate(parser, support_60_month_plan, support_24_month_plan):
   return parser.add_argument(
       '--plan',
       required=True,
-      choices=VALID_PLANS,
+      choices=EXTENDED_VALID_PLANS
+      if support_60_month_plan or support_24_month_plan
+      else VALID_PLANS,
       help='Duration of the commitment.',
   )
 
 
-def AddPlanForUpdate(parser):
+def AddPlanForUpdate(parser, support_60_month_plan, support_24_month_plan):
   return parser.add_argument(
       '--plan',
       required=False,
-      choices=VALID_UPDATE_PLANS,
+      choices=EXTENDED_VALID_UPDATE_PLANS
+      if support_60_month_plan or support_24_month_plan
+      else VALID_UPDATE_PLANS,
       help='Duration of the commitment.',
   )
 
@@ -244,7 +261,9 @@ def AddLicenceBasedFlags(parser):
   parser.add_argument(
       '--amount', required=True, type=int, help='Number of licenses purchased.'
   )
-  AddPlanForCreate(parser)
+  AddPlanForCreate(
+      parser, support_60_month_plan=False, support_24_month_plan=False
+  )
 
 
 def AddSplitSourceCommitment(parser):
@@ -518,11 +537,9 @@ def AddReservationArgGroup(
     AddFlagsToShareSettingGroup(share_setting_reservation_group)
 
   if support_reservation_sharing_policy:
-    reservation_sharing_policy_group = (
-        single_reservation_group.add_argument_group(
-            help='Manage the properties of a reservation sharing policy to create',
-            required=False,
-        )
+    reservation_sharing_policy_group = single_reservation_group.add_argument_group(
+        help='Manage the properties of a reservation sharing policy to create',
+        required=False,
     )
     AddFlagsToReservationSharingPolicyGroup(reservation_sharing_policy_group)
 

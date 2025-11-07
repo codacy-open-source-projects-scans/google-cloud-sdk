@@ -48,10 +48,12 @@ def LocationAttributeConfig(allow_aggregation=False, allow_global=True):
     fallthroughs_list.append(
         deps.Fallthrough(
             googlecloudsdk.command_lib.eventarc.flags.SetLocation,
-            'use \'-\' location to aggregate results for all Eventarc locations'
-        ))
+            "use '-' location to aggregate results for all Eventarc locations",
+        )
+    )
   return concepts.ResourceParameterAttributeConfig(
-      name='location', fallthroughs=fallthroughs_list, help_text=help_text)
+      name='location', fallthroughs=fallthroughs_list, help_text=help_text
+  )
 
 
 def SetLocation():
@@ -103,6 +105,11 @@ def PipelineAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(name='pipeline')
 
 
+def KafkaSourceAttributeConfig():
+  """Builds an AttributeConfig for the Kafka source resource."""
+  return concepts.ResourceParameterAttributeConfig(name='kafka-source')
+
+
 def TriggerResourceSpec():
   """Builds a ResourceSpec for trigger resource."""
   return concepts.ResourceSpec(
@@ -110,7 +117,8 @@ def TriggerResourceSpec():
       resource_name='trigger',
       triggersId=TriggerAttributeConfig(),
       locationsId=LocationAttributeConfig(),
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG)
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
 
 
 def ChannelResourceSpec():
@@ -120,7 +128,8 @@ def ChannelResourceSpec():
       resource_name='channel',
       channelsId=ChannelAttributeConfig(),
       locationsId=LocationAttributeConfig(),
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG)
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
 
 
 def ChannelConnectionResourceSpec():
@@ -130,7 +139,8 @@ def ChannelConnectionResourceSpec():
       resource_name='channel connection',
       channelConnectionsId=ChannelConnectionAttributeConfig(),
       locationsId=LocationAttributeConfig(),
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG)
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
 
 
 def ProviderResourceSpec():
@@ -188,13 +198,25 @@ def PipelineResourceSpec(resource_name='pipeline'):
   )
 
 
+def KafkaSourceResourceSpec():
+  """Builds a ResourceSpec for destination."""
+  return concepts.ResourceSpec(
+      'eventarc.projects.locations.kafkaSources',
+      resource_name='kafka source',
+      kafkaSourcesId=KafkaSourceAttributeConfig(),
+      locationsId=LocationAttributeConfig(allow_global=False),
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
+
+
 def AddTransportTopicResourceArg(parser, required=False):
   """Adds a resource argument for a customer-provided transport topic."""
   resource_spec = concepts.ResourceSpec(
       'pubsub.projects.topics',
       resource_name='Pub/Sub topic',
       topicsId=TransportTopicAttributeConfig(),
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG)
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
   concept_parser = concept_parsers.ConceptParser.ForResource(
       '--transport-topic',
       resource_spec,
@@ -203,7 +225,8 @@ def AddTransportTopicResourceArg(parser, required=False):
       "of event type ``google.cloud.pubsub.topic.v1.messagePublished''. "
       'The topic must be in the same project as the trigger. '
       'If not specified, a transport topic will be created.',
-      required=required)
+      required=required,
+  )
   concept_parser.AddToParser(parser)
 
 
@@ -218,7 +241,8 @@ def AddLocationResourceArg(
       projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
   )
   concept_parser = concept_parsers.ConceptParser.ForResource(
-      '--location', resource_spec, group_help_text, required=required)
+      '--location', resource_spec, group_help_text, required=required
+  )
   concept_parser.AddToParser(parser)
 
 
@@ -227,20 +251,22 @@ def AddProjectResourceArg(parser):
   resource_spec = concepts.ResourceSpec(
       'eventarc.projects',
       resource_name='project',
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG)
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+  )
   concept_parser = concept_parsers.ConceptParser.ForResource(
       '--project',
       resource_spec,
       'Project ID of the Google Cloud project for the {resource}.',
-      required=True)
+      required=True,
+  )
   concept_parser.AddToParser(parser)
 
 
 def AddTriggerResourceArg(parser, group_help_text, required=False):
   """Adds a resource argument for an Eventarc trigger."""
   concept_parsers.ConceptParser.ForResource(
-      'trigger', TriggerResourceSpec(), group_help_text,
-      required=required).AddToParser(parser)
+      'trigger', TriggerResourceSpec(), group_help_text, required=required
+  ).AddToParser(parser)
 
 
 def AddCreateTrigerResourceArgs(parser, release_track):
@@ -252,18 +278,20 @@ def AddCreateTrigerResourceArgs(parser, release_track):
                 'trigger',
                 TriggerResourceSpec(),
                 'The trigger to create.',
-                required=True),
+                required=True,
+            ),
             presentation_specs.ResourcePresentationSpec(
                 '--channel',
                 ChannelResourceSpec(),
-                'The channel to use in the trigger. The channel is needed only if trigger is created for a third-party provider.',
-                flag_name_overrides={'location': ''})
+                'The channel to use in the trigger. The channel is needed only'
+                ' if trigger is created for a third-party provider.',
+                flag_name_overrides={'location': ''},
+            ),
         ],
         # This configures the fallthrough from the channel 's location to
         # the primary flag for the trigger's location.
-        command_level_fallthroughs={
-            '--channel.location': ['trigger.location']
-        }).AddToParser(parser)
+        command_level_fallthroughs={'--channel.location': ['trigger.location']},
+    ).AddToParser(parser)
   else:
     AddTriggerResourceArg(parser, 'The trigger to create.', required=True)
 
@@ -271,8 +299,8 @@ def AddCreateTrigerResourceArgs(parser, release_track):
 def AddChannelResourceArg(parser, group_help_text, required=False):
   """Adds a resource argument for an Eventarc channel."""
   concept_parsers.ConceptParser.ForResource(
-      'channel', ChannelResourceSpec(), group_help_text,
-      required=required).AddToParser(parser)
+      'channel', ChannelResourceSpec(), group_help_text, required=required
+  ).AddToParser(parser)
 
 
 def AddChannelConnectionResourceArg(parser, group_help_text):
@@ -281,7 +309,8 @@ def AddChannelConnectionResourceArg(parser, group_help_text):
       'channel_connection',
       ChannelConnectionResourceSpec(),
       group_help_text,
-      required=True).AddToParser(parser)
+      required=True,
+  ).AddToParser(parser)
 
 
 def AddProviderResourceArg(parser, group_help_text, required=False):
@@ -442,17 +471,57 @@ def AddPipelineResourceArg(parser, group_help_text, required=False):
   ).AddToParser(parser)
 
 
+def AddKafkaSourceResourceArg(parser, group_help_text, required=False):
+  """Adds a resource argument for an Eventarc Kafka source."""
+  concept_parsers.ConceptParser.ForResource(
+      'kafka_source',
+      KafkaSourceResourceSpec(),
+      group_help_text,
+      required=required,
+  ).AddToParser(parser)
+
+
 def AddProviderNameArg(parser):
   """Adds an argument for an Eventarc provider name."""
   parser.add_argument(
       '--name',
       required=False,
-      help='A provider name (e.g. `storage.googleapis.com`) List results will be filtered on this provider. '
-      'Only exact match of the provider name is supported.')
+      help=(
+          'A provider name (e.g. `storage.googleapis.com`) List results will be'
+          ' filtered on this provider. Only exact match of the provider name is'
+          ' supported.'
+      ),
+  )
 
 
 def AddMessageBusPublishingArgs(parser):
   """Adds arguments for publishing to an Eventarc message bus."""
+  concept_parsers.ConceptParser(
+      [
+          presentation_specs.ResourcePresentationSpec(
+              'message_bus',
+              MessageBusResourceSpec(),
+              'Message bus to publish to.',
+              required=True,
+          ),
+          presentation_specs.ResourcePresentationSpec(
+              '--destination-enrollment',
+              EnrollmentResourceSpec(),
+              'The only Enrollment that the message should be delivered to.',
+              required=False,
+              hidden=True,
+              flag_name_overrides={
+                  'location': '',
+                  'project': '--destination-enrollment-project',
+              },
+          ),
+      ],
+      # This configures the fallthrough from the message bus' location to the
+      # primary flag for the enrollment's location.
+      command_level_fallthroughs={
+          '--destination-enrollment.location': ['message_bus.location'],
+      },
+  ).AddToParser(parser)
   payload_group = parser.add_mutually_exclusive_group(required=True)
   protobuf_payload_group = payload_group.add_group()
   AddEventPublishingArgs(protobuf_payload_group)
@@ -471,30 +540,37 @@ def AddEventPublishingArgs(parser):
   parser.add_argument(
       '--event-id',
       required=True,
-      help='An event id. The id of a published event.')
+      help='An event id. The id of a published event.',
+  )
 
   parser.add_argument(
       '--event-type',
       required=True,
-      help='An event type. The event type of a published event.')
+      help='An event type. The event type of a published event.',
+  )
 
   parser.add_argument(
       '--event-source',
       required=True,
-      help='An event source. The event source of a published event.')
+      help='An event source. The event source of a published event.',
+  )
 
   parser.add_argument(
       '--event-data',
       required=True,
-      help='An event data. The event data of a published event.')
+      help='An event data. The event data of a published event.',
+  )
 
   parser.add_argument(
       '--event-attributes',
       action=arg_parsers.UpdateAction,
       type=arg_parsers.ArgDict(),
       metavar='ATTRIBUTE=VALUE',
-      help='Event attributes. The event attributes of a published event.'
-      'This flag can be repeated to add more attributes.')
+      help=(
+          'Event attributes. The event attributes of a published event.'
+          'This flag can be repeated to add more attributes.'
+      ),
+  )
 
 
 def AddServiceAccountArg(parser, required=False):
@@ -502,7 +578,8 @@ def AddServiceAccountArg(parser, required=False):
   parser.add_argument(
       '--service-account',
       required=required,
-      help='The IAM service account email associated with the trigger.')
+      help='The IAM service account email associated with the trigger.',
+  )
 
 
 def AddEventFiltersArg(parser, release_track, required=False):
@@ -514,7 +591,8 @@ def AddEventFiltersArg(parser, release_track, required=False):
         'This flag can be repeated to add more filters to the list. Only '
         'events that match all these filters will be sent to the destination. '
         "The filters must include the ``type'' attribute, as well as any other "
-        'attributes that are expected for the chosen type.')
+        'attributes that are expected for the chosen type.'
+    )
   else:
     flag = '--matching-criteria'
     help_text = (
@@ -523,20 +601,21 @@ def AddEventFiltersArg(parser, release_track, required=False):
         'This flag can also be repeated to add more criteria to the list. Only '
         'events that match with this criteria will be sent to the destination. '
         "The criteria must include the ``type'' attribute, as well as any "
-        'other attributes that are expected for the chosen type.')
+        'other attributes that are expected for the chosen type.'
+    )
   parser.add_argument(
       flag,
       action=arg_parsers.UpdateAction,
       type=arg_parsers.ArgDict(),
       required=required,
       help=help_text,
-      metavar='ATTRIBUTE=VALUE')
+      metavar='ATTRIBUTE=VALUE',
+  )
 
 
-def AddEventFiltersPathPatternArg(parser,
-                                  release_track,
-                                  required=False,
-                                  hidden=False):
+def AddEventFiltersPathPatternArg(
+    parser, release_track, required=False, hidden=False
+):
   """Adds an argument for the trigger's event filters in path pattern format."""
   if release_track == base.ReleaseTrack.GA:
     parser.add_argument(
@@ -545,12 +624,16 @@ def AddEventFiltersPathPatternArg(parser,
         type=arg_parsers.ArgDict(),
         hidden=hidden,
         required=required,
-        help="The trigger's list of filters in path pattern format that apply "
-        'to CloudEvent attributes. This flag can be repeated to add more '
-        'filters to the list. Only events that match all these filters will be '
-        'sent to the destination. Currently, path pattern format is only '
-        'available for the resourceName attribute for Cloud Audit Log events.',
-        metavar='ATTRIBUTE=PATH_PATTERN')
+        help=(
+            "The trigger's list of filters in path pattern format that apply to"
+            ' CloudEvent attributes. This flag can be repeated to add more'
+            ' filters to the list. Only events that match all these filters'
+            ' will be sent to the destination. Currently, path pattern format'
+            ' is only available for the resourceName attribute for Cloud Audit'
+            ' Log events.'
+        ),
+        metavar='ATTRIBUTE=PATH_PATTERN',
+    )
 
 
 def AddEventDataContentTypeArg(
@@ -608,12 +691,14 @@ def AddCreateDestinationArgs(parser, release_track, required=False):
   """Adds arguments related to trigger's destination for create operations."""
   dest_group = parser.add_mutually_exclusive_group(
       required=required,
-      help='Flags for specifying the destination to which events should be sent.'
+      help=(
+          'Flags for specifying the destination to which events should be sent.'
+      ),
   )
   _AddCreateCloudRunDestinationArgs(dest_group, release_track)
   if release_track == base.ReleaseTrack.GA:
     _AddCreateGKEDestinationArgs(dest_group)
-    _AddCreateWorkflowDestinationArgs(dest_group, hidden=True)
+    _AddCreateWorkflowDestinationArgs(dest_group)
     _AddCreateFunctionDestinationArgs(dest_group, hidden=True)
     _AddCreateHTTPEndpointDestinationArgs(dest_group)
 
@@ -622,7 +707,9 @@ def _AddCreateCloudRunDestinationArgs(parser, release_track, required=False):
   """Adds arguments related to trigger's Cloud Run fully-managed resource destination for create operations."""
   run_group = parser.add_group(
       required=required,
-      help='Flags for specifying a Cloud Run fully-managed resource destination.'
+      help=(
+          'Flags for specifying a Cloud Run fully-managed resource destination.'
+      ),
   )
   resource_group = run_group.add_mutually_exclusive_group(required=True)
   AddDestinationRunServiceArg(resource_group)
@@ -639,7 +726,8 @@ def _AddCreateGKEDestinationArgs(parser, required=False, hidden=False):
   gke_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for specifying a GKE service destination.')
+      help='Flags for specifying a GKE service destination.',
+  )
   _AddDestinationGKEClusterArg(gke_group, required=True)
   _AddDestinationGKELocationArg(gke_group)
   _AddDestinationGKENamespaceArg(gke_group)
@@ -652,7 +740,8 @@ def _AddCreateWorkflowDestinationArgs(parser, required=False, hidden=False):
   workflow_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for specifying a Workflow destination.')
+      help='Flags for specifying a Cloud Workflows destination.',
+  )
   _AddDestinationWorkflowArg(workflow_group, required=True)
   _AddDestinationWorkflowLocationArg(workflow_group)
 
@@ -662,7 +751,8 @@ def _AddCreateHTTPEndpointDestinationArgs(parser, required=False, hidden=False):
   http_endpoint_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for specifying a HTTP Endpoint destination.')
+      help='Flags for specifying a HTTP Endpoint destination.',
+  )
   _AddDestinationHTTPEndpointUriArg(http_endpoint_group, required=True)
   _AddCreateNetworkConfigDestinationArgs(http_endpoint_group)
 
@@ -684,7 +774,8 @@ def _AddCreateFunctionDestinationArgs(parser, required=False, hidden=False):
   function_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for specifying a Function destination.')
+      help='Flags for specifying a Function destination.',
+  )
   _AddDestinationFunctionArg(function_group, required=True)
   _AddDestinationFunctionLocationArg(function_group)
 
@@ -693,11 +784,12 @@ def AddUpdateDestinationArgs(parser, release_track, required=False):
   """Adds arguments related to trigger's destination for update operations."""
   dest_group = parser.add_mutually_exclusive_group(
       required=required,
-      help='Flags for updating the destination to which events should be sent.')
+      help='Flags for updating the destination to which events should be sent.',
+  )
   _AddUpdateCloudRunDestinationArgs(dest_group, release_track)
   if release_track == base.ReleaseTrack.GA:
     _AddUpdateGKEDestinationArgs(dest_group)
-    _AddUpdateWorkflowDestinationArgs(dest_group, hidden=True)
+    _AddUpdateWorkflowDestinationArgs(dest_group)
     _AddUpdateFunctionDestinationArgs(dest_group, hidden=True)
 
 
@@ -705,7 +797,8 @@ def _AddUpdateCloudRunDestinationArgs(parser, release_track, required=False):
   """Adds arguments related to trigger's Cloud Run fully-managed resource destination for update operations."""
   run_group = parser.add_group(
       required=required,
-      help='Flags for updating a Cloud Run fully-managed resource destination.')
+      help='Flags for updating a Cloud Run fully-managed resource destination.',
+  )
   resource_group = run_group.add_mutually_exclusive_group()
   AddDestinationRunServiceArg(resource_group)
   # When this is not True and only the service flag is in the mutually exclusive
@@ -723,7 +816,8 @@ def _AddUpdateGKEDestinationArgs(parser, required=False, hidden=False):
   gke_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for updating a GKE service destination.')
+      help='Flags for updating a GKE service destination.',
+  )
   _AddDestinationGKENamespaceArg(gke_group)
   _AddDestinationGKEServiceArg(gke_group)
   destination_gke_path_group = gke_group.add_mutually_exclusive_group()
@@ -736,7 +830,8 @@ def _AddUpdateWorkflowDestinationArgs(parser, required=False, hidden=False):
   workflow_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for updating a Workflow destination.')
+      help='Flags for updating a Cloud Workflows destination.',
+  )
   _AddDestinationWorkflowArg(workflow_group)
   _AddDestinationWorkflowLocationArg(workflow_group)
 
@@ -746,7 +841,8 @@ def _AddUpdateFunctionDestinationArgs(parser, required=False, hidden=False):
   function_group = parser.add_group(
       required=required,
       hidden=hidden,
-      help='Flags for updating a Function destination.')
+      help='Flags for updating a Function destination.',
+  )
   _AddDestinationFunctionArg(function_group)
   _AddDestinationFunctionLocationArg(function_group)
 
@@ -755,9 +851,12 @@ def AddDestinationRunServiceArg(parser):
   """Adds an argument for the trigger's destination Cloud Run service."""
   parser.add_argument(
       '--destination-run-service',
-      help='Name of the Cloud Run fully-managed service that receives the '
-      'events for the trigger. The service must be in the same project as the '
-      'trigger.')
+      help=(
+          'Name of the Cloud Run fully-managed service that receives the events'
+          ' for the trigger. The service must be in the same project as the'
+          ' trigger.'
+      ),
+  )
 
 
 def AddDestinationRunJobArg(parser):
@@ -765,9 +864,12 @@ def AddDestinationRunJobArg(parser):
   parser.add_argument(
       '--destination-run-job',
       hidden=True,
-      help='Name of the Cloud Run fully-managed job that receives the '
-      'events for the trigger. The job must be in the same project as the '
-      'trigger.')
+      help=(
+          'Name of the Cloud Run fully-managed job that receives the '
+          'events for the trigger. The job must be in the same project as the '
+          'trigger.'
+      ),
+  )
 
 
 def AddDestinationRunPathArg(parser, required=False):
@@ -775,9 +877,12 @@ def AddDestinationRunPathArg(parser, required=False):
   parser.add_argument(
       '--destination-run-path',
       required=required,
-      help='Relative path on the destination Cloud Run service to which '
-      "the events for the trigger should be sent. Examples: ``/route'', "
-      "``route'', ``route/subroute''.")
+      help=(
+          'Relative path on the destination Cloud Run service to which '
+          "the events for the trigger should be sent. Examples: ``/route'', "
+          "``route'', ``route/subroute''."
+      ),
+  )
 
 
 def AddDestinationRunRegionArg(parser, required=False):
@@ -785,9 +890,12 @@ def AddDestinationRunRegionArg(parser, required=False):
   parser.add_argument(
       '--destination-run-region',
       required=required,
-      help='Region in which the destination Cloud Run service can be '
-      'found. If not specified, it is assumed that the service is in the same '
-      'region as the trigger.')
+      help=(
+          'Region in which the destination Cloud Run service can be found. If'
+          ' not specified, it is assumed that the service is in the same region'
+          ' as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationGKEClusterArg(parser, required=False):
@@ -795,8 +903,11 @@ def _AddDestinationGKEClusterArg(parser, required=False):
   parser.add_argument(
       '--destination-gke-cluster',
       required=required,
-      help='Name of the GKE cluster that the destination GKE service is '
-      'running in.  The cluster must be in the same project as the trigger.')
+      help=(
+          'Name of the GKE cluster that the destination GKE service is '
+          'running in.  The cluster must be in the same project as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationGKELocationArg(parser, required=False):
@@ -804,9 +915,12 @@ def _AddDestinationGKELocationArg(parser, required=False):
   parser.add_argument(
       '--destination-gke-location',
       required=required,
-      help='Location of the GKE cluster that the destination GKE service '
-      'is running in. If not specified, it is assumed that the cluster is a '
-      'regional cluster and is in the same region as the trigger.')
+      help=(
+          'Location of the GKE cluster that the destination GKE service is'
+          ' running in. If not specified, it is assumed that the cluster is a'
+          ' regional cluster and is in the same region as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationGKENamespaceArg(parser, required=False):
@@ -814,8 +928,11 @@ def _AddDestinationGKENamespaceArg(parser, required=False):
   parser.add_argument(
       '--destination-gke-namespace',
       required=required,
-      help='Namespace that the destination GKE service is running in. If '
-      "not specified, the ``default'' namespace is used.")
+      help=(
+          'Namespace that the destination GKE service is running in. If '
+          "not specified, the ``default'' namespace is used."
+      ),
+  )
 
 
 def _AddDestinationGKEServiceArg(parser, required=False):
@@ -823,8 +940,11 @@ def _AddDestinationGKEServiceArg(parser, required=False):
   parser.add_argument(
       '--destination-gke-service',
       required=required,
-      help='Name of the destination GKE service that receives the events '
-      'for the trigger.')
+      help=(
+          'Name of the destination GKE service that receives the events '
+          'for the trigger.'
+      ),
+  )
 
 
 def _AddDestinationGKEPathArg(parser, required=False):
@@ -832,9 +952,12 @@ def _AddDestinationGKEPathArg(parser, required=False):
   parser.add_argument(
       '--destination-gke-path',
       required=required,
-      help='Relative path on the destination GKE service to which '
-      "the events for the trigger should be sent. Examples: ``/route'', "
-      "``route'', ``route/subroute''.")
+      help=(
+          'Relative path on the destination GKE service to which '
+          "the events for the trigger should be sent. Examples: ``/route'', "
+          "``route'', ``route/subroute''."
+      ),
+  )
 
 
 def _AddDestinationWorkflowArg(parser, required=False):
@@ -842,8 +965,11 @@ def _AddDestinationWorkflowArg(parser, required=False):
   parser.add_argument(
       '--destination-workflow',
       required=required,
-      help='ID of the Workflow that receives the events for the trigger. '
-      'The Workflow must be in the same project as the trigger.')
+      help=(
+          'ID of the workflow that receives the events for the trigger. '
+          'The workflow must be in the same project as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationWorkflowLocationArg(parser, required=False):
@@ -851,9 +977,12 @@ def _AddDestinationWorkflowLocationArg(parser, required=False):
   parser.add_argument(
       '--destination-workflow-location',
       required=required,
-      help='Location that the destination Workflow is running in. '
-      'If not specified, it is assumed that the Workflow is in the same '
-      'location as the trigger.')
+      help=(
+          'Location that the destination workflow is running in. '
+          'If not specified, it is assumed that the workflow is in the same '
+          'location as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationFunctionArg(parser, required=False):
@@ -861,8 +990,11 @@ def _AddDestinationFunctionArg(parser, required=False):
   parser.add_argument(
       '--destination-function',
       required=required,
-      help='ID of the Function that receives the events for the trigger. '
-      'The Function must be in the same project as the trigger.')
+      help=(
+          'ID of the Function that receives the events for the trigger. '
+          'The Function must be in the same project as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationFunctionLocationArg(parser, required=False):
@@ -870,9 +1002,12 @@ def _AddDestinationFunctionLocationArg(parser, required=False):
   parser.add_argument(
       '--destination-function-location',
       required=required,
-      help='Location that the destination Function is running in. '
-      'If not specified, it is assumed that the Function is in the same '
-      'location as the trigger.')
+      help=(
+          'Location that the destination Function is running in. '
+          'If not specified, it is assumed that the Function is in the same '
+          'location as the trigger.'
+      ),
+  )
 
 
 def _AddDestinationHTTPEndpointUriArg(parser, required=False):
@@ -880,7 +1015,8 @@ def _AddDestinationHTTPEndpointUriArg(parser, required=False):
   parser.add_argument(
       '--destination-http-endpoint-uri',
       required=required,
-      help='URI that the destination HTTP Endpoint is connecting to.')
+      help='URI that the destination HTTP Endpoint is connecting to.',
+  )
 
 
 def _AddNetworkAttachmentArg(parser, required=False):
@@ -908,8 +1044,11 @@ def AddClearDestinationRunPathArg(parser):
   parser.add_argument(
       '--clear-destination-run-path',
       action='store_true',
-      help='Clear the relative path on the destination Cloud Run service to '
-      'which the events for the trigger should be sent.')
+      help=(
+          'Clear the relative path on the destination Cloud Run service to '
+          'which the events for the trigger should be sent.'
+      ),
+  )
 
 
 def _AddClearDestinationGKEPathArg(parser):
@@ -917,8 +1056,11 @@ def _AddClearDestinationGKEPathArg(parser):
   parser.add_argument(
       '--clear-destination-gke-path',
       action='store_true',
-      help='Clear the relative path on the destination GKE service to which '
-      'the events for the trigger should be sent.')
+      help=(
+          'Clear the relative path on the destination GKE service to which '
+          'the events for the trigger should be sent.'
+      ),
+  )
 
 
 def AddTypePositionalArg(parser, help_text):
@@ -936,7 +1078,8 @@ def AddServiceNameArg(parser, required=False):
   parser.add_argument(
       '--service-name',
       required=required,
-      help='The value of the serviceName CloudEvents attribute.')
+      help='The value of the serviceName CloudEvents attribute.',
+  )
 
 
 def AddCreateChannelArg(parser):
@@ -946,18 +1089,19 @@ def AddCreateChannelArg(parser):
               'channel',
               ChannelResourceSpec(),
               'Channel to create.',
-              required=True),
+              required=True,
+          ),
           presentation_specs.ResourcePresentationSpec(
               '--provider',
               ProviderResourceSpec(),
               'Provider to use for the channel.',
-              flag_name_overrides={'location': ''}),
+              flag_name_overrides={'location': ''},
+          ),
       ],
       # This configures the fallthrough from the provider's location to the
       # primary flag for the channel's location
-      command_level_fallthroughs={
-          '--provider.location': ['channel.location']
-      }).AddToParser(parser)
+      command_level_fallthroughs={'--provider.location': ['channel.location']},
+  ).AddToParser(parser)
 
 
 def AddCryptoKeyArg(parser, required=False, hidden=False, with_clear=True):
@@ -970,9 +1114,12 @@ def AddCryptoKeyArg(parser, required=False, hidden=False, with_clear=True):
       '--crypto-key',
       required=required,
       hidden=hidden,
-      help='Fully qualified name of the crypto key to use for '
-      'customer-managed encryption. If this is unspecified, Google-managed '
-      'keys will be used for encryption.')
+      help=(
+          'Fully qualified name of the crypto key to use for '
+          'customer-managed encryption. If this is unspecified, Google-managed '
+          'keys will be used for encryption.'
+      ),
+  )
 
 
 def AddClearCryptoNameArg(parser, required=False, hidden=False):
@@ -1019,6 +1166,34 @@ def AddLoggingConfigArg(parser, help_text):
   )
 
 
+def AddWideScopeSubscriptionArg(parser, with_clear=True):
+  """Adds an argument for the wide scope subscription of the resource."""
+  group = parser.add_mutually_exclusive_group(required=False)
+
+  group.add_argument(
+      '--project-subscriptions',
+      type=arg_parsers.ArgList(min_length=1, element_type=str),
+      metavar='GAS_PROJECT_SUBSCRIPTION',
+      required=False,
+      help='The project subscriptions for the resource.',
+  )
+
+  group.add_argument(
+      '--organization-subscription',
+      action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      help='The organization subscription for the resource.',
+  )
+
+  if with_clear:
+    group.add_argument(
+        '--clear-project-subscriptions',
+        action='store_true',
+        required=False,
+        help='Clear the project subscriptions for the resource.',
+    )
+
+
 def AddPipelineDestinationsArg(parser, required=False):
   """Adds an argument for the pipeline's HTTP endpoint destination."""
   help_text = """
@@ -1038,7 +1213,7 @@ URI string. Only HTTPS protocol is supported. The host can be either a static IP
 addressable from the VPC specified by the network config, or an internal DNS
 hostname of the service resolvable via Cloud DNS. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com'
 
 *http_endpoint_message_binding_template*::: The CEL expression used to construct
 a new HTTP request to be sent to the final destination. It can be optionally
@@ -1138,31 +1313,31 @@ expression:
 
 For example:
 
-      $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',http_endpoint_message_binding_template='{"headers": {"new-header-key": "new-header-value"}}',network_attachment=example-network-attachment
+      $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',http_endpoint_message_binding_template='{"headers": headers.merge({"new-header-key": "new-header-value"}),"body": "new-body"}'
 
 *workflow*::: The destination Workflow ID. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=workflow=my-workflow,network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=workflow=my-workflow
 
 *message_bus*::: The destination Message Bus ID. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=message_bus=my-message-bus,network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=message_bus=my-message-bus
 
 *pubsub_topic*::: The destination Pub/Sub topic ID. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=pubsub_topic=my-topic,network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=pubsub_topic=my-topic
 
 *project*::: The project ID of the destination resource. If `project` is not set,
 then the project ID of the pipeline is used. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=project=example-project,workflow=my-workflow,network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=project=example-project,workflow=my-workflow
 
 Note: When `http_endpoint_uri` is set, `project` can't be set.
 
 *location*::: The location of the destination resource. If `location` is not set,
 then the location of the pipeline is used. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=location=us-east1,workflow=my-workflow,network_attachment=example-network-attachment
+    $ gcloud eventarc pipelines create example-pipeline --destinations=location=us-east1,workflow=my-workflow
 
 Note: When `http_endpoint_uri` is set, `location` can't be set.
 
@@ -1171,7 +1346,7 @@ the consumer VPC. For example:
 
     $ gcloud eventarc pipelines create example-pipeline --destinations=network_attachment=my-network-attachment,http_endpoint_uri='https://example.com'
 
-Note: A network attachment must be specified for a pipeline.
+Note: `network_attachment` can only be set when `http_endpoint_uri` is set as well.
 
 *google_oidc_authentication_service_account*::: The service account email used
 to generate the OIDC token. The token can be used to invoke Cloud Run and Cloud
@@ -1181,13 +1356,13 @@ permission on the service account. For more information, see
 [Service accounts overview](https://cloud.google.com/iam/docs/understanding-service-accounts).
 For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,google_oidc_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',google_oidc_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com
 
 *google_oidc_authentication_audience*::: The audience claim which identifies the
 recipient that the JWT is intended for. If unspecified, the destination URI will
 be used. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,google_oidc_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com,google_oidc_authentication_audience='https://example.com'
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',google_oidc_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com,google_oidc_authentication_audience='https://example.com'
 
 Note: `google_oidc_authentication_audience` can only be set if
 `google_oidc_authentication_service_account` is set.
@@ -1200,13 +1375,13 @@ account. For more information, see
 [Service accounts overview](https://cloud.google.com/iam/docs/understanding-service-accounts).
 For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,oauth_token_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',oauth_token_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com
 
 *oauth_token_authentication_scope*::: The scope used to generate the OAuth token.
   If unspecified, "https://www.googleapis.com/auth/cloud-platform" will be used.
   For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,oauth_token_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com,oauth_token_authentication_scope=https://www.googleapis.com/auth/cloud-platform
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',oauth_token_authentication_service_account=example-service-account@example-project.gserviceaccount.iam.com,oauth_token_authentication_scope=https://www.googleapis.com/auth/cloud-platform
 
 Note: At most one of `google_oidc_authentication_service_account` or
 `oauth_token_authentication_service_account` can be set; and
@@ -1216,19 +1391,19 @@ Note: At most one of `google_oidc_authentication_service_account` or
 *output_payload_format_json*::: Indicates that the output payload format is JSON.
 For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,output_payload_format_json= --input-payload-format-json=
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',output_payload_format_json= --input-payload-format-json=
 
 Note: JSON schemas are not supported. Any value specified by this key is ignored.
 
 *output_payload_format_avro_schema_definition*::: The schema definition of the
 Avro output payload format. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,output_payload_format_avro_schema_definition='{"type": "record", "name": "my_record", "fields": [{"name": "field1", "type": "string"}]}' --input-payload-format-avro-schema-definition='{"type": "record", "name": "my_record", "fields": [{"name": "field1", "type": "string"}]}'
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',output_payload_format_avro_schema_definition='{"type": "record", "name": "my_record", "fields": [{"name": "field1", "type": "string"}]}' --input-payload-format-avro-schema-definition='{"type": "record", "name": "my_record", "fields": [{"name": "field1", "type": "string"}]}'
 
 *output_payload_format_protobuf_schema_definition*::: The schema definition of
 the Protobuf output payload format. For example:
 
-    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',network_attachment=example-network-attachment,output_payload_format_protobuf_schema_definition='syntax = "proto3"; message Location { string home_address = 1; }' --input-payload-format-protobuf-schema-definition='syntax = "proto3"; message Location { string home_address = 1; }'
+    $ gcloud eventarc pipelines create example-pipeline --destinations=http_endpoint_uri='https://example.com',output_payload_format_protobuf_schema_definition='syntax = "proto3"; message Location { string home_address = 1; }' --input-payload-format-protobuf-schema-definition='syntax = "proto3"; message Location { string home_address = 1; }'
 
 Note: If none of the `input_payload_format_json`,
 `input_payload_format_avro_schema_definition`, or
@@ -1264,7 +1439,7 @@ pipeline that involve access to the data field will fail as persistent errors.
               includes_json=True,
           ),
           min_length=1,
-          custom_delim_char='|',
+          custom_delim_char='#',
       ),
       action=arg_parsers.UpdateAction,
       required=required,
@@ -1299,7 +1474,7 @@ Examples:
               },
               includes_json=True,
           ),
-          custom_delim_char='|',
+          custom_delim_char='#',
       ),
       help=help_text,
       metavar='transformation_template=TRANSFORMATION_TEMPLATE',
@@ -1367,6 +1542,233 @@ If the max-retry-delay and min-retry-delay are set to the same value, then the d
   )
 
 
+def AddKafkaSourceBootstrapServersArg(parser, required=False):
+  """Adds an argument for the Kafka Source's bootstrap server URIs."""
+  help_text = """
+The Kafka bootstrap server URIs, in the format <hostname>:<port>
+This flag can be repeated to add more URIs to the list, or comma-separated.
+At least one URI must be specified.
+
+Examples:
+
+  $ gcloud eventarc kafka-sources create example-kafka-source --bootstrap-servers='broker-1.private:9092,broker-2.private:9092'
+"""
+  parser.add_argument(
+      '--bootstrap-servers',
+      metavar='BOOTSTRAP_SERVER',
+      type=arg_parsers.ArgList(min_length=1, element_type=str),
+      required=required,
+      help=help_text,
+  )
+
+
+def AddKafkaSourceTopicArg(parser, required=False):
+  """Adds an argument for the Kafka Source's topic."""
+  help_text = """
+  The Kafka topic(s) to subscribe to. At least one topic must be specified.
+  Examples:
+
+  $ gcloud eventarc kafka-sources create example-kafka-source --topics='topic1,topic2'
+  """
+  parser.add_argument(
+      '--topics',
+      metavar='KAFKA_TOPIC',
+      type=arg_parsers.ArgList(min_length=1, element_type=str),
+      required=required,
+      help=help_text,
+  )
+
+
+def AddKafkaSourceConsumerGroupIDArg(parser, required=False):
+  """Adds an argument for the Kafka Source's Consumer Group ID."""
+  help_text = """
+  The Kafka consumer group ID. If not specified, a random UUID will be generated.
+  This consumer group ID is used by the Kafka cluster to record the current read
+  offsets of any topics subscribed.
+  Examples:
+
+  $ gcloud eventarc kafka-sources create example-kafka-source --consumer-group-id='my-consumer-group'
+  """
+  parser.add_argument(
+      '--consumer-group-id',
+      type=str,
+      required=required,
+      help=help_text,
+  )
+
+
+def AddCreateKafkaSourceResourceArgs(parser):
+  """Adds a resource argument for the Kafka Source's Message Bus."""
+  help_text = """
+  The message bus to which the Kafka source will send events.
+  Examples:
+
+  $ gcloud eventarc kafka-sources create example-kafka-source --message-bus=my-message-bus
+  """
+  concept_parsers.ConceptParser(
+      [
+          presentation_specs.ResourcePresentationSpec(
+              'kafka_source',
+              KafkaSourceResourceSpec(),
+              'The Kafka source to create.',
+              required=True,
+          ),
+          presentation_specs.ResourcePresentationSpec(
+              '--message-bus',
+              MessageBusResourceSpec(),
+              help_text,
+              required=True,
+              flag_name_overrides={
+                  'location': '',
+                  'project': '--message-bus-project',
+              },
+          ),
+      ],
+      # This configures the fallthrough from the message bus' location to the
+      # primary flag for the Kafka sources's location.
+      command_level_fallthroughs={
+          '--message-bus.location': ['kafka_source.location'],
+      },
+  ).AddToParser(parser)
+
+
+def AddKafkaSourceInitialOffsetArg(parser, required=False):
+  """Adds an argument for the Kafka Source's initial offset."""
+  help_text = """
+  The initial offset for the Kafka Source. If not specified, the default value is 'newest'.
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --initial-offset=oldest
+  """
+  parser.add_argument(
+      '--initial-offset',
+      type=str,
+      choices=['newest', 'oldest'],
+      required=required,
+      help=help_text,
+  )
+
+
+def AddKafkaSourceAuthGroup(parser, required=False):
+  """Adds an argument group for the Kafka Source's authentication."""
+  auth_group = parser.add_mutually_exclusive_group(
+      required=required,
+      help=(
+          'Flags for specifying the authentication method to use with the Kafka'
+          ' broker.'
+      ),
+  )
+  sasl_group = auth_group.add_group(
+      mutex=False,
+      help='Flags for specifying SASL authentication with the Kafka broker.',
+  )
+  _AddKafkaSourceSASLMechanismArg(sasl_group, required=True)
+  _AddKafkaSourceSASLUsernameArg(sasl_group, required=True)
+  _AddKafkaSourceSASLPasswordArg(sasl_group, required=True)
+  tls_group = auth_group.add_group(
+      hidden=True,
+      mutex=False,
+      help=(
+          'Flags for specifying mutual TLS authentication with the Kafka'
+          ' broker.'
+      ),
+  )
+  _AddKafkaSourceTLSClientCertificateArg(tls_group, required=True)
+  _AddKafkaSourceTLSClientKeyArg(tls_group, required=True)
+
+
+def _AddKafkaSourceSASLMechanismArg(parser, required=False):
+  """Adds an argument for the Kafka Source's SASL mechanism."""
+  help_text = """
+  The SASL mechanism to use for authentication with the Kafka broker.
+  This flag cannot be set if --tls-client-certificate is set (using mutual TLS for authentication).
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --sasl-mechanism=plain
+  """
+  parser.add_argument(
+      '--sasl-mechanism',
+      type=str,
+      choices=['PLAIN', 'SCRAM-SHA-256', 'SCRAM-SHA-512'],
+      required=required,
+      help=help_text,
+  )
+
+
+def _AddKafkaSourceSASLUsernameArg(parser, required=False):
+  """Adds an argument for the Kafka Source's SASL username."""
+  help_text = """
+  The SASL username to use for authentication with the Kafka broker.
+  This flag is required if --sasl-mechanism is set.
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --sasl-username='projects/123/secrets/my-username/versions/1'
+  """
+  parser.add_argument(
+      '--sasl-username',
+      type=str,
+      required=required,
+      help=help_text,
+  )
+
+
+def _AddKafkaSourceSASLPasswordArg(parser, required=False):
+  """Adds an argument for the Kafka Source's SASL password."""
+  help_text = """
+  The SASL password to use for authentication with the Kafka broker.
+  This flag is required if --sasl-mechanism is set.
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --sasl-password='projects/123/secrets/my-secret/versions/1'
+  """
+  parser.add_argument(
+      '--sasl-password',
+      type=str,
+      required=required,
+      help=help_text,
+  )
+
+
+def _AddKafkaSourceTLSClientCertificateArg(parser, required=False):
+  """Adds an argument for the Kafka Source's mutual TLS Client Certificate."""
+  help_text = """
+  The mutual TLS Client Certificate to use for authentication with the Kafka broker.
+  This option cannot be set if --sasl-mechanism is set.
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --tls-client-certificate='projects/123/secrets/my-certificate/versions/1'
+  """
+  parser.add_argument(
+      '--tls-client-certificate',
+      type=str,
+      required=required,
+      help=help_text,
+  )
+
+
+def _AddKafkaSourceTLSClientKeyArg(parser, required=False):
+  """Adds an argument for the Kafka Source's mutual TLS Client Key."""
+  help_text = """
+  The mutual TLS Client Key to use for authentication with the Kafka broker.
+  This option is required if --tls-client-certificate is set.
+  Examples:
+  $ gcloud eventarc kafka-sources create example-kafka-source --tls-client-key='projects/123/secrets/my-key/versions/1'
+  """
+  parser.add_argument(
+      '--tls-client-key',
+      type=str,
+      required=required,
+      help=help_text,
+  )
+
+
+def AddKafkaSourceNetworkAttachmentArg(parser, required=False):
+  """Adds an argument for the Kafka sources's ingress network attachment."""
+  parser.add_argument(
+      '--network-attachment',
+      required=required,
+      help=(
+          'The network attachment associated with the Kafka source that allows'
+          ' access to the ingress VPC.'
+      ),
+  )
+
+
 def AddLabelsArg(parser, help_text):
   """Adds arguments for resources' labels."""
   parser.add_argument(
@@ -1374,4 +1776,71 @@ def AddLabelsArg(parser, help_text):
       help=help_text,
       type=arg_parsers.ArgDict(),
       metavar='KEY=VALUE',
+  )
+
+
+def AddCreatePipelineResourceArgs(parser):
+  """Adds resource arguments for creating an Eventarc Pipeline."""
+  concept_parsers.ConceptParser(
+      [
+          presentation_specs.ResourcePresentationSpec(
+              'pipeline',
+              PipelineResourceSpec(),
+              'The pipeline to create.',
+              required=True,
+          ),
+          presentation_specs.ResourcePresentationSpec(
+              '--error-message-bus',
+              MessageBusResourceSpec(),
+              'The error message bus of the pipeline.',
+              required=False,
+              hidden=True,
+              flag_name_overrides={
+                  'location': '--error-message-bus-location',
+                  'project': '--error-message-bus-project',
+              },
+          ),
+      ],
+      command_level_fallthroughs={
+          '--error-message-bus.location': ['pipeline.location'],
+      },
+  ).AddToParser(parser)
+
+
+def AddUpdatePipelineResourceArgs(parser):
+  """Adds resource arguments for updating an Eventarc Pipeline."""
+  error_message_bus_group = parser.add_mutually_exclusive_group(
+      required=False, hidden=True
+  )
+  concept_parsers.ConceptParser(
+      [
+          presentation_specs.ResourcePresentationSpec(
+              'pipeline',
+              PipelineResourceSpec(),
+              'The pipeline to update.',
+              required=True,
+          ),
+          presentation_specs.ResourcePresentationSpec(
+              '--error-message-bus',
+              MessageBusResourceSpec(),
+              'The error message bus of the pipeline to update.',
+              required=False,
+              hidden=True,
+              group=error_message_bus_group,
+              flag_name_overrides={
+                  'location': '--error-message-bus-location',
+                  'project': '--error-message-bus-project',
+              },
+          ),
+      ],
+      command_level_fallthroughs={
+          '--error-message-bus.location': ['pipeline.location'],
+      },
+  ).AddToParser(parser)
+  error_message_bus_group.add_argument(
+      '--clear-error-message-bus',
+      action='store_true',
+      help='Clear the error message bus of the pipeline.',
+      required=False,
+      hidden=True,
   )

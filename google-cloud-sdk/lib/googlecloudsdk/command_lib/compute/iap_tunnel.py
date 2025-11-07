@@ -247,6 +247,10 @@ class SshTunnelArgs(object):
     instance: str, the instance name (or IP or FQDN for on-prem).
     region: str, the region name (on-prem only).
     network: str, the network name (on-prem only).
+    cloud_run_args: dict, The fields required to construct Cloud Run
+      SshTunnelArgs. If present, this field should contain fields for
+      'deployment_name', 'workload_type', and 'project_number'. Optionally can
+      contain 'instance_id' and 'container_id'.
     pass_through_args: [str], additional args to be passed to the inner gcloud.
   """
 
@@ -257,6 +261,7 @@ class SshTunnelArgs(object):
     self.instance = ''
     self.region = ''
     self.network = ''
+    self.cloud_run_args = None
     self.pass_through_args = []
 
   def _Members(self):
@@ -268,6 +273,7 @@ class SshTunnelArgs(object):
         self.region,
         self.network,
         self.pass_through_args,
+        self.cloud_run_args,
     )
 
   def __eq__(self, other):
@@ -748,17 +754,20 @@ class IAPWebsocketTunnelHelper(object):
     proxy_info = http_proxy.GetHttpProxyInfo()
     if callable(proxy_info):
       proxy_info = proxy_info(method='https')
-    return utils.IapTunnelTargetInfo(project=self._project,
-                                     zone=self._zone,
-                                     instance=self._instance,
-                                     interface=self._interface,
-                                     port=self._port,
-                                     url_override=self._iap_tunnel_url_override,
-                                     proxy_info=proxy_info,
-                                     region=self._region,
-                                     network=self._network,
-                                     host=self._host,
-                                     dest_group=self._dest_group)
+    return utils.IapTunnelTargetInfo(
+        project=self._project,
+        zone=self._zone,
+        instance=self._instance,
+        interface=self._interface,
+        port=self._port,
+        url_override=self._iap_tunnel_url_override,
+        proxy_info=proxy_info,
+        region=self._region,
+        network=self._network,
+        host=self._host,
+        dest_group=self._dest_group,
+        cloud_run_args=None,
+    )
 
   def RunReceiveLocalData(self, conn, socket_address, user_agent, conn_id=0):
     """Receive data from provided local connection and send over WebSocket.

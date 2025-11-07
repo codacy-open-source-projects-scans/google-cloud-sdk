@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import copy
 import os
 
 from googlecloudsdk.api_lib.storage import api_factory
@@ -125,7 +126,29 @@ class FileUploadTask(copy_util.ObjectCopyTaskWithExitHandler):
 
     if self._delete_source:
       # Delete original source file.
-      os.remove(self._source_resource.storage_url.object_name)
+      os.remove(self._source_resource.storage_url.resource_name)
+
+  def _get_user_request_args_for_composite_upload_chunks(self):
+    """Returns the user args to be used for composite upload chunks."""
+    if not self._user_request_args or not self._user_request_args.resource_args:
+      return self._user_request_args
+
+    user_args = copy.deepcopy(self._user_request_args)
+    resource_args = user_args.resource_args
+
+    # We do not want context to be uploaded for each chunk. Instead we will
+    # set the context once the composite object is finalized.
+    setattr(resource_args, 'custom_contexts_to_set', None)
+    setattr(resource_args, 'custom_contexts_to_remove', None)
+    setattr(resource_args, 'custom_contexts_to_update', None)
+
+    # We also do not want metadata to be uploaded for each chunk.
+    # See b/377305136 for more details.
+    setattr(resource_args, 'custom_fields_to_set', None)
+    setattr(resource_args, 'custom_fields_to_remove', None)
+    setattr(resource_args, 'custom_fields_to_update', None)
+
+    return user_args
 
   def _perform_composite_upload(
       self,
@@ -168,7 +191,7 @@ class FileUploadTask(copy_util.ObjectCopyTaskWithExitHandler):
       temporary_component_resources.append(temporary_component_resource)
 
       component_name_length = len(
-          temporary_component_resource.storage_url.object_name.encode()
+          temporary_component_resource.storage_url.resource_name.encode()
       )
 
       if component_name_length > api_client.MAX_OBJECT_NAME_LENGTH:
@@ -201,7 +224,7 @@ class FileUploadTask(copy_util.ObjectCopyTaskWithExitHandler):
           length,
           component_number=i,
           total_components=len(component_offsets_and_lengths),
-          user_request_args=self._user_request_args,
+          user_request_args=self._get_user_request_args_for_composite_upload_chunks(),
       )
 
       file_part_upload_tasks.append(upload_task)
@@ -254,7 +277,7 @@ class FileUploadTask(copy_util.ObjectCopyTaskWithExitHandler):
     )
     if should_create_symlink_placeholder:
       symlink_path = symlink_util.get_symlink_placeholder_file(
-          self._source_resource.storage_url.object_name
+          self._source_resource.storage_url.resource_name
       )
       temporary_paths_to_clean_up.append(symlink_path)
       return symlink_path
@@ -309,11 +332,11 @@ class FileUploadTask(copy_util.ObjectCopyTaskWithExitHandler):
     source_url = self._source_resource.storage_url
     temporary_paths_to_clean_up = []
     if source_url.is_stream:
-      source_path = source_url.object_name
+      source_path = source_url.resource_name
       size = None
     else:
       symlink_transformed_path = self._handle_symlink_placeholder_transform(
-          source_url.object_name,
+          source_url.resource_name,
           temporary_paths_to_clean_up
       )
       source_path = self._handle_gzip_transform(

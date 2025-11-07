@@ -44,6 +44,253 @@ class GoogleIamAdminV1AuditDataPermissionDelta(_messages.Message):
   removedPermissions = _messages.StringField(2, repeated=True)
 
 
+class GoogleIamV3betaAccessPolicy(_messages.Message):
+  r"""An IAM access policy resource.
+
+  Messages:
+    AnnotationsValue: Optional. User defined annotations. See
+      https://google.aip.dev/148#annotations for more details such as format
+      and size limitations
+
+  Fields:
+    annotations: Optional. User defined annotations. See
+      https://google.aip.dev/148#annotations for more details such as format
+      and size limitations
+    createTime: Output only. The time when the access policy was created.
+    details: Optional. The details for the access policy.
+    displayName: Optional. The description of the access policy. Must be less
+      than or equal to 63 characters.
+    etag: Optional. The etag for the access policy. If this is provided on
+      update, it must match the server's etag.
+    name: Identifier. The resource name of the access policy. The following
+      formats are supported:
+      `projects/{project_id}/locations/{location}/accessPolicies/{policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{policy_i
+      d}`
+      `folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}` `o
+      rganizations/{organization_id}/locations/{location}/accessPolicies/{poli
+      cy_id}`
+    uid: Output only. The globally unique ID of the access policy.
+    updateTime: Output only. The time when the access policy was most recently
+      updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AnnotationsValue(_messages.Message):
+    r"""Optional. User defined annotations. See
+    https://google.aip.dev/148#annotations for more details such as format and
+    size limitations
+
+    Messages:
+      AdditionalProperty: An additional property for a AnnotationsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type AnnotationsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AnnotationsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  annotations = _messages.MessageField('AnnotationsValue', 1)
+  createTime = _messages.StringField(2)
+  details = _messages.MessageField('GoogleIamV3betaAccessPolicyDetails', 3)
+  displayName = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  name = _messages.StringField(6)
+  uid = _messages.StringField(7)
+  updateTime = _messages.StringField(8)
+
+
+class GoogleIamV3betaAccessPolicyDetails(_messages.Message):
+  r"""Access policy details.
+
+  Fields:
+    rules: Required. A list of access policy rules.
+  """
+
+  rules = _messages.MessageField('GoogleIamV3betaAccessPolicyRule', 1, repeated=True)
+
+
+class GoogleIamV3betaAccessPolicyRule(_messages.Message):
+  r"""Access Policy Rule that determines the behavior of the policy.
+
+  Enums:
+    EffectValueValuesEnum: Required. The effect of the rule.
+
+  Messages:
+    ConditionsValue: Optional. The conditions that determine whether this rule
+      applies to a request. Conditions are identified by their key, which is
+      the FQDN of the service that they are relevant to, e.g.: "conditions": {
+      "iam.googleapis.com": } Each rule is evaluated independently. If this
+      rule does not apply to a request, other rules might still apply.
+      Currently supported keys are: * `eventarc.googleapis.com// The
+      conditions that determine whether this rule applies to a request.
+      Conditions are identified by their key, which is the FQDN of the service
+      that they are relevant to, e.g.: "conditions": { "iam.googleapis.com": {
+      "cel_condition": } } Each rule is evaluated independently. If this rule
+      does not apply to a request, other rules might still apply. Currently
+      supported keys are: * `eventarc.googleapis.com` * `iam.googleapis.com`
+
+  Fields:
+    conditions: Optional. The conditions that determine whether this rule
+      applies to a request. Conditions are identified by their key, which is
+      the FQDN of the service that they are relevant to, e.g.: "conditions": {
+      "iam.googleapis.com": } Each rule is evaluated independently. If this
+      rule does not apply to a request, other rules might still apply.
+      Currently supported keys are: * `eventarc.googleapis.com// The
+      conditions that determine whether this rule applies to a request.
+      Conditions are identified by their key, which is the FQDN of the service
+      that they are relevant to, e.g.: "conditions": { "iam.googleapis.com": {
+      "cel_condition": } } Each rule is evaluated independently. If this rule
+      does not apply to a request, other rules might still apply. Currently
+      supported keys are: * `eventarc.googleapis.com` * `iam.googleapis.com`
+    description: Optional. Customer specified description of the rule. Must be
+      less than or equal to 256 characters.
+    effect: Required. The effect of the rule.
+    excludedPrincipals: Optional. The identities that are excluded from the
+      access policy rule, even if they are listed in the `principals`. For
+      example, you could add a Google group to the `principals`, then exclude
+      specific users who belong to that group.
+    operation: Required. Attributes that are used to determine whether this
+      rule applies to a request.
+    principals: Required. The identities for which this rule's effect governs
+      using one or more permissions on Google Cloud resources. This field can
+      contain the following values: * `principal://goog/subject/{email_id}`: A
+      specific Google Account. Includes Gmail, Cloud Identity, and Google
+      Workspace user accounts. For example,
+      `principal://goog/subject/alice@example.com`. * `principal://iam.googlea
+      pis.com/projects/-/serviceAccounts/{service_account_id}`: A Google Cloud
+      service account. For example,
+      `principal://iam.googleapis.com/projects/-/serviceAccounts/my-service-
+      account@iam.gserviceaccount.com`. *
+      `principalSet://goog/group/{group_id}`: A Google group. For example,
+      `principalSet://goog/group/admins@example.com`. *
+      `principalSet://goog/cloudIdentityCustomerId/{customer_id}`: All of the
+      principals associated with the specified Google Workspace or Cloud
+      Identity customer ID. For example,
+      `principalSet://goog/cloudIdentityCustomerId/C01Abc35`. If an identifier
+      that was previously set on a policy is soft deleted, then calls to read
+      that policy will return the identifier with a deleted prefix. Users
+      cannot set identifiers with this syntax. *
+      `deleted:principal://goog/subject/{email_id}?uid={uid}`: A specific
+      Google Account that was deleted recently. For example,
+      `deleted:principal://goog/subject/alice@example.com?uid=1234567890`. If
+      the Google Account is recovered, this identifier reverts to the standard
+      identifier for a Google Account. *
+      `deleted:principalSet://goog/group/{group_id}?uid={uid}`: A Google group
+      that was deleted recently. For example,
+      `deleted:principalSet://goog/group/admins@example.com?uid=1234567890`.
+      If the Google group is restored, this identifier reverts to the standard
+      identifier for a Google group. * `deleted:principal://iam.googleapis.com
+      /projects/-/serviceAccounts/{service_account_id}?uid={uid}`: A Google
+      Cloud service account that was deleted recently. For example,
+      `deleted:principal://iam.googleapis.com/projects/-/serviceAccounts/my-
+      service-account@iam.gserviceaccount.com?uid=1234567890`. If the service
+      account is undeleted, this identifier reverts to the standard identifier
+      for a service account.
+  """
+
+  class EffectValueValuesEnum(_messages.Enum):
+    r"""Required. The effect of the rule.
+
+    Values:
+      EFFECT_UNSPECIFIED: The effect is unspecified.
+      DENY: The policy will deny access if it evaluates to true.
+      ALLOW: The policy will grant access if it evaluates to true.
+    """
+    EFFECT_UNSPECIFIED = 0
+    DENY = 1
+    ALLOW = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ConditionsValue(_messages.Message):
+    r"""Optional. The conditions that determine whether this rule applies to a
+    request. Conditions are identified by their key, which is the FQDN of the
+    service that they are relevant to, e.g.: "conditions": {
+    "iam.googleapis.com": } Each rule is evaluated independently. If this rule
+    does not apply to a request, other rules might still apply. Currently
+    supported keys are: * `eventarc.googleapis.com// The conditions that
+    determine whether this rule applies to a request. Conditions are
+    identified by their key, which is the FQDN of the service that they are
+    relevant to, e.g.: "conditions": { "iam.googleapis.com": {
+    "cel_condition": } } Each rule is evaluated independently. If this rule
+    does not apply to a request, other rules might still apply. Currently
+    supported keys are: * `eventarc.googleapis.com` * `iam.googleapis.com`
+
+    Messages:
+      AdditionalProperty: An additional property for a ConditionsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ConditionsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ConditionsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleTypeExpr attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleTypeExpr', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  conditions = _messages.MessageField('ConditionsValue', 1)
+  description = _messages.StringField(2)
+  effect = _messages.EnumField('EffectValueValuesEnum', 3)
+  excludedPrincipals = _messages.StringField(4, repeated=True)
+  operation = _messages.MessageField('GoogleIamV3betaAccessPolicyRuleOperation', 5)
+  principals = _messages.StringField(6, repeated=True)
+
+
+class GoogleIamV3betaAccessPolicyRuleOperation(_messages.Message):
+  r"""Attributes that are used to determine whether this rule applies to a
+  request.
+
+  Fields:
+    excludedPermissions: Optional. Specifies the permissions that this rule
+      excludes from the set of affected permissions given by `permissions`. If
+      a permission appears in `permissions` _and_ in `excluded_permissions`
+      then it will _not_ be subject to the policy effect. The excluded
+      permissions can be specified using the same syntax as `permissions`.
+    permissions: Optional. The permissions that are explicitly affected by
+      this rule. Each permission uses the format
+      `{service_fqdn}/{resource}.{verb}`, where `{service_fqdn}` is the fully
+      qualified domain name for the service. Currently supported permissions
+      are: * `eventarc.googleapis.com/messageBuses.publish`.
+  """
+
+  excludedPermissions = _messages.StringField(1, repeated=True)
+  permissions = _messages.StringField(2, repeated=True)
+
+
+class GoogleIamV3betaListAccessPoliciesResponse(_messages.Message):
+  r"""Response message for ListAccessPolicies method.
+
+  Fields:
+    accessPolicies: The access policies from the specified parent.
+    nextPageToken: Optional. A token, which can be sent as `page_token` to
+      retrieve the next page. If this field is omitted, there are no
+      subsequent pages.
+  """
+
+  accessPolicies = _messages.MessageField('GoogleIamV3betaAccessPolicy', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class GoogleIamV3betaListPolicyBindingsResponse(_messages.Message):
   r"""Response message for ListPolicyBindings method.
 
@@ -59,7 +306,7 @@ class GoogleIamV3betaListPolicyBindingsResponse(_messages.Message):
 
 
 class GoogleIamV3betaListPrincipalAccessBoundaryPoliciesResponse(_messages.Message):
-  r"""A GoogleIamV3betaListPrincipalAccessBoundaryPoliciesResponse object.
+  r"""Response message for ListPrincipalAccessBoundaryPolicies method.
 
   Fields:
     nextPageToken: Optional. A token, which can be sent as `page_token` to
@@ -100,7 +347,7 @@ class GoogleIamV3betaOperationMetadata(_messages.Message):
 
 
 class GoogleIamV3betaPolicyBinding(_messages.Message):
-  r"""IAM policy binding
+  r"""IAM policy binding resource.
 
   Enums:
     PolicyKindValueValuesEnum: Immutable. The kind of the policy to attach in
@@ -108,34 +355,34 @@ class GoogleIamV3betaPolicyBinding(_messages.Message):
       (will be automatically set to the policy kind) - The input policy kind
 
   Messages:
-    AnnotationsValue: Optional. User defined annotations. See
+    AnnotationsValue: Optional. User-defined annotations. See
       https://google.aip.dev/148#annotations for more details such as format
       and size limitations
 
   Fields:
-    annotations: Optional. User defined annotations. See
+    annotations: Optional. User-defined annotations. See
       https://google.aip.dev/148#annotations for more details such as format
       and size limitations
-    condition: Optional. Condition can either be a principal condition or a
-      resource condition. It depends on the type of target, the policy it is
-      attached to, and/or the expression itself. When set, the `expression`
-      field in the `Expr` must include from 1 to 10 subexpressions, joined by
-      the "||"(Logical OR), "&&"(Logical AND) or "!"(Logical NOT) operators
-      and cannot contain more than 250 characters. Allowed operations for
-      principal.subject: - `principal.subject == ` - `principal.subject != ` -
-      `principal.subject in []` - `principal.subject.startsWith()` -
-      `principal.subject.endsWith()` Allowed operations for principal.type: -
-      `principal.type == ` - `principal.type != ` - `principal.type in []`
+    condition: Optional. The condition to apply to the policy binding. When
+      set, the `expression` field in the `Expr` must include from 1 to 10
+      subexpressions, joined by the "||"(Logical OR), "&&"(Logical AND) or
+      "!"(Logical NOT) operators and cannot contain more than 250 characters.
+      The condition is currently only supported when bound to policies of kind
+      principal access boundary. When the bound policy is a principal access
+      boundary policy, the only supported attributes in any subexpression are
+      `principal.type` and `principal.subject`. An example expression is:
+      "principal.type == 'iam.googleapis.com/ServiceAccount'" or
+      "principal.subject == 'bob@example.com'". Allowed operations for
+      `principal.subject`: - `principal.subject == ` - `principal.subject != `
+      - `principal.subject in []` - `principal.subject.startsWith()` -
+      `principal.subject.endsWith()` Allowed operations for `principal.type`:
+      - `principal.type == ` - `principal.type != ` - `principal.type in []`
       Supported principal types are Workspace, Workforce Pool, Workload Pool
       and Service Account. Allowed string must be one of: -
       iam.googleapis.com/WorkspaceIdentity -
       iam.googleapis.com/WorkforcePoolIdentity -
       iam.googleapis.com/WorkloadPoolIdentity -
-      iam.googleapis.com/ServiceAccount When the bound policy is a principal
-      access boundary policy, the only supported attributes in any
-      subexpression are `principal.type` and `principal.subject`. An example
-      expression is: "principal.type == 'iam.googleapis.com/ServiceAccount'"
-      or "principal.subject == 'bob@example.com'".
+      iam.googleapis.com/ServiceAccount
     createTime: Output only. The time when the policy binding was created.
     displayName: Optional. The description of the policy binding. Must be less
       than or equal to 63 characters.
@@ -143,22 +390,21 @@ class GoogleIamV3betaPolicyBinding(_messages.Message):
       update, it must match the server's etag.
     name: Identifier. The name of the policy binding, in the format
       `{binding_parent/locations/{location}/policyBindings/{policy_binding_id}
-      `. The binding parent is the closest Resource Manager resource (i.e.,
-      Project, Folder or Organization) to the binding target. Format: * `proje
-      cts/{project_id}/locations/{location}/policyBindings/{policy_binding_id}
-      ` * `projects/{project_number}/locations/{location}/policyBindings/{poli
-      cy_binding_id}` * `folders/{folder_id}/locations/{location}/policyBindin
-      gs/{policy_binding_id}` * `organizations/{organization_id}/locations/{lo
-      cation}/policyBindings/{policy_binding_id}`
+      `. The binding parent is the closest Resource Manager resource (project,
+      folder, or organization) to the binding target. Format: * `projects/{pro
+      ject_id}/locations/{location}/policyBindings/{policy_binding_id}` * `pro
+      jects/{project_number}/locations/{location}/policyBindings/{policy_bindi
+      ng_id}` * `folders/{folder_id}/locations/{location}/policyBindings/{poli
+      cy_binding_id}` * `organizations/{organization_id}/locations/{location}/
+      policyBindings/{policy_binding_id}`
     policy: Required. Immutable. The resource name of the policy to be bound.
-      The binding parent and policy must belong to the same Organization (or
-      Project).
+      The binding parent and policy must belong to the same organization.
     policyKind: Immutable. The kind of the policy to attach in this binding.
       This field must be one of the following: - Left empty (will be
       automatically set to the policy kind) - The input policy kind
     policyUid: Output only. The globally unique ID of the policy to be bound.
-    target: Required. Immutable. Target is the full resource name of the
-      resource to which the policy will be bound. Immutable once set.
+    target: Required. Immutable. The full resource name of the resource to
+      which the policy will be bound. Immutable once set.
     uid: Output only. The globally unique ID of the policy binding. Assigned
       when the policy binding is created.
     updateTime: Output only. The time when the policy binding was most
@@ -182,7 +428,7 @@ class GoogleIamV3betaPolicyBinding(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AnnotationsValue(_messages.Message):
-    r"""Optional. User defined annotations. See
+    r"""Optional. User-defined annotations. See
     https://google.aip.dev/148#annotations for more details such as format and
     size limitations
 
@@ -222,24 +468,29 @@ class GoogleIamV3betaPolicyBinding(_messages.Message):
 
 
 class GoogleIamV3betaPolicyBindingTarget(_messages.Message):
-  r"""Target is the full resource name of the resource to which the policy
-  will be bound. Immutable once set.
+  r"""The full resource name of the resource to which the policy will be
+  bound. Immutable once set.
 
   Fields:
-    principalSet: Immutable. Full Resource Name used for principal access
-      boundary policy bindings Examples: * Organization:
+    principalSet: Immutable. The full resource name that's used for principal
+      access boundary policy bindings. The principal set must be directly
+      parented by the policy binding's parent or same as the parent if the
+      target is a project, folder, or organization. Examples: * For bindings
+      parented by an organization: * Organization:
       `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID` *
-      Folder: `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID` *
-      Project: *
+      Workforce Identity:
+      `//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID`
+      * Workspace Identity:
+      `//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID` * For
+      bindings parented by a folder: * Folder:
+      `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID` * For bindings
+      parented by a project: * Project: *
       `//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER` *
       `//cloudresourcemanager.googleapis.com/projects/PROJECT_ID` * Workload
       Identity Pool: `//iam.googleapis.com/projects/PROJECT_NUMBER/locations/L
-      OCATION/workloadIdentityPools/WORKLOAD_POOL_ID` * Workforce Identity:
-      `//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID`
-      * Workspace Identity:
-      `//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID`
-    resource: Immutable. Full Resource Name used for access policy bindings
-      Examples: * Organization:
+      OCATION/workloadIdentityPools/WORKLOAD_POOL_ID`
+    resource: Immutable. The full resource name that's used for access policy
+      bindings Examples: * Organization:
       `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID` *
       Folder: `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID` *
       Project: *
@@ -320,11 +571,10 @@ class GoogleIamV3betaPrincipalAccessBoundaryPolicyDetails(_messages.Message):
   r"""Principal access boundary policy details
 
   Fields:
-    enforcementVersion: Optional. The version number that indicates which
-      Google Cloud services are included in the enforcement (e.g. "latest",
-      "1", ...). If empty, the PAB policy version will be set to the current
-      latest version, and this version won't get updated when new versions are
-      released.
+    enforcementVersion: Optional. The version number (for example, `1` or
+      `latest`) that indicates which permissions are able to be blocked by the
+      policy. If empty, the PAB policy version will be set to the most recent
+      version number at the time of the policy's creation.
     rules: Required. A list of principal access boundary policy rules. The
       number of rules in a policy is limited to 500.
   """
@@ -346,10 +596,11 @@ class GoogleIamV3betaPrincipalAccessBoundaryPolicyRule(_messages.Message):
       policy rule. Must be less than or equal to 256 characters.
     effect: Required. The access relationship of principals to the resources
       in this rule.
-    resources: Required. A list of Cloud Resource Manager resources. The
-      resource and all the descendants are included. The number of resources
-      in a policy is limited to 500 across all rules. The following resource
-      types are supported: * Organizations, such as
+    resources: Required. A list of Resource Manager resources. If a resource
+      is listed in the rule, then the rule applies for that resource and its
+      descendants. The number of resources in a policy is limited to 500
+      across all rules in the policy. The following resource types are
+      supported: * Organizations, such as
       `//cloudresourcemanager.googleapis.com/organizations/123`. * Folders,
       such as `//cloudresourcemanager.googleapis.com/folders/123`. * Projects,
       such as `//cloudresourcemanager.googleapis.com/projects/123` or
@@ -370,6 +621,20 @@ class GoogleIamV3betaPrincipalAccessBoundaryPolicyRule(_messages.Message):
   description = _messages.StringField(1)
   effect = _messages.EnumField('EffectValueValuesEnum', 2)
   resources = _messages.StringField(3, repeated=True)
+
+
+class GoogleIamV3betaSearchAccessPolicyBindingsResponse(_messages.Message):
+  r"""Response message for SearchAccessPolicyBindings rpc.
+
+  Fields:
+    nextPageToken: Optional. A token, which can be sent as `page_token` to
+      retrieve the next page. If this field is omitted, there are no
+      subsequent pages.
+    policyBindings: The policy bindings that reference the specified policy.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  policyBindings = _messages.MessageField('GoogleIamV3betaPolicyBinding', 2, repeated=True)
 
 
 class GoogleIamV3betaSearchPrincipalAccessBoundaryPolicyBindingsResponse(_messages.Message):
@@ -595,6 +860,144 @@ class GoogleTypeExpr(_messages.Message):
   title = _messages.StringField(4)
 
 
+class IamFoldersLocationsAccessPoliciesCreateRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesCreateRequest object.
+
+  Fields:
+    accessPolicyId: Required. The ID to use for the access policy, which will
+      become the final component of the access policy's resource name. This
+      value must start with a lowercase letter followed by up to 62 lowercase
+      letters, numbers, hyphens, or dots. Pattern, /a-z{2,62}/. This value
+      must be unique among all access policies with the same parent.
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    parent: Required. The parent resource where this access policy will be
+      created. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+    validateOnly: Optional. If set, validate the request and preview the
+      creation, but do not actually post it.
+  """
+
+  accessPolicyId = _messages.StringField(1)
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 2)
+  parent = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamFoldersLocationsAccessPoliciesDeleteRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesDeleteRequest object.
+
+  Fields:
+    etag: Optional. The etag of the access policy. If this is provided, it
+      must match the server's etag.
+    force: Optional. If set to true, the request will force the deletion of
+      the Policy even if the Policy references PolicyBindings.
+    name: Required. The name of the access policy to delete. Format: `projects
+      /{project_id}/locations/{location}/accessPolicies/{access_policy_id}` `p
+      rojects/{project_number}/locations/{location}/accessPolicies/{access_pol
+      icy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acces
+      s_policy_id}` `organizations/{organization_id}/locations/{location}/acce
+      ssPolicies/{access_policy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      deletion, but do not actually post it.
+  """
+
+  etag = _messages.StringField(1)
+  force = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamFoldersLocationsAccessPoliciesGetRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesGetRequest object.
+
+  Fields:
+    name: Required. The name of the access policy to retrieve. Format: `projec
+      ts/{project_id}/locations/{location}/accessPolicies/{access_policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{access_p
+      olicy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acc
+      ess_policy_id}` `organizations/{organization_id}/locations/{location}/ac
+      cessPolicies/{access_policy_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamFoldersLocationsAccessPoliciesListRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of access policies to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      access policies will be returned. Valid value ranges from 1 to 1000;
+      values above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListAccessPolicies` call. Provide this to retrieve the subsequent page.
+      When paginating, all other parameters provided to `ListAccessPolicies`
+      must match the call that provided the page token.
+    parent: Required. The parent resource, which owns the collection of access
+      policy resources. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class IamFoldersLocationsAccessPoliciesPatchRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesPatchRequest object.
+
+  Fields:
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    name: Identifier. The resource name of the access policy. The following
+      formats are supported:
+      `projects/{project_id}/locations/{location}/accessPolicies/{policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{policy_i
+      d}`
+      `folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}` `o
+      rganizations/{organization_id}/locations/{location}/accessPolicies/{poli
+      cy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      update, but do not actually post it.
+  """
+
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 1)
+  name = _messages.StringField(2, required=True)
+  validateOnly = _messages.BooleanField(3)
+
+
+class IamFoldersLocationsAccessPoliciesSearchPolicyBindingsRequest(_messages.Message):
+  r"""A IamFoldersLocationsAccessPoliciesSearchPolicyBindingsRequest object.
+
+  Fields:
+    name: Required. The name of the access policy. Format: `organizations/{org
+      anization_id}/locations/{location}/accessPolicies/{access_policy_id}` `f
+      olders/{folder_id}/locations/{location}/accessPolicies/{access_policy_id
+      }` `projects/{project_id}/locations/{location}/accessPolicies/{access_po
+      licy_id}` `projects/{project_number}/locations/{location}/accessPolicies
+      /{access_policy_id}`
+    pageSize: Optional. The maximum number of policy bindings to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      policy bindings will be returned. The maximum value is 1000; values
+      above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `SearchAccessPolicyBindingsRequest` call. Provide this to retrieve the
+      subsequent page. When paginating, all other parameters provided to
+      `SearchAccessPolicyBindingsRequest` must match the call that provided
+      the page token.
+  """
+
+  name = _messages.StringField(1, required=True)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+
+
 class IamFoldersLocationsOperationsGetRequest(_messages.Message):
   r"""A IamFoldersLocationsOperationsGetRequest object.
 
@@ -613,7 +1016,7 @@ class IamFoldersLocationsPolicyBindingsCreateRequest(_messages.Message):
       be passed as the request body.
     parent: Required. The parent resource where this policy binding will be
       created. The binding parent is the closest Resource Manager resource
-      (Project, Folder or Organization) to the binding target. Format: *
+      (project, folder or organization) to the binding target. Format: *
       `projects/{project_id}/locations/{location}` *
       `projects/{project_number}/locations/{location}` *
       `folders/{folder_id}/locations/{location}` *
@@ -674,11 +1077,10 @@ class IamFoldersLocationsPolicyBindingsListRequest(_messages.Message):
   Fields:
     filter: Optional. An expression for filtering the results of the request.
       Filter rules are case insensitive. Some eligible fields for filtering
-      are: + `target` + `policy` Some examples of filter queries: | Query |
-      Description | |------------------|--------------------------------------
-      ---------------| | `target:ex*` | The binding target's name starts with
-      "ex". | | `target:example` | The binding target's name is `example`. | |
-      `policy:example` | The binding policy's name is `example`. |
+      are: + `target` + `policy` Some examples of filter queries: *
+      `target:ex*`: The binding target's name starts with "ex". *
+      `target:example`: The binding target's name is `example`. *
+      `policy:example`: The binding policy's name is `example`.
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -708,13 +1110,13 @@ class IamFoldersLocationsPolicyBindingsPatchRequest(_messages.Message):
       be passed as the request body.
     name: Identifier. The name of the policy binding, in the format
       `{binding_parent/locations/{location}/policyBindings/{policy_binding_id}
-      `. The binding parent is the closest Resource Manager resource (i.e.,
-      Project, Folder or Organization) to the binding target. Format: * `proje
-      cts/{project_id}/locations/{location}/policyBindings/{policy_binding_id}
-      ` * `projects/{project_number}/locations/{location}/policyBindings/{poli
-      cy_binding_id}` * `folders/{folder_id}/locations/{location}/policyBindin
-      gs/{policy_binding_id}` * `organizations/{organization_id}/locations/{lo
-      cation}/policyBindings/{policy_binding_id}`
+      `. The binding parent is the closest Resource Manager resource (project,
+      folder, or organization) to the binding target. Format: * `projects/{pro
+      ject_id}/locations/{location}/policyBindings/{policy_binding_id}` * `pro
+      jects/{project_number}/locations/{location}/policyBindings/{policy_bindi
+      ng_id}` * `folders/{folder_id}/locations/{location}/policyBindings/{poli
+      cy_binding_id}` * `organizations/{organization_id}/locations/{location}/
+      policyBindings/{policy_binding_id}`
     updateMask: Optional. The list of fields to update
     validateOnly: Optional. If set, validate the request and preview the
       update, but do not actually post it.
@@ -731,6 +1133,11 @@ class IamFoldersLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_messag
   object.
 
   Fields:
+    filter: Optional. Filtering currently only supports the kind of policies
+      to return, and must be in the format "policy_kind={policy_kind}". If
+      String is empty, bindings bound to all kinds of policies would be
+      returned. The only supported values are:
+      "policy_kind=PRINCIPAL_ACCESS_BOUNDARY", "policy_kind=ACCESS"
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -758,10 +1165,150 @@ class IamFoldersLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_messag
       `//cloudresourcemanager.googleapis.com/organizations/{organization_id}`
   """
 
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+  target = _messages.StringField(5)
+
+
+class IamOrganizationsLocationsAccessPoliciesCreateRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesCreateRequest object.
+
+  Fields:
+    accessPolicyId: Required. The ID to use for the access policy, which will
+      become the final component of the access policy's resource name. This
+      value must start with a lowercase letter followed by up to 62 lowercase
+      letters, numbers, hyphens, or dots. Pattern, /a-z{2,62}/. This value
+      must be unique among all access policies with the same parent.
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    parent: Required. The parent resource where this access policy will be
+      created. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+    validateOnly: Optional. If set, validate the request and preview the
+      creation, but do not actually post it.
+  """
+
+  accessPolicyId = _messages.StringField(1)
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 2)
+  parent = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamOrganizationsLocationsAccessPoliciesDeleteRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesDeleteRequest object.
+
+  Fields:
+    etag: Optional. The etag of the access policy. If this is provided, it
+      must match the server's etag.
+    force: Optional. If set to true, the request will force the deletion of
+      the Policy even if the Policy references PolicyBindings.
+    name: Required. The name of the access policy to delete. Format: `projects
+      /{project_id}/locations/{location}/accessPolicies/{access_policy_id}` `p
+      rojects/{project_number}/locations/{location}/accessPolicies/{access_pol
+      icy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acces
+      s_policy_id}` `organizations/{organization_id}/locations/{location}/acce
+      ssPolicies/{access_policy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      deletion, but do not actually post it.
+  """
+
+  etag = _messages.StringField(1)
+  force = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamOrganizationsLocationsAccessPoliciesGetRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesGetRequest object.
+
+  Fields:
+    name: Required. The name of the access policy to retrieve. Format: `projec
+      ts/{project_id}/locations/{location}/accessPolicies/{access_policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{access_p
+      olicy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acc
+      ess_policy_id}` `organizations/{organization_id}/locations/{location}/ac
+      cessPolicies/{access_policy_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamOrganizationsLocationsAccessPoliciesListRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of access policies to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      access policies will be returned. Valid value ranges from 1 to 1000;
+      values above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListAccessPolicies` call. Provide this to retrieve the subsequent page.
+      When paginating, all other parameters provided to `ListAccessPolicies`
+      must match the call that provided the page token.
+    parent: Required. The parent resource, which owns the collection of access
+      policy resources. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+  """
+
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
-  target = _messages.StringField(4)
+
+
+class IamOrganizationsLocationsAccessPoliciesPatchRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesPatchRequest object.
+
+  Fields:
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    name: Identifier. The resource name of the access policy. The following
+      formats are supported:
+      `projects/{project_id}/locations/{location}/accessPolicies/{policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{policy_i
+      d}`
+      `folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}` `o
+      rganizations/{organization_id}/locations/{location}/accessPolicies/{poli
+      cy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      update, but do not actually post it.
+  """
+
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 1)
+  name = _messages.StringField(2, required=True)
+  validateOnly = _messages.BooleanField(3)
+
+
+class IamOrganizationsLocationsAccessPoliciesSearchPolicyBindingsRequest(_messages.Message):
+  r"""A IamOrganizationsLocationsAccessPoliciesSearchPolicyBindingsRequest
+  object.
+
+  Fields:
+    name: Required. The name of the access policy. Format: `organizations/{org
+      anization_id}/locations/{location}/accessPolicies/{access_policy_id}` `f
+      olders/{folder_id}/locations/{location}/accessPolicies/{access_policy_id
+      }` `projects/{project_id}/locations/{location}/accessPolicies/{access_po
+      licy_id}` `projects/{project_number}/locations/{location}/accessPolicies
+      /{access_policy_id}`
+    pageSize: Optional. The maximum number of policy bindings to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      policy bindings will be returned. The maximum value is 1000; values
+      above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `SearchAccessPolicyBindingsRequest` call. Provide this to retrieve the
+      subsequent page. When paginating, all other parameters provided to
+      `SearchAccessPolicyBindingsRequest` must match the call that provided
+      the page token.
+  """
+
+  name = _messages.StringField(1, required=True)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
 
 
 class IamOrganizationsLocationsOperationsGetRequest(_messages.Message):
@@ -782,7 +1329,7 @@ class IamOrganizationsLocationsPolicyBindingsCreateRequest(_messages.Message):
       be passed as the request body.
     parent: Required. The parent resource where this policy binding will be
       created. The binding parent is the closest Resource Manager resource
-      (Project, Folder or Organization) to the binding target. Format: *
+      (project, folder or organization) to the binding target. Format: *
       `projects/{project_id}/locations/{location}` *
       `projects/{project_number}/locations/{location}` *
       `folders/{folder_id}/locations/{location}` *
@@ -843,11 +1390,10 @@ class IamOrganizationsLocationsPolicyBindingsListRequest(_messages.Message):
   Fields:
     filter: Optional. An expression for filtering the results of the request.
       Filter rules are case insensitive. Some eligible fields for filtering
-      are: + `target` + `policy` Some examples of filter queries: | Query |
-      Description | |------------------|--------------------------------------
-      ---------------| | `target:ex*` | The binding target's name starts with
-      "ex". | | `target:example` | The binding target's name is `example`. | |
-      `policy:example` | The binding policy's name is `example`. |
+      are: + `target` + `policy` Some examples of filter queries: *
+      `target:ex*`: The binding target's name starts with "ex". *
+      `target:example`: The binding target's name is `example`. *
+      `policy:example`: The binding policy's name is `example`.
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -877,13 +1423,13 @@ class IamOrganizationsLocationsPolicyBindingsPatchRequest(_messages.Message):
       be passed as the request body.
     name: Identifier. The name of the policy binding, in the format
       `{binding_parent/locations/{location}/policyBindings/{policy_binding_id}
-      `. The binding parent is the closest Resource Manager resource (i.e.,
-      Project, Folder or Organization) to the binding target. Format: * `proje
-      cts/{project_id}/locations/{location}/policyBindings/{policy_binding_id}
-      ` * `projects/{project_number}/locations/{location}/policyBindings/{poli
-      cy_binding_id}` * `folders/{folder_id}/locations/{location}/policyBindin
-      gs/{policy_binding_id}` * `organizations/{organization_id}/locations/{lo
-      cation}/policyBindings/{policy_binding_id}`
+      `. The binding parent is the closest Resource Manager resource (project,
+      folder, or organization) to the binding target. Format: * `projects/{pro
+      ject_id}/locations/{location}/policyBindings/{policy_binding_id}` * `pro
+      jects/{project_number}/locations/{location}/policyBindings/{policy_bindi
+      ng_id}` * `folders/{folder_id}/locations/{location}/policyBindings/{poli
+      cy_binding_id}` * `organizations/{organization_id}/locations/{location}/
+      policyBindings/{policy_binding_id}`
     updateMask: Optional. The list of fields to update
     validateOnly: Optional. If set, validate the request and preview the
       update, but do not actually post it.
@@ -901,6 +1447,11 @@ class IamOrganizationsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_
   object.
 
   Fields:
+    filter: Optional. Filtering currently only supports the kind of policies
+      to return, and must be in the format "policy_kind={policy_kind}". If
+      String is empty, bindings bound to all kinds of policies would be
+      returned. The only supported values are:
+      "policy_kind=PRINCIPAL_ACCESS_BOUNDARY", "policy_kind=ACCESS"
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -928,10 +1479,11 @@ class IamOrganizationsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_
       `//cloudresourcemanager.googleapis.com/organizations/{organization_id}`
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
-  target = _messages.StringField(4)
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+  target = _messages.StringField(5)
 
 
 class IamOrganizationsLocationsPrincipalAccessBoundaryPoliciesCreateRequest(_messages.Message):
@@ -943,7 +1495,7 @@ class IamOrganizationsLocationsPrincipalAccessBoundaryPoliciesCreateRequest(_mes
       GoogleIamV3betaPrincipalAccessBoundaryPolicy resource to be passed as
       the request body.
     parent: Required. The parent resource where this principal access boundary
-      policy will be created. Only organization is supported now. Format:
+      policy will be created. Only organizations are supported. Format:
       `organizations/{organization_id}/locations/{location}`
     principalAccessBoundaryPolicyId: Required. The ID to use for the principal
       access boundary policy, which will become the final component of the
@@ -968,7 +1520,7 @@ class IamOrganizationsLocationsPrincipalAccessBoundaryPoliciesDeleteRequest(_mes
     etag: Optional. The etag of the principal access boundary policy. If this
       is provided, it must match the server's etag.
     force: Optional. If set to true, the request will force the deletion of
-      the Policy even if the Policy references PolicyBindings.
+      the policy even if the policy is referenced in policy bindings.
     name: Required. The name of the principal access boundary policy to
       delete. Format: `organizations/{organization_id}/locations/{location}/pr
       incipalAccessBoundaryPolicies/{principal_access_boundary_policy_id}`
@@ -1066,6 +1618,144 @@ class IamOrganizationsLocationsPrincipalAccessBoundaryPoliciesSearchPolicyBindin
   pageToken = _messages.StringField(3)
 
 
+class IamProjectsLocationsAccessPoliciesCreateRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesCreateRequest object.
+
+  Fields:
+    accessPolicyId: Required. The ID to use for the access policy, which will
+      become the final component of the access policy's resource name. This
+      value must start with a lowercase letter followed by up to 62 lowercase
+      letters, numbers, hyphens, or dots. Pattern, /a-z{2,62}/. This value
+      must be unique among all access policies with the same parent.
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    parent: Required. The parent resource where this access policy will be
+      created. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+    validateOnly: Optional. If set, validate the request and preview the
+      creation, but do not actually post it.
+  """
+
+  accessPolicyId = _messages.StringField(1)
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 2)
+  parent = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamProjectsLocationsAccessPoliciesDeleteRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesDeleteRequest object.
+
+  Fields:
+    etag: Optional. The etag of the access policy. If this is provided, it
+      must match the server's etag.
+    force: Optional. If set to true, the request will force the deletion of
+      the Policy even if the Policy references PolicyBindings.
+    name: Required. The name of the access policy to delete. Format: `projects
+      /{project_id}/locations/{location}/accessPolicies/{access_policy_id}` `p
+      rojects/{project_number}/locations/{location}/accessPolicies/{access_pol
+      icy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acces
+      s_policy_id}` `organizations/{organization_id}/locations/{location}/acce
+      ssPolicies/{access_policy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      deletion, but do not actually post it.
+  """
+
+  etag = _messages.StringField(1)
+  force = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class IamProjectsLocationsAccessPoliciesGetRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesGetRequest object.
+
+  Fields:
+    name: Required. The name of the access policy to retrieve. Format: `projec
+      ts/{project_id}/locations/{location}/accessPolicies/{access_policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{access_p
+      olicy_id}` `folders/{folder_id}/locations/{location}/accessPolicies/{acc
+      ess_policy_id}` `organizations/{organization_id}/locations/{location}/ac
+      cessPolicies/{access_policy_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamProjectsLocationsAccessPoliciesListRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of access policies to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      access policies will be returned. Valid value ranges from 1 to 1000;
+      values above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListAccessPolicies` call. Provide this to retrieve the subsequent page.
+      When paginating, all other parameters provided to `ListAccessPolicies`
+      must match the call that provided the page token.
+    parent: Required. The parent resource, which owns the collection of access
+      policy resources. Format: `projects/{project_id}/locations/{location}`
+      `projects/{project_number}/locations/{location}`
+      `folders/{folder_id}/locations/{location}`
+      `organizations/{organization_id}/locations/{location}`
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class IamProjectsLocationsAccessPoliciesPatchRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesPatchRequest object.
+
+  Fields:
+    googleIamV3betaAccessPolicy: A GoogleIamV3betaAccessPolicy resource to be
+      passed as the request body.
+    name: Identifier. The resource name of the access policy. The following
+      formats are supported:
+      `projects/{project_id}/locations/{location}/accessPolicies/{policy_id}`
+      `projects/{project_number}/locations/{location}/accessPolicies/{policy_i
+      d}`
+      `folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}` `o
+      rganizations/{organization_id}/locations/{location}/accessPolicies/{poli
+      cy_id}`
+    validateOnly: Optional. If set, validate the request and preview the
+      update, but do not actually post it.
+  """
+
+  googleIamV3betaAccessPolicy = _messages.MessageField('GoogleIamV3betaAccessPolicy', 1)
+  name = _messages.StringField(2, required=True)
+  validateOnly = _messages.BooleanField(3)
+
+
+class IamProjectsLocationsAccessPoliciesSearchPolicyBindingsRequest(_messages.Message):
+  r"""A IamProjectsLocationsAccessPoliciesSearchPolicyBindingsRequest object.
+
+  Fields:
+    name: Required. The name of the access policy. Format: `organizations/{org
+      anization_id}/locations/{location}/accessPolicies/{access_policy_id}` `f
+      olders/{folder_id}/locations/{location}/accessPolicies/{access_policy_id
+      }` `projects/{project_id}/locations/{location}/accessPolicies/{access_po
+      licy_id}` `projects/{project_number}/locations/{location}/accessPolicies
+      /{access_policy_id}`
+    pageSize: Optional. The maximum number of policy bindings to return. The
+      service may return fewer than this value. If unspecified, at most 50
+      policy bindings will be returned. The maximum value is 1000; values
+      above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `SearchAccessPolicyBindingsRequest` call. Provide this to retrieve the
+      subsequent page. When paginating, all other parameters provided to
+      `SearchAccessPolicyBindingsRequest` must match the call that provided
+      the page token.
+  """
+
+  name = _messages.StringField(1, required=True)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+
+
 class IamProjectsLocationsOperationsGetRequest(_messages.Message):
   r"""A IamProjectsLocationsOperationsGetRequest object.
 
@@ -1084,7 +1774,7 @@ class IamProjectsLocationsPolicyBindingsCreateRequest(_messages.Message):
       be passed as the request body.
     parent: Required. The parent resource where this policy binding will be
       created. The binding parent is the closest Resource Manager resource
-      (Project, Folder or Organization) to the binding target. Format: *
+      (project, folder or organization) to the binding target. Format: *
       `projects/{project_id}/locations/{location}` *
       `projects/{project_number}/locations/{location}` *
       `folders/{folder_id}/locations/{location}` *
@@ -1145,11 +1835,10 @@ class IamProjectsLocationsPolicyBindingsListRequest(_messages.Message):
   Fields:
     filter: Optional. An expression for filtering the results of the request.
       Filter rules are case insensitive. Some eligible fields for filtering
-      are: + `target` + `policy` Some examples of filter queries: | Query |
-      Description | |------------------|--------------------------------------
-      ---------------| | `target:ex*` | The binding target's name starts with
-      "ex". | | `target:example` | The binding target's name is `example`. | |
-      `policy:example` | The binding policy's name is `example`. |
+      are: + `target` + `policy` Some examples of filter queries: *
+      `target:ex*`: The binding target's name starts with "ex". *
+      `target:example`: The binding target's name is `example`. *
+      `policy:example`: The binding policy's name is `example`.
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -1179,13 +1868,13 @@ class IamProjectsLocationsPolicyBindingsPatchRequest(_messages.Message):
       be passed as the request body.
     name: Identifier. The name of the policy binding, in the format
       `{binding_parent/locations/{location}/policyBindings/{policy_binding_id}
-      `. The binding parent is the closest Resource Manager resource (i.e.,
-      Project, Folder or Organization) to the binding target. Format: * `proje
-      cts/{project_id}/locations/{location}/policyBindings/{policy_binding_id}
-      ` * `projects/{project_number}/locations/{location}/policyBindings/{poli
-      cy_binding_id}` * `folders/{folder_id}/locations/{location}/policyBindin
-      gs/{policy_binding_id}` * `organizations/{organization_id}/locations/{lo
-      cation}/policyBindings/{policy_binding_id}`
+      `. The binding parent is the closest Resource Manager resource (project,
+      folder, or organization) to the binding target. Format: * `projects/{pro
+      ject_id}/locations/{location}/policyBindings/{policy_binding_id}` * `pro
+      jects/{project_number}/locations/{location}/policyBindings/{policy_bindi
+      ng_id}` * `folders/{folder_id}/locations/{location}/policyBindings/{poli
+      cy_binding_id}` * `organizations/{organization_id}/locations/{location}/
+      policyBindings/{policy_binding_id}`
     updateMask: Optional. The list of fields to update
     validateOnly: Optional. If set, validate the request and preview the
       update, but do not actually post it.
@@ -1202,6 +1891,11 @@ class IamProjectsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_messa
   object.
 
   Fields:
+    filter: Optional. Filtering currently only supports the kind of policies
+      to return, and must be in the format "policy_kind={policy_kind}". If
+      String is empty, bindings bound to all kinds of policies would be
+      returned. The only supported values are:
+      "policy_kind=PRINCIPAL_ACCESS_BOUNDARY", "policy_kind=ACCESS"
     pageSize: Optional. The maximum number of policy bindings to return. The
       service may return fewer than this value. If unspecified, at most 50
       policy bindings will be returned. The maximum value is 1000; values
@@ -1229,10 +1923,11 @@ class IamProjectsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest(_messa
       `//cloudresourcemanager.googleapis.com/organizations/{organization_id}`
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
-  target = _messages.StringField(4)
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+  target = _messages.StringField(5)
 
 
 class StandardQueryParameters(_messages.Message):

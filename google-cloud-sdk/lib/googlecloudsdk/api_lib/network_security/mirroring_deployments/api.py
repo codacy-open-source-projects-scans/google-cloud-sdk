@@ -30,6 +30,7 @@ from googlecloudsdk.core import resources
 _API_VERSION_FOR_TRACK = {
     base.ReleaseTrack.ALPHA: 'v1alpha1',
     base.ReleaseTrack.BETA: 'v1beta1',
+    base.ReleaseTrack.GA: 'v1',
 }
 _API_NAME = 'networksecurity'
 
@@ -77,6 +78,7 @@ class Client:
       parent,
       forwarding_rule,
       mirroring_deployment_group,
+      description,
       deployment_id=None,
       labels=None,
   ):
@@ -89,6 +91,7 @@ class Client:
         "projects/myproj/regions/us-central1/forwardingRules/my-rule"
       mirroring_deployment_group: The deployment group of the deployment, e.g.
         "projects/myproj/locations/global/mirroringDeploymentGroups/my-group"
+      description: The description of the deployment.
       deployment_id: The ID of the deployment, e.g. "my-deployment".
       labels: A dictionary with the labels of the deployment.
 
@@ -100,6 +103,7 @@ class Client:
         forwardingRule=forwarding_rule,
         mirroringDeploymentGroup=mirroring_deployment_group,
         labels=labels,
+        description=description,
     )
 
     create_request = self.messages.NetworksecurityProjectsLocationsMirroringDeploymentsCreateRequest(
@@ -119,12 +123,14 @@ class Client:
   def UpdateDeployment(
       self,
       name,
+      description,
       update_fields,
   ):
     """Calls the UpdateMirroringDeployment API.
 
     Args:
       name: The name of the deployment.
+      description: The description of the deployment.
       update_fields: A dictionary of the fields to update mapped to their new
         values.
 
@@ -133,7 +139,9 @@ class Client:
     """
     deployment = self.messages.MirroringDeployment(
         labels=update_fields.get('labels', None),
+        description=description,
     )
+
     update_request = self.messages.NetworksecurityProjectsLocationsMirroringDeploymentsPatchRequest(
         name=name,
         mirroringDeployment=deployment,

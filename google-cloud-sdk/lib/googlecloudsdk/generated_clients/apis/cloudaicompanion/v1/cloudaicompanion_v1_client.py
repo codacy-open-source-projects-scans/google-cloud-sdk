@@ -41,11 +41,19 @@ class CloudaicompanionV1(base_api.BaseApiClient):
         response_encoding=response_encoding)
     self.projects_locations_codeRepositoryIndexes_repositoryGroups = self.ProjectsLocationsCodeRepositoryIndexesRepositoryGroupsService(self)
     self.projects_locations_codeRepositoryIndexes = self.ProjectsLocationsCodeRepositoryIndexesService(self)
-    self.projects_locations_instances = self.ProjectsLocationsInstancesService(self)
+    self.projects_locations_codeToolsSettings_settingBindings = self.ProjectsLocationsCodeToolsSettingsSettingBindingsService(self)
+    self.projects_locations_codeToolsSettings = self.ProjectsLocationsCodeToolsSettingsService(self)
+    self.projects_locations_dataSharingWithGoogleSettings_settingBindings = self.ProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsService(self)
+    self.projects_locations_dataSharingWithGoogleSettings = self.ProjectsLocationsDataSharingWithGoogleSettingsService(self)
+    self.projects_locations_geminiGcpEnablementSettings_settingBindings = self.ProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsService(self)
+    self.projects_locations_geminiGcpEnablementSettings = self.ProjectsLocationsGeminiGcpEnablementSettingsService(self)
+    self.projects_locations_loggingSettings_settingBindings = self.ProjectsLocationsLoggingSettingsSettingBindingsService(self)
+    self.projects_locations_loggingSettings = self.ProjectsLocationsLoggingSettingsService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
+    self.projects_locations_releaseChannelSettings_settingBindings = self.ProjectsLocationsReleaseChannelSettingsSettingBindingsService(self)
+    self.projects_locations_releaseChannelSettings = self.ProjectsLocationsReleaseChannelSettingsService(self)
     self.projects_locations = self.ProjectsLocationsService(self)
     self.projects = self.ProjectsService(self)
-    self.v1 = self.V1Service(self)
 
   class ProjectsLocationsCodeRepositoryIndexesRepositoryGroupsService(base_api.BaseApiService):
     """Service class for the projects_locations_codeRepositoryIndexes_repositoryGroups resource."""
@@ -418,148 +426,1163 @@ class CloudaicompanionV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
-  class ProjectsLocationsInstancesService(base_api.BaseApiService):
-    """Service class for the projects_locations_instances resource."""
+  class ProjectsLocationsCodeToolsSettingsSettingBindingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_codeToolsSettings_settingBindings resource."""
 
-    _NAME = 'projects_locations_instances'
+    _NAME = 'projects_locations_codeToolsSettings_settingBindings'
 
     def __init__(self, client):
-      super(CloudaicompanionV1.ProjectsLocationsInstancesService, self).__init__(client)
+      super(CloudaicompanionV1.ProjectsLocationsCodeToolsSettingsSettingBindingsService, self).__init__(client)
       self._upload_configs = {
           }
 
-    def CompleteCode(self, request, global_params=None):
-      r"""Low latency code completion based on a prompt and some context.
+    def Create(self, request, global_params=None):
+      r"""Creates a new SettingBinding in a given project and location.
 
       Args:
-        request: (CloudaicompanionProjectsLocationsInstancesCompleteCodeRequest) input message
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsCreateRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
       Returns:
-        (CodeCompletionResponse) The response message.
+        (Operation) The response message.
       """
-      config = self.GetMethodConfig('CompleteCode')
+      config = self.GetMethodConfig('Create')
       return self._RunMethod(
           config, request, global_params=global_params)
 
-    CompleteCode.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:completeCode',
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}/settingBindings',
         http_method='POST',
-        method_id='cloudaicompanion.projects.locations.instances.completeCode',
-        ordered_params=['instance'],
-        path_params=['instance'],
-        query_params=[],
-        relative_path='v1/{+instance}:completeCode',
-        request_field='codeCompletionRequest',
-        request_type_name='CloudaicompanionProjectsLocationsInstancesCompleteCodeRequest',
-        response_type_name='CodeCompletionResponse',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.settingBindings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['requestId', 'settingBindingId'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsCreateRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
-    def CompleteTask(self, request, global_params=None):
-      r"""Completes a task based on some specification and context.
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single SettingBinding.
 
       Args:
-        request: (CloudaicompanionProjectsLocationsInstancesCompleteTaskRequest) input message
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsDeleteRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
       Returns:
-        (TaskCompletionResponse) The response message.
+        (Operation) The response message.
       """
-      config = self.GetMethodConfig('CompleteTask')
+      config = self.GetMethodConfig('Delete')
       return self._RunMethod(
           config, request, global_params=global_params)
 
-    CompleteTask.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:completeTask',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.locations.instances.completeTask',
-        ordered_params=['instance'],
-        path_params=['instance'],
-        query_params=[],
-        relative_path='v1/{+instance}:completeTask',
-        request_field='taskCompletionRequest',
-        request_type_name='CloudaicompanionProjectsLocationsInstancesCompleteTaskRequest',
-        response_type_name='TaskCompletionResponse',
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.settingBindings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsDeleteRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
-    def GenerateCode(self, request, global_params=None):
-      r"""Generate code based on a prompt and some context. This RPC has different latency profiles than code completion, if you need low latency code completion - consider using CompleteCode() instead.
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single SettingBinding.
 
       Args:
-        request: (CloudaicompanionProjectsLocationsInstancesGenerateCodeRequest) input message
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsGetRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
       Returns:
-        (CodeGenerationResponse) The response message.
+        (SettingBinding) The response message.
       """
-      config = self.GetMethodConfig('GenerateCode')
+      config = self.GetMethodConfig('Get')
       return self._RunMethod(
           config, request, global_params=global_params)
 
-    GenerateCode.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:generateCode',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.locations.instances.generateCode',
-        ordered_params=['instance'],
-        path_params=['instance'],
-        query_params=[],
-        relative_path='v1/{+instance}:generateCode',
-        request_field='codeGenerationRequest',
-        request_type_name='CloudaicompanionProjectsLocationsInstancesGenerateCodeRequest',
-        response_type_name='CodeGenerationResponse',
-        supports_download=False,
-    )
-
-    def GenerateText(self, request, global_params=None):
-      r"""Generates text based on a prompt and some context.
-
-      Args:
-        request: (CloudaicompanionProjectsLocationsInstancesGenerateTextRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (TextGenerationResponse) The response message.
-      """
-      config = self.GetMethodConfig('GenerateText')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    GenerateText.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:generateText',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.locations.instances.generateText',
-        ordered_params=['instance'],
-        path_params=['instance'],
-        query_params=[],
-        relative_path='v1/{+instance}:generateText',
-        request_field='textGenerationRequest',
-        request_type_name='CloudaicompanionProjectsLocationsInstancesGenerateTextRequest',
-        response_type_name='TextGenerationResponse',
-        supports_download=False,
-    )
-
-    def ServerStreamingCompleteTask(self, request, global_params=None):
-      r"""Completes a task based on some specification and context using response streaming.
-
-      Args:
-        request: (CloudaicompanionProjectsLocationsInstancesServerStreamingCompleteTaskRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (ServerStreamingCompleteTaskResponse) The response message.
-      """
-      config = self.GetMethodConfig('ServerStreamingCompleteTask')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    ServerStreamingCompleteTask.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations/{locationsId}/instances/{instancesId}:serverStreamingCompleteTask',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.locations.instances.serverStreamingCompleteTask',
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.settingBindings.get',
         ordered_params=['name'],
         path_params=['name'],
         query_params=[],
-        relative_path='v1/{+name}:serverStreamingCompleteTask',
-        request_field='serverStreamingCompleteTaskRequest',
-        request_type_name='CloudaicompanionProjectsLocationsInstancesServerStreamingCompleteTaskRequest',
-        response_type_name='ServerStreamingCompleteTaskResponse',
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsGetRequest',
+        response_type_name='SettingBinding',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists SettingBindings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListSettingBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}/settingBindings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.settingBindings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsListRequest',
+        response_type_name='ListSettingBindingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.settingBindings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsSettingBindingsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsCodeToolsSettingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_codeToolsSettings resource."""
+
+    _NAME = 'projects_locations_codeToolsSettings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsCodeToolsSettingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new CodeToolsSetting in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (CodeToolsSetting) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['codeToolsSettingId', 'requestId'],
+        relative_path='v1/{+parent}/codeToolsSettings',
+        request_field='codeToolsSetting',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsCreateRequest',
+        response_type_name='CodeToolsSetting',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single CodeToolsSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['force', 'requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single CodeToolsSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (CodeToolsSetting) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsGetRequest',
+        response_type_name='CodeToolsSetting',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists CodeToolsSettings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListCodeToolsSettingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/codeToolsSettings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsListRequest',
+        response_type_name='ListCodeToolsSettingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single CodeToolsSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsCodeToolsSettingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (CodeToolsSetting) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/codeToolsSettings/{codeToolsSettingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.codeToolsSettings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='codeToolsSetting',
+        request_type_name='CloudaicompanionProjectsLocationsCodeToolsSettingsPatchRequest',
+        response_type_name='CodeToolsSetting',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_dataSharingWithGoogleSettings_settingBindings resource."""
+
+    _NAME = 'projects_locations_dataSharingWithGoogleSettings_settingBindings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new SettingBinding in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}/settingBindings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.settingBindings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['requestId', 'settingBindingId'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.settingBindings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (SettingBinding) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.settingBindings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsGetRequest',
+        response_type_name='SettingBinding',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists SettingBindings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListSettingBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}/settingBindings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.settingBindings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsListRequest',
+        response_type_name='ListSettingBindingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.settingBindings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsSettingBindingsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsDataSharingWithGoogleSettingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_dataSharingWithGoogleSettings resource."""
+
+    _NAME = 'projects_locations_dataSharingWithGoogleSettings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsDataSharingWithGoogleSettingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new DataSharingWithGoogleSetting in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DataSharingWithGoogleSetting) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['dataSharingWithGoogleSettingId', 'requestId'],
+        relative_path='v1/{+parent}/dataSharingWithGoogleSettings',
+        request_field='dataSharingWithGoogleSetting',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsCreateRequest',
+        response_type_name='DataSharingWithGoogleSetting',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single DataSharingWithGoogleSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single DataSharingWithGoogleSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DataSharingWithGoogleSetting) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsGetRequest',
+        response_type_name='DataSharingWithGoogleSetting',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists DataSharingWithGoogleSettings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListDataSharingWithGoogleSettingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/dataSharingWithGoogleSettings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsListRequest',
+        response_type_name='ListDataSharingWithGoogleSettingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single DataSharingWithGoogleSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DataSharingWithGoogleSetting) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSettingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.dataSharingWithGoogleSettings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='dataSharingWithGoogleSetting',
+        request_type_name='CloudaicompanionProjectsLocationsDataSharingWithGoogleSettingsPatchRequest',
+        response_type_name='DataSharingWithGoogleSetting',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_geminiGcpEnablementSettings_settingBindings resource."""
+
+    _NAME = 'projects_locations_geminiGcpEnablementSettings_settingBindings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new SettingBinding in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}/settingBindings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.settingBindings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['requestId', 'settingBindingId'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.settingBindings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (SettingBinding) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.settingBindings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsGetRequest',
+        response_type_name='SettingBinding',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists SettingBindings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListSettingBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}/settingBindings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.settingBindings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsListRequest',
+        response_type_name='ListSettingBindingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.settingBindings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsSettingBindingsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsGeminiGcpEnablementSettingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_geminiGcpEnablementSettings resource."""
+
+    _NAME = 'projects_locations_geminiGcpEnablementSettings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsGeminiGcpEnablementSettingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new GeminiGcpEnablementSetting in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GeminiGcpEnablementSetting) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['geminiGcpEnablementSettingId', 'requestId'],
+        relative_path='v1/{+parent}/geminiGcpEnablementSettings',
+        request_field='geminiGcpEnablementSetting',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsCreateRequest',
+        response_type_name='GeminiGcpEnablementSetting',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single GeminiGcpEnablementSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single GeminiGcpEnablementSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GeminiGcpEnablementSetting) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsGetRequest',
+        response_type_name='GeminiGcpEnablementSetting',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists GeminiGcpEnablementSettings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListGeminiGcpEnablementSettingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/geminiGcpEnablementSettings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsListRequest',
+        response_type_name='ListGeminiGcpEnablementSettingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single GeminiGcpEnablementSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GeminiGcpEnablementSetting) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/geminiGcpEnablementSettings/{geminiGcpEnablementSettingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.geminiGcpEnablementSettings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='geminiGcpEnablementSetting',
+        request_type_name='CloudaicompanionProjectsLocationsGeminiGcpEnablementSettingsPatchRequest',
+        response_type_name='GeminiGcpEnablementSetting',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsLoggingSettingsSettingBindingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_loggingSettings_settingBindings resource."""
+
+    _NAME = 'projects_locations_loggingSettings_settingBindings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsLoggingSettingsSettingBindingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new SettingBinding in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}/settingBindings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.settingBindings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['requestId', 'settingBindingId'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.settingBindings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (SettingBinding) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.settingBindings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsGetRequest',
+        response_type_name='SettingBinding',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists SettingBindings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListSettingBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}/settingBindings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.settingBindings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsListRequest',
+        response_type_name='ListSettingBindingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.settingBindings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsSettingBindingsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsLoggingSettingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_loggingSettings resource."""
+
+    _NAME = 'projects_locations_loggingSettings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsLoggingSettingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new LoggingSetting in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (LoggingSetting) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['loggingSettingId', 'requestId'],
+        relative_path='v1/{+parent}/loggingSettings',
+        request_field='loggingSetting',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsCreateRequest',
+        response_type_name='LoggingSetting',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single LoggingSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single LoggingSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (LoggingSetting) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsGetRequest',
+        response_type_name='LoggingSetting',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists LoggingSettings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListLoggingSettingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/loggingSettings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsListRequest',
+        response_type_name='ListLoggingSettingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single LoggingSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsLoggingSettingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (LoggingSetting) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/loggingSettings/{loggingSettingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.loggingSettings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='loggingSetting',
+        request_type_name='CloudaicompanionProjectsLocationsLoggingSettingsPatchRequest',
+        response_type_name='LoggingSetting',
         supports_download=False,
     )
 
@@ -574,7 +1597,7 @@ class CloudaicompanionV1(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (CloudaicompanionProjectsLocationsOperationsCancelRequest) input message
@@ -673,11 +1696,301 @@ class CloudaicompanionV1(base_api.BaseApiClient):
         method_id='cloudaicompanion.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}/operations',
         request_field='',
         request_type_name='CloudaicompanionProjectsLocationsOperationsListRequest',
         response_type_name='ListOperationsResponse',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsReleaseChannelSettingsSettingBindingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_releaseChannelSettings_settingBindings resource."""
+
+    _NAME = 'projects_locations_releaseChannelSettings_settingBindings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsReleaseChannelSettingsSettingBindingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new SettingBinding in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}/settingBindings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.settingBindings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['requestId', 'settingBindingId'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.settingBindings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (SettingBinding) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.settingBindings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsGetRequest',
+        response_type_name='SettingBinding',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists SettingBindings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListSettingBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}/settingBindings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.settingBindings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/settingBindings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsListRequest',
+        response_type_name='ListSettingBindingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single SettingBinding.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}/settingBindings/{settingBindingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.settingBindings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='settingBinding',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsSettingBindingsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsReleaseChannelSettingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_releaseChannelSettings resource."""
+
+    _NAME = 'projects_locations_releaseChannelSettings'
+
+    def __init__(self, client):
+      super(CloudaicompanionV1.ProjectsLocationsReleaseChannelSettingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new ReleaseChannelSetting in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ReleaseChannelSetting) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings',
+        http_method='POST',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['releaseChannelSettingId', 'requestId'],
+        relative_path='v1/{+parent}/releaseChannelSettings',
+        request_field='releaseChannelSetting',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsCreateRequest',
+        response_type_name='ReleaseChannelSetting',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a single ReleaseChannelSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}',
+        http_method='DELETE',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single ReleaseChannelSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ReleaseChannelSetting) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsGetRequest',
+        response_type_name='ReleaseChannelSetting',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists ReleaseChannelSettings in a given project and location.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListReleaseChannelSettingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings',
+        http_method='GET',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/releaseChannelSettings',
+        request_field='',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsListRequest',
+        response_type_name='ListReleaseChannelSettingsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the parameters of a single ReleaseChannelSetting.
+
+      Args:
+        request: (CloudaicompanionProjectsLocationsReleaseChannelSettingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ReleaseChannelSetting) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/releaseChannelSettings/{releaseChannelSettingsId}',
+        http_method='PATCH',
+        method_id='cloudaicompanion.projects.locations.releaseChannelSettings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='releaseChannelSetting',
+        request_type_name='CloudaicompanionProjectsLocationsReleaseChannelSettingsPatchRequest',
+        response_type_name='ReleaseChannelSetting',
         supports_download=False,
     )
 
@@ -718,33 +2031,6 @@ class CloudaicompanionV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
-    def List(self, request, global_params=None):
-      r"""Lists information about the supported locations for this service.
-
-      Args:
-        request: (CloudaicompanionProjectsLocationsListRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (ListLocationsResponse) The response message.
-      """
-      config = self.GetMethodConfig('List')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    List.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}/locations',
-        http_method='GET',
-        method_id='cloudaicompanion.projects.locations.list',
-        ordered_params=['name'],
-        path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
-        relative_path='v1/{+name}/locations',
-        request_field='',
-        request_type_name='CloudaicompanionProjectsLocationsListRequest',
-        response_type_name='ListLocationsResponse',
-        supports_download=False,
-    )
-
   class ProjectsService(base_api.BaseApiService):
     """Service class for the projects resource."""
 
@@ -754,93 +2040,3 @@ class CloudaicompanionV1(base_api.BaseApiClient):
       super(CloudaicompanionV1.ProjectsService, self).__init__(client)
       self._upload_configs = {
           }
-
-    def CheckStatus(self, request, global_params=None):
-      r"""Performs check for entitlement status.
-
-      Args:
-        request: (CloudaicompanionProjectsCheckStatusRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (CheckStatusResponse) The response message.
-      """
-      config = self.GetMethodConfig('CheckStatus')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    CheckStatus.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}:checkStatus',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.checkStatus',
-        ordered_params=['project'],
-        path_params=['project'],
-        query_params=[],
-        relative_path='v1/{+project}:checkStatus',
-        request_field='checkStatusRequest',
-        request_type_name='CloudaicompanionProjectsCheckStatusRequest',
-        response_type_name='CheckStatusResponse',
-        supports_download=False,
-    )
-
-    def SelfAssignLicense(self, request, global_params=None):
-      r"""Assigns a license to the user, if available.
-
-      Args:
-        request: (CloudaicompanionProjectsSelfAssignLicenseRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (SelfAssignLicenseResponse) The response message.
-      """
-      config = self.GetMethodConfig('SelfAssignLicense')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    SelfAssignLicense.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v1/projects/{projectsId}:selfAssignLicense',
-        http_method='POST',
-        method_id='cloudaicompanion.projects.selfAssignLicense',
-        ordered_params=['parent'],
-        path_params=['parent'],
-        query_params=[],
-        relative_path='v1/{+parent}:selfAssignLicense',
-        request_field='selfAssignLicenseRequest',
-        request_type_name='CloudaicompanionProjectsSelfAssignLicenseRequest',
-        response_type_name='SelfAssignLicenseResponse',
-        supports_download=False,
-    )
-
-  class V1Service(base_api.BaseApiService):
-    """Service class for the v1 resource."""
-
-    _NAME = 'v1'
-
-    def __init__(self, client):
-      super(CloudaicompanionV1.V1Service, self).__init__(client)
-      self._upload_configs = {
-          }
-
-    def CheckUserLicense(self, request, global_params=None):
-      r"""Checks if the user has a license for the given experience.
-
-      Args:
-        request: (CheckUserLicenseRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (CheckUserLicenseResponse) The response message.
-      """
-      config = self.GetMethodConfig('CheckUserLicense')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    CheckUserLicense.method_config = lambda: base_api.ApiMethodInfo(
-        http_method='POST',
-        method_id='cloudaicompanion.checkUserLicense',
-        ordered_params=[],
-        path_params=[],
-        query_params=[],
-        relative_path='v1:checkUserLicense',
-        request_field='<request>',
-        request_type_name='CheckUserLicenseRequest',
-        response_type_name='CheckUserLicenseResponse',
-        supports_download=False,
-    )

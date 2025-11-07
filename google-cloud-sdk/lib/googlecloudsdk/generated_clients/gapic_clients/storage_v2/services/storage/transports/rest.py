@@ -149,6 +149,14 @@ class StorageRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_move_object(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_move_object(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_query_write_status(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -352,6 +360,19 @@ class StorageRestTransport(StorageTransport):
         self._interceptor = interceptor or StorageRestInterceptor()
         self._prep_wrapped_messages(client_info)
 
+    class _BidiReadObject(StorageRestStub):
+        def __hash__(self):
+            return hash("BidiReadObject")
+
+        def __call__(self,
+                request: storage.BidiReadObjectRequest, *,
+                retry: OptionalRetry=gapic_v1.method.DEFAULT,
+                timeout: Optional[float]=None,
+                metadata: Sequence[Tuple[str, str]]=(),
+                ) -> rest_streaming.ResponseIterator:
+            raise NotImplementedError(
+                "Method BidiReadObject is not available over REST transport"
+            )
     class _BidiWriteObject(StorageRestStub):
         def __hash__(self):
             return hash("BidiWriteObject")
@@ -508,6 +529,19 @@ class StorageRestTransport(StorageTransport):
             raise NotImplementedError(
                 "Method LockBucketRetentionPolicy is not available over REST transport"
             )
+    class _MoveObject(StorageRestStub):
+        def __hash__(self):
+            return hash("MoveObject")
+
+        def __call__(self,
+                request: storage.MoveObjectRequest, *,
+                retry: OptionalRetry=gapic_v1.method.DEFAULT,
+                timeout: Optional[float]=None,
+                metadata: Sequence[Tuple[str, str]]=(),
+                ) -> storage.Object:
+            raise NotImplementedError(
+                "Method MoveObject is not available over REST transport"
+            )
     class _QueryWriteStatus(StorageRestStub):
         def __hash__(self):
             return hash("QueryWriteStatus")
@@ -640,6 +674,14 @@ class StorageRestTransport(StorageTransport):
             )
 
     @property
+    def bidi_read_object(self) -> Callable[
+            [storage.BidiReadObjectRequest],
+            storage.BidiReadObjectResponse]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._BidiReadObject(self._session, self._host, self._interceptor) # type: ignore
+
+    @property
     def bidi_write_object(self) -> Callable[
             [storage.BidiWriteObjectRequest],
             storage.BidiWriteObjectResponse]:
@@ -734,6 +776,14 @@ class StorageRestTransport(StorageTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._LockBucketRetentionPolicy(self._session, self._host, self._interceptor) # type: ignore
+
+    @property
+    def move_object(self) -> Callable[
+            [storage.MoveObjectRequest],
+            storage.Object]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._MoveObject(self._session, self._host, self._interceptor) # type: ignore
 
     @property
     def query_write_status(self) -> Callable[

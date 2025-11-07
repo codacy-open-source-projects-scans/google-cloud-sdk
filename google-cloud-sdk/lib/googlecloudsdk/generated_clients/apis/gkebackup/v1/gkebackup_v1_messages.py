@@ -131,7 +131,7 @@ class Backup(_messages.Message):
     manual: Output only. This flag indicates whether this Backup resource was
       created manually by a user or via a schedule in the BackupPlan. A value
       of True means that the Backup was created manually.
-    name: Output only. The fully qualified name of the Backup.
+    name: Output only. Identifier. The fully qualified name of the Backup.
       `projects/*/locations/*/backupPlans/*/backups/*`
     permissiveMode: Output only. If false, Backup will fail when Backup for
       GKE detects Kubernetes configuration that is non-standard or requires
@@ -139,6 +139,9 @@ class Backup(_messages.Message):
       permissive_mode value.
     podCount: Output only. The total number of Kubernetes Pods contained in
       the Backup.
+    regionalSnapshots: Output only. This flag indicates whether the backup
+      creates regional snapshot resources rather than global snapshot
+      resources for volume data backups.
     resourceCount: Output only. The total number of Kubernetes resources
       included in the Backup.
     retainDays: Optional. The age (in days) after which this Backup will be
@@ -153,13 +156,19 @@ class Backup(_messages.Message):
     satisfiesPzs: Output only. [Output Only] Reserved for future use.
     selectedApplications: Output only. If set, the list of
       ProtectedApplications whose resources were included in the Backup.
+    selectedNamespaceLabels: Output only. If set, the list of labels whose
+      constituent namespaces were included in the Backup.
     selectedNamespaces: Output only. If set, the list of namespaces that were
       included in the Backup.
     sizeBytes: Output only. The total size of the Backup in bytes = config
       backup size + sum(volume backup sizes)
     state: Output only. Current state of the Backup
     stateReason: Output only. Human-readable description of why the backup is
-      in the current `state`.
+      in the current `state`. This field is only meant for human readability
+      and should not be used programmatically as this field is not guaranteed
+      to be consistent.
+    troubleshootingInfo: Output only. Information about the troubleshooting
+      steps which will provide debugging information to the end users.
     uid: Output only. Server generated global unique identifier of
       [UUID4](https://en.wikipedia.org/wiki/Universally_unique_identifier)
     updateTime: Output only. The timestamp when this Backup resource was last
@@ -232,19 +241,22 @@ class Backup(_messages.Message):
   name = _messages.StringField(15)
   permissiveMode = _messages.BooleanField(16)
   podCount = _messages.IntegerField(17, variant=_messages.Variant.INT32)
-  resourceCount = _messages.IntegerField(18, variant=_messages.Variant.INT32)
-  retainDays = _messages.IntegerField(19, variant=_messages.Variant.INT32)
-  retainExpireTime = _messages.StringField(20)
-  satisfiesPzi = _messages.BooleanField(21)
-  satisfiesPzs = _messages.BooleanField(22)
-  selectedApplications = _messages.MessageField('NamespacedNames', 23)
-  selectedNamespaces = _messages.MessageField('Namespaces', 24)
-  sizeBytes = _messages.IntegerField(25)
-  state = _messages.EnumField('StateValueValuesEnum', 26)
-  stateReason = _messages.StringField(27)
-  uid = _messages.StringField(28)
-  updateTime = _messages.StringField(29)
-  volumeCount = _messages.IntegerField(30, variant=_messages.Variant.INT32)
+  regionalSnapshots = _messages.BooleanField(18)
+  resourceCount = _messages.IntegerField(19, variant=_messages.Variant.INT32)
+  retainDays = _messages.IntegerField(20, variant=_messages.Variant.INT32)
+  retainExpireTime = _messages.StringField(21)
+  satisfiesPzi = _messages.BooleanField(22)
+  satisfiesPzs = _messages.BooleanField(23)
+  selectedApplications = _messages.MessageField('NamespacedNames', 24)
+  selectedNamespaceLabels = _messages.MessageField('ResourceLabels', 25)
+  selectedNamespaces = _messages.MessageField('Namespaces', 26)
+  sizeBytes = _messages.IntegerField(27)
+  state = _messages.EnumField('StateValueValuesEnum', 28)
+  stateReason = _messages.StringField(29)
+  troubleshootingInfo = _messages.MessageField('TroubleshootingInfo', 30)
+  uid = _messages.StringField(31)
+  updateTime = _messages.StringField(32)
+  volumeCount = _messages.IntegerField(33, variant=_messages.Variant.INT32)
 
 
 class BackupChannel(_messages.Message):
@@ -261,9 +273,12 @@ class BackupChannel(_messages.Message):
     description: Optional. User specified descriptive string for this
       BackupChannel.
     destinationProject: Required. Immutable. The project where Backups are
-      allowed to be stored. The format is `projects/{project}`. Currently,
-      {project} can only be the project number. Support for project IDs will
-      be added in the future.
+      allowed to be stored. The format is `projects/{projectId}` or
+      `projects/{projectNumber}`.
+    destinationProjectId: Output only. The project_id where Backups are
+      allowed to be stored. Example Project ID: "my-project-id". This will be
+      an OUTPUT_ONLY field to return the project_id of the destination
+      project.
     etag: Output only. `etag` is used for optimistic concurrency control as a
       way to help prevent simultaneous updates of a BackupChannel from
       overwriting each other. It is strongly suggested that systems make use
@@ -310,11 +325,12 @@ class BackupChannel(_messages.Message):
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
   destinationProject = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  name = _messages.StringField(6)
-  uid = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  destinationProjectId = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  uid = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
 
 
 class BackupConfig(_messages.Message):
@@ -338,6 +354,8 @@ class BackupConfig(_messages.Message):
       additional setup to restore. Default: False
     selectedApplications: If set, include just the resources referenced by the
       listed ProtectedApplications.
+    selectedNamespaceLabels: If set, the list of labels whose constituent
+      namespaces were included in the Backup.
     selectedNamespaces: If set, include just the resources in the listed
       namespaces.
   """
@@ -348,7 +366,38 @@ class BackupConfig(_messages.Message):
   includeVolumeData = _messages.BooleanField(4)
   permissiveMode = _messages.BooleanField(5)
   selectedApplications = _messages.MessageField('NamespacedNames', 6)
-  selectedNamespaces = _messages.MessageField('Namespaces', 7)
+  selectedNamespaceLabels = _messages.MessageField('ResourceLabels', 7)
+  selectedNamespaces = _messages.MessageField('Namespaces', 8)
+
+
+class BackupConfigDetails(_messages.Message):
+  r"""BackupConfigDetails defines the configuration of Backups created via
+  this BackupPlan.
+
+  Fields:
+    allNamespaces: Output only. If True, include all namespaced resources
+    encryptionKey: Output only. This defines a customer managed encryption key
+      that will be used to encrypt the "config" portion (the Kubernetes
+      resources) of Backups created via this plan. Default (empty): Config
+      backup artifacts will not be encrypted.
+    includeSecrets: Output only. This flag specifies whether Kubernetes Secret
+      resources should be included when they fall into the scope of Backups.
+      Default: False
+    includeVolumeData: Output only. This flag specifies whether volume data
+      should be backed up when PVCs are included in the scope of a Backup.
+      Default: False
+    selectedApplications: Output only. If set, include just the resources
+      referenced by the listed ProtectedApplications.
+    selectedNamespaces: Output only. If set, include just the resources in the
+      listed namespaces.
+  """
+
+  allNamespaces = _messages.BooleanField(1)
+  encryptionKey = _messages.MessageField('EncryptionKey', 2)
+  includeSecrets = _messages.BooleanField(3)
+  includeVolumeData = _messages.BooleanField(4)
+  selectedApplications = _messages.MessageField('NamespacedNames', 5)
+  selectedNamespaces = _messages.MessageField('Namespaces', 6)
 
 
 class BackupPlan(_messages.Message):
@@ -362,6 +411,9 @@ class BackupPlan(_messages.Message):
 
   Messages:
     LabelsValue: Optional. A set of custom labels supplied by user.
+    TagsValue: Optional. Tag keys/values directly bound to the BackupPlan
+      resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     backupChannel: Output only. The fully qualified name of the BackupChannel
@@ -375,6 +427,8 @@ class BackupPlan(_messages.Message):
     cluster: Required. Immutable. The source cluster from which Backups will
       be created via this BackupPlan. Valid formats: -
       `projects/*/locations/*/clusters/*` - `projects/*/zones/*/clusters/*`
+    clusterHash: Output only. The hash of the cluster from which Backups will
+      be created via this BackupPlan.
     createTime: Output only. The timestamp when this BackupPlan resource was
       created.
     deactivated: Optional. This flag indicates whether this BackupPlan has
@@ -398,10 +452,13 @@ class BackupPlan(_messages.Message):
       successful Backup. This is sourced from a successful Backup's
       complete_time field. This field is added to maintain consistency with
       BackupPlanBinding to display last successful backup time.
-    name: Output only. The full name of the BackupPlan resource. Format:
-      `projects/*/locations/*/backupPlans/*`
+    name: Output only. Identifier. The full name of the BackupPlan resource.
+      Format: `projects/*/locations/*/backupPlans/*`
     protectedPodCount: Output only. The number of Kubernetes Pods backed up in
       the last successful Backup created via this BackupPlan.
+    regionalSnapshots: Optional. This flag specifies whether to create
+      regional snapshot resources rather than global snapshot resources for
+      volume data backups.
     retentionPolicy: Optional. RetentionPolicy governs lifecycle of Backups
       created under this plan.
     rpoRiskLevel: Output only. A number that represents the current risk level
@@ -414,7 +471,12 @@ class BackupPlan(_messages.Message):
       will be set to "DEACTIVATED" if the BackupPlan is deactivated on an
       Update
     stateReason: Output only. Human-readable description of why BackupPlan is
-      in the current `state`
+      in the current `state`. This field is only meant for human readability
+      and should not be used programmatically as this field is not guaranteed
+      to be consistent.
+    tags: Optional. Tag keys/values directly bound to the BackupPlan resource.
+      For example: "123/environment": "production", "123/costCenter":
+      "marketing"
     uid: Output only. Server generated global unique identifier of
       [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
       format.
@@ -469,25 +531,54 @@ class BackupPlan(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Tag keys/values directly bound to the BackupPlan resource.
+    For example: "123/environment": "production", "123/costCenter":
+    "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   backupChannel = _messages.StringField(1)
   backupConfig = _messages.MessageField('BackupConfig', 2)
   backupSchedule = _messages.MessageField('Schedule', 3)
   cluster = _messages.StringField(4)
-  createTime = _messages.StringField(5)
-  deactivated = _messages.BooleanField(6)
-  description = _messages.StringField(7)
-  etag = _messages.StringField(8)
-  labels = _messages.MessageField('LabelsValue', 9)
-  lastSuccessfulBackupTime = _messages.StringField(10)
-  name = _messages.StringField(11)
-  protectedPodCount = _messages.IntegerField(12, variant=_messages.Variant.INT32)
-  retentionPolicy = _messages.MessageField('RetentionPolicy', 13)
-  rpoRiskLevel = _messages.IntegerField(14, variant=_messages.Variant.INT32)
-  rpoRiskReason = _messages.StringField(15)
-  state = _messages.EnumField('StateValueValuesEnum', 16)
-  stateReason = _messages.StringField(17)
-  uid = _messages.StringField(18)
-  updateTime = _messages.StringField(19)
+  clusterHash = _messages.StringField(5)
+  createTime = _messages.StringField(6)
+  deactivated = _messages.BooleanField(7)
+  description = _messages.StringField(8)
+  etag = _messages.StringField(9)
+  labels = _messages.MessageField('LabelsValue', 10)
+  lastSuccessfulBackupTime = _messages.StringField(11)
+  name = _messages.StringField(12)
+  protectedPodCount = _messages.IntegerField(13, variant=_messages.Variant.INT32)
+  regionalSnapshots = _messages.BooleanField(14)
+  retentionPolicy = _messages.MessageField('RetentionPolicy', 15)
+  rpoRiskLevel = _messages.IntegerField(16, variant=_messages.Variant.INT32)
+  rpoRiskReason = _messages.StringField(17)
+  state = _messages.EnumField('StateValueValuesEnum', 18)
+  stateReason = _messages.StringField(19)
+  tags = _messages.MessageField('TagsValue', 20)
+  uid = _messages.StringField(21)
+  updateTime = _messages.StringField(22)
 
 
 class BackupPlanAssociation(_messages.Message):
@@ -539,6 +630,8 @@ class BackupPlanBinding(_messages.Message):
     backupPlan: Output only. Immutable. The fully qualified name of the
       BackupPlan bound with the parent BackupChannel.
       `projects/*/locations/*/backupPlans/{backup_plan}`
+    backupPlanDetails: Output only. Contains details about the backup
+      plan/backup.
     cluster: Output only. Immutable. The fully qualified name of the cluster
       that is being backed up Valid formats: -
       `projects/*/locations/*/clusters/*` - `projects/*/zones/*/clusters/*`
@@ -560,12 +653,72 @@ class BackupPlanBinding(_messages.Message):
   """
 
   backupPlan = _messages.StringField(1)
-  cluster = _messages.StringField(2)
-  createTime = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  name = _messages.StringField(5)
-  uid = _messages.StringField(6)
-  updateTime = _messages.StringField(7)
+  backupPlanDetails = _messages.MessageField('BackupPlanDetails', 2)
+  cluster = _messages.StringField(3)
+  createTime = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  name = _messages.StringField(6)
+  uid = _messages.StringField(7)
+  updateTime = _messages.StringField(8)
+
+
+class BackupPlanDetails(_messages.Message):
+  r"""Contains metadata about the backup plan/backup.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the BackupPlan.
+
+  Fields:
+    backupConfigDetails: Output only. Contains details about the BackupConfig
+      of Backups created via this BackupPlan.
+    lastSuccessfulBackup: Output only. The fully qualified name of the last
+      successful Backup created under this BackupPlan.
+      `projects/*/locations/*/backupPlans/*/backups/*`
+    lastSuccessfulBackupTime: Output only. Completion time of the last
+      successful Backup. This is sourced from a successful Backup's
+      complete_time field.
+    nextScheduledBackupTime: Output only. Start time of next scheduled backup
+      under this BackupPlan by either cron_schedule or rpo config. This is
+      sourced from BackupPlan.
+    protectedPodCount: Output only. The number of Kubernetes Pods backed up in
+      the last successful Backup created via this BackupPlan.
+    retentionPolicyDetails: Output only. Contains details about the
+      RetentionPolicy of Backups created via this BackupPlan.
+    rpoRiskLevel: Output only. A number that represents the current risk level
+      of this BackupPlan from RPO perspective with 1 being no risk and 5 being
+      highest risk.
+    state: Output only. State of the BackupPlan.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the BackupPlan.
+
+    Values:
+      STATE_UNSPECIFIED: Default first value for Enums.
+      CLUSTER_PENDING: Waiting for cluster state to be RUNNING.
+      PROVISIONING: The BackupPlan is in the process of being created.
+      READY: The BackupPlan has successfully been created and is ready for
+        Backups.
+      FAILED: BackupPlan creation has failed.
+      DEACTIVATED: The BackupPlan has been deactivated.
+      DELETING: The BackupPlan is in the process of being deleted.
+    """
+    STATE_UNSPECIFIED = 0
+    CLUSTER_PENDING = 1
+    PROVISIONING = 2
+    READY = 3
+    FAILED = 4
+    DEACTIVATED = 5
+    DELETING = 6
+
+  backupConfigDetails = _messages.MessageField('BackupConfigDetails', 1)
+  lastSuccessfulBackup = _messages.StringField(2)
+  lastSuccessfulBackupTime = _messages.StringField(3)
+  nextScheduledBackupTime = _messages.StringField(4)
+  protectedPodCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  retentionPolicyDetails = _messages.MessageField('RetentionPolicyDetails', 6)
+  rpoRiskLevel = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  state = _messages.EnumField('StateValueValuesEnum', 8)
 
 
 class Binding(_messages.Message):
@@ -670,6 +823,8 @@ class ClusterMetadata(_messages.Message):
       created. Valid formats: - `projects/*/locations/*/clusters/*` -
       `projects/*/zones/*/clusters/*` This is inherited from the parent
       BackupPlan's cluster field.
+    clusterHash: Output only. The hash of the cluster from which this Backup
+      was created.
     gkeVersion: Output only. GKE version
     k8sVersion: Output only. The Kubernetes server version of the source
       cluster.
@@ -705,8 +860,9 @@ class ClusterMetadata(_messages.Message):
   anthosVersion = _messages.StringField(1)
   backupCrdVersions = _messages.MessageField('BackupCrdVersionsValue', 2)
   cluster = _messages.StringField(3)
-  gkeVersion = _messages.StringField(4)
-  k8sVersion = _messages.StringField(5)
+  clusterHash = _messages.StringField(4)
+  gkeVersion = _messages.StringField(5)
+  k8sVersion = _messages.StringField(6)
 
 
 class ClusterResourceRestoreScope(_messages.Message):
@@ -844,7 +1000,7 @@ class ExclusionWindow(_messages.Message):
       hours)
     singleOccurrenceDate: No recurrence. The exclusion window occurs only once
       and on this date in UTC.
-    startTime: Required. Specifies the start time of the window using time of
+    startTime: Optional. Specifies the start time of the window using time of
       the day in UTC.
   """
 
@@ -916,7 +1072,7 @@ class GetBackupIndexDownloadUrlResponse(_messages.Message):
   r"""Response message for GetBackupIndexDownloadUrl.
 
   Fields:
-    signedUrl: A string attribute.
+    signedUrl: Required. The signed URL for downloading the backup index.
   """
 
   signedUrl = _messages.StringField(1)
@@ -1211,6 +1367,9 @@ class GkebackupProjectsLocationsBackupPlansBackupsListRequest(_messages.Message)
       token.
     parent: Required. The BackupPlan that contains the Backups to list.
       Format: `projects/*/locations/*/backupPlans/*`
+    returnPartialSuccess: Optional. If set to true, the response will return
+      partial results when some regions are unreachable and the unreachable
+      field will be populated.
   """
 
   filter = _messages.StringField(1)
@@ -1218,6 +1377,7 @@ class GkebackupProjectsLocationsBackupPlansBackupsListRequest(_messages.Message)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
   parent = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
 
 
 class GkebackupProjectsLocationsBackupPlansBackupsPatchRequest(_messages.Message):
@@ -1225,7 +1385,7 @@ class GkebackupProjectsLocationsBackupPlansBackupsPatchRequest(_messages.Message
 
   Fields:
     backup: A Backup resource to be passed as the request body.
-    name: Output only. The fully qualified name of the Backup.
+    name: Output only. Identifier. The fully qualified name of the Backup.
       `projects/*/locations/*/backupPlans/*/backups/*`
     updateMask: Optional. This is used to specify the fields to be overwritten
       in the Backup targeted for update. The values for each of these updated
@@ -1480,8 +1640,8 @@ class GkebackupProjectsLocationsBackupPlansPatchRequest(_messages.Message):
 
   Fields:
     backupPlan: A BackupPlan resource to be passed as the request body.
-    name: Output only. The full name of the BackupPlan resource. Format:
-      `projects/*/locations/*/backupPlans/*`
+    name: Output only. Identifier. The full name of the BackupPlan resource.
+      Format: `projects/*/locations/*/backupPlans/*`
     updateMask: Optional. This is used to specify the fields to be overwritten
       in the BackupPlan targeted for update. The values for each of these
       updated fields will be taken from the `backup_plan` provided with this
@@ -1544,6 +1704,9 @@ class GkebackupProjectsLocationsListRequest(_messages.Message):
   r"""A GkebackupProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1554,10 +1717,11 @@ class GkebackupProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class GkebackupProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -1602,12 +1766,20 @@ class GkebackupProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class GkebackupProjectsLocationsRestoreChannelsCreateRequest(_messages.Message):
@@ -1899,8 +2071,8 @@ class GkebackupProjectsLocationsRestorePlansPatchRequest(_messages.Message):
   r"""A GkebackupProjectsLocationsRestorePlansPatchRequest object.
 
   Fields:
-    name: Output only. The full name of the RestorePlan resource. Format:
-      `projects/*/locations/*/restorePlans/*`.
+    name: Output only. Identifier. The full name of the RestorePlan resource.
+      Format: `projects/*/locations/*/restorePlans/*`.
     restorePlan: A RestorePlan resource to be passed as the request body.
     updateMask: Optional. This is used to specify the fields to be overwritten
       in the RestorePlan targeted for update. The values for each of these
@@ -2023,8 +2195,8 @@ class GkebackupProjectsLocationsRestorePlansRestoresPatchRequest(_messages.Messa
   r"""A GkebackupProjectsLocationsRestorePlansRestoresPatchRequest object.
 
   Fields:
-    name: Output only. The full name of the Restore resource. Format:
-      `projects/*/locations/*/restorePlans/*/restores/*`
+    name: Output only. Identifier. The full name of the Restore resource.
+      Format: `projects/*/locations/*/restorePlans/*/restores/*`
     restore: A Restore resource to be passed as the request body.
     updateMask: Optional. This is used to specify the fields to be overwritten
       in the Restore targeted for update. The values for each of these updated
@@ -2221,10 +2393,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):
@@ -2418,6 +2595,18 @@ class GroupKindDependency(_messages.Message):
   satisfying = _messages.MessageField('GroupKind', 2)
 
 
+class Label(_messages.Message):
+  r"""A single Kubernetes label-value pair.
+
+  Fields:
+    key: Optional. The key/name of the label.
+    value: Optional. The value of the label.
+  """
+
+  key = _messages.StringField(1)
+  value = _messages.StringField(2)
+
+
 class ListBackupChannelsResponse(_messages.Message):
   r"""Response message for ListBackupChannels.
 
@@ -2494,10 +2683,12 @@ class ListBackupsResponse(_messages.Message):
     nextPageToken: A token which may be sent as page_token in a subsequent
       `ListBackups` call to retrieve the next page of results. If this field
       is omitted or empty, then there are no more results to return.
+    unreachable: Locations that could not be reached.
   """
 
   backups = _messages.MessageField('Backup', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListLocationsResponse(_messages.Message):
@@ -2746,8 +2937,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the
@@ -2870,6 +3062,16 @@ class ResourceFilter(_messages.Message):
   namespaces = _messages.StringField(3, repeated=True)
 
 
+class ResourceLabels(_messages.Message):
+  r"""A list of Kubernetes labels.
+
+  Fields:
+    resourceLabels: Optional. A list of Kubernetes label-value pairs.
+  """
+
+  resourceLabels = _messages.MessageField('Label', 1, repeated=True)
+
+
 class ResourceSelector(_messages.Message):
   r"""Defines a selector to identify a single or a group of resources.
   Conditions in the selector are optional, but at least one field should be
@@ -2957,11 +3159,13 @@ class Restore(_messages.Message):
       restore data. Valid formats: - `projects/*/locations/*/clusters/*` -
       `projects/*/zones/*/clusters/*` Inherited from parent RestorePlan's
       cluster value.
+    clusterHash: Output only. The hash of the cluster from which this Restore
+      was created.
     completeTime: Output only. Timestamp of when the restore operation
       completed.
     createTime: Output only. The timestamp when this Restore resource was
       created.
-    description: User specified descriptive string for this Restore.
+    description: Optional. User specified descriptive string for this Restore.
     etag: Output only. `etag` is used for optimistic concurrency control as a
       way to help prevent simultaneous updates of a restore from overwriting
       each other. It is strongly suggested that systems make use of the `etag`
@@ -2973,14 +3177,14 @@ class Restore(_messages.Message):
     filter: Optional. Immutable. Filters resources for `Restore`. If not
       specified, the scope of the restore will remain the same as defined in
       the `RestorePlan`. If this is specified and no resources are matched by
-      the `inclusion_filters` or everyting is excluded by the
+      the `inclusion_filters` or everything is excluded by the
       `exclusion_filters`, nothing will be restored. This filter can only be
       specified if the value of namespaced_resource_restore_mode is set to
       `MERGE_SKIP_ON_CONFLICT`, `MERGE_REPLACE_VOLUME_ON_CONFLICT` or
       `MERGE_REPLACE_ON_CONFLICT`.
     labels: A set of custom labels supplied by user.
-    name: Output only. The full name of the Restore resource. Format:
-      `projects/*/locations/*/restorePlans/*/restores/*`
+    name: Output only. Identifier. The full name of the Restore resource.
+      Format: `projects/*/locations/*/restorePlans/*/restores/*`
     resourcesExcludedCount: Output only. Number of resources excluded during
       the restore execution.
     resourcesFailedCount: Output only. Number of resources that failed to be
@@ -2991,7 +3195,11 @@ class Restore(_messages.Message):
       parent RestorePlan's restore_config.
     state: Output only. The current state of the Restore.
     stateReason: Output only. Human-readable description of why the Restore is
-      in its current state.
+      in its current state. This field is only meant for human readability and
+      should not be used programmatically as this field is not guaranteed to
+      be consistent.
+    troubleshootingInfo: Output only. Information about the troubleshooting
+      steps which will provide debugging information to the end users.
     uid: Output only. Server generated global unique identifier of
       [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
       format.
@@ -3055,23 +3263,25 @@ class Restore(_messages.Message):
 
   backup = _messages.StringField(1)
   cluster = _messages.StringField(2)
-  completeTime = _messages.StringField(3)
-  createTime = _messages.StringField(4)
-  description = _messages.StringField(5)
-  etag = _messages.StringField(6)
-  filter = _messages.MessageField('Filter', 7)
-  labels = _messages.MessageField('LabelsValue', 8)
-  name = _messages.StringField(9)
-  resourcesExcludedCount = _messages.IntegerField(10, variant=_messages.Variant.INT32)
-  resourcesFailedCount = _messages.IntegerField(11, variant=_messages.Variant.INT32)
-  resourcesRestoredCount = _messages.IntegerField(12, variant=_messages.Variant.INT32)
-  restoreConfig = _messages.MessageField('RestoreConfig', 13)
-  state = _messages.EnumField('StateValueValuesEnum', 14)
-  stateReason = _messages.StringField(15)
-  uid = _messages.StringField(16)
-  updateTime = _messages.StringField(17)
-  volumeDataRestorePolicyOverrides = _messages.MessageField('VolumeDataRestorePolicyOverride', 18, repeated=True)
-  volumesRestoredCount = _messages.IntegerField(19, variant=_messages.Variant.INT32)
+  clusterHash = _messages.StringField(3)
+  completeTime = _messages.StringField(4)
+  createTime = _messages.StringField(5)
+  description = _messages.StringField(6)
+  etag = _messages.StringField(7)
+  filter = _messages.MessageField('Filter', 8)
+  labels = _messages.MessageField('LabelsValue', 9)
+  name = _messages.StringField(10)
+  resourcesExcludedCount = _messages.IntegerField(11, variant=_messages.Variant.INT32)
+  resourcesFailedCount = _messages.IntegerField(12, variant=_messages.Variant.INT32)
+  resourcesRestoredCount = _messages.IntegerField(13, variant=_messages.Variant.INT32)
+  restoreConfig = _messages.MessageField('RestoreConfig', 14)
+  state = _messages.EnumField('StateValueValuesEnum', 15)
+  stateReason = _messages.StringField(16)
+  troubleshootingInfo = _messages.MessageField('TroubleshootingInfo', 17)
+  uid = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
+  volumeDataRestorePolicyOverrides = _messages.MessageField('VolumeDataRestorePolicyOverride', 20, repeated=True)
+  volumesRestoredCount = _messages.IntegerField(21, variant=_messages.Variant.INT32)
 
 
 class RestoreChannel(_messages.Message):
@@ -3088,9 +3298,11 @@ class RestoreChannel(_messages.Message):
     description: Optional. User specified descriptive string for this
       RestoreChannel.
     destinationProject: Required. Immutable. The project into which the
-      backups will be restored. The format is `projects/{project}`. Currently,
-      {project} can only be the project number. Support for project IDs will
-      be added in the future.
+      backups will be restored. The format is `projects/{projectId}` or
+      `projects/{projectNumber}`.
+    destinationProjectId: Output only. The project_id where backups will be
+      restored. Example Project ID: "my-project-id". This will be an
+      OUTPUT_ONLY field to return the project_id of the destination project.
     etag: Output only. `etag` is used for optimistic concurrency control as a
       way to help prevent simultaneous updates of a RestoreChannel from
       overwriting each other. It is strongly suggested that systems make use
@@ -3137,11 +3349,12 @@ class RestoreChannel(_messages.Message):
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
   destinationProject = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  name = _messages.StringField(6)
-  uid = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  destinationProjectId = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  uid = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
 
 
 class RestoreConfig(_messages.Message):
@@ -3350,6 +3563,9 @@ class RestorePlan(_messages.Message):
 
   Messages:
     LabelsValue: Optional. A set of custom labels supplied by user.
+    TagsValue: Optional. Tag keys/values directly bound to the RestorePlan
+      resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     backupPlan: Required. Immutable. A reference to the BackupPlan from which
@@ -3359,6 +3575,8 @@ class RestorePlan(_messages.Message):
       created via this RestorePlan will restore data. NOTE: the cluster's
       region must be the same as the RestorePlan. Valid formats: -
       `projects/*/locations/*/clusters/*` - `projects/*/zones/*/clusters/*`
+    clusterHash: Output only. The hash of the cluster from which this
+      RestorePlan was created.
     createTime: Output only. The timestamp when this RestorePlan resource was
       created.
     description: Optional. User specified descriptive string for this
@@ -3372,8 +3590,8 @@ class RestorePlan(_messages.Message):
       request to `UpdateRestorePlan` or `DeleteRestorePlan` to ensure that
       their change will be applied to the same version of the resource.
     labels: Optional. A set of custom labels supplied by user.
-    name: Output only. The full name of the RestorePlan resource. Format:
-      `projects/*/locations/*/restorePlans/*`.
+    name: Output only. Identifier. The full name of the RestorePlan resource.
+      Format: `projects/*/locations/*/restorePlans/*`.
     restoreChannel: Output only. The fully qualified name of the
       RestoreChannel to be used to create a RestorePlan. This field is set
       only if the `backup_plan` is in a different project than the
@@ -3383,7 +3601,12 @@ class RestorePlan(_messages.Message):
     state: Output only. State of the RestorePlan. This State field reflects
       the various stages a RestorePlan can be in during the Create operation.
     stateReason: Output only. Human-readable description of why RestorePlan is
-      in the current `state`
+      in the current `state`. This field is only meant for human readability
+      and should not be used programmatically as this field is not guaranteed
+      to be consistent.
+    tags: Optional. Tag keys/values directly bound to the RestorePlan
+      resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
     uid: Output only. Server generated global unique identifier of
       [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
       format.
@@ -3433,19 +3656,47 @@ class RestorePlan(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Tag keys/values directly bound to the RestorePlan resource.
+    For example: "123/environment": "production", "123/costCenter":
+    "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   backupPlan = _messages.StringField(1)
   cluster = _messages.StringField(2)
-  createTime = _messages.StringField(3)
-  description = _messages.StringField(4)
-  etag = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  name = _messages.StringField(7)
-  restoreChannel = _messages.StringField(8)
-  restoreConfig = _messages.MessageField('RestoreConfig', 9)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
-  stateReason = _messages.StringField(11)
-  uid = _messages.StringField(12)
-  updateTime = _messages.StringField(13)
+  clusterHash = _messages.StringField(3)
+  createTime = _messages.StringField(4)
+  description = _messages.StringField(5)
+  etag = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  restoreChannel = _messages.StringField(9)
+  restoreConfig = _messages.MessageField('RestoreConfig', 10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  stateReason = _messages.StringField(12)
+  tags = _messages.MessageField('TagsValue', 13)
+  uid = _messages.StringField(14)
+  updateTime = _messages.StringField(15)
 
 
 class RestorePlanAssociation(_messages.Message):
@@ -3554,6 +3805,31 @@ class RetentionPolicy(_messages.Message):
   backupDeleteLockDays = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   backupRetainDays = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   locked = _messages.BooleanField(3)
+
+
+class RetentionPolicyDetails(_messages.Message):
+  r"""RetentionPolicyDetails defines a Backup retention policy for a
+  BackupPlan.
+
+  Fields:
+    backupDeleteLockDays: Optional. Minimum age for Backups created via this
+      BackupPlan (in days). This field MUST be an integer value between 0-90
+      (inclusive). A Backup created under this BackupPlan will NOT be
+      deletable until it reaches Backup's (create_time +
+      backup_delete_lock_days). Updating this field of a BackupPlan does NOT
+      affect existing Backups under it. Backups created AFTER a successful
+      update will inherit the new value. Default: 0 (no delete blocking)
+    backupRetainDays: Optional. The default maximum age of a Backup created
+      via this BackupPlan. This field MUST be an integer value >= 0 and <=
+      365. If specified, a Backup created under this BackupPlan will be
+      automatically deleted after its age reaches (create_time +
+      backup_retain_days). If not specified, Backups created under this
+      BackupPlan will NOT be subject to automatic deletion. Default: 0 (no
+      automatic deletion)
+  """
+
+  backupDeleteLockDays = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  backupRetainDays = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
 class RpoConfig(_messages.Message):
@@ -3862,6 +4138,22 @@ class TransformationRuleAction(_messages.Message):
   value = _messages.StringField(4)
 
 
+class TroubleshootingInfo(_messages.Message):
+  r"""Stores information about troubleshooting doc for debugging a particular
+  state of an operation (eg - backup/restore). This will be used by the end
+  user to debug their operation failure scenario easily.
+
+  Fields:
+    stateReasonCode: Output only. Unique code for each backup/restore
+      operation failure message which helps user identify the failure.
+    stateReasonUri: Output only. URL for the troubleshooting doc which will
+      help the user fix the failing backup/restore operation.
+  """
+
+  stateReasonCode = _messages.StringField(1)
+  stateReasonUri = _messages.StringField(2)
+
+
 class VolumeBackup(_messages.Message):
   r"""Represents the backup of a specific persistent volume as a component of
   a Backup - both the record of the operation and a pointer to the underlying
@@ -3892,7 +4184,9 @@ class VolumeBackup(_messages.Message):
       which this VolumeBackup was created.
     state: Output only. The current state of this VolumeBackup.
     stateMessage: Output only. A human readable message explaining why the
-      VolumeBackup is in its current state.
+      VolumeBackup is in its current state. This field is only meant for human
+      consumption and should not be used programmatically as this field is not
+      guaranteed to be consistent.
     storageBytes: Output only. The aggregate size of the underlying artifacts
       associated with this VolumeBackup in the backup storage. This may change
       over time when multiple backups of the same volume share the same backup
@@ -3936,6 +4230,8 @@ class VolumeBackup(_messages.Message):
       FAILED: The volume backup operation has failed.
       DELETING: This VolumeBackup resource (and its associated artifacts) is
         in the process of being deleted.
+      CLEANED_UP: The underlying artifacts of a volume backup (eg: persistent
+        disk snapshots) are deleted.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -3944,6 +4240,7 @@ class VolumeBackup(_messages.Message):
     SUCCEEDED = 4
     FAILED = 5
     DELETING = 6
+    CLEANED_UP = 7
 
   completeTime = _messages.StringField(1)
   createTime = _messages.StringField(2)

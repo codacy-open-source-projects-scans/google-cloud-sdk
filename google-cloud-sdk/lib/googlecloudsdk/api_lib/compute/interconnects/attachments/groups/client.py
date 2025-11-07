@@ -96,7 +96,9 @@ class InterconnectAttachmentGroup(object):
         ),
     )
 
-  def _MakePatchRequestTuple(self, description, availability_sla, attachments):
+  def _MakePatchRequestTuple(
+      self, description, availability_sla, attachments, update_mask
+  ):
     """Make a tuple for interconnect attachment group patch request."""
     messages = self._messages
     group_params = {
@@ -119,6 +121,7 @@ class InterconnectAttachmentGroup(object):
             interconnectAttachmentGroupResource=messages.InterconnectAttachmentGroup(
                 **group_params
             ),
+            updateMask=update_mask,
         ),
     )
 
@@ -137,6 +140,16 @@ class InterconnectAttachmentGroup(object):
         self._client.interconnectAttachmentGroups,
         'Get',
         self._messages.ComputeInterconnectAttachmentGroupsGetRequest(
+            project=self.ref.project,
+            interconnectAttachmentGroup=self.ref.Name(),
+        ),
+    )
+
+  def _MakeGetOperationalStatusRequestTuple(self):
+    return (
+        self._client.interconnectAttachmentGroups,
+        'GetOperationalStatus',
+        self._messages.ComputeInterconnectAttachmentGroupsGetOperationalStatusRequest(
             project=self.ref.project,
             interconnectAttachmentGroup=self.ref.Name(),
         ),
@@ -167,11 +180,14 @@ class InterconnectAttachmentGroup(object):
       description=None,
       availability_sla=None,
       attachments=(),
+      update_mask='',
       only_generate_request=False,
   ):
     """Patch an interconnect attachment group."""
     requests = [
-        self._MakePatchRequestTuple(description, availability_sla, attachments)
+        self._MakePatchRequestTuple(
+            description, availability_sla, attachments, update_mask
+        )
     ]
     if not only_generate_request:
       resources = self._compute_client.MakeRequests(requests)
@@ -186,6 +202,13 @@ class InterconnectAttachmentGroup(object):
 
   def Describe(self, only_generate_request=False):
     requests = [self._MakeDescribeRequestTuple()]
+    if not only_generate_request:
+      resources = self._compute_client.MakeRequests(requests)
+      return resources[0]
+    return requests
+
+  def GetOperationalStatus(self, only_generate_request=False):
+    requests = [self._MakeGetOperationalStatusRequestTuple()]
     if not only_generate_request:
       resources = self._compute_client.MakeRequests(requests)
       return resources[0]

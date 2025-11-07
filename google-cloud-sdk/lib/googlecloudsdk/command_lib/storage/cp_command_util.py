@@ -27,6 +27,7 @@ import os
 
 from googlecloudsdk.api_lib.storage import cloud_api
 from googlecloudsdk.calliope import arg_parsers
+from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.storage import encryption_util
 from googlecloudsdk.command_lib.storage import errors
 from googlecloudsdk.command_lib.storage import errors_util
@@ -46,7 +47,6 @@ from googlecloudsdk.core import log
 from googlecloudsdk.core import properties
 from googlecloudsdk.core.util import files
 from googlecloudsdk.core.util import platforms
-
 
 _ALL_VERSIONS_HELP_TEXT = """\
 Copy all source versions from a source bucket or folder. If not set, only the
@@ -227,11 +227,11 @@ def add_preserve_symlinks_flag(parser_or_group, default=False):
   )
 
 
-def add_cp_mv_rsync_flags(parser):
+def add_cp_mv_rsync_flags(parser, release_track=base.ReleaseTrack.GA):
   """Adds flags shared by cp, mv, and rsync."""
   flags.add_additional_headers_flag(parser)
   flags.add_continue_on_error_flag(parser)
-  flags.add_object_metadata_flags(parser)
+  flags.add_object_metadata_flags(parser, release_track=release_track)
   flags.add_precondition_flags(parser)
   parser.add_argument(
       '--content-md5',
@@ -264,11 +264,11 @@ def add_cp_mv_rsync_flags(parser):
   )
 
 
-def add_cp_and_mv_flags(parser):
+def add_cp_and_mv_flags(parser, release_track=base.ReleaseTrack.GA):
   """Adds flags to cp, mv, or other cp-based commands."""
   parser.add_argument('source', nargs='*', help='The source path(s) to copy.')
   parser.add_argument('destination', help='The destination path.')
-  add_cp_mv_rsync_flags(parser)
+  add_cp_mv_rsync_flags(parser, release_track=release_track)
   parser.add_argument(
       '-A', '--all-versions', action='store_true', help=_ALL_VERSIONS_HELP_TEXT)
   parser.add_argument(
@@ -462,19 +462,23 @@ def _is_parallelizable(args, raw_destination_url, first_source_url):
   Returns:
     True if the transfer is parallelizable, False otherwise.
   """
-  configured_for_parallelism = (
-      properties.VALUES.storage.process_count.GetInt() != 1 or
-      properties.VALUES.storage.thread_count.GetInt() != 1)
+  # Only warn the user about sequential execution when they have explicitly
+  # requested parallelism in some dimension (process or thread count).
+  parallelism_properties = {
+      properties.VALUES.storage.process_count.GetInt(),
+      properties.VALUES.storage.thread_count.GetInt(),
+  }
+  requested_parallelism = bool(parallelism_properties - {None, 1})  # any are >1
 
   if args.all_versions:
-    if configured_for_parallelism:
+    if requested_parallelism:
       log.warning(
           'Using sequential instead of parallel task execution. This will'
           ' maintain version ordering when copying all versions of an object.')
     return False
 
   if raw_destination_url.is_stream:
-    if configured_for_parallelism:
+    if requested_parallelism:
       log.warning(
           'Using sequential instead of parallel task execution to write to a'
           ' stream.')
@@ -483,7 +487,7 @@ def _is_parallelizable(args, raw_destination_url, first_source_url):
   # Only the first url needs to be checked since multiple sources aren't
   # allowed with stdin.
   if first_source_url.is_stdio:
-    if configured_for_parallelism:
+    if requested_parallelism:
       log.warning('Using sequential instead of parallel task execution to'
                   ' transfer from stdin.')
     return False

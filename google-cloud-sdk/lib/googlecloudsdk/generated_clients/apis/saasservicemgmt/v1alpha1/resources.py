@@ -18,7 +18,7 @@ import enum
 
 
 BASE_URL = 'https://saasservicemgmt.googleapis.com/v1alpha1/'
-DOCS_URL = 'https://cloud.google.com/'
+DOCS_URL = 'https://cloud.google.com/saas-runtime/docs'
 
 
 class Collections(enum.Enum):
@@ -37,6 +37,38 @@ class Collections(enum.Enum):
       {
           '':
               'projects/{projectsId}/locations/{locationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_FLAGRELEASES = (
+      'projects.locations.flagReleases',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/flagReleases/'
+              '{flagReleasesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_FLAGREVISIONS = (
+      'projects.locations.flagRevisions',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/flagRevisions/'
+              '{flagRevisionsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_FLAGS = (
+      'projects.locations.flags',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/flags/{flagsId}',
       },
       ['name'],
       True
@@ -63,6 +95,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_ROLLOUTKINDS = (
+      'projects.locations.rolloutKinds',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/rolloutKinds/'
+              '{rolloutKindsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_ROLLOUTTYPES = (
       'projects.locations.rolloutTypes',
       '{+name}',
@@ -81,6 +124,16 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/rollouts/'
               '{rolloutsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_SAAS = (
+      'projects.locations.saas',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/saas/{saasId}',
       },
       ['name'],
       True

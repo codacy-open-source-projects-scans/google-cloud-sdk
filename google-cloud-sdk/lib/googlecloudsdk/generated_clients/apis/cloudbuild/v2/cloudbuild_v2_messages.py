@@ -259,19 +259,6 @@ class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
 
 
-class Capabilities(_messages.Message):
-  r"""Capabilities adds and removes POSIX capabilities from running
-  containers.
-
-  Fields:
-    add: Optional. Added capabilities +optional
-    drop: Optional. Removed capabilities +optional
-  """
-
-  add = _messages.StringField(1, repeated=True)
-  drop = _messages.StringField(2, repeated=True)
-
-
 class ChildStatusReference(_messages.Message):
   r"""ChildStatusReference is used to point to the statuses of individual
   TaskRuns and Runs within this PipelineRun.
@@ -400,11 +387,15 @@ class CloudbuildProjectsLocationsConnectionsListRequest(_messages.Message):
     pageToken: Page start.
     parent: Required. The parent, which owns this collection of Connections.
       Format: `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If set to true, the response will return
+      partial results when some regions are unreachable. If set to false, the
+      response will fail if any region is unreachable.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class CloudbuildProjectsLocationsConnectionsPatchRequest(_messages.Message):
@@ -439,7 +430,7 @@ class CloudbuildProjectsLocationsConnectionsProcessWebhookRequest(_messages.Mess
     httpBody: A HttpBody resource to be passed as the request body.
     parent: Required. Project and location where the webhook will be received.
       Format: `projects/*/locations/*`.
-    webhookKey: Arbitrary additional key to find the maching repository for a
+    webhookKey: Arbitrary additional key to find the matching repository for a
       webhook event if needed.
   """
 
@@ -591,12 +582,16 @@ class CloudbuildProjectsLocationsConnectionsRepositoriesListRequest(_messages.Me
     pageToken: Page start.
     parent: Required. The parent, which owns this collection of Repositories.
       Format: `projects/*/locations/*/connections/*`.
+    returnPartialSuccess: Optional. If set to true, the response will return
+      partial results when some regions are unreachable. If set to false, the
+      response will fail if any region is unreachable.
   """
 
   filter = _messages.StringField(1)
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class CloudbuildProjectsLocationsConnectionsSetIamPolicyRequest(_messages.Message):
@@ -646,6 +641,9 @@ class CloudbuildProjectsLocationsListRequest(_messages.Message):
   r"""A CloudbuildProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -656,10 +654,11 @@ class CloudbuildProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class CloudbuildProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -1768,10 +1767,12 @@ class ListConnectionsResponse(_messages.Message):
     connections: The list of Connections.
     nextPageToken: A token identifying a page of results the server should
       return.
+    unreachable: Locations that could not be reached.
   """
 
   connections = _messages.MessageField('Connection', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListLocationsResponse(_messages.Message):
@@ -1820,10 +1821,12 @@ class ListRepositoriesResponse(_messages.Message):
     nextPageToken: A token identifying a page of results the server should
       return.
     repositories: The list of Repositories.
+    unreachable: Locations that could not be reached.
   """
 
   nextPageToken = _messages.StringField(1)
   repositories = _messages.MessageField('Repository', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListResultsResponse(_messages.Message):
@@ -3154,8 +3157,6 @@ class SecurityContext(_messages.Message):
       container process. AllowPrivilegeEscalation is true always when the
       container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this
       field cannot be set when spec.os.name is windows. +optional
-    capabilities: Optional. Adds and removes POSIX capabilities from running
-      containers.
     privileged: Run container in privileged mode.
     runAsGroup: Optional. The GID to run the entrypoint of the container
       process. Uses runtime default if unset. May also be set in
@@ -3179,11 +3180,10 @@ class SecurityContext(_messages.Message):
   """
 
   allowPrivilegeEscalation = _messages.BooleanField(1)
-  capabilities = _messages.MessageField('Capabilities', 2)
-  privileged = _messages.BooleanField(3)
-  runAsGroup = _messages.IntegerField(4)
-  runAsNonRoot = _messages.BooleanField(5)
-  runAsUser = _messages.IntegerField(6)
+  privileged = _messages.BooleanField(2)
+  runAsGroup = _messages.IntegerField(3)
+  runAsNonRoot = _messages.BooleanField(4)
+  runAsUser = _messages.IntegerField(5)
 
 
 class SetIamPolicyRequest(_messages.Message):

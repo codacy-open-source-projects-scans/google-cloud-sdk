@@ -11,8 +11,8 @@ class ModelarmorV1alpha(base_api.BaseApiClient):
   """Generated client library for service modelarmor version v1alpha."""
 
   MESSAGES_MODULE = messages
-  BASE_URL = 'https://modelarmor.googleapis.com/'
-  MTLS_BASE_URL = 'https://modelarmor.mtls.googleapis.com/'
+  BASE_URL = 'https://modelarmor.us.rep.googleapis.com/'
+  MTLS_BASE_URL = 'https://modelarmor.us.rep.mtls.googleapis.com/'
 
   _PACKAGE = 'modelarmor'
   _SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
@@ -477,7 +477,7 @@ class ModelarmorV1alpha(base_api.BaseApiClient):
         method_id='modelarmor.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1alpha/{+name}/locations',
         request_field='',
         request_type_name='ModelarmorProjectsLocationsListRequest',

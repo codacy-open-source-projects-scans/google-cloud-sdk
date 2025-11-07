@@ -41,6 +41,7 @@ from googlecloudsdk.core.resource import resource_printer
 from googlecloudsdk.core.universe_descriptor import universe_descriptor
 from googlecloudsdk.core.updater import installers
 from googlecloudsdk.core.updater import local_state
+from googlecloudsdk.core.updater import python_manager
 from googlecloudsdk.core.updater import release_notes
 from googlecloudsdk.core.updater import snapshots
 from googlecloudsdk.core.updater import update_check
@@ -910,18 +911,6 @@ version [{1}].  To clear your fixed version setting, run:
       first = False
     return results_map
 
-  def _DownloadAndInstallFunction(self, install_state, diff):
-    def Inner(component_id, progress_callback):
-      (download_callback, install_callback) = (
-          console_io.SplitProgressBar(progress_callback, [1, 1]))
-      downloaded_archive = install_state.Download(
-          diff.latest, component_id, progress_callback=download_callback,
-          command_path='components.update')
-      return install_state.Install(
-          diff.latest, component_id, downloaded_archive,
-          progress_callback=install_callback)
-    return Inner
-
   def _DownloadFunction(self, install_state, diff):
     def Inner(component_id, progress_callback):
       return install_state.Download(
@@ -1090,6 +1079,12 @@ version [{1}].  To clear your fixed version setting, run:
 
     # Clear deprecated directories for new state
     install_state.ClearDeprecatedDirs()
+    # Older versions of gcloud (< 483.0.0) would save a backup of the previous
+    # install when updating. Since this is no longer the case, explicitly clean
+    # up this directory in case it was left over when updating from an older
+    # such version (otherwise the obsolete backup would stick around
+    # indefinitely).
+    install_state.ClearBackup()
 
     with update_check.UpdateCheckData() as last_update_check:
       # Need to create a new diff because we just updated the SDK and we need
@@ -1109,6 +1104,9 @@ version [{1}].  To clear your fixed version setting, run:
           'Failed to update universe descriptors: %s',
           e,
       )
+
+    # Install Python on Mac if not already installed.
+    python_manager.PromptAndInstallPythonOnMac()
 
     sha256dict2 = self._HashRcfiles(_SHELL_RCFILES)
     if sha256dict1 != sha256dict2:
@@ -1622,58 +1620,10 @@ prompt, or run:
           log.debug('Post-processing command exited non-zero')
           raise PostProcessingError()
     except PostProcessingError:
-      log.warning('Post processing failed.  Run `gcloud info --show-log` '
-                  'to view the failures.')
-      self._LegacyPostProcess(snapshot)
-
-  def _LegacyPostProcess(self, snapshot=None):
-    """Runs the gcloud command to post process the update.
-
-    This runs gcloud as a subprocess so that the new version of gcloud (the one
-    we just updated to) is run instead of the old code (which is running here).
-    We do this so the new code can say how to correctly post process itself.
-
-    Args:
-      snapshot: ComponentSnapshot, The component snapshot for the version
-        we are updating do. The location of gcloud and the command to run can
-        change from version to version, which is why we try to pull this
-        information from the latest snapshot.  For a restore operation, we don't
-        have that information so we fall back to a best effort default.
-    """
-    log.debug('Legacy post-processing...')
-    command = None
-    gcloud_path = None
-    if snapshot:
-      if snapshot.sdk_definition.post_processing_command:
-        command = snapshot.sdk_definition.post_processing_command.split(' ')
-      if snapshot.sdk_definition.gcloud_rel_path:
-        gcloud_path = os.path.join(self.__sdk_root,
-                                   snapshot.sdk_definition.gcloud_rel_path)
-    command = command or ['components', 'post-process']
-    if self.__skip_compile_python:
-      command.append('--no-compile-python')
-    gcloud_path = gcloud_path or config.GcloudPath()
-
-    args = execution_utils.ArgsForPythonTool(gcloud_path, *command)
-    try:
-      with progress_tracker.ProgressTracker(
-          message='Performing post processing steps', tick_delay=.25):
-        # Raise PostProcessingError for all failures so the progress tracker
-        # will report the failure.
-        try:
-          ret_val = execution_utils.Exec(args, no_exit=True,
-                                         out_func=log.file_only_logger.debug,
-                                         err_func=log.file_only_logger.debug)
-        except (OSError, execution_utils.InvalidCommandError,
-                execution_utils.PermissionError):
-          log.debug('Failed to execute post-processing command', exc_info=True)
-          raise PostProcessingError()
-        if ret_val:
-          log.debug('Post-processing command exited non-zero')
-          raise PostProcessingError()
-    except PostProcessingError:
-      log.warning('Post processing failed.  Run `gcloud info --show-log` '
-                  'to view the failures.')
+      log.warning(
+          'Post processing failed.  Run `gcloud info --show-log` '
+          'to view the failures.'
+      )
 
 
 def CopyPython():

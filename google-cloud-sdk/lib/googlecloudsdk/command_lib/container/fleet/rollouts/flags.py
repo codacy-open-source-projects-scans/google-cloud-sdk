@@ -78,6 +78,37 @@ class RolloutFlags:
         type=arg_parsers.ArgDict(),
     )
 
+  def AddScheduledStartTime(self):
+    self.parser.add_argument(
+        '--start-time',
+        type=arg_parsers.Datetime.Parse,
+        help=textwrap.dedent("""\
+            Start time (in the future) of the rollout.
+
+            See $ gcloud topic datetimes for information on datetime formats.
+        """),
+    )
+
+  def AddScheduleOffset(self):
+    self.parser.add_argument(
+        '--schedule-offset',
+        type=arg_parsers.Duration(),
+        help=textwrap.dedent("""\
+            Offset to shift the schedule by when resuming a paused rollout, e.g. `8h`, `7d12h`.
+
+            See $ gcloud topic datetimes for information on duration formats.
+        """),
+    )
+
+  def AddValidateOnly(self):
+    self.parser.add_argument(
+        '--validate-only',
+        action='store_true',
+        help=textwrap.dedent("""\
+            Generate a new schedule without actually resuming the rollout.
+        """),
+    )
+
   def AddManagedRolloutConfig(self):
     managed_rollout_config_group = self.parser.add_group(
         help='Configurations for the Rollout. Waves are assigned automatically.'
@@ -91,9 +122,11 @@ class RolloutFlags:
         '--soak-duration',
         help=textwrap.dedent("""\
           Soak time before starting the next wave. e.g. `4h`, `2d6h`.
+          Soak duration is required for Rollouts.
 
           See $ gcloud topic datetimes for information on duration formats."""),
         type=arg_parsers.Duration(),
+        required=True,
     )
 
   def AddRolloutResourceArg(self):
@@ -117,8 +150,20 @@ class RolloutFlags:
     version_upgrade_config_group = rollout_type_mutex_group.add_group(
         help='Version upgrade rollout config.',
     )
-    self._AddControlPlaneUpgrade(version_upgrade_config_group)
+    self._AddVersionUpgradeType(version_upgrade_config_group)
     self._AddTargetVersion(version_upgrade_config_group)
+
+  def _AddVersionUpgradeType(
+      self, rollout_type_mutex_group: parser_arguments.ArgumentInterceptor
+  ):
+    version_upgrade_type_mutex_group = (
+        rollout_type_mutex_group.add_mutually_exclusive_group(
+            help='Version upgrade type to use for the Rollout.',
+        )
+    )
+
+    self._AddControlPlaneUpgrade(version_upgrade_type_mutex_group)
+    self._AddConfigSyncUpgrade(version_upgrade_type_mutex_group)
 
   def _AddControlPlaneUpgrade(
       self, version_upgrade_config_group: parser_arguments.ArgumentInterceptor
@@ -130,6 +175,16 @@ class RolloutFlags:
         action='store_true',
     )
 
+  def _AddConfigSyncUpgrade(
+      self, version_upgrade_config_group: parser_arguments.ArgumentInterceptor
+  ):
+    version_upgrade_config_group.add_argument(
+        '--config-sync-upgrade',
+        help=textwrap.dedent("""\
+          Upgrade the config sync of the clusters in the fleet."""),
+        action='store_true',
+    )
+
   def _AddTargetVersion(
       self, version_upgrade_config_group: parser_arguments.ArgumentInterceptor
   ):
@@ -138,6 +193,7 @@ class RolloutFlags:
         help=textwrap.dedent("""\
           The version to upgrade clusters from the fleet to."""),
         type=str,
+        required=True,
     )
 
   def _AddFeatureUpdate(
@@ -284,6 +340,7 @@ class RolloutFlagParser:
     rollout.managedRolloutConfig = self._ManagedRolloutConfig()
     rollout.versionUpgrade = self._VersionUpgrade()
     rollout.feature = self._FeatureUpdate()
+    rollout.scheduledStartTime = self._ScheduledStartTime()
     return rollout
 
   def _DisplayName(self) -> str:
@@ -303,6 +360,19 @@ class RolloutFlagParser:
           )
       )
     return labels_value
+
+  def _ScheduledStartTime(self) -> str:
+    """Parses --start-time.
+
+    Accepts ISO 8601 datetime format. To read more,
+    https://cloud.google.com/sdk/gcloud/reference/topic/
+
+    Returns:
+      str, in ISO 8601 datetime format.
+    """
+    if '--start-time' not in self.args.GetSpecifiedArgs():
+      return None
+    return self.args.start_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
   def _ManagedRolloutConfig(self) -> fleet_messages.ManagedRolloutConfig:
     managed_rollout_config = fleet_messages.ManagedRolloutConfig()
@@ -332,11 +402,21 @@ class RolloutFlagParser:
   def _VersionUpgradeType(
       self,
   ) -> fleet_messages.VersionUpgrade.TypeValueValuesEnum:
-    """Parses --control-plane-upgrade."""
+    """Parses --control-plane-upgrade and --config-sync-upgrade."""
     enum_type = fleet_messages.VersionUpgrade.TypeValueValuesEnum
-    if '--control-plane-upgrade' not in self.args.GetSpecifiedArgs():
-      return enum_type.TYPE_UNSPECIFIED
-    return enum_type.TYPE_CONTROL_PLANE
+    if (
+        '--control-plane-upgrade' in self.args.GetSpecifiedArgs()
+        and '--config-sync-upgrade' in self.args.GetSpecifiedArgs()
+    ):
+      raise ValueError(
+          '--control-plane-upgrade and --config-sync-upgrade cannot be set at'
+          ' the same time.'
+      )
+    if '--control-plane-upgrade' in self.args.GetSpecifiedArgs():
+      return enum_type.TYPE_CONTROL_PLANE
+    if '--config-sync-upgrade' in self.args.GetSpecifiedArgs():
+      return enum_type.TYPE_CONFIG_SYNC
+    return enum_type.TYPE_UNSPECIFIED
 
   def _VersionUpgradeDesiredVersion(self) -> str:
     """Parses --target-version."""
@@ -446,3 +526,20 @@ class RolloutFlagParser:
       bool, True if specified, False if unspecified.
     """
     return self.args.async_
+
+  def ScheduleOffset(self) -> str:
+    """Parses --schedule-offset.
+
+    Accepts ISO 8601 durations format. To read more,
+    https://cloud.google.com/sdk/gcloud/reference/topic/
+
+    Returns:
+      str, in standard duration format, in unit of seconds.
+    """
+    if '--schedule-offset' not in self.args.GetSpecifiedArgs():
+      return None
+    return '{}s'.format(self.args.schedule_offset)
+
+  def ValidateOnly(self) -> bool:
+    """Parses --validate-only flag."""
+    return self.args.validate_only

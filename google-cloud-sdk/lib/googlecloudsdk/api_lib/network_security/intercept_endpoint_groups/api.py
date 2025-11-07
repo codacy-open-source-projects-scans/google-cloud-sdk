@@ -30,6 +30,7 @@ from googlecloudsdk.core import resources
 _API_VERSION_FOR_TRACK = {
     base.ReleaseTrack.ALPHA: 'v1alpha1',
     base.ReleaseTrack.BETA: 'v1beta1',
+    base.ReleaseTrack.GA: 'v1',
 }
 _API_NAME = 'networksecurity'
 
@@ -99,7 +100,7 @@ class Client:
         interceptDeploymentGroup=intercept_deployment_group,
     )
 
-    # TODO(b/381836581): Remove this check once the field is
+    # TODO(b/391304673): Remove this check once the field is
     # available in BETA and V1.
     # BETA API doesn't have the new field yet, so don't assign it. b/381837549
     if hasattr(endpoint_group, 'description'):

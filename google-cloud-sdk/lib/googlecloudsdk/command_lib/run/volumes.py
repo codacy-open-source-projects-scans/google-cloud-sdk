@@ -13,14 +13,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utilities for working with volumes."""
+
 import abc
 import argparse
+from typing import TypedDict
 
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.run import exceptions as serverless_exceptions
 
 _supported_volume_types = {}
+
+VolumeDict = TypedDict(
+    'VolumeDict',
+    {
+        'name': str,
+        'type': str,
+        'read-only': str,
+        'bucket': str,
+        'location': str,
+        'size-limit': str,
+        'dynamic-mounting': str,
+        'mount-options': str,
+        'secret': str,
+        'version': str,
+        'path': str,
+        'instances': str,
+    },
+    total=False,
+)
+
+
+def import_gapic_client_types():
+  """Imports types from the v2 gapic client, handling potential gRPC import errors.
+
+  Not all gCloud distributions have the gRPC library. Since only
+  workerpools use the gapic client (which requires gRPC), we import it here
+  so only workerpool commands are affected if gRPC is not installed.
+
+  Returns:
+    The run_v2 types module.
+  """
+  try:
+    # pylint: disable=g-import-not-at-top
+    from googlecloudsdk.generated_clients.gapic_clients.run_v2 import types
+    # pylint: enable=g-import-not-at-top
+    return types
+  except ImportError:
+    raise serverless_exceptions.NoGrpcInstalledError()
 
 
 def _registered_volume_type(cls):
@@ -40,26 +80,28 @@ def _registered_volume_type(cls):
 
 def add_volume(volume, volumes, messages, release_track):
   """Add the volume described by the given volume dict to the resource."""
-  if 'name' not in volume or 'type' not in volume:
-    raise serverless_exceptions.ConfigurationError(
-        'All added volumes must have a name and type'
-    )
-
-  if volume['type'] not in _supported_volume_types:
-    raise serverless_exceptions.ConfigurationError(
-        'Volume type {} not supported'.format(volume['type'])
-    )
+  _validate_volume_name_and_type(volume, release_track)
   new_vol = messages.Volume(name=volume['name'])
   vol_type = _supported_volume_types[volume['type']]
-  if release_track not in vol_type.release_tracks():
-    raise serverless_exceptions.ConfigurationError(
-        'Volume type {} not supported'.format(volume['type'])
-    )
-  vol_type.validate_fields(volume, release_track)
   vol_type.validate_volume_add(volume, release_track)
+  vol_type.validate_fields(volume, release_track)
   vol_type.fill_volume(volume, new_vol, messages)
 
   volumes[volume['name']] = new_vol
+
+
+def create_volume_v2(
+    volume: VolumeDict,
+    release_track: base.ReleaseTrack = base.ReleaseTrack.ALPHA,
+):
+  """Create the volume described by the given volume dict to the resource."""
+  types = import_gapic_client_types()
+  _validate_volume_name_and_type(volume, release_track)
+  vol_type = _supported_volume_types[volume['type']]
+  vol_type.validate_volume_add(volume, release_track)
+  vol_type.validate_fields(volume, release_track)
+
+  return vol_type.create_volume_v2(volume, types)
 
 
 def volume_help(release_track):
@@ -124,7 +166,13 @@ class _VolumeType(abc.ABC):
   @classmethod
   @abc.abstractmethod
   def fill_volume(cls, volume, new_vol, messages):
-    """Fills in the Volume message from the provided volume dict."""
+    """Fills in the Volume message (V1) from the provided volume dict."""
+    pass
+
+  @classmethod
+  @abc.abstractmethod
+  def create_volume_v2(cls, volume):
+    """Creates the volume (V2) from the provided volume dict."""
     pass
 
   @classmethod
@@ -173,6 +221,7 @@ class _VolumeType(abc.ABC):
     optional_fields = '\n'.join(
         '* {}: (optional) {}  '.format(name, hlp)
         for name, hlp in cls.optional_fields(release_track).items()
+        if name != 'name'
     )
     optional = f'\n{optional_fields}  ' if optional_fields.strip() else ''
     return '*{name}*: {hlp}\n  Additional keys:  {required}{optional}  '.format(
@@ -209,6 +258,29 @@ class _InMemoryVolume(_VolumeType):
 
   @classmethod
   def optional_fields(cls, release_track):
+    if release_track == base.ReleaseTrack.ALPHA:
+      return {
+          'name': (
+              'The name of the volume. A name will be generated if the'
+              ' `mount-path` flag is specified. A name is required if'
+              ' `mount-path` is not specified.'
+          ),
+          'mount-path': (
+              'The path at which the volume should be mounted. The `mount-path`'
+              ' parameter is only supported for single container services which'
+              ' do not make use of the --container flag. For multi-container'
+              ' services, specify the `mount-path` parameter under the'
+              ' --add-volume-mount flag.'
+          ),
+          'size-limit': (
+              'A quantity representing the maximum amount of memory allocated'
+              ' to this volume, such as "512Mi" or "3G". Data stored in an'
+              ' in-memory volume consumes the memory allocation of the'
+              ' container that wrote the data. If size-limit is not specified,'
+              ' the maximum size will be half the total memory limit of all'
+              ' containers.'
+          ),
+      }
     return {
         'size-limit': (
             'A quantity representing the maximum amount of memory allocated to'
@@ -227,6 +299,74 @@ class _InMemoryVolume(_VolumeType):
       )
     else:
       src = messages.EmptyDirVolumeSource(medium='Memory')
+    new_vol.emptyDir = src
+
+  @classmethod
+  def create_volume_v2(cls, volume, types):
+    source = types.EmptyDirVolumeSource(
+        medium=types.EmptyDirVolumeSource.Medium.MEMORY
+    )
+    if 'size-limit' in volume:
+      source.size_limit = volume['size-limit']
+    return types.Volume(
+        name=volume['name'],
+        empty_dir=source,
+    )
+
+
+@_registered_volume_type
+class _TempDiskVolume(_VolumeType):
+  """Volume Type representing a disk-backed emptydir."""
+
+  @classmethod
+  def name(cls):
+    return 'ephemeral-disk'
+
+  @classmethod
+  def help(cls):
+    return (
+        'A volume that stores data on a temporary disk. '
+        'With this type of volume, data is not shared between instances and '
+        'all data will be lost when the instance it is on is terminated.'
+    )
+
+  @classmethod
+  def release_tracks(cls):
+    return [base.ReleaseTrack.ALPHA]
+
+  @classmethod
+  def required_fields(cls, release_track):
+    return {}
+
+  @classmethod
+  def optional_fields(cls, release_track):
+    return {
+        'name': (
+            'The name of the volume. A name will be generated if the'
+            ' `mount-path` flag is specified. A name is required if'
+            ' `mount-path` is not specified.'
+        ),
+        'mount-path': (
+            'The path at which the volume should be mounted. The `mount-path`'
+            ' parameter is only supported for single container services which'
+            ' do not make use of the --container flag. For multi-container'
+            ' services, specify the `mount-path` parameter under the'
+            ' --add-volume-mount flag.'
+        ),
+        'size': (
+            'A quantity representing the amount of disk space allocated to'
+            ' this volume, such as "512Mi" or "3G".'
+        )
+    }
+
+  @classmethod
+  def fill_volume(cls, volume, new_vol, messages):
+    if 'size' in volume:
+      src = messages.EmptyDirVolumeSource(
+          medium='Disk', sizeLimit=volume['size']
+      )
+    else:
+      src = messages.EmptyDirVolumeSource(medium='Disk')
     new_vol.emptyDir = src
 
 
@@ -250,6 +390,25 @@ class _NfsVolume(_VolumeType):
 
   @classmethod
   def optional_fields(cls, release_track):
+    if release_track == base.ReleaseTrack.ALPHA:
+      return {
+          'name': (
+              'The name of the volume. A name will be generated if the'
+              ' `mount-path` flag is specified. A name is required if'
+              ' `mount-path` is not specified.'
+          ),
+          'mount-path': (
+              'The path at which the volume should be mounted. The `mount-path`'
+              ' parameter is only supported for single container services which'
+              ' do not make use of the --container flag. For multi-container'
+              ' services, specify the `mount-path` parameter under the'
+              ' --add-volume-mount flag.'
+          ),
+          'readonly': (
+              'A boolean. If true, this volume will be read-only from all'
+              ' mounts.'
+          ),
+      }
     return {
         'readonly': (
             'A boolean. If true, this volume will be read-only from all mounts.'
@@ -257,19 +416,38 @@ class _NfsVolume(_VolumeType):
     }
 
   @classmethod
-  def fill_volume(cls, volume, new_vol, messages):
-    readonly = _is_readonly(volume)
+  def validate_fields(cls, volume, release_track):
     location = volume['location']
     if ':/' not in location:
       raise serverless_exceptions.ConfigurationError(
           "Volume {}: field 'location' must be of the form"
           ' IP_ADDRESS:/DIRECTORY'.format(volume['name'])
       )
-    server, path = location.split(':/', 1)
+
+  @classmethod
+  def fill_volume(cls, volume, new_vol, messages):
+    readonly = _is_readonly(volume)
+    server, path = volume['location'].split(':/', 1)
     # need to re-add leading slash
     path = '/' + path
     src = messages.NFSVolumeSource(server=server, path=path, readOnly=readonly)
     new_vol.nfs = src
+
+  @classmethod
+  def create_volume_v2(cls, volume, types):
+    readonly = _is_readonly(volume)
+    location = volume['location']
+    server, path = str(location).split(':/', 1)
+    # need to re-add leading slash
+    path = '/' + path
+    return types.Volume(
+        name=volume['name'],
+        nfs=types.NFSVolumeSource(
+            server=server,
+            path=path,
+            read_only=readonly,
+        ),
+    )
 
 
 @_registered_volume_type
@@ -294,16 +472,14 @@ class _GcsVolume(_VolumeType):
     if release_track == base.ReleaseTrack.ALPHA:
       try:
         bool_parser = arg_parsers.ArgBoolean()
-        dynamic_mounting = bool_parser(
-            volume.get('dynamic-mounting', 'false')
-        )
+        dynamic_mounting = bool_parser(volume.get('dynamic-mounting', 'false'))
       except argparse.ArgumentTypeError:
         raise serverless_exceptions.ConfigurationError(
             'dynamic-mounting must be set to true or false.'
         )
       if (dynamic_mounting and 'bucket' in volume) or (
           not dynamic_mounting and 'bucket' not in volume
-          ):
+      ):
         raise serverless_exceptions.ConfigurationError(
             'Either set bucket or enable dynamic-mounting, not both.'
         )
@@ -321,14 +497,13 @@ class _GcsVolume(_VolumeType):
     fields = {
         'readonly': (
             'A boolean. If true, this volume will be read-only from all mounts.'
-        )
+        ),
+        'mount-options': (
+            'A list of flags to pass to GCSFuse. Flags '
+            + 'should be specified without leading dashes and separated by '
+            + 'semicolons.'
+        ),
     }
-    if release_track in [base.ReleaseTrack.ALPHA, base.ReleaseTrack.BETA]:
-      fields['mount-options'] = (
-          'A list of flags to pass to GCSFuse. Flags '
-          + 'should be specified without leading dashes and separated by '
-          + 'semicolons.'
-      )
 
     if release_track == base.ReleaseTrack.ALPHA:
       fields['bucket'] = (
@@ -338,6 +513,18 @@ class _GcsVolume(_VolumeType):
           'A boolean. If true, the volume will be mounted dynamically. '
           + 'Note: You will either need to specify a bucket or set '
           + 'dynamic-mounting to true, but not both.'
+      )
+      fields['name'] = (
+          'The name of the volume. A name will be generated if the'
+          ' `mount-path` flag is specified. A name is required if'
+          ' `mount-path` is not specified.'
+      )
+      fields['mount-path'] = (
+          'The path at which the volume should be mounted. The `mount-path`'
+          ' parameter is only supported for single container services which'
+          ' do not make use of the --container flag. For multi-container'
+          ' services, specify the `mount-path` parameter under the'
+          ' --add-volume-mount flag.'
       )
     return fields
 
@@ -360,16 +547,34 @@ class _GcsVolume(_VolumeType):
               value=volume['mount-options'].replace(';', ','),
           )
       )
-    if (
-        'dynamic-mounting' in volume
-        and volume['dynamic-mounting']
-    ):
+    if 'dynamic-mounting' in volume and volume['dynamic-mounting']:
       src.volumeAttributes.additionalProperties.append(
           messages.CSIVolumeSource.VolumeAttributesValue.AdditionalProperty(
               key='bucketName', value='_'
           )
       )
     new_vol.csi = src
+
+  @classmethod
+  def create_volume_v2(cls, volume, types):
+    if 'mount-options' in volume:
+      mount_options = volume['mount-options'].split(';')
+    else:
+      mount_options = []
+    source = types.GCSVolumeSource(
+        read_only=_is_readonly(volume),
+        mount_options=mount_options,
+    )
+    # If dynamic mounting is enabled, we need to set the bucket to a special
+    # value to indicate that the bucket should be dynamically mounted.
+    if 'dynamic-mounting' in volume and volume['dynamic-mounting']:
+      source.bucket = '_'
+    else:
+      source.bucket = volume['bucket']
+    return types.Volume(
+        name=volume['name'],
+        gcs=source,
+    )
 
 
 @_registered_volume_type
@@ -402,7 +607,20 @@ class SecretVolume(_VolumeType):
 
   @classmethod
   def optional_fields(cls, release_track):
-    return {}
+    return {
+        'name': (
+            'The name of the volume. A name will be generated if the'
+            ' `mount-path` flag is specified. A name is required if'
+            ' `mount-path` is not specified.'
+        ),
+        'mount-path': (
+            'The path at which the volume should be mounted. The `mount-path`'
+            ' parameter is only supported for single container services which'
+            ' do not make use of the --container flag. For multi-container'
+            ' services, specify the `mount-path` parameter under the'
+            ' --add-volume-mount flag.'
+        ),
+    }
 
   @classmethod
   def fill_volume(cls, volume, new_vol, messages):
@@ -411,6 +629,129 @@ class SecretVolume(_VolumeType):
     src.items.append(item)
     new_vol.secret = src
 
+  @classmethod
+  def create_volume_v2(cls, volume, types):
+    return types.Volume(
+        name=volume['name'],
+        secret=types.SecretVolumeSource(
+            secret=volume['secret'],
+            items=[
+                types.VersionToPath(
+                    version=volume['version'], path=volume['path']
+                )
+            ],
+        ),
+    )
+
+
+@_registered_volume_type
+class CloudSqlInstance(_VolumeType):
+  """Represents a Cloud SQL instance as a volume."""
+
+  @classmethod
+  def release_tracks(cls):
+    return [base.ReleaseTrack.ALPHA]
+
+  @classmethod
+  def name(cls):
+    return 'cloudsql'
+
+  @classmethod
+  def help(cls):
+    return 'Represents a Cloud SQL instance as a volume.'
+
+  @classmethod
+  def validate_fields(cls, volume, release_track):
+    for instance in volume['instances'].split(';'):
+      instance = instance.strip().split(':')
+      if len(instance) != 3:
+        raise serverless_exceptions.ConfigurationError(
+            'Cloud SQL instances must be in the form'
+            ' project_id:region:instance_id'
+        )
+
+  @classmethod
+  def required_fields(cls, release_track):
+    return {
+        'instances': (
+            'The name of the Cloud SQL instances to mount. Must be in the form'
+            ' project_id:region:instance_id and separated by semicolons.'
+        ),
+    }
+
+  @classmethod
+  def optional_fields(cls, release_track):
+    if release_track == base.ReleaseTrack.ALPHA:
+      return {
+          'name': (
+              'The name of the volume. A name will be generated if the'
+              ' `mount-path` flag is specified. A name is required if'
+              ' `mount-path` is not specified.'
+          ),
+          'mount-path': (
+              'The path at which the volume should be mounted. The `mount-path`'
+              ' parameter is only supported for single container services which'
+              ' do not make use of the --container flag. For multi-container'
+              ' services, specify the `mount-path` parameter under the'
+              ' --add-volume-mount flag.'
+          ),
+      }
+    return {}
+
+  @classmethod
+  def fill_volume(cls, volume, new_vol, messages):
+    src = messages.CSIVolumeSource(driver='cloudsql.run.googleapis.com')
+    src.volumeAttributes = messages.CSIVolumeSource.VolumeAttributesValue()
+    if 'instances' in volume:
+      src.volumeAttributes.additionalProperties.append(
+          messages.CSIVolumeSource.VolumeAttributesValue.AdditionalProperty(
+              key='instances',
+              value=volume['instances'].replace(';', ','),
+          )
+      )
+    new_vol.csi = src
+
+  @classmethod
+  def create_volume_v2(cls, volume, types):
+    return types.Volume(
+        name=volume['name'],
+        cloud_sql_instance=types.CloudSqlInstance(
+            instances=[
+                instance.strip() for instance in volume['instances'].split(';')
+            ]
+        ),
+    )
+
 
 def _is_readonly(volume):
   return 'readonly' in volume and volume['readonly'].lower() == 'true'
+
+
+def _validate_volume_name_and_type(volume, release_track):
+  """Validates the volume name and type."""
+  if release_track == base.ReleaseTrack.ALPHA:
+    if 'type' not in volume:
+      raise serverless_exceptions.ConfigurationError(
+          'All added volumes must have a type'
+      )
+    # Volume name should have already been generated if the user specified the
+    # `mount-path` flag.
+    if 'name' not in volume:
+      raise serverless_exceptions.ConfigurationError(
+          'Volume "name" must be specified if "mount-path" is not specified.'
+      )
+  else:
+    if 'name' not in volume or 'type' not in volume:
+      raise serverless_exceptions.ConfigurationError(
+          'All added volumes must have a name and type'
+      )
+
+  if volume['type'] not in _supported_volume_types:
+    raise serverless_exceptions.ConfigurationError(
+        'Volume type {} not supported'.format(volume['type'])
+    )
+  vol_type = _supported_volume_types[volume['type']]
+  if release_track not in vol_type.release_tracks():
+    raise serverless_exceptions.ConfigurationError(
+        'Volume type {} not supported'.format(volume['type'])
+    )

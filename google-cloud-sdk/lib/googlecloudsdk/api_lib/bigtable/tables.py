@@ -18,10 +18,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import base64
+
+from apitools.base.py import encoding
 from googlecloudsdk.api_lib.bigtable import util
 from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope import exceptions
+from googlecloudsdk.core import yaml
 from googlecloudsdk.core.util import times
+import six
 
 
 def ParseSingleRule(rule):
@@ -246,6 +251,21 @@ def ParseChangeStreamRetentionPeriod(retention_period):
   )
 
 
+def ParseTieredStorageConfigDuration(duration):
+  """Parses tiered storage config duration from the string.
+
+  Args:
+    duration: Tiered storage config duration in the format of a valid gcloud
+      datetime duration string, such as `10d`, `1w`, `36h`.
+
+  Returns:
+    A string of duration counted in seconds, such as `259200s`
+  """
+  return ConvertDurationToSeconds(
+      duration, '--tiered-storage-infrequent-access-older-than'
+  )
+
+
 def AddFieldToUpdateMask(field, req):
   """Adding a new field to the update mask of the updateTableRequest.
 
@@ -284,6 +304,18 @@ def RefreshUpdateMask(unused_ref, args, req):
     req = AddFieldToUpdateMask('automatedBackupPolicy', req)
   if args.automated_backup_retention_period:
     req = AddFieldToUpdateMask('automatedBackupPolicy.retentionPeriod', req)
+  # TODO: b/418228423 - Remove this check once the flag is released in GA.
+  #
+  # We need this to verify that the flag exists in this release track.
+  if hasattr(args, 'clear_tiered_storage_config'):
+    if args.clear_tiered_storage_config:
+      req = AddFieldToUpdateMask('tieredStorageConfig', req)
+    if args.tiered_storage_infrequent_access_older_than:
+      req = AddFieldToUpdateMask(
+          'tieredStorageConfig.infrequentAccess.includeIfOlderThan', req
+      )
+  if args.row_key_schema_definition_file or args.clear_row_key_schema:
+    req = AddFieldToUpdateMask('rowKeySchema', req)
   return req
 
 
@@ -295,12 +327,17 @@ def AddAdditionalArgs():
   )
 
 
+def AddAdditionalArgsAlphaBeta():
+  """Adds additional flags for alpha and beta."""
+  return AddAdditionalArgs() + AddTieredStorageConfigUpdateTableArgs()
+
+
 def AddChangeStreamConfigUpdateTableArgs():
   """Adds the change stream commands to update table CLI.
 
   This can't be defined in the yaml because that automatically generates the
   inverse for any boolean args and we don't want the nonsensical
-  'no-clear-change-stream-retention-period`. We use store_const to only allow
+  `no-clear-change-stream-retention-period`. We use store_const to only allow
   `clear-change-stream-retention-period` or `change-stream-retention-period`
   arguments
 
@@ -328,6 +365,39 @@ def AddChangeStreamConfigUpdateTableArgs():
               'hours (h), minutes (m), and seconds (s). If not already '
               'specified, enables a change stream for the table. Examples: `5d`'
               ' or `48h`.'
+          ),
+      )
+  )
+  return [argument_group]
+
+
+def AddTieredStorageConfigUpdateTableArgs():
+  """Adds the tiered storage config commands to update table CLI.
+
+  This can't be defined in the yaml because that automatically generates the
+  inverse for any boolean args and we don't want the nonsensical
+  `no-clear-tiered-storage-config`. We use store_const to only allow
+  `clear-tiered-storage-config`.
+
+  Returns:
+    Argument group containing tiered storage config args
+  """
+  argument_group = base.ArgumentGroup(mutex=True)
+  argument_group.AddArgument(
+      base.Argument(
+          '--clear-tiered-storage-config',
+          help='Disables the tiered storage config.',
+          action='store_const',
+          const=True,
+      )
+  )
+  argument_group.AddArgument(
+      base.Argument(
+          '--tiered-storage-infrequent-access-older-than',
+          help=(
+              'The age at which data should be moved to infrequent access'
+              ' storage.\n\nSee `$ gcloud topic datetimes` for information on'
+              ' absolute duration formats.'
           ),
       )
   )
@@ -458,6 +528,37 @@ def HandleAutomatedBackupPolicyUpdateTableArgs(unused_ref, args, req):
   return req
 
 
+def HandleTieredStorageArgs(unused_ref, args, req):
+  """Handle tiered storage args for update table CLI.
+
+  Args:
+    unused_ref: the gcloud resource (unused).
+    args: the input arguments.
+    req: the original updateTableRequest.
+
+  Returns:
+    req: the updateTableRequest with tiered storage config handled.
+  """
+  # TODO: b/418228423 - Remove this check once the flag is released in GA.
+  #
+  # We need this to verify that the flag exists in this release track.
+  if not hasattr(args, 'clear_tiered_storage_config'):
+    return req
+
+  if args.clear_tiered_storage_config:
+    req.table.tieredStorageConfig = None
+  if args.tiered_storage_infrequent_access_older_than:
+    req.table.tieredStorageConfig = util.GetAdminMessages().TieredStorageConfig(
+        infrequentAccess=util.GetAdminMessages().TieredStorageRule(
+            includeIfOlderThan=ParseTieredStorageConfigDuration(
+                args.tiered_storage_infrequent_access_older_than
+            )
+        )
+    )
+
+  return req
+
+
 def CreateChangeStreamConfig(duration):
   return util.GetAdminMessages().ChangeStreamConfig(
       retentionPeriod=ConvertDurationToSeconds(
@@ -497,3 +598,92 @@ def CreateDefaultAutomatedBackupPolicy():
     AutomatedBackupPolicy with default policy config.
   """
   return CreateAutomatedBackupPolicy('7d', '1d')
+
+
+def Utf8ToBase64(s):
+  """Encode a utf-8 string as a base64 string."""
+  return six.ensure_text(base64.b64encode(six.ensure_binary(s)))
+
+
+def HandleRowKeySchemaCreateTableArgs(unused_ref, args, req):
+  """Handles row key schema create table args."""
+  if args.row_key_schema_definition_file:
+    req.createTableRequest.table.rowKeySchema = (
+        ParseRowKeySchemaFromDefinitionFile(
+            args.row_key_schema_definition_file,
+            args.row_key_schema_pre_encoded_bytes,
+        )
+    )
+  return req
+
+
+def HandleRowKeySchemaUpdateTableArgs(unused_ref, args, req):
+  """Handles row key schema update table args."""
+  if args.row_key_schema_definition_file:
+    req.table.rowKeySchema = ParseRowKeySchemaFromDefinitionFile(
+        args.row_key_schema_definition_file,
+        args.row_key_schema_pre_encoded_bytes,
+    )
+
+  if args.clear_row_key_schema:
+    req.ignoreWarnings = True
+
+  return req
+
+
+def Base64EncodeBinaryFieldsInRowKeySchema(row_key_schema):
+  """Encodes binary fields in the row key schema in Base64."""
+  # We don't need to check for missing encoding here, as the admin API will
+  # return an error if the encoding is missing.
+  if (
+      not row_key_schema
+      or 'encoding' not in row_key_schema
+      or 'delimitedBytes' not in row_key_schema['encoding']
+      or 'delimiter' not in row_key_schema['encoding']['delimitedBytes']
+      or not row_key_schema['encoding']['delimitedBytes']['delimiter']
+  ):
+    return row_key_schema
+
+  row_key_schema['encoding']['delimitedBytes']['delimiter'] = Utf8ToBase64(
+      row_key_schema['encoding']['delimitedBytes']['delimiter']
+  )
+  return row_key_schema
+
+
+def ParseRowKeySchemaFromDefinitionFile(definition_file, pre_encoded):
+  """Parses row key schema from the definition file.
+
+  Args:
+    definition_file: The path to the definition file. File must be in YAML or
+      JSON format.
+    pre_encoded: Whether all the binary fields in the row key schema (e.g.
+      encoding.delimited_bytes.delimiter) are pre-encoded in Base64.
+
+  Returns:
+    A struct type object representing the row key schema.
+
+  Raises:
+    BadArgumentException if the definition file is not found, can't be
+      read, or is not a valid YAML or JSON file.
+    ValueError if the YAML/JSON object cannot be parsed as a valid row key
+      schema.
+  """
+  row_key_schema_msg_type = (
+      util.GetAdminMessages().GoogleBigtableAdminV2TypeStruct
+  )
+  try:
+    row_key_schema_to_parse = yaml.load_path(definition_file)
+    if not pre_encoded:
+      Base64EncodeBinaryFieldsInRowKeySchema(row_key_schema_to_parse)
+    parsed_row_key_schema = encoding.PyValueToMessage(
+        row_key_schema_msg_type, row_key_schema_to_parse
+    )
+  except (yaml.FileLoadError, yaml.YAMLParseError) as e:
+    raise exceptions.BadArgumentException('--row-key-schema-definition-file', e)
+  except AttributeError as e:
+    raise ValueError(
+        'File [{0}] cannot be parsed as a valid row key schema. [{1}]'.format(
+            definition_file, e
+        )
+    )
+  return parsed_row_key_schema

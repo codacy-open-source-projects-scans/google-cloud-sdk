@@ -77,6 +77,18 @@ class AuditLogConfig(_messages.Message):
   logType = _messages.EnumField('LogTypeValueValuesEnum', 2)
 
 
+class AuthenticationConfig(_messages.Message):
+  r"""Authentication configuration.
+
+  Fields:
+    mutualTlsAuth: mTLS authentication configuration.
+    saslAuth: SASL authentication configuration.
+  """
+
+  mutualTlsAuth = _messages.MessageField('MutualTlsAuthConfig', 1)
+  saslAuth = _messages.MessageField('SaslAuthConfig', 2)
+
+
 class Binding(_messages.Message):
   r"""Associates `members`, or principals, with a `role`.
 
@@ -181,9 +193,9 @@ class Channel(_messages.Message):
       token must be used by the provider to register the channel for
       publishing.
     createTime: Output only. The creation time.
-    cryptoKeyName: Resource name of a KMS crypto key (managed by the user)
-      used to encrypt/decrypt their event data. It must match the pattern
-      `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
+    cryptoKeyName: Optional. Resource name of a KMS crypto key (managed by the
+      user) used to encrypt/decrypt their event data. It must match the
+      pattern `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
     labels: Optional. Resource labels.
     name: Required. The resource name of the channel. Must be unique within
       the location on the project and must be in
@@ -414,8 +426,8 @@ class Enrollment(_messages.Message):
       requests to ensure that the client has an up-to-date value before
       proceeding.
     labels: Optional. Resource labels.
-    messageBus: Required. Resource name of the message bus identifying the
-      source of the messages. It matches the form
+    messageBus: Required. Immutable. Resource name of the message bus
+      identifying the source of the messages. It matches the form
       projects/{project}/locations/{location}/messageBuses/{messageBus}.
     name: Identifier. Resource name of the form
       projects/{project}/locations/{location}/enrollments/{enrollment}
@@ -1128,10 +1140,162 @@ class EventarcProjectsLocationsGoogleApiSourcesTestIamPermissionsRequest(_messag
   testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
 
 
+class EventarcProjectsLocationsKafkaSourcesCreateRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesCreateRequest object.
+
+  Fields:
+    kafkaSource: A KafkaSource resource to be passed as the request body.
+    kafkaSourceId: Required. The user-provided ID to be assigned to the
+      KafkaSource. It should match the format
+      `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
+    parent: Required. The parent collection in which to add this kafka source.
+    validateOnly: Optional. If set, validate the request and preview the
+      review, but do not post it.
+  """
+
+  kafkaSource = _messages.MessageField('KafkaSource', 1)
+  kafkaSourceId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class EventarcProjectsLocationsKafkaSourcesDeleteRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesDeleteRequest object.
+
+  Fields:
+    allowMissing: Optional. If set to true, and the KafkaSource is not found,
+      the request will succeed but no action will be taken on the server.
+    etag: Optional. If provided, the KafkaSource will only be deleted if the
+      etag matches the current etag on the resource.
+    name: Required. The name of the KafkaSource to be deleted.
+    validateOnly: Optional. If set, validate the request and preview the
+      review, but do not post it.
+  """
+
+  allowMissing = _messages.BooleanField(1)
+  etag = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class EventarcProjectsLocationsKafkaSourcesGetIamPolicyRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesGetIamPolicyRequest object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
+
+
+class EventarcProjectsLocationsKafkaSourcesGetRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesGetRequest object.
+
+  Fields:
+    name: Required. The name of the kafka source to get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class EventarcProjectsLocationsKafkaSourcesListRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of results to return on each page.
+      Note: The service may send fewer.
+    pageToken: Optional. The page token; provide the value from the
+      `next_page_token` field in a previous call to retrieve the subsequent
+      page. When paginating, all other parameters provided must match the
+      previous call that provided the page token.
+    parent: Required. The parent collection to list triggers on.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class EventarcProjectsLocationsKafkaSourcesPatchRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesPatchRequest object.
+
+  Fields:
+    allowMissing: Optional. If set to true, and the KafkaSource is not found,
+      a new KafkaSource will be created. In this situation, `update_mask` is
+      ignored.
+    kafkaSource: A KafkaSource resource to be passed as the request body.
+    name: Identifier. Resource name of the form
+      projects/{project}/locations/{location}/kafkaSources/{kafka_source}
+    updateMask: Optional. The fields to be updated; only fields explicitly
+      provided are updated. If no field mask is provided, all provided fields
+      in the request are updated. To update all fields, provide a field mask
+      of "*".
+    validateOnly: Optional. If set, validate the request and preview the
+      review, but do not post it.
+  """
+
+  allowMissing = _messages.BooleanField(1)
+  kafkaSource = _messages.MessageField('KafkaSource', 2)
+  name = _messages.StringField(3, required=True)
+  updateMask = _messages.StringField(4)
+  validateOnly = _messages.BooleanField(5)
+
+
+class EventarcProjectsLocationsKafkaSourcesSetIamPolicyRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesSetIamPolicyRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
+      request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+
+
+class EventarcProjectsLocationsKafkaSourcesTestIamPermissionsRequest(_messages.Message):
+  r"""A EventarcProjectsLocationsKafkaSourcesTestIamPermissionsRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy detail is being
+      requested. See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
+      passed as the request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
+
+
 class EventarcProjectsLocationsListRequest(_messages.Message):
   r"""A EventarcProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1142,10 +1306,11 @@ class EventarcProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class EventarcProjectsLocationsMessageBusesCreateRequest(_messages.Message):
@@ -1256,7 +1421,7 @@ class EventarcProjectsLocationsMessageBusesListRequest(_messages.Message):
       `next_page_token` field in a previous call to retrieve the subsequent
       page. When paginating, all other parameters provided must match the
       previous call that provided the page token.
-    parent: Required. The parent collection to list triggers on.
+    parent: Required. The parent collection to list message buses on.
   """
 
   filter = _messages.StringField(1)
@@ -1365,12 +1530,20 @@ class EventarcProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class EventarcProjectsLocationsPipelinesCreateRequest(_messages.Message):
@@ -1727,7 +1900,9 @@ class EventarcProjectsLocationsUpdateGoogleChannelConfigRequest(_messages.Messag
     googleChannelConfig: A GoogleChannelConfig resource to be passed as the
       request body.
     name: Required. The resource name of the config. Must be in the format of,
-      `projects/{project}/locations/{location}/googleChannelConfig`.
+      `projects/{project}/locations/{location}/googleChannelConfig`. In API
+      responses, the config name always includes the projectID, regardless of
+      whether the projectID or projectNumber was provided.
     updateMask: The fields to be updated; only fields explicitly provided are
       updated. If no field mask is provided, all provided fields in the
       request are updated. To update all fields, provide a field mask of "*".
@@ -1847,6 +2022,11 @@ class GoogleApiSource(_messages.Message):
       GoogleApiSource.
     name: Identifier. Resource name of the form projects/{project}/locations/{
       location}/googleApiSources/{google_api_source}
+    organizationSubscription: Optional. Config to enable subscribing to events
+      from all projects in the GoogleApiSource's org.
+    projectSubscriptions: Optional. Config to enable subscribing to all events
+      from a list of projects. All the projects must be in the same org as the
+      GoogleApiSource.
     uid: Output only. Server assigned unique identifier for the channel. The
       value is a UUID4 string and guaranteed to remain unchanged until the
       resource is deleted.
@@ -1911,8 +2091,10 @@ class GoogleApiSource(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 7)
   loggingConfig = _messages.MessageField('LoggingConfig', 8)
   name = _messages.StringField(9)
-  uid = _messages.StringField(10)
-  updateTime = _messages.StringField(11)
+  organizationSubscription = _messages.MessageField('OrganizationSubscription', 10)
+  projectSubscriptions = _messages.MessageField('ProjectSubscriptions', 11)
+  uid = _messages.StringField(12)
+  updateTime = _messages.StringField(13)
 
 
 class GoogleChannelConfig(_messages.Message):
@@ -1921,18 +2103,49 @@ class GoogleChannelConfig(_messages.Message):
   configured, first-party event data will be protected using the specified
   custom managed encryption key instead of Google-managed encryption keys.
 
+  Messages:
+    LabelsValue: Optional. Resource labels.
+
   Fields:
     cryptoKeyName: Optional. Resource name of a KMS crypto key (managed by the
       user) used to encrypt/decrypt their event data. It must match the
       pattern `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
+    labels: Optional. Resource labels.
     name: Required. The resource name of the config. Must be in the format of,
-      `projects/{project}/locations/{location}/googleChannelConfig`.
+      `projects/{project}/locations/{location}/googleChannelConfig`. In API
+      responses, the config name always includes the projectID, regardless of
+      whether the projectID or projectNumber was provided.
     updateTime: Output only. The last-modified time.
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Resource labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   cryptoKeyName = _messages.StringField(1)
-  name = _messages.StringField(2)
-  updateTime = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 2)
+  name = _messages.StringField(3)
+  updateTime = _messages.StringField(4)
 
 
 class GoogleCloudEventarcV1PipelineDestination(_messages.Message):
@@ -1941,9 +2154,10 @@ class GoogleCloudEventarcV1PipelineDestination(_messages.Message):
   Fields:
     authenticationConfig: Optional. An authentication config used to
       authenticate message requests, such that destinations can verify the
-      source. For example, this can be used with private GCP destinations that
-      require GCP credentials to access like Cloud Run. This field is optional
-      and should be set only by users interested in authenticated push
+      source. For example, this can be used with private Google Cloud
+      destinations that require Google Cloud credentials for access like Cloud
+      Run. This field is optional and should be set only by users interested
+      in authenticated push.
     httpEndpoint: Optional. An HTTP endpoint destination described by an URI.
       If a DNS FQDN is provided as the endpoint, Pipeline will create a
       peering zone to the consumer VPC and forward DNS requests to the VPC
@@ -1982,7 +2196,7 @@ class GoogleCloudEventarcV1PipelineDestinationAuthenticationConfig(_messages.Mes
 
   Fields:
     googleOidc: Optional. This authenticate method will apply Google OIDC
-      tokens signed by a GCP service account to the requests.
+      tokens signed by a Google Cloud service account to the requests.
     oauthToken: Optional. If specified, an [OAuth
       token](https://developers.google.com/identity/protocols/OAuth2) will be
       generated and attached as an `Authorization` header in the HTTP request.
@@ -2020,9 +2234,9 @@ class GoogleCloudEventarcV1PipelineDestinationAuthenticationConfigOAuthToken(_me
 
 class GoogleCloudEventarcV1PipelineDestinationAuthenticationConfigOidcToken(_messages.Message):
   r"""Represents a config used to authenticate with a Google OIDC token using
-  a GCP service account. Use this authentication method to invoke your Cloud
-  Run and Cloud Functions destinations or HTTP endpoints that support Google
-  OIDC.
+  a Google Cloud service account. Use this authentication method to invoke
+  your Cloud Run and Cloud Functions destinations or HTTP endpoints that
+  support Google OIDC.
 
   Fields:
     audience: Optional. Audience to be used to generate the OIDC Token. The
@@ -2049,38 +2263,40 @@ class GoogleCloudEventarcV1PipelineDestinationHttpEndpoint(_messages.Message):
       the destination-bound HTTP request is constructed. If a binding
       expression is not specified here, the message is treated as a CloudEvent
       and is mapped to the HTTP request according to the CloudEvent HTTP
-      Protocol Binding Binary Content Mode. In this representation, all fields
-      except the `data` and `datacontenttype` field on the message are mapped
-      to HTTP request headers with a prefix of `ce-`. To construct the HTTP
-      request payload and the value of the content-type HTTP header, the
-      payload format is defined as follows: 1) Use the
-      output_payload_format_type on the Pipeline.Destination if it is set,
-      else: 2) Use the input_payload_format_type on the Pipeline if it is set,
-      else: 3) Treat the payload as opaque binary data. The `data` field of
-      the message is converted to the payload format or left as-is for case 3)
-      and then attached as the payload of the HTTP request. The `content-type`
-      header on the HTTP request is set to the payload format type or left
-      empty for case 3). However, if a mediation has updated the
-      `datacontenttype` field on the message so that it is not the same as the
-      payload format type but it is still a prefix of the payload format type,
-      then the `content-type` header on the HTTP request is set to this
-      `datacontenttype` value. For example, if the `datacontenttype` is
-      "application/json" and the payload format type is "application/json;
-      charset=utf-8", then the `content-type` header on the HTTP request is
-      set to "application/json; charset=utf-8". If a non-empty binding
-      expression is specified then this expression is used to modify the
-      default CloudEvent HTTP Protocol Binding Binary Content representation.
-      The result of the CEL expression must be a map of key/value pairs which
-      is used as follows: - If a map named `headers` exists on the result of
-      the expression, then its key/value pairs are directly mapped to the HTTP
-      request headers. The headers values are constructed from the
-      corresponding value type's canonical representation. If the `headers`
-      field doesn't exist then the resulting HTTP request will be the headers
-      of the CloudEvent HTTP Binding Binary Content Mode representation of the
-      final message. Note: If the specified binding expression, has updated
-      the `datacontenttype` field on the message so that it is not the same as
-      the payload format type but it is still a prefix of the payload format
-      type, then the `content-type` header in the `headers` map is set to this
+      Protocol Binding Binary Content Mode (https://github.com/cloudevents/spe
+      c/blob/main/cloudevents/bindings/http-protocol-binding.md#31-binary-
+      content-mode). In this representation, all fields except the `data` and
+      `datacontenttype` field on the message are mapped to HTTP request
+      headers with a prefix of `ce-`. To construct the HTTP request payload
+      and the value of the content-type HTTP header, the payload format is
+      defined as follows: 1) Use the output_payload_format_type on the
+      Pipeline.Destination if it is set, else: 2) Use the
+      input_payload_format_type on the Pipeline if it is set, else: 3) Treat
+      the payload as opaque binary data. The `data` field of the message is
+      converted to the payload format or left as-is for case 3) and then
+      attached as the payload of the HTTP request. The `content-type` header
+      on the HTTP request is set to the payload format type or left empty for
+      case 3). However, if a mediation has updated the `datacontenttype` field
+      on the message so that it is not the same as the payload format type but
+      it is still a prefix of the payload format type, then the `content-type`
+      header on the HTTP request is set to this `datacontenttype` value. For
+      example, if the `datacontenttype` is "application/json" and the payload
+      format type is "application/json; charset=utf-8", then the `content-
+      type` header on the HTTP request is set to "application/json;
+      charset=utf-8". If a non-empty binding expression is specified then this
+      expression is used to modify the default CloudEvent HTTP Protocol
+      Binding Binary Content representation. The result of the CEL expression
+      must be a map of key/value pairs which is used as follows: - If a map
+      named `headers` exists on the result of the expression, then its
+      key/value pairs are directly mapped to the HTTP request headers. The
+      headers values are constructed from the corresponding value type's
+      canonical representation. If the `headers` field doesn't exist then the
+      resulting HTTP request will be the headers of the CloudEvent HTTP
+      Binding Binary Content Mode representation of the final message. Note:
+      If the specified binding expression, has updated the `datacontenttype`
+      field on the message so that it is not the same as the payload format
+      type but it is still a prefix of the payload format type, then the
+      `content-type` header in the `headers` map is set to this
       `datacontenttype` value. - If a field named `body` exists on the result
       of the expression then its value is directly mapped to the body of the
       request. If the value of the `body` field is of type bytes or string
@@ -2151,7 +2367,7 @@ class GoogleCloudEventarcV1PipelineDestinationHttpEndpoint(_messages.Message):
       Pipeline expects that the message it receives adheres to the standard
       CloudEvent format. If it doesn't then the outgoing message request may
       fail with a persistent error.
-    uri: Required. The URI of the HTTP enpdoint. The value must be a RFC2396
+    uri: Required. The URI of the HTTP endpoint. The value must be a RFC2396
       URI string. Examples: `https://svc.us-central1.p.local:8080/route`. Only
       the HTTPS protocol is supported.
   """
@@ -2310,10 +2526,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):
@@ -2479,7 +2700,7 @@ class HttpEndpoint(_messages.Message):
   r"""Represents a HTTP endpoint destination.
 
   Fields:
-    uri: Required. The URI of the HTTP enpdoint. The value must be a RFC2396
+    uri: Required. The URI of the HTTP endpoint. The value must be a RFC2396
       URI string. Examples: `http://10.10.10.8:80/route`, `http://svc.us-
       central1.p.local:8080/`. Only HTTP and HTTPS protocols are supported.
       The host can be either a static IP addressable from the VPC specified by
@@ -2488,6 +2709,116 @@ class HttpEndpoint(_messages.Message):
   """
 
   uri = _messages.StringField(1)
+
+
+class KafkaSource(_messages.Message):
+  r"""KafkaSource that reads data from Kafka and delivers them to the Message
+  Bus. The location of the KafkaSource must match the location of the Message
+  Bus that it delivers to.
+
+  Messages:
+    AnnotationsValue: Optional. Resource annotations.
+    LabelsValue: Optional. Resource labels.
+
+  Fields:
+    annotations: Optional. Resource annotations.
+    authenticationConfig: Optional. Authentication configuration used to
+      authenticate the Kafka client with the Kafka broker, and authorize to
+      read the topic(s).
+    brokerUris: Required. The Kafka broker URIs. e.g. 10.12.34.56:8080
+    consumerGroupId: Required. The consumer group ID used by the Kafka broker
+      to track the offsets of all topic partitions being read by this Stream.
+    createTime: Output only. The creation time.
+    destination: Required. Destination is the message bus that the kafka
+      source is delivering to. It must be point to the full resource name of a
+      MessageBus. Format:
+      "projects/{PROJECT_ID}/locations/{region}/messagesBuses/{MESSAGE_BUS_ID)
+    displayName: Optional. Resource display name.
+    etag: Output only. This checksum is computed by the server based on the
+      value of other fields, and might be sent only on update and delete
+      requests to ensure that the client has an up-to-date value before
+      proceeding.
+    initialOffset: Required. The initial message offset from which to start
+      streaming. Supported values: newest, oldest.
+    labels: Optional. Resource labels.
+    loggingConfig: Optional. Config to control Platform Logging for Kafka
+      Sources.
+    name: Identifier. Resource name of the form
+      projects/{project}/locations/{location}/kafkaSources/{kafka_source}
+    networkConfig: Optional. The network passed to the Kafka source to connect
+      to the kafka broker available from a customer VPC.
+    topics: Required. The Kafka topics to read from.
+    uid: Output only. Server assigned unique identifier for the KafkaSource.
+      The value is a UUID4 string and guaranteed to remain unchanged until the
+      resource is deleted.
+    updateTime: Output only. The last-modified time.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AnnotationsValue(_messages.Message):
+    r"""Optional. Resource annotations.
+
+    Messages:
+      AdditionalProperty: An additional property for a AnnotationsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type AnnotationsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AnnotationsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Resource labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  annotations = _messages.MessageField('AnnotationsValue', 1)
+  authenticationConfig = _messages.MessageField('AuthenticationConfig', 2)
+  brokerUris = _messages.StringField(3, repeated=True)
+  consumerGroupId = _messages.StringField(4)
+  createTime = _messages.StringField(5)
+  destination = _messages.StringField(6)
+  displayName = _messages.StringField(7)
+  etag = _messages.StringField(8)
+  initialOffset = _messages.StringField(9)
+  labels = _messages.MessageField('LabelsValue', 10)
+  loggingConfig = _messages.MessageField('LoggingConfig', 11)
+  name = _messages.StringField(12)
+  networkConfig = _messages.MessageField('NetworkConfig', 13)
+  topics = _messages.StringField(14, repeated=True)
+  uid = _messages.StringField(15)
+  updateTime = _messages.StringField(16)
 
 
 class ListChannelConnectionsResponse(_messages.Message):
@@ -2552,6 +2883,22 @@ class ListGoogleApiSourcesResponse(_messages.Message):
   """
 
   googleApiSources = _messages.MessageField('GoogleApiSource', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListKafkaSourcesResponse(_messages.Message):
+  r"""The response message for the `ListKafkaSources` method.
+
+  Fields:
+    kafkaSources: The requested KafkaSources, up to the number specified in
+      `page_size`.
+    nextPageToken: A page token that can be sent to `ListKafkaSources` to
+      request the next page. If this is empty, then there are no more pages.
+    unreachable: Unreachable resources, if any.
+  """
+
+  kafkaSources = _messages.MessageField('KafkaSource', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
 
@@ -2874,6 +3221,34 @@ class MessageBus(_messages.Message):
   updateTime = _messages.StringField(10)
 
 
+class MutualTlsAuthConfig(_messages.Message):
+  r"""Mutual TLS authentication mechanism configuration.
+
+  Fields:
+    secretManagerResources: mTLS auth config loaded from Secret Manager.
+  """
+
+  secretManagerResources = _messages.MessageField('MutualTlsSecrets', 1)
+
+
+class MutualTlsSecrets(_messages.Message):
+  r"""Mutual TLS payloads from Secret Manager.
+
+  Fields:
+    clientCertificate: Required. The client certificate for mTLS may be loaded
+      from Secret Manager. Supported Formats:
+      `projects/{project}/secrets/{secret}/versions/{version}` `projects/{proj
+      ect}/locations/{location}/secrets/{secret}/versions/{version}`
+    clientKey: Required. The client key for mTLS may be loaded from Secret
+      Manager. Supported Formats:
+      `projects/{project}/secrets/{secret}/versions/{version}` `projects/{proj
+      ect}/locations/{location}/secrets/{secret}/versions/{version}`
+  """
+
+  clientCertificate = _messages.StringField(1)
+  clientKey = _messages.StringField(2)
+
+
 class NetworkConfig(_messages.Message):
   r"""Network Configuration that can be inherited by other protos.
 
@@ -2913,6 +3288,16 @@ class OperationMetadata(_messages.Message):
   verb = _messages.StringField(7)
 
 
+class OrganizationSubscription(_messages.Message):
+  r"""Config to enabled subscribing to events from other projects in the org.
+
+  Fields:
+    enabled: Required. Enable org level subscription.
+  """
+
+  enabled = _messages.BooleanField(1)
+
+
 class Pipeline(_messages.Message):
   r"""A representation of the Pipeline resource.
 
@@ -2938,6 +3323,9 @@ class Pipeline(_messages.Message):
     destinations: Required. List of destinations to which messages will be
       forwarded. Currently, exactly one destination is supported per Pipeline.
     displayName: Optional. Display name of resource.
+    errorMessageBus: Optional. Resource name of the message bus to publish
+      error messages to. It matches the form
+      projects/{project}/locations/{location}/messageBuses/{messageBus}.
     etag: Output only. This checksum is computed by the server based on the
       value of other fields, and might be sent only on create requests to
       ensure that the client has an up-to-date value before proceeding.
@@ -2960,6 +3348,8 @@ class Pipeline(_messages.Message):
       the location of the project and must be in
       `projects/{project}/locations/{location}/pipelines/{pipeline}` format.
     retryPolicy: Optional. The retry policy to use in the pipeline.
+    satisfiesPzs: Output only. Whether or not this Pipeline satisfies the
+      requirements of physical zone separation
     uid: Output only. Server-assigned unique identifier for the Pipeline. The
       value is a UUID4 string and guaranteed to remain unchanged until the
       resource is deleted.
@@ -3026,15 +3416,17 @@ class Pipeline(_messages.Message):
   cryptoKeyName = _messages.StringField(3)
   destinations = _messages.MessageField('GoogleCloudEventarcV1PipelineDestination', 4, repeated=True)
   displayName = _messages.StringField(5)
-  etag = _messages.StringField(6)
-  inputPayloadFormat = _messages.MessageField('GoogleCloudEventarcV1PipelineMessagePayloadFormat', 7)
-  labels = _messages.MessageField('LabelsValue', 8)
-  loggingConfig = _messages.MessageField('LoggingConfig', 9)
-  mediations = _messages.MessageField('GoogleCloudEventarcV1PipelineMediation', 10, repeated=True)
-  name = _messages.StringField(11)
-  retryPolicy = _messages.MessageField('GoogleCloudEventarcV1PipelineRetryPolicy', 12)
-  uid = _messages.StringField(13)
-  updateTime = _messages.StringField(14)
+  errorMessageBus = _messages.StringField(6)
+  etag = _messages.StringField(7)
+  inputPayloadFormat = _messages.MessageField('GoogleCloudEventarcV1PipelineMessagePayloadFormat', 8)
+  labels = _messages.MessageField('LabelsValue', 9)
+  loggingConfig = _messages.MessageField('LoggingConfig', 10)
+  mediations = _messages.MessageField('GoogleCloudEventarcV1PipelineMediation', 11, repeated=True)
+  name = _messages.StringField(12)
+  retryPolicy = _messages.MessageField('GoogleCloudEventarcV1PipelineRetryPolicy', 13)
+  satisfiesPzs = _messages.BooleanField(14)
+  uid = _messages.StringField(15)
+  updateTime = _messages.StringField(16)
 
 
 class Policy(_messages.Message):
@@ -3115,6 +3507,20 @@ class Policy(_messages.Message):
   version = _messages.IntegerField(4, variant=_messages.Variant.INT32)
 
 
+class ProjectSubscriptions(_messages.Message):
+  r"""Config to enable subscribing to all events from a list of projects.
+
+  Fields:
+    list: Required. A list of projects to receive events from. All the
+      projects must be in the same org. The listed projects should have the
+      format project/{identifier} where identifier can be either the project
+      id for project number. A single list may contain both formats. At most
+      100 projects can be listed.
+  """
+
+  list = _messages.StringField(1, repeated=True)
+
+
 class Provider(_messages.Message):
   r"""A representation of the Provider resource.
 
@@ -3149,6 +3555,45 @@ class Pubsub(_messages.Message):
 
   subscription = _messages.StringField(1)
   topic = _messages.StringField(2)
+
+
+class SaslAuthConfig(_messages.Message):
+  r"""SASL/Plain or SASL/SCRAM mechanism configuration.
+
+  Enums:
+    MechanismValueValuesEnum: Required. The SASL authentication mechanism.
+
+  Fields:
+    mechanism: Required. The SASL authentication mechanism.
+    passwordSecret: Required. The password for the authentication identity may
+      be loaded from Secret Manager. Supported Format: 1-
+      "projects/{project}/secrets/{secret}/versions/{version}" 2- "projects/{p
+      roject}/locations/{location}/secrets/{secret}/versions/{version}"
+    username: Optional. The SASL authentication identity (username).
+    usernameSecret: Optional. The username for the authentication identity may
+      be loaded from Secret Manager. Supported Format: 1-
+      "projects/{project}/secrets/{secret}/versions/{version}" 2- "projects/{p
+      roject}/locations/{location}/secrets/{secret}/versions/{version}"
+  """
+
+  class MechanismValueValuesEnum(_messages.Enum):
+    r"""Required. The SASL authentication mechanism.
+
+    Values:
+      AUTH_MECHANISM_UNSPECIFIED: Default Mechanism is unspecified.
+      PLAIN: PLAIN
+      SHA_256: SHA_256
+      SHA_512: SHA_512
+    """
+    AUTH_MECHANISM_UNSPECIFIED = 0
+    PLAIN = 1
+    SHA_256 = 2
+    SHA_512 = 3
+
+  mechanism = _messages.EnumField('MechanismValueValuesEnum', 1)
+  passwordSecret = _messages.StringField(2)
+  username = _messages.StringField(3)
+  usernameSecret = _messages.StringField(4)
 
 
 class SetIamPolicyRequest(_messages.Message):
@@ -3517,6 +3962,8 @@ encoding.AddCustomJsonFieldMapping(
     EventarcProjectsLocationsEnrollmentsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     EventarcProjectsLocationsGoogleApiSourcesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+encoding.AddCustomJsonFieldMapping(
+    EventarcProjectsLocationsKafkaSourcesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     EventarcProjectsLocationsMessageBusesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(

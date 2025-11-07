@@ -18,7 +18,7 @@ import enum
 
 
 BASE_URL = 'https://parametermanager.googleapis.com/v1/'
-DOCS_URL = 'www.google.com'
+DOCS_URL = 'https://cloud.google.com/secret-manager/parameter-manager/docs/overview'
 
 
 class Collections(enum.Enum):
@@ -39,6 +39,14 @@ class Collections(enum.Enum):
               'projects/{projectsId}/locations/{locationsId}',
       },
       ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_KEYRINGS_CRYPTOKEYS = (
+      'projects.locations.keyRings.cryptoKeys',
+      'projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/'
+      'cryptoKeys/{cryptoKeysId}',
+      {},
+      ['projectsId', 'locationsId', 'keyRingsId', 'cryptoKeysId'],
       True
   )
   PROJECTS_LOCATIONS_PARAMETERS = (

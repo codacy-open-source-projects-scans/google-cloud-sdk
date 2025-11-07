@@ -1,8 +1,7 @@
 """Generated message classes for containeranalysis version v1beta1.
 
 This API is a prerequisite for leveraging Artifact Analysis scanning
-capabilities in both Artifact Registry and with Advanced Vulnerability
-Insights (runtime scanning) in GKE. In addition, the Container Analysis API is
+capabilities in Artifact Registry. In addition, the Container Analysis API is
 an implementation of the Grafeas API, which enables storing, querying, and
 retrieval of critical metadata about all of your software artifacts.
 """
@@ -584,7 +583,7 @@ class BuildSignature(_messages.Message):
 
 
 class BuildStep(_messages.Message):
-  r"""A step in the build pipeline. Next ID: 21
+  r"""A step in the build pipeline. Next ID: 23
 
   Enums:
     StatusValueValuesEnum: Output only. Status of the build step. At this
@@ -639,6 +638,8 @@ class BuildStep(_messages.Message):
       to use as the name for a later build step.
     pullTiming: Output only. Stores timing information for pulling this build
       step's builder image only.
+    remoteConfig: Remote configuration for the build step.
+    results: A StepResult attribute.
     script: A shell script to be executed in the step. When script is
       provided, the user cannot specify the entrypoint or args.
     secretEnv: A list of environment variables which are encrypted using a
@@ -706,13 +707,15 @@ class BuildStep(_messages.Message):
   id = _messages.StringField(9)
   name = _messages.StringField(10)
   pullTiming = _messages.MessageField('TimeSpan', 11)
-  script = _messages.StringField(12)
-  secretEnv = _messages.StringField(13, repeated=True)
-  status = _messages.EnumField('StatusValueValuesEnum', 14)
-  timeout = _messages.StringField(15)
-  timing = _messages.MessageField('TimeSpan', 16)
-  volumes = _messages.MessageField('Volume', 17, repeated=True)
-  waitFor = _messages.StringField(18, repeated=True)
+  remoteConfig = _messages.StringField(12)
+  results = _messages.MessageField('StepResult', 13, repeated=True)
+  script = _messages.StringField(14)
+  secretEnv = _messages.StringField(15, repeated=True)
+  status = _messages.EnumField('StatusValueValuesEnum', 16)
+  timeout = _messages.StringField(17)
+  timing = _messages.MessageField('TimeSpan', 18)
+  volumes = _messages.MessageField('Volume', 19, repeated=True)
+  waitFor = _messages.StringField(20, repeated=True)
 
 
 class ByProducts(_messages.Message):
@@ -1191,6 +1194,9 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Artifacts(_messages.Message):
   completion of all build steps.
 
   Fields:
+    goModules: Optional. A list of Go modules to be uploaded to Artifact
+      Registry upon successful completion of all build steps. If any objects
+      fail to be pushed, the build is marked FAILURE.
     images: A list of images to be pushed upon the successful completion of
       all build steps. The images will be pushed using the builder service
       account's credentials. The digests of the pushed images will be stored
@@ -1220,11 +1226,12 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Artifacts(_messages.Message):
       objects fail to be pushed, the build is marked FAILURE.
   """
 
-  images = _messages.StringField(1, repeated=True)
-  mavenArtifacts = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsMavenArtifact', 2, repeated=True)
-  npmPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsNpmPackage', 3, repeated=True)
-  objects = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsArtifactObjects', 4)
-  pythonPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsPythonPackage', 5, repeated=True)
+  goModules = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsGoModule', 1, repeated=True)
+  images = _messages.StringField(2, repeated=True)
+  mavenArtifacts = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsMavenArtifact', 3, repeated=True)
+  npmPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsNpmPackage', 4, repeated=True)
+  objects = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsArtifactObjects', 5)
+  pythonPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsPythonPackage', 6, repeated=True)
 
 
 class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsArtifactObjects(_messages.Message):
@@ -1247,6 +1254,37 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsArtifactObjects(_messa
   timing = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1TimeSpan', 3)
 
 
+class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsGoModule(_messages.Message):
+  r"""Go module to upload to Artifact Registry upon successful completion of
+  all build steps. A module refers to all dependencies in a go.mod file.
+
+  Fields:
+    modulePath: Optional. The Go module's "module path". e.g.
+      example.com/foo/v2
+    moduleVersion: Optional. The Go module's semantic version in the form
+      vX.Y.Z. e.g. v0.1.1 Pre-release identifiers can also be added by
+      appending a dash and dot separated ASCII alphanumeric characters and
+      hyphens. e.g. v0.2.3-alpha.x.12m.5
+    repositoryLocation: Optional. Location of the Artifact Registry
+      repository. i.e. us-east1 Defaults to the build's location.
+    repositoryName: Optional. Artifact Registry repository name. Specified Go
+      modules will be zipped and uploaded to Artifact Registry with this
+      location as a prefix. e.g. my-go-repo
+    repositoryProjectId: Optional. Project ID of the Artifact Registry
+      repository. Defaults to the build project.
+    sourcePath: Optional. Source path of the go.mod file in the build's
+      workspace. If not specified, this will default to the current directory.
+      e.g. ~/code/go/mypackage
+  """
+
+  modulePath = _messages.StringField(1)
+  moduleVersion = _messages.StringField(2)
+  repositoryLocation = _messages.StringField(3)
+  repositoryName = _messages.StringField(4)
+  repositoryProjectId = _messages.StringField(5)
+  sourcePath = _messages.StringField(6)
+
+
 class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsMavenArtifact(_messages.Message):
   r"""A Maven artifact to upload to Artifact Registry upon successful
   completion of all build steps.
@@ -1256,8 +1294,8 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsMavenArtifact(_message
       Artifact Registry.
     groupId: Maven `groupId` value used when uploading the artifact to
       Artifact Registry.
-    path: Path to an artifact in the build's workspace to be uploaded to
-      Artifact Registry. This can be either an absolute path, e.g.
+    path: Optional. Path to an artifact in the build's workspace to be
+      uploaded to Artifact Registry. This can be either an absolute path, e.g.
       /workspace/my-app/target/my-app-1.0.SNAPSHOT.jar or a relative path from
       /workspace, e.g. my-app/target/my-app-1.0.SNAPSHOT.jar.
     repository: Artifact Registry repository, in the form "https://$REGION-
@@ -1280,7 +1318,9 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1ArtifactsNpmPackage(_messages.M
   all build steps.
 
   Fields:
-    packagePath: Path to the package.json. e.g. workspace/path/to/package
+    packagePath: Optional. Path to the package.json. e.g.
+      workspace/path/to/package Only one of `archive` or `package_path` can be
+      specified.
     repository: Artifact Registry repository, in the form "https://$REGION-
       npm.pkg.dev/$PROJECT/$REPOSITORY" Npm package in the workspace specified
       by path will be zipped and uploaded to Artifact Registry with this
@@ -1346,6 +1386,8 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Build(_messages.Message):
       this build, if it was triggered automatically.
     createTime: Output only. Time at which the request to create the build was
       received.
+    dependencies: Optional. Dependencies that the Cloud Build worker will
+      fetch before executing user steps.
     failureInfo: Output only. Contains information about the build when
       status=FAILURE.
     finishTime: Output only. Time at which execution of the build was
@@ -1491,31 +1533,32 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Build(_messages.Message):
   availableSecrets = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Secrets', 3)
   buildTriggerId = _messages.StringField(4)
   createTime = _messages.StringField(5)
-  failureInfo = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildFailureInfo', 6)
-  finishTime = _messages.StringField(7)
-  gitConfig = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1GitConfig', 8)
-  id = _messages.StringField(9)
-  images = _messages.StringField(10, repeated=True)
-  logUrl = _messages.StringField(11)
-  logsBucket = _messages.StringField(12)
-  name = _messages.StringField(13)
-  options = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions', 14)
-  projectId = _messages.StringField(15)
-  queueTtl = _messages.StringField(16)
-  results = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Results', 17)
-  secrets = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Secret', 18, repeated=True)
-  serviceAccount = _messages.StringField(19)
-  source = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Source', 20)
-  sourceProvenance = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1SourceProvenance', 21)
-  startTime = _messages.StringField(22)
-  status = _messages.EnumField('StatusValueValuesEnum', 23)
-  statusDetail = _messages.StringField(24)
-  steps = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildStep', 25, repeated=True)
-  substitutions = _messages.MessageField('SubstitutionsValue', 26)
-  tags = _messages.StringField(27, repeated=True)
-  timeout = _messages.StringField(28)
-  timing = _messages.MessageField('TimingValue', 29)
-  warnings = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildWarning', 30, repeated=True)
+  dependencies = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Dependency', 6, repeated=True)
+  failureInfo = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildFailureInfo', 7)
+  finishTime = _messages.StringField(8)
+  gitConfig = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1GitConfig', 9)
+  id = _messages.StringField(10)
+  images = _messages.StringField(11, repeated=True)
+  logUrl = _messages.StringField(12)
+  logsBucket = _messages.StringField(13)
+  name = _messages.StringField(14)
+  options = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions', 15)
+  projectId = _messages.StringField(16)
+  queueTtl = _messages.StringField(17)
+  results = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Results', 18)
+  secrets = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Secret', 19, repeated=True)
+  serviceAccount = _messages.StringField(20)
+  source = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Source', 21)
+  sourceProvenance = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1SourceProvenance', 22)
+  startTime = _messages.StringField(23)
+  status = _messages.EnumField('StatusValueValuesEnum', 24)
+  statusDetail = _messages.StringField(25)
+  steps = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildStep', 26, repeated=True)
+  substitutions = _messages.MessageField('SubstitutionsValue', 27)
+  tags = _messages.StringField(28, repeated=True)
+  timeout = _messages.StringField(29)
+  timing = _messages.MessageField('TimingValue', 30)
+  warnings = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildWarning', 31, repeated=True)
 
 
 class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildApproval(_messages.Message):
@@ -1622,6 +1665,9 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message)
       string operations to the substitutions. NOTE: this is always enabled for
       triggered builds and cannot be overridden in the build configuration
       file.
+    enableStructuredLogging: Optional. Option to specify whether structured
+      logging is enabled. If true, JSON-formatted logs are parsed as
+      structured logs.
     env: A list of global environment variable definitions that will exist for
       all build steps in this build. If a variable is defined in both globally
       and in a build step, the variable will use the build step value. The
@@ -1636,6 +1682,8 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message)
       [running builds in a private
       pool](https://cloud.google.com/build/docs/private-pools/run-builds-in-
       private-pool) for more information.
+    pubsubTopic: Optional. Option to specify the Pub/Sub topic to receive
+      build status updates.
     requestedVerifyOption: Requested verifiability options.
     secretEnv: A list of global environment variables, which are encrypted
       using a Cloud Key Management Service crypto key. These values must be
@@ -1744,12 +1792,15 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message)
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   class SubstitutionOptionValueValuesEnum(_messages.Enum):
     r"""Option to specify behavior when there is an error in the substitution
@@ -1768,17 +1819,19 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message)
   defaultLogsBucketBehavior = _messages.EnumField('DefaultLogsBucketBehaviorValueValuesEnum', 2)
   diskSizeGb = _messages.IntegerField(3)
   dynamicSubstitutions = _messages.BooleanField(4)
-  env = _messages.StringField(5, repeated=True)
-  logStreamingOption = _messages.EnumField('LogStreamingOptionValueValuesEnum', 6)
-  logging = _messages.EnumField('LoggingValueValuesEnum', 7)
-  machineType = _messages.EnumField('MachineTypeValueValuesEnum', 8)
-  pool = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptionsPoolOption', 9)
-  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 10)
-  secretEnv = _messages.StringField(11, repeated=True)
-  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 12, repeated=True)
-  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 13)
-  volumes = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Volume', 14, repeated=True)
-  workerPool = _messages.StringField(15)
+  enableStructuredLogging = _messages.BooleanField(5)
+  env = _messages.StringField(6, repeated=True)
+  logStreamingOption = _messages.EnumField('LogStreamingOptionValueValuesEnum', 7)
+  logging = _messages.EnumField('LoggingValueValuesEnum', 8)
+  machineType = _messages.EnumField('MachineTypeValueValuesEnum', 9)
+  pool = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptionsPoolOption', 10)
+  pubsubTopic = _messages.StringField(11)
+  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 12)
+  secretEnv = _messages.StringField(13, repeated=True)
+  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 14, repeated=True)
+  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 15)
+  volumes = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1Volume', 16, repeated=True)
+  workerPool = _messages.StringField(17)
 
 
 class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptionsPoolOption(_messages.Message):
@@ -1990,6 +2043,53 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1ConnectedRepository(_messages.M
   revision = _messages.StringField(3)
 
 
+class ContaineranalysisGoogleDevtoolsCloudbuildV1Dependency(_messages.Message):
+  r"""A dependency that the Cloud Build worker will fetch before executing
+  user steps.
+
+  Fields:
+    empty: If set to true disable all dependency fetching (ignoring the
+      default source as well).
+    gitSource: Represents a git repository as a build dependency.
+  """
+
+  empty = _messages.BooleanField(1)
+  gitSource = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1DependencyGitSourceDependency', 2)
+
+
+class ContaineranalysisGoogleDevtoolsCloudbuildV1DependencyGitSourceDependency(_messages.Message):
+  r"""Represents a git repository as a build dependency.
+
+  Fields:
+    depth: Optional. How much history should be fetched for the build (default
+      1, -1 for all history).
+    destPath: Required. Where should the files be placed on the worker.
+    recurseSubmodules: Optional. True if submodules should be fetched too
+      (default false).
+    repository: Required. The kind of repo (url or dev connect).
+    revision: Required. The revision that we will fetch the repo at.
+  """
+
+  depth = _messages.IntegerField(1)
+  destPath = _messages.StringField(2)
+  recurseSubmodules = _messages.BooleanField(3)
+  repository = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1DependencyGitSourceRepository', 4)
+  revision = _messages.StringField(5)
+
+
+class ContaineranalysisGoogleDevtoolsCloudbuildV1DependencyGitSourceRepository(_messages.Message):
+  r"""A repository for a git source.
+
+  Fields:
+    developerConnect: The Developer Connect Git repository link formatted as
+      `projects/*/locations/*/connections/*/gitRepositoryLink/*`
+    url: Location of the Git repository.
+  """
+
+  developerConnect = _messages.StringField(1)
+  url = _messages.StringField(2)
+
+
 class ContaineranalysisGoogleDevtoolsCloudbuildV1DeveloperConnectConfig(_messages.Message):
   r"""This config defines the location of a source through Developer Connect.
 
@@ -2083,12 +2183,15 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Hash(_messages.Message):
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   type = _messages.EnumField('TypeValueValuesEnum', 1)
   value = _messages.BytesField(2)
@@ -2226,6 +2329,8 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Results(_messages.Message):
       produce this output by writing to `$BUILDER_OUTPUT/output`. Only the
       first 50KB of data is stored. Note that the `$BUILDER_OUTPUT` variable
       is read-only and can't be substituted.
+    goModules: Optional. Go module artifacts uploaded to Artifact Registry at
+      the end of the build.
     images: Container images that were built as a part of the build.
     mavenArtifacts: Maven artifacts uploaded to Artifact Registry at the end
       of the build.
@@ -2241,11 +2346,12 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1Results(_messages.Message):
   artifactTiming = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1TimeSpan', 2)
   buildStepImages = _messages.StringField(3, repeated=True)
   buildStepOutputs = _messages.BytesField(4, repeated=True)
-  images = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuiltImage', 5, repeated=True)
-  mavenArtifacts = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedMavenArtifact', 6, repeated=True)
-  npmPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedNpmPackage', 7, repeated=True)
-  numArtifacts = _messages.IntegerField(8)
-  pythonPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedPythonPackage', 9, repeated=True)
+  goModules = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedGoModule', 5, repeated=True)
+  images = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1BuiltImage', 6, repeated=True)
+  mavenArtifacts = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedMavenArtifact', 7, repeated=True)
+  npmPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedNpmPackage', 8, repeated=True)
+  numArtifacts = _messages.IntegerField(9)
+  pythonPackages = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedPythonPackage', 10, repeated=True)
 
 
 class ContaineranalysisGoogleDevtoolsCloudbuildV1Secret(_messages.Message):
@@ -2508,6 +2614,22 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1TimeSpan(_messages.Message):
   startTime = _messages.StringField(2)
 
 
+class ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedGoModule(_messages.Message):
+  r"""A Go module artifact uploaded to Artifact Registry using the GoModule
+  directive.
+
+  Fields:
+    fileHashes: Hash types and values of the Go Module Artifact.
+    pushTiming: Output only. Stores timing information for pushing the
+      specified artifact.
+    uri: URI of the uploaded artifact.
+  """
+
+  fileHashes = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1FileHashes', 1)
+  pushTiming = _messages.MessageField('ContaineranalysisGoogleDevtoolsCloudbuildV1TimeSpan', 2)
+  uri = _messages.StringField(3)
+
+
 class ContaineranalysisGoogleDevtoolsCloudbuildV1UploadedMavenArtifact(_messages.Message):
   r"""A Maven artifact uploaded using the MavenArtifact directive.
 
@@ -2648,12 +2770,16 @@ class ContaineranalysisProjectsLocationsNotesListRequest(_messages.Message):
     pageToken: Token to provide to skip to a particular spot in the list.
     parent: Required. The name of the project to list notes for in the form of
       `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable Notes
+      and report all unreachable regions in the `unreachable` field in the
+      response. Only applicable for requests in the global region.
   """
 
   filter = _messages.StringField(1)
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ContaineranalysisProjectsLocationsNotesOccurrencesListRequest(_messages.Message):
@@ -2808,10 +2934,15 @@ class ContaineranalysisProjectsLocationsOccurrencesGetVulnerabilitySummaryReques
     filter: The filter expression.
     parent: Required. The name of the project to get a vulnerability summary
       for in the form of `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable
+      occurrence summaries and report all unreachable regions in the
+      `unreachable` field in the response. Only applicable for requests in the
+      global region.
   """
 
   filter = _messages.StringField(1)
   parent = _messages.StringField(2, required=True)
+  returnPartialSuccess = _messages.BooleanField(3)
 
 
 class ContaineranalysisProjectsLocationsOccurrencesListRequest(_messages.Message):
@@ -2825,12 +2956,17 @@ class ContaineranalysisProjectsLocationsOccurrencesListRequest(_messages.Message
     pageToken: Token to provide to skip to a particular spot in the list.
     parent: Required. The name of the project to list occurrences for in the
       form of `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable
+      Occurrences and report all unreachable regions in the `unreachable`
+      field in the response. Only applicable for requests in the global
+      region.
   """
 
   filter = _messages.StringField(1)
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ContaineranalysisProjectsLocationsOccurrencesPatchRequest(_messages.Message):
@@ -2989,12 +3125,16 @@ class ContaineranalysisProjectsNotesListRequest(_messages.Message):
     pageToken: Token to provide to skip to a particular spot in the list.
     parent: Required. The name of the project to list notes for in the form of
       `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable Notes
+      and report all unreachable regions in the `unreachable` field in the
+      response. Only applicable for requests in the global region.
   """
 
   filter = _messages.StringField(1)
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ContaineranalysisProjectsNotesOccurrencesListRequest(_messages.Message):
@@ -3145,10 +3285,15 @@ class ContaineranalysisProjectsOccurrencesGetVulnerabilitySummaryRequest(_messag
     filter: The filter expression.
     parent: Required. The name of the project to get a vulnerability summary
       for in the form of `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable
+      occurrence summaries and report all unreachable regions in the
+      `unreachable` field in the response. Only applicable for requests in the
+      global region.
   """
 
   filter = _messages.StringField(1)
   parent = _messages.StringField(2, required=True)
+  returnPartialSuccess = _messages.BooleanField(3)
 
 
 class ContaineranalysisProjectsOccurrencesListRequest(_messages.Message):
@@ -3162,12 +3307,17 @@ class ContaineranalysisProjectsOccurrencesListRequest(_messages.Message):
     pageToken: Token to provide to skip to a particular spot in the list.
     parent: Required. The name of the project to list occurrences for in the
       form of `projects/[PROJECT_ID]`.
+    returnPartialSuccess: If set, the request will return all reachable
+      Occurrences and report all unreachable regions in the `unreachable`
+      field in the response. Only applicable for requests in the global
+      region.
   """
 
   filter = _messages.StringField(1)
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ContaineranalysisProjectsOccurrencesPatchRequest(_messages.Message):
@@ -3402,6 +3552,7 @@ class Discovered(_messages.Message):
       LocalizedMessage under details to show to the user. The LocalizedMessage
       is output only and populated by the API.
     continuousAnalysis: Whether the resource is continuously analyzed.
+    files: Files that make up the resource described by the occurrence.
     lastAnalysisTime: The last time continuous analysis was done for this
       resource. Deprecated, do not use.
     lastScanTime: The last time this resource was scanned.
@@ -3446,9 +3597,10 @@ class Discovered(_messages.Message):
   analysisStatus = _messages.EnumField('AnalysisStatusValueValuesEnum', 3)
   analysisStatusError = _messages.MessageField('Status', 4)
   continuousAnalysis = _messages.EnumField('ContinuousAnalysisValueValuesEnum', 5)
-  lastAnalysisTime = _messages.StringField(6)
-  lastScanTime = _messages.StringField(7)
-  sbomStatus = _messages.MessageField('SBOMStatus', 8)
+  files = _messages.MessageField('File', 6, repeated=True)
+  lastAnalysisTime = _messages.StringField(7)
+  lastScanTime = _messages.StringField(8)
+  sbomStatus = _messages.MessageField('SBOMStatus', 9)
 
 
 class Discovery(_messages.Message):
@@ -3488,6 +3640,7 @@ class Discovery(_messages.Message):
       SPDX_RELATIONSHIP: This represents an SPDX Relationship.
       VULNERABILITY_ASSESSMENT: This represents a Vulnerability Assessment.
       SBOM_REFERENCE: This represents an SBOM Reference.
+      SECRET: This represents a secret.
     """
     NOTE_KIND_UNSPECIFIED = 0
     VULNERABILITY = 1
@@ -3504,6 +3657,7 @@ class Discovery(_messages.Message):
     SPDX_RELATIONSHIP = 12
     VULNERABILITY_ASSESSMENT = 13
     SBOM_REFERENCE = 14
+    SECRET = 15
 
   analysisKind = _messages.EnumField('AnalysisKindValueValuesEnum', 1)
 
@@ -3783,6 +3937,45 @@ class ExternalRef(_messages.Message):
   type = _messages.StringField(4)
 
 
+class File(_messages.Message):
+  r"""A File object.
+
+  Messages:
+    DigestValue: A DigestValue object.
+
+  Fields:
+    digest: A DigestValue attribute.
+    name: A string attribute.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class DigestValue(_messages.Message):
+    r"""A DigestValue object.
+
+    Messages:
+      AdditionalProperty: An additional property for a DigestValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type DigestValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a DigestValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  digest = _messages.MessageField('DigestValue', 1)
+  name = _messages.StringField(2)
+
+
 class FileHashes(_messages.Message):
   r"""Container message for hashes of byte content of files, used in source
   messages to verify integrity of source input to the build.
@@ -3792,6 +3985,17 @@ class FileHashes(_messages.Message):
   """
 
   fileHash = _messages.MessageField('Hash', 1, repeated=True)
+
+
+class FileLocation(_messages.Message):
+  r"""Indicates the location at which a package was found.
+
+  Fields:
+    filePath: For jars that are contained inside .war files, this filepath can
+      indicate the path to war file combined with the path to jar file.
+  """
+
+  filePath = _messages.StringField(1)
 
 
 class FileNote(_messages.Message):
@@ -4648,10 +4852,14 @@ class ListNotesResponse(_messages.Message):
       be used as `page_token` for the following request. An empty value means
       no more results.
     notes: The notes requested.
+    unreachable: Unordered list. Unreachable regions. Populated for requests
+      from the global region when `return_partial_success` is set. Format:
+      `projects/[PROJECT_ID]/locations/[LOCATION]`
   """
 
   nextPageToken = _messages.StringField(1)
   notes = _messages.MessageField('Note', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListOccurrencesResponse(_messages.Message):
@@ -4662,10 +4870,14 @@ class ListOccurrencesResponse(_messages.Message):
       be used as `page_token` for the following request. An empty value means
       no more results.
     occurrences: The occurrences requested.
+    unreachable: Unordered list. Unreachable regions. Populated for requests
+      from the global region when `return_partial_success` is set. Format:
+      `projects/[PROJECT_ID]/locations/[LOCATION]`
   """
 
   nextPageToken = _messages.StringField(1)
   occurrences = _messages.MessageField('Occurrence', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -4714,6 +4926,7 @@ class Note(_messages.Message):
     relatedUrl: URLs associated with this note.
     sbom: A note describing a software bill of materials.
     sbomReference: A note describing an SBOM reference.
+    secret: A note describing a secret.
     shortDescription: A one sentence description of this note.
     spdxFile: A note describing an SPDX File.
     spdxPackage: A note describing an SPDX Package.
@@ -4747,6 +4960,7 @@ class Note(_messages.Message):
       SPDX_RELATIONSHIP: This represents an SPDX Relationship.
       VULNERABILITY_ASSESSMENT: This represents a Vulnerability Assessment.
       SBOM_REFERENCE: This represents an SBOM Reference.
+      SECRET: This represents a secret.
     """
     NOTE_KIND_UNSPECIFIED = 0
     VULNERABILITY = 1
@@ -4763,6 +4977,7 @@ class Note(_messages.Message):
     SPDX_RELATIONSHIP = 12
     VULNERABILITY_ASSESSMENT = 13
     SBOM_REFERENCE = 14
+    SECRET = 15
 
   attestationAuthority = _messages.MessageField('Authority', 1)
   baseImage = _messages.MessageField('Basis', 2)
@@ -4780,13 +4995,14 @@ class Note(_messages.Message):
   relatedUrl = _messages.MessageField('RelatedUrl', 14, repeated=True)
   sbom = _messages.MessageField('DocumentNote', 15)
   sbomReference = _messages.MessageField('SBOMReferenceNote', 16)
-  shortDescription = _messages.StringField(17)
-  spdxFile = _messages.MessageField('FileNote', 18)
-  spdxPackage = _messages.MessageField('PackageInfoNote', 19)
-  spdxRelationship = _messages.MessageField('RelationshipNote', 20)
-  updateTime = _messages.StringField(21)
-  vulnerability = _messages.MessageField('Vulnerability', 22)
-  vulnerabilityAssessment = _messages.MessageField('VulnerabilityAssessmentNote', 23)
+  secret = _messages.MessageField('SecretNote', 17)
+  shortDescription = _messages.StringField(18)
+  spdxFile = _messages.MessageField('FileNote', 19)
+  spdxPackage = _messages.MessageField('PackageInfoNote', 20)
+  spdxRelationship = _messages.MessageField('RelationshipNote', 21)
+  updateTime = _messages.StringField(22)
+  vulnerability = _messages.MessageField('Vulnerability', 23)
+  vulnerabilityAssessment = _messages.MessageField('VulnerabilityAssessmentNote', 24)
 
 
 class Occurrence(_messages.Message):
@@ -4822,6 +5038,7 @@ class Occurrence(_messages.Message):
       applies.
     sbom: Describes a specific software bill of materials document.
     sbomReference: Describes a specific SBOM reference occurrences.
+    secret: Describes a secret.
     spdxFile: Describes a specific SPDX File.
     spdxPackage: Describes a specific SPDX Package.
     spdxRelationship: Describes a specific SPDX Relationship.
@@ -4852,6 +5069,7 @@ class Occurrence(_messages.Message):
       SPDX_RELATIONSHIP: This represents an SPDX Relationship.
       VULNERABILITY_ASSESSMENT: This represents a Vulnerability Assessment.
       SBOM_REFERENCE: This represents an SBOM Reference.
+      SECRET: This represents a secret.
     """
     NOTE_KIND_UNSPECIFIED = 0
     VULNERABILITY = 1
@@ -4868,6 +5086,7 @@ class Occurrence(_messages.Message):
     SPDX_RELATIONSHIP = 12
     VULNERABILITY_ASSESSMENT = 13
     SBOM_REFERENCE = 14
+    SECRET = 15
 
   attestation = _messages.MessageField('Details', 1)
   build = _messages.MessageField('GrafeasV1beta1BuildDetails', 2)
@@ -4885,11 +5104,12 @@ class Occurrence(_messages.Message):
   resource = _messages.MessageField('Resource', 14)
   sbom = _messages.MessageField('DocumentOccurrence', 15)
   sbomReference = _messages.MessageField('SBOMReferenceOccurrence', 16)
-  spdxFile = _messages.MessageField('FileOccurrence', 17)
-  spdxPackage = _messages.MessageField('PackageInfoOccurrence', 18)
-  spdxRelationship = _messages.MessageField('RelationshipOccurrence', 19)
-  updateTime = _messages.StringField(20)
-  vulnerability = _messages.MessageField('GrafeasV1beta1VulnerabilityDetails', 21)
+  secret = _messages.MessageField('SecretOccurrence', 17)
+  spdxFile = _messages.MessageField('FileOccurrence', 18)
+  spdxPackage = _messages.MessageField('PackageInfoOccurrence', 19)
+  spdxRelationship = _messages.MessageField('RelationshipOccurrence', 20)
+  updateTime = _messages.StringField(21)
+  vulnerability = _messages.MessageField('GrafeasV1beta1VulnerabilityDetails', 22)
 
 
 class Package(_messages.Message):
@@ -5923,6 +6143,131 @@ class SbomReferenceIntotoPredicate(_messages.Message):
   referrerId = _messages.StringField(4)
 
 
+class SecretLocation(_messages.Message):
+  r"""The location of the secret.
+
+  Fields:
+    fileLocation: The secret is found from a file.
+  """
+
+  fileLocation = _messages.MessageField('FileLocation', 1)
+
+
+class SecretNote(_messages.Message):
+  r"""The note representing a secret."""
+
+
+class SecretOccurrence(_messages.Message):
+  r"""The occurrence provides details of a secret.
+
+  Enums:
+    KindValueValuesEnum: Required. Type of secret.
+
+  Fields:
+    kind: Required. Type of secret.
+    locations: Optional. Locations where the secret is detected.
+    statuses: Optional. Status of the secret.
+  """
+
+  class KindValueValuesEnum(_messages.Enum):
+    r"""Required. Type of secret.
+
+    Values:
+      SECRET_KIND_UNSPECIFIED: Unspecified
+      SECRET_KIND_UNKNOWN: The secret kind is unknown.
+      SECRET_KIND_GCP_SERVICE_ACCOUNT_KEY: A Google Cloud service account key
+        per: https://cloud.google.com/iam/docs/creating-managing-service-
+        account-keys
+      SECRET_KIND_GCP_API_KEY: A Google Cloud API key per:
+        https://cloud.google.com/docs/authentication/api-keys
+      SECRET_KIND_GCP_OAUTH2_CLIENT_CREDENTIALS: A Google Cloud OAuth2 client
+        credentials per:
+        https://developers.google.com/identity/protocols/oauth2
+      SECRET_KIND_GCP_OAUTH2_ACCESS_TOKEN: A Google Cloud OAuth2 access token
+        per: https://cloud.google.com/docs/authentication/token-types#access
+      SECRET_KIND_ANTHROPIC_ADMIN_API_KEY: An Anthropic Admin API key.
+      SECRET_KIND_ANTHROPIC_API_KEY: An Anthropic API key.
+      SECRET_KIND_AZURE_ACCESS_TOKEN: An Azure access token.
+      SECRET_KIND_AZURE_IDENTITY_TOKEN: An Azure Identity Platform ID token.
+      SECRET_KIND_DOCKER_HUB_PERSONAL_ACCESS_TOKEN: A Docker Hub personal
+        access token.
+      SECRET_KIND_GITHUB_APP_REFRESH_TOKEN: A GitHub App refresh token.
+      SECRET_KIND_GITHUB_APP_SERVER_TO_SERVER_TOKEN: A GitHub App server-to-
+        server token.
+      SECRET_KIND_GITHUB_APP_USER_TO_SERVER_TOKEN: A GitHub App user-to-server
+        token.
+      SECRET_KIND_GITHUB_CLASSIC_PERSONAL_ACCESS_TOKEN: A GitHub personal
+        access token (classic).
+      SECRET_KIND_GITHUB_FINE_GRAINED_PERSONAL_ACCESS_TOKEN: A GitHub fine-
+        grained personal access token.
+      SECRET_KIND_GITHUB_OAUTH_TOKEN: A GitHub OAuth token.
+      SECRET_KIND_HUGGINGFACE_API_KEY: A Hugging Face API key.
+      SECRET_KIND_OPENAI_API_KEY: An OpenAI API key.
+      SECRET_KIND_PERPLEXITY_API_KEY: A Perplexity API key.
+      SECRET_KIND_STRIPE_SECRET_KEY: A Stripe secret key.
+      SECRET_KIND_STRIPE_RESTRICTED_KEY: A Stripe restricted key.
+      SECRET_KIND_STRIPE_WEBHOOK_SECRET: A Stripe webhook secret.
+    """
+    SECRET_KIND_UNSPECIFIED = 0
+    SECRET_KIND_UNKNOWN = 1
+    SECRET_KIND_GCP_SERVICE_ACCOUNT_KEY = 2
+    SECRET_KIND_GCP_API_KEY = 3
+    SECRET_KIND_GCP_OAUTH2_CLIENT_CREDENTIALS = 4
+    SECRET_KIND_GCP_OAUTH2_ACCESS_TOKEN = 5
+    SECRET_KIND_ANTHROPIC_ADMIN_API_KEY = 6
+    SECRET_KIND_ANTHROPIC_API_KEY = 7
+    SECRET_KIND_AZURE_ACCESS_TOKEN = 8
+    SECRET_KIND_AZURE_IDENTITY_TOKEN = 9
+    SECRET_KIND_DOCKER_HUB_PERSONAL_ACCESS_TOKEN = 10
+    SECRET_KIND_GITHUB_APP_REFRESH_TOKEN = 11
+    SECRET_KIND_GITHUB_APP_SERVER_TO_SERVER_TOKEN = 12
+    SECRET_KIND_GITHUB_APP_USER_TO_SERVER_TOKEN = 13
+    SECRET_KIND_GITHUB_CLASSIC_PERSONAL_ACCESS_TOKEN = 14
+    SECRET_KIND_GITHUB_FINE_GRAINED_PERSONAL_ACCESS_TOKEN = 15
+    SECRET_KIND_GITHUB_OAUTH_TOKEN = 16
+    SECRET_KIND_HUGGINGFACE_API_KEY = 17
+    SECRET_KIND_OPENAI_API_KEY = 18
+    SECRET_KIND_PERPLEXITY_API_KEY = 19
+    SECRET_KIND_STRIPE_SECRET_KEY = 20
+    SECRET_KIND_STRIPE_RESTRICTED_KEY = 21
+    SECRET_KIND_STRIPE_WEBHOOK_SECRET = 22
+
+  kind = _messages.EnumField('KindValueValuesEnum', 1)
+  locations = _messages.MessageField('SecretLocation', 2, repeated=True)
+  statuses = _messages.MessageField('SecretStatus', 3, repeated=True)
+
+
+class SecretStatus(_messages.Message):
+  r"""The status of the secret with a timestamp.
+
+  Enums:
+    StatusValueValuesEnum: Optional. The status of the secret.
+
+  Fields:
+    message: Optional. Optional message about the status code.
+    status: Optional. The status of the secret.
+    updateTime: Optional. The time the secret status was last updated.
+  """
+
+  class StatusValueValuesEnum(_messages.Enum):
+    r"""Optional. The status of the secret.
+
+    Values:
+      STATUS_UNSPECIFIED: Unspecified
+      UNKNOWN: The status of the secret is unknown.
+      VALID: The secret is valid.
+      INVALID: The secret is invalid.
+    """
+    STATUS_UNSPECIFIED = 0
+    UNKNOWN = 1
+    VALID = 2
+    INVALID = 3
+
+  message = _messages.StringField(1)
+  status = _messages.EnumField('StatusValueValuesEnum', 2)
+  updateTime = _messages.StringField(3)
+
+
 class SetIamPolicyRequest(_messages.Message):
   r"""Request message for `SetIamPolicy` method.
 
@@ -6241,6 +6586,20 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class StepResult(_messages.Message):
+  r"""StepResult is the declaration of a result for a build step.
+
+  Fields:
+    attestationContentName: A string attribute.
+    attestationType: A string attribute.
+    name: A string attribute.
+  """
+
+  attestationContentName = _messages.StringField(1)
+  attestationType = _messages.StringField(2)
+  name = _messages.StringField(3)
 
 
 class Subject(_messages.Message):
@@ -6562,9 +6921,13 @@ class VulnerabilityOccurrencesSummary(_messages.Message):
   Fields:
     counts: A listing by resource of the number of fixable and total
       vulnerabilities.
+    unreachable: Unordered list. Unreachable regions. Populated for requests
+      from the global region when `return_partial_success` is set. Format:
+      `projects/[PROJECT_ID]/locations/[LOCATION]`
   """
 
   counts = _messages.MessageField('FixableTotalByDigest', 1, repeated=True)
+  unreachable = _messages.StringField(2, repeated=True)
 
 
 class WindowsDetail(_messages.Message):

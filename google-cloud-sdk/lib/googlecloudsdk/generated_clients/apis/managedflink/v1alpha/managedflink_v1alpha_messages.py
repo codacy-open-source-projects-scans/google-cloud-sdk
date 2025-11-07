@@ -63,6 +63,8 @@ class Deployment(_messages.Message):
       TERMINATING: Deployment is terminating.
       TERMINATED: Deployment has terminated.
       FAILED: Deployment is in failed state.
+      DELETING: Deployment is being deleted.
+      FAILED_TO_DELETE: Deployment failed to delete.
     """
     STATE_UNSPECIFIED = 0
     INITIALIZING = 1
@@ -71,6 +73,8 @@ class Deployment(_messages.Message):
     TERMINATING = 4
     TERMINATED = 5
     FAILED = 6
+    DELETING = 7
+    FAILED_TO_DELETE = 8
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -113,11 +117,14 @@ class DeploymentSpec(_messages.Message):
     networkConfig: Optional. Network configuration for the deployment.
     secretsPaths: Optional. The list of secrets paths to be shared among all
       jobs in the deployment.
+    workloadIdentity: Optional. Workload identity service account for the
+      deployment. If not set, the default workload identity will be used.
   """
 
   limits = _messages.MessageField('Limits', 1)
   networkConfig = _messages.MessageField('NetworkConfig', 2)
   secretsPaths = _messages.StringField(3, repeated=True)
+  workloadIdentity = _messages.StringField(4)
 
 
 class DisplayGraph(_messages.Message):
@@ -222,6 +229,9 @@ class Job(_messages.Message):
       RESTARTING: Job is restarting.
       SUSPENDED: Job has been suspended.
       RECONCILING: Job is reconciling.
+      DELETING: Job is getting deleted.
+      DELETION_FAILED: Job failed to be deleted.
+      CANCELATION_FAILED: Job failed to be cancelled.
     """
     STATE_UNSPECIFIED = 0
     PENDING_CREATION = 1
@@ -236,6 +246,9 @@ class Job(_messages.Message):
     RESTARTING = 10
     SUSPENDED = 11
     RECONCILING = 12
+    DELETING = 13
+    DELETION_FAILED = 14
+    CANCELATION_FAILED = 15
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -288,8 +301,15 @@ class JobSpec(_messages.Message):
     managedKafkaConfig: Optional. The configuration for the Google Cloud
       Managed Service for Apache Kafka clusters to be used by the job.
     networkConfig: Optional. Network configuration for the job.
+    originalJobGraph: Optional. The original job graph in stringified json
+      format.
+    pipelineOptions: Optional. The pipeline options for the job in stringified
+      json format.
     secretsPaths: Optional. The list of secrets paths to be used by an on-
       demand deployment job.
+    workloadIdentity: Optional. Workload identity service account for the job.
+      If not set, the default workload identity will be used. This is only
+      used for on-demand jobs.
   """
 
   artifactUris = _messages.StringField(1, repeated=True)
@@ -301,7 +321,10 @@ class JobSpec(_messages.Message):
   jobName = _messages.StringField(7)
   managedKafkaConfig = _messages.MessageField('ManagedKafkaConfig', 8)
   networkConfig = _messages.MessageField('NetworkConfig', 9)
-  secretsPaths = _messages.StringField(10, repeated=True)
+  originalJobGraph = _messages.StringField(10)
+  pipelineOptions = _messages.StringField(11)
+  secretsPaths = _messages.StringField(12, repeated=True)
+  workloadIdentity = _messages.StringField(13)
 
 
 class Limits(_messages.Message):
@@ -365,10 +388,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListSessionsResponse(_messages.Message):
@@ -740,6 +768,9 @@ class ManagedflinkProjectsLocationsListRequest(_messages.Message):
   r"""A ManagedflinkProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -750,10 +781,11 @@ class ManagedflinkProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ManagedflinkProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -797,12 +829,20 @@ class ManagedflinkProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ManagedflinkProjectsLocationsSessionsCreateRequest(_messages.Message):
@@ -931,10 +971,18 @@ class NetworkConfig(_messages.Message):
   for Apache Flink cluster.
 
   Fields:
-    subnetwork: Optional. The subnetwork of the resource.
+    subnetwork: Optional. The subnetwork of the resource. The format can be
+      one of the following: 1:
+      `projects/{project}/regions/{region}/subnetworks/{subnetwork_id}`. 2:
+      `{subnetwork_id}`. With option 1, the subnetwork should be in the same
+      region as the BigQuery Engine for Apache Flink Resource. With option 2,
+      the subnetwork is assumed to be in the same project as the BigQuery
+      Engine for Apache Flink Resource.
     vpc: Optional. The name of the VPC Network to associate the BigQuery
-      Engine for Apache Flink resources with, specified in the following
-      format: `projects/{project}/global/networks/{network_id}`.
+      Engine for Apache Flink resources with. The format can be one of the
+      following: 1: `projects/{project}/global/networks/{network_id}`. 2:
+      `{network_id}`. With option 2, the network is assumed to be in the same
+      project as the BigQuery Engine for Apache Flink Resource.
   """
 
   subnetwork = _messages.StringField(1)

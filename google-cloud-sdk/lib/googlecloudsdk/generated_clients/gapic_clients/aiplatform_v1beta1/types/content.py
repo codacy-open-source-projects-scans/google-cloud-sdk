@@ -20,26 +20,38 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from cloudsdk.google.protobuf import duration_pb2  # type: ignore
+from cloudsdk.google.protobuf import struct_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
 from googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types import openapi
 from googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types import tool
+from googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types import vertex_rag_data
 
 
 __protobuf__ = proto.module(
     package='google.cloud.aiplatform.v1beta1',
     manifest={
         'HarmCategory',
+        'Modality',
         'Content',
         'Part',
         'Blob',
         'FileData',
         'VideoMetadata',
+        'PrebuiltVoiceConfig',
+        'VoiceConfig',
+        'SpeakerVoiceConfig',
+        'MultiSpeakerVoiceConfig',
+        'SpeechConfig',
+        'ProactivityConfig',
+        'ImageConfig',
         'GenerationConfig',
         'SafetySetting',
         'SafetyRating',
         'CitationMetadata',
         'Citation',
         'Candidate',
+        'UrlContextMetadata',
+        'UrlMetadata',
         'LogprobsResult',
         'Segment',
         'GroundingChunk',
@@ -47,6 +59,8 @@ __protobuf__ = proto.module(
         'GroundingMetadata',
         'SearchEntryPoint',
         'RetrievalMetadata',
+        'ModelArmorConfig',
+        'ModalityTokenCount',
     },
 )
 
@@ -67,7 +81,19 @@ class HarmCategory(proto.Enum):
             The harm category is sexually explicit
             content.
         HARM_CATEGORY_CIVIC_INTEGRITY (5):
-            The harm category is civic integrity.
+            Deprecated: Election filter is not longer
+            supported. The harm category is civic integrity.
+        HARM_CATEGORY_IMAGE_HATE (6):
+            The harm category is image hate.
+        HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT (7):
+            The harm category is image dangerous content.
+        HARM_CATEGORY_IMAGE_HARASSMENT (8):
+            The harm category is image harassment.
+        HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT (9):
+            The harm category is image sexually explicit
+            content.
+        HARM_CATEGORY_JAILBREAK (10):
+            The harm category is for jailbreak prompts.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -75,6 +101,36 @@ class HarmCategory(proto.Enum):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+    HARM_CATEGORY_IMAGE_HATE = 6
+    HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT = 7
+    HARM_CATEGORY_IMAGE_HARASSMENT = 8
+    HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT = 9
+    HARM_CATEGORY_JAILBREAK = 10
+
+
+class Modality(proto.Enum):
+    r"""Content Part modality
+
+    Values:
+        MODALITY_UNSPECIFIED (0):
+            Unspecified modality.
+        TEXT (1):
+            Plain text.
+        IMAGE (2):
+            Image.
+        VIDEO (3):
+            Video.
+        AUDIO (4):
+            Audio.
+        DOCUMENT (5):
+            Document, e.g. PDF.
+    """
+    MODALITY_UNSPECIFIED = 0
+    TEXT = 1
+    IMAGE = 2
+    VIDEO = 3
+    AUDIO = 4
+    DOCUMENT = 5
 
 
 class Content(proto.Message):
@@ -169,6 +225,12 @@ class Part(proto.Message):
             or file_data.
 
             This field is a member of `oneof`_ ``metadata``.
+        thought (bool):
+            Optional. Indicates if the part is thought
+            from the model.
+        thought_signature (bytes):
+            Optional. An opaque signature for the thought
+            so it can be reused in subsequent requests.
     """
 
     text: str = proto.Field(
@@ -218,14 +280,18 @@ class Part(proto.Message):
         oneof='metadata',
         message='VideoMetadata',
     )
+    thought: bool = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
+    thought_signature: bytes = proto.Field(
+        proto.BYTES,
+        number=11,
+    )
 
 
 class Blob(proto.Message):
     r"""Content blob.
-
-    It's preferred to send as
-    [text][google.cloud.aiplatform.v1beta1.Part.text] directly rather
-    than raw bytes.
 
     Attributes:
         mime_type (str):
@@ -233,6 +299,16 @@ class Blob(proto.Message):
             source data.
         data (bytes):
             Required. Raw bytes.
+        display_name (str):
+            Optional. Display name of the blob.
+
+            Used to provide a label or filename to distinguish blobs.
+
+            This field is only returned in PromptMessage for prompt
+            management. It is currently used in the Gemini
+            GenerateContent calls only when server side tools
+            (code_execution, google_search, and url_context) are
+            enabled.
     """
 
     mime_type: str = proto.Field(
@@ -242,6 +318,10 @@ class Blob(proto.Message):
     data: bytes = proto.Field(
         proto.BYTES,
         number=2,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
@@ -254,6 +334,17 @@ class FileData(proto.Message):
             source data.
         file_uri (str):
             Required. URI.
+        display_name (str):
+            Optional. Display name of the file data.
+
+            Used to provide a label or filename to distinguish file
+            datas.
+
+            This field is only returned in PromptMessage for prompt
+            management. It is currently used in the Gemini
+            GenerateContent calls only when server side tools
+            (code_execution, google_search, and url_context) are
+            enabled.
     """
 
     mime_type: str = proto.Field(
@@ -263,6 +354,10 @@ class FileData(proto.Message):
     file_uri: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
@@ -274,6 +369,10 @@ class VideoMetadata(proto.Message):
             Optional. The start offset of the video.
         end_offset (google.protobuf.duration_pb2.Duration):
             Optional. The end offset of the video.
+        fps (float):
+            Optional. The frame rate of the video sent to the model. If
+            not specified, the default value will be 1.0. The fps range
+            is (0.0, 24.0].
     """
 
     start_offset: duration_pb2.Duration = proto.Field(
@@ -285,6 +384,244 @@ class VideoMetadata(proto.Message):
         proto.MESSAGE,
         number=2,
         message=duration_pb2.Duration,
+    )
+    fps: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
+
+
+class PrebuiltVoiceConfig(proto.Message):
+    r"""The configuration for the prebuilt speaker to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        voice_name (str):
+            The name of the preset voice to use.
+
+            This field is a member of `oneof`_ ``_voice_name``.
+    """
+
+    voice_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class VoiceConfig(proto.Message):
+    r"""The configuration for the voice to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prebuilt_voice_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.PrebuiltVoiceConfig):
+            The configuration for the prebuilt voice to
+            use.
+
+            This field is a member of `oneof`_ ``voice_config``.
+    """
+
+    prebuilt_voice_config: 'PrebuiltVoiceConfig' = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof='voice_config',
+        message='PrebuiltVoiceConfig',
+    )
+
+
+class SpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a single speaker in a multi speaker setup.
+
+    Attributes:
+        speaker (str):
+            Required. The name of the speaker. This
+            should be the same as the speaker name used in
+            the prompt.
+        voice_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.VoiceConfig):
+            Required. The configuration for the voice of
+            this speaker.
+    """
+
+    speaker: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    voice_config: 'VoiceConfig' = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message='VoiceConfig',
+    )
+
+
+class MultiSpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a multi-speaker text-to-speech setup.
+    Enables the use of up to two distinct voices in a single
+    synthesis request.
+
+    Attributes:
+        speaker_voice_configs (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.SpeakerVoiceConfig]):
+            Required. A list of configurations for the
+            voices of the speakers. Exactly two speaker
+            voice configurations must be provided.
+    """
+
+    speaker_voice_configs: MutableSequence['SpeakerVoiceConfig'] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message='SpeakerVoiceConfig',
+    )
+
+
+class SpeechConfig(proto.Message):
+    r"""The speech generation config.
+
+    Attributes:
+        voice_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.VoiceConfig):
+            The configuration for the speaker to use.
+        language_code (str):
+            Optional. Language code (ISO 639. e.g. en-US)
+            for the speech synthesization.
+        multi_speaker_voice_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.MultiSpeakerVoiceConfig):
+            The configuration for a multi-speaker text-to-speech
+            request. This field is mutually exclusive with
+            ``voice_config``.
+    """
+
+    voice_config: 'VoiceConfig' = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message='VoiceConfig',
+    )
+    language_code: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    multi_speaker_voice_config: 'MultiSpeakerVoiceConfig' = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message='MultiSpeakerVoiceConfig',
+    )
+
+
+class ProactivityConfig(proto.Message):
+    r"""Config for proactivity features.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        proactive_audio (bool):
+            Optional. If enabled, the model can reject
+            responding to the last prompt. For example, this
+            allows the model to ignore out of context speech
+            or to stay silent if the user did not make a
+            request, yet.
+
+            This field is a member of `oneof`_ ``_proactive_audio``.
+    """
+
+    proactive_audio: bool = proto.Field(
+        proto.BOOL,
+        number=2,
+        optional=True,
+    )
+
+
+class ImageConfig(proto.Message):
+    r"""Config for image generation features.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        image_output_options (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.ImageConfig.ImageOutputOptions):
+            Optional. The image output format for
+            generated images.
+
+            This field is a member of `oneof`_ ``_image_output_options``.
+        aspect_ratio (str):
+            Optional. The desired aspect ratio for the
+            generated images. The following aspect ratios
+            are supported:
+
+            "1:1"
+            "2:3", "3:2"
+            "3:4", "4:3"
+            "4:5", "5:4"
+            "9:16", "16:9"
+            "21:9".
+
+            This field is a member of `oneof`_ ``_aspect_ratio``.
+        person_generation (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.ImageConfig.PersonGeneration):
+            Optional. Controls whether the model can
+            generate people.
+
+            This field is a member of `oneof`_ ``_person_generation``.
+    """
+    class PersonGeneration(proto.Enum):
+        r"""Enum that controls the generation of people.
+
+        Values:
+            PERSON_GENERATION_UNSPECIFIED (0):
+                Generation images of people unspecified.
+            ALLOW_ALL (1):
+                Generate images that include adults and
+                children.
+            ALLOW_ADULT (2):
+                Generate images of adults, but not children.
+            ALLOW_NONE (3):
+                Block generation of images of people.
+        """
+        PERSON_GENERATION_UNSPECIFIED = 0
+        ALLOW_ALL = 1
+        ALLOW_ADULT = 2
+        ALLOW_NONE = 3
+
+    class ImageOutputOptions(proto.Message):
+        r"""The image output format for generated images.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            mime_type (str):
+                Optional. The image format that the output
+                should be saved as.
+
+                This field is a member of `oneof`_ ``_mime_type``.
+            compression_quality (int):
+                Optional. The compression quality of the
+                output image.
+
+                This field is a member of `oneof`_ ``_compression_quality``.
+        """
+
+        mime_type: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        compression_quality: int = proto.Field(
+            proto.INT32,
+            number=2,
+            optional=True,
+        )
+
+    image_output_options: ImageOutputOptions = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message=ImageOutputOptions,
+    )
+    aspect_ratio: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    person_generation: PersonGeneration = proto.Field(
+        proto.ENUM,
+        number=3,
+        optional=True,
+        enum=PersonGeneration,
     )
 
 
@@ -361,6 +698,49 @@ class GenerationConfig(proto.Message):
             response.
 
             This field is a member of `oneof`_ ``_response_schema``.
+        response_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Output schema of the generated response. This is
+            an alternative to ``response_schema`` that accepts `JSON
+            Schema <https://json-schema.org/>`__.
+
+            If set, ``response_schema`` must be omitted, but
+            ``response_mime_type`` is required.
+
+            While the full JSON Schema may be sent, not all features are
+            supported. Specifically, only the following properties are
+            supported:
+
+            -  ``$id``
+            -  ``$defs``
+            -  ``$ref``
+            -  ``$anchor``
+            -  ``type``
+            -  ``format``
+            -  ``title``
+            -  ``description``
+            -  ``enum`` (for strings and numbers)
+            -  ``items``
+            -  ``prefixItems``
+            -  ``minItems``
+            -  ``maxItems``
+            -  ``minimum``
+            -  ``maximum``
+            -  ``anyOf``
+            -  ``oneOf`` (interpreted the same as ``anyOf``)
+            -  ``properties``
+            -  ``additionalProperties``
+            -  ``required``
+
+            The non-standard ``propertyOrdering`` property may also be
+            set.
+
+            Cyclic references are unrolled to a limited degree and, as
+            such, may only be used within non-required properties.
+            (Nullable properties are not sufficient.) If ``$ref`` is set
+            on a sub-schema, no other properties, except for than those
+            starting as a ``$``, may be set.
+
+            This field is a member of `oneof`_ ``_response_json_schema``.
         routing_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.RoutingConfig):
             Optional. Routing configuration.
 
@@ -372,11 +752,31 @@ class GenerationConfig(proto.Message):
             This field is a member of `oneof`_ ``_audio_timestamp``.
         response_modalities (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.Modality]):
             Optional. The modalities of the response.
-        token_resolution (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.TokenResolution):
-            Optional. If specified, the token resolution
+        media_resolution (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.MediaResolution):
+            Optional. If specified, the media resolution
             specified will be used.
 
-            This field is a member of `oneof`_ ``_token_resolution``.
+            This field is a member of `oneof`_ ``_media_resolution``.
+        speech_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.SpeechConfig):
+            Optional. The speech generation config.
+
+            This field is a member of `oneof`_ ``_speech_config``.
+        thinking_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.ThinkingConfig):
+            Optional. Config for thinking features.
+            An error will be returned if this field is set
+            for models that don't support thinking.
+        model_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.ModelConfig):
+            Optional. Config for model selection.
+        enable_affective_dialog (bool):
+            Optional. If enabled, the model will detect
+            emotions and adapt its responses accordingly.
+
+            This field is a member of `oneof`_ ``_enable_affective_dialog``.
+        image_config (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.ImageConfig):
+            Optional. Config for image generation
+            features.
+
+            This field is a member of `oneof`_ ``_image_config``.
     """
     class Modality(proto.Enum):
         r"""The modalities of the response.
@@ -397,24 +797,24 @@ class GenerationConfig(proto.Message):
         IMAGE = 2
         AUDIO = 3
 
-    class TokenResolution(proto.Enum):
-        r"""Token resolution for the input media.
+    class MediaResolution(proto.Enum):
+        r"""Media resolution for the input media.
 
         Values:
-            TOKEN_RESOLUTION_UNSPECIFIED (0):
-                Token resolution has not been set.
-            TOKEN_RESOLUTION_LOW (1):
-                Token resolution set to low (64 tokens).
-            TOKEN_RESOLUTION_MEDIUM (2):
-                Token resolution set to medium (256 tokens).
-            TOKEN_RESOLUTION_HIGH (3):
-                Token resolution set to high (P&S with 256
-                tokens).
+            MEDIA_RESOLUTION_UNSPECIFIED (0):
+                Media resolution has not been set.
+            MEDIA_RESOLUTION_LOW (1):
+                Media resolution set to low (64 tokens).
+            MEDIA_RESOLUTION_MEDIUM (2):
+                Media resolution set to medium (256 tokens).
+            MEDIA_RESOLUTION_HIGH (3):
+                Media resolution set to high (zoomed
+                reframing with 256 tokens).
         """
-        TOKEN_RESOLUTION_UNSPECIFIED = 0
-        TOKEN_RESOLUTION_LOW = 1
-        TOKEN_RESOLUTION_MEDIUM = 2
-        TOKEN_RESOLUTION_HIGH = 3
+        MEDIA_RESOLUTION_UNSPECIFIED = 0
+        MEDIA_RESOLUTION_LOW = 1
+        MEDIA_RESOLUTION_MEDIUM = 2
+        MEDIA_RESOLUTION_HIGH = 3
 
     class RoutingConfig(proto.Message):
         r"""The configuration for routing the request to a specific
@@ -486,8 +886,9 @@ class GenerationConfig(proto.Message):
 
             Attributes:
                 model_name (str):
-                    The model name to use. Only the public LLM
-                    models are accepted. e.g. 'gemini-1.5-pro-001'.
+                    The model name to use. Only the public LLM models are
+                    accepted. See `Supported
+                    models <https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models>`__.
 
                     This field is a member of `oneof`_ ``_model_name``.
             """
@@ -509,6 +910,67 @@ class GenerationConfig(proto.Message):
             number=2,
             oneof='routing_config',
             message='GenerationConfig.RoutingConfig.ManualRoutingMode',
+        )
+
+    class ThinkingConfig(proto.Message):
+        r"""Config for thinking features.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            include_thoughts (bool):
+                Optional. Indicates whether to include
+                thoughts in the response. If true, thoughts are
+                returned only when available.
+
+                This field is a member of `oneof`_ ``_include_thoughts``.
+            thinking_budget (int):
+                Optional. Indicates the thinking budget in
+                tokens.
+
+                This field is a member of `oneof`_ ``_thinking_budget``.
+        """
+
+        include_thoughts: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+            optional=True,
+        )
+        thinking_budget: int = proto.Field(
+            proto.INT32,
+            number=3,
+            optional=True,
+        )
+
+    class ModelConfig(proto.Message):
+        r"""Config for model selection.
+
+        Attributes:
+            feature_selection_preference (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GenerationConfig.ModelConfig.FeatureSelectionPreference):
+                Required. Feature selection preference.
+        """
+        class FeatureSelectionPreference(proto.Enum):
+            r"""Options for feature selection preference.
+
+            Values:
+                FEATURE_SELECTION_PREFERENCE_UNSPECIFIED (0):
+                    Unspecified feature selection preference.
+                PRIORITIZE_QUALITY (1):
+                    Prefer higher quality over lower cost.
+                BALANCED (2):
+                    Balanced feature selection preference.
+                PRIORITIZE_COST (3):
+                    Prefer lower cost over higher quality.
+            """
+            FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
+            PRIORITIZE_QUALITY = 1
+            BALANCED = 2
+            PRIORITIZE_COST = 3
+
+        feature_selection_preference: 'GenerationConfig.ModelConfig.FeatureSelectionPreference' = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum='GenerationConfig.ModelConfig.FeatureSelectionPreference',
         )
 
     temperature: float = proto.Field(
@@ -575,6 +1037,12 @@ class GenerationConfig(proto.Message):
         optional=True,
         message=openapi.Schema,
     )
+    response_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        optional=True,
+        message=struct_pb2.Value,
+    )
     routing_config: RoutingConfig = proto.Field(
         proto.MESSAGE,
         number=17,
@@ -591,11 +1059,38 @@ class GenerationConfig(proto.Message):
         number=21,
         enum=Modality,
     )
-    token_resolution: TokenResolution = proto.Field(
+    media_resolution: MediaResolution = proto.Field(
         proto.ENUM,
         number=22,
         optional=True,
-        enum=TokenResolution,
+        enum=MediaResolution,
+    )
+    speech_config: 'SpeechConfig' = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        optional=True,
+        message='SpeechConfig',
+    )
+    thinking_config: ThinkingConfig = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=ThinkingConfig,
+    )
+    model_config: ModelConfig = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=ModelConfig,
+    )
+    enable_affective_dialog: bool = proto.Field(
+        proto.BOOL,
+        number=29,
+        optional=True,
+    )
+    image_config: 'ImageConfig' = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        optional=True,
+        message='ImageConfig',
     )
 
 
@@ -691,6 +1186,12 @@ class SafetyRating(proto.Message):
         blocked (bool):
             Output only. Indicates whether the content
             was filtered out because of this rating.
+        overwritten_threshold (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.SafetySetting.HarmBlockThreshold):
+            Output only. The overwritten threshold for
+            the safety category of Gemini 2.0 image out. If
+            minors are detected in the output image, the
+            threshold of each safety category will be
+            overwritten if user sets a lower threshold.
     """
     class HarmProbability(proto.Enum):
         r"""Harm probability levels in the content.
@@ -760,6 +1261,11 @@ class SafetyRating(proto.Message):
     blocked: bool = proto.Field(
         proto.BOOL,
         number=3,
+    )
+    overwritten_threshold: 'SafetySetting.HarmBlockThreshold' = proto.Field(
+        proto.ENUM,
+        number=8,
+        enum='SafetySetting.HarmBlockThreshold',
     )
 
 
@@ -861,6 +1367,9 @@ class Candidate(proto.Message):
         grounding_metadata (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GroundingMetadata):
             Output only. Metadata specifies sources used
             to ground generated content.
+        url_context_metadata (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.UrlContextMetadata):
+            Output only. Metadata related to url context
+            retrieval tool.
     """
     class FinishReason(proto.Enum):
         r"""The reason why the model stopped generating tokens.
@@ -898,7 +1407,31 @@ class Candidate(proto.Message):
                 Identifiable Information (SPII).
             MALFORMED_FUNCTION_CALL (9):
                 The function call generated by the model is
-                invalid.
+                syntaxtically invalid (e.g. the function call
+                generated is not parsable).
+            MODEL_ARMOR (10):
+                The model response was blocked by Model
+                Armor.
+            IMAGE_SAFETY (11):
+                Token generation stopped because generated
+                images has safety violations.
+            IMAGE_PROHIBITED_CONTENT (12):
+                Image generation stopped because generated
+                images has other prohibited content.
+            IMAGE_RECITATION (13):
+                Image generation stopped due to recitation.
+            IMAGE_OTHER (14):
+                Image generation stopped because of other
+                miscellaneous issue.
+            UNEXPECTED_TOOL_CALL (15):
+                The function call generated by the model is
+                semantically invalid (e.g. a function call is
+                generated when function calling is not enabled
+                or the function is not in the function
+                declaration).
+            NO_IMAGE (16):
+                The model was expected to generate an image,
+                but none was generated.
         """
         FINISH_REASON_UNSPECIFIED = 0
         STOP = 1
@@ -910,6 +1443,13 @@ class Candidate(proto.Message):
         PROHIBITED_CONTENT = 7
         SPII = 8
         MALFORMED_FUNCTION_CALL = 9
+        MODEL_ARMOR = 10
+        IMAGE_SAFETY = 11
+        IMAGE_PROHIBITED_CONTENT = 12
+        IMAGE_RECITATION = 13
+        IMAGE_OTHER = 14
+        UNEXPECTED_TOOL_CALL = 15
+        NO_IMAGE = 16
 
     index: int = proto.Field(
         proto.INT32,
@@ -953,6 +1493,61 @@ class Candidate(proto.Message):
         proto.MESSAGE,
         number=7,
         message='GroundingMetadata',
+    )
+    url_context_metadata: 'UrlContextMetadata' = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message='UrlContextMetadata',
+    )
+
+
+class UrlContextMetadata(proto.Message):
+    r"""Metadata related to url context retrieval tool.
+
+    Attributes:
+        url_metadata (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.UrlMetadata]):
+            Output only. List of url context.
+    """
+
+    url_metadata: MutableSequence['UrlMetadata'] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message='UrlMetadata',
+    )
+
+
+class UrlMetadata(proto.Message):
+    r"""Context of the a single url retrieval.
+
+    Attributes:
+        retrieved_url (str):
+            Retrieved url by the tool.
+        url_retrieval_status (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.UrlMetadata.UrlRetrievalStatus):
+            Status of the url retrieval.
+    """
+    class UrlRetrievalStatus(proto.Enum):
+        r"""Status of the url retrieval.
+
+        Values:
+            URL_RETRIEVAL_STATUS_UNSPECIFIED (0):
+                Default value. This value is unused.
+            URL_RETRIEVAL_STATUS_SUCCESS (1):
+                Url retrieval is successful.
+            URL_RETRIEVAL_STATUS_ERROR (2):
+                Url retrieval is failed due to error.
+        """
+        URL_RETRIEVAL_STATUS_UNSPECIFIED = 0
+        URL_RETRIEVAL_STATUS_SUCCESS = 1
+        URL_RETRIEVAL_STATUS_ERROR = 2
+
+    retrieved_url: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    url_retrieval_status: UrlRetrievalStatus = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=UrlRetrievalStatus,
     )
 
 
@@ -1088,6 +1683,10 @@ class GroundingChunk(proto.Message):
             retrieval tools.
 
             This field is a member of `oneof`_ ``chunk_type``.
+        maps (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GroundingChunk.Maps):
+            Grounding chunk from Google Maps.
+
+            This field is a member of `oneof`_ ``chunk_type``.
     """
 
     class Web(proto.Message):
@@ -1104,6 +1703,10 @@ class GroundingChunk(proto.Message):
                 Title of the chunk.
 
                 This field is a member of `oneof`_ ``_title``.
+            domain (str):
+                Domain of the (original) URI.
+
+                This field is a member of `oneof`_ ``_domain``.
         """
 
         uri: str = proto.Field(
@@ -1116,6 +1719,11 @@ class GroundingChunk(proto.Message):
             number=2,
             optional=True,
         )
+        domain: str = proto.Field(
+            proto.STRING,
+            number=3,
+            optional=True,
+        )
 
     class RetrievedContext(proto.Message):
         r"""Chunk from context retrieved by the retrieval tools.
@@ -1123,6 +1731,12 @@ class GroundingChunk(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            rag_chunk (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.RagChunk):
+                Additional context for the RAG retrieval
+                result. This is only populated when using the
+                RAG retrieval tool.
+
+                This field is a member of `oneof`_ ``context_details``.
             uri (str):
                 URI reference of the attribution.
 
@@ -1135,7 +1749,109 @@ class GroundingChunk(proto.Message):
                 Text of the attribution.
 
                 This field is a member of `oneof`_ ``_text``.
+            document_name (str):
+                Output only. The full document name for the
+                referenced Vertex AI Search document.
+
+                This field is a member of `oneof`_ ``_document_name``.
         """
+
+        rag_chunk: vertex_rag_data.RagChunk = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof='context_details',
+            message=vertex_rag_data.RagChunk,
+        )
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+            optional=True,
+        )
+        text: str = proto.Field(
+            proto.STRING,
+            number=3,
+            optional=True,
+        )
+        document_name: str = proto.Field(
+            proto.STRING,
+            number=6,
+            optional=True,
+        )
+
+    class Maps(proto.Message):
+        r"""Chunk from Google Maps.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            uri (str):
+                URI reference of the place.
+
+                This field is a member of `oneof`_ ``_uri``.
+            title (str):
+                Title of the place.
+
+                This field is a member of `oneof`_ ``_title``.
+            text (str):
+                Text of the place answer.
+
+                This field is a member of `oneof`_ ``_text``.
+            place_id (str):
+                This Place's resource name, in ``places/{place_id}`` format.
+                Can be used to look up the Place.
+
+                This field is a member of `oneof`_ ``_place_id``.
+            place_answer_sources (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GroundingChunk.Maps.PlaceAnswerSources):
+                Sources used to generate the place answer.
+                This includes review snippets and photos that
+                were used to generate the answer, as well as
+                uris to flag content.
+        """
+
+        class PlaceAnswerSources(proto.Message):
+            r"""Sources used to generate the place answer.
+
+            Attributes:
+                review_snippets (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet]):
+                    Snippets of reviews that are used to generate
+                    the answer.
+            """
+
+            class ReviewSnippet(proto.Message):
+                r"""Encapsulates a review snippet.
+
+                Attributes:
+                    review_id (str):
+                        Id of the review referencing the place.
+                    google_maps_uri (str):
+                        A link to show the review on Google Maps.
+                    title (str):
+                        Title of the review.
+                """
+
+                review_id: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                google_maps_uri: str = proto.Field(
+                    proto.STRING,
+                    number=7,
+                )
+                title: str = proto.Field(
+                    proto.STRING,
+                    number=8,
+                )
+
+            review_snippets: MutableSequence['GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet'] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message='GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet',
+            )
 
         uri: str = proto.Field(
             proto.STRING,
@@ -1152,6 +1868,16 @@ class GroundingChunk(proto.Message):
             number=3,
             optional=True,
         )
+        place_id: str = proto.Field(
+            proto.STRING,
+            number=4,
+            optional=True,
+        )
+        place_answer_sources: 'GroundingChunk.Maps.PlaceAnswerSources' = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message='GroundingChunk.Maps.PlaceAnswerSources',
+        )
 
     web: Web = proto.Field(
         proto.MESSAGE,
@@ -1164,6 +1890,12 @@ class GroundingChunk(proto.Message):
         number=2,
         oneof='chunk_type',
         message=RetrievedContext,
+    )
+    maps: Maps = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof='chunk_type',
+        message=Maps,
     )
 
 
@@ -1186,8 +1918,10 @@ class GroundingSupport(proto.Message):
             the claim.
         confidence_scores (MutableSequence[float]):
             Confidence score of the support references. Ranges from 0 to
-            1. 1 is the most confident. This list must have the same
-            size as the grounding_chunk_indices.
+            1. 1 is the most confident. For Gemini 2.0 and before, this
+            list must have the same size as the grounding_chunk_indices.
+            For Gemini 2.5 and after, this list will be empty and should
+            be ignored.
     """
 
     segment: 'Segment' = proto.Field(
@@ -1232,7 +1966,40 @@ class GroundingMetadata(proto.Message):
             Optional. Output only. Retrieval metadata.
 
             This field is a member of `oneof`_ ``_retrieval_metadata``.
+        google_maps_widget_context_token (str):
+            Optional. Output only. Resource name of the
+            Google Maps widget context token to be used with
+            the PlacesContextElement widget to render
+            contextual data. This is populated only for
+            Google Maps grounding.
+
+            This field is a member of `oneof`_ ``_google_maps_widget_context_token``.
+        source_flagging_uris (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.GroundingMetadata.SourceFlaggingUri]):
+            Optional. Output only. List of source
+            flagging uris. This is currently populated only
+            for Google Maps grounding.
     """
+
+    class SourceFlaggingUri(proto.Message):
+        r"""Source content flagging uri for a place or review. This is
+        currently populated only for Google Maps grounding.
+
+        Attributes:
+            source_id (str):
+                Id of the place or review.
+            flag_content_uri (str):
+                A link where users can flag a problem with
+                the source (place or review).
+        """
+
+        source_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        flag_content_uri: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
@@ -1263,6 +2030,16 @@ class GroundingMetadata(proto.Message):
         number=7,
         optional=True,
         message='RetrievalMetadata',
+    )
+    google_maps_widget_context_token: str = proto.Field(
+        proto.STRING,
+        number=8,
+        optional=True,
+    )
+    source_flagging_uris: MutableSequence[SourceFlaggingUri] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=10,
+        message=SourceFlaggingUri,
     )
 
 
@@ -1304,6 +2081,51 @@ class RetrievalMetadata(proto.Message):
 
     google_search_dynamic_retrieval_score: float = proto.Field(
         proto.FLOAT,
+        number=2,
+    )
+
+
+class ModelArmorConfig(proto.Message):
+    r"""Configuration for Model Armor integrations of prompt and
+    responses.
+
+    Attributes:
+        prompt_template_name (str):
+            Optional. The name of the Model Armor
+            template to use for prompt sanitization.
+        response_template_name (str):
+            Optional. The name of the Model Armor
+            template to use for response sanitization.
+    """
+
+    prompt_template_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    response_template_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class ModalityTokenCount(proto.Message):
+    r"""Represents token counting info for a single modality.
+
+    Attributes:
+        modality (googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1beta1.types.Modality):
+            The modality associated with this token
+            count.
+        token_count (int):
+            Number of tokens.
+    """
+
+    modality: 'Modality' = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum='Modality',
+    )
+    token_count: int = proto.Field(
+        proto.INT32,
         number=2,
     )
 

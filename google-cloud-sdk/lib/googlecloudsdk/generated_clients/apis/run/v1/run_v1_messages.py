@@ -200,7 +200,8 @@ class CSIVolumeSource(_messages.Message):
     VolumeAttributesValue: stores driver specific attributes. For Google Cloud
       Storage volumes, the following attributes are supported: * bucketName:
       the name of the Cloud Storage bucket to mount. The Cloud Run Service
-      identity must have access to this bucket.
+      identity must have access to this bucket. * mountOptions: comma-
+      separated list of mount options to pass to the gcsfuse.
 
   Fields:
     driver: name of the CSI driver for the requested storage system. Cloud Run
@@ -210,7 +211,8 @@ class CSIVolumeSource(_messages.Message):
     volumeAttributes: stores driver specific attributes. For Google Cloud
       Storage volumes, the following attributes are supported: * bucketName:
       the name of the Cloud Storage bucket to mount. The Cloud Run Service
-      identity must have access to this bucket.
+      identity must have access to this bucket. * mountOptions: comma-
+      separated list of mount options to pass to the gcsfuse.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
@@ -218,7 +220,8 @@ class CSIVolumeSource(_messages.Message):
     r"""stores driver specific attributes. For Google Cloud Storage volumes,
     the following attributes are supported: * bucketName: the name of the
     Cloud Storage bucket to mount. The Cloud Run Service identity must have
-    access to this bucket.
+    access to this bucket. * mountOptions: comma-separated list of mount
+    options to pass to the gcsfuse.
 
     Messages:
       AdditionalProperty: An additional property for a VolumeAttributesValue
@@ -418,8 +421,7 @@ class Container(_messages.Message):
       (0.0.0.0) within the container to be accessible. If omitted, a port
       number will be chosen and passed to the container through the PORT
       environment variable for the container to listen on.
-    readinessProbe: Readiness probe to be used for health checks. Not
-      supported by Cloud Run.
+    readinessProbe: Readiness probe to be used for health checks.
     resources: Compute Resources required by this container.
     securityContext: Not supported by Cloud Run.
     startupProbe: Startup probe of application within the container. All other
@@ -748,12 +750,11 @@ class ExecutionSpec(_messages.Message):
 
   Fields:
     parallelism: Optional. Specifies the maximum desired number of tasks the
-      execution should run at given time. Must be <= task_count. When the job
-      is run, if this field is 0 or unset, the maximum possible value will be
-      used for that execution. The actual number of tasks running in steady
-      state will be less than this number when there are fewer tasks waiting
-      to be completed, i.e. when the work left to do is less than max
-      parallelism.
+      execution should run at given time. When the job is run, if this field
+      is 0 or unset, the maximum possible value will be used for that
+      execution. The actual number of tasks running in steady state will be
+      less than this number when there are fewer tasks waiting to be
+      completed, i.e. when the work left to do is less than max parallelism.
     taskCount: Optional. Specifies the desired number of tasks the execution
       should run. Setting to 1 means that parallelism is limited to 1 and the
       success of that task signals the success of the execution. Defaults to
@@ -994,6 +995,9 @@ class GoogleDevtoolsCloudbuildV1Artifacts(_messages.Message):
   completion of all build steps.
 
   Fields:
+    goModules: Optional. A list of Go modules to be uploaded to Artifact
+      Registry upon successful completion of all build steps. If any objects
+      fail to be pushed, the build is marked FAILURE.
     images: A list of images to be pushed upon the successful completion of
       all build steps. The images will be pushed using the builder service
       account's credentials. The digests of the pushed images will be stored
@@ -1023,11 +1027,12 @@ class GoogleDevtoolsCloudbuildV1Artifacts(_messages.Message):
       objects fail to be pushed, the build is marked FAILURE.
   """
 
-  images = _messages.StringField(1, repeated=True)
-  mavenArtifacts = _messages.MessageField('GoogleDevtoolsCloudbuildV1MavenArtifact', 2, repeated=True)
-  npmPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1NpmPackage', 3, repeated=True)
-  objects = _messages.MessageField('GoogleDevtoolsCloudbuildV1ArtifactObjects', 4)
-  pythonPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1PythonPackage', 5, repeated=True)
+  goModules = _messages.MessageField('GoogleDevtoolsCloudbuildV1GoModule', 1, repeated=True)
+  images = _messages.StringField(2, repeated=True)
+  mavenArtifacts = _messages.MessageField('GoogleDevtoolsCloudbuildV1MavenArtifact', 3, repeated=True)
+  npmPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1NpmPackage', 4, repeated=True)
+  objects = _messages.MessageField('GoogleDevtoolsCloudbuildV1ArtifactObjects', 5)
+  pythonPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1PythonPackage', 6, repeated=True)
 
 
 class GoogleDevtoolsCloudbuildV1Build(_messages.Message):
@@ -1066,6 +1071,8 @@ class GoogleDevtoolsCloudbuildV1Build(_messages.Message):
       this build, if it was triggered automatically.
     createTime: Output only. Time at which the request to create the build was
       received.
+    dependencies: Optional. Dependencies that the Cloud Build worker will
+      fetch before executing user steps.
     failureInfo: Output only. Contains information about the build when
       status=FAILURE.
     finishTime: Output only. Time at which execution of the build was
@@ -1210,31 +1217,32 @@ class GoogleDevtoolsCloudbuildV1Build(_messages.Message):
   availableSecrets = _messages.MessageField('GoogleDevtoolsCloudbuildV1Secrets', 3)
   buildTriggerId = _messages.StringField(4)
   createTime = _messages.StringField(5)
-  failureInfo = _messages.MessageField('GoogleDevtoolsCloudbuildV1FailureInfo', 6)
-  finishTime = _messages.StringField(7)
-  gitConfig = _messages.MessageField('GoogleDevtoolsCloudbuildV1GitConfig', 8)
-  id = _messages.StringField(9)
-  images = _messages.StringField(10, repeated=True)
-  logUrl = _messages.StringField(11)
-  logsBucket = _messages.StringField(12)
-  name = _messages.StringField(13)
-  options = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuildOptions', 14)
-  projectId = _messages.StringField(15)
-  queueTtl = _messages.StringField(16)
-  results = _messages.MessageField('GoogleDevtoolsCloudbuildV1Results', 17)
-  secrets = _messages.MessageField('GoogleDevtoolsCloudbuildV1Secret', 18, repeated=True)
-  serviceAccount = _messages.StringField(19)
-  source = _messages.MessageField('GoogleDevtoolsCloudbuildV1Source', 20)
-  sourceProvenance = _messages.MessageField('GoogleDevtoolsCloudbuildV1SourceProvenance', 21)
-  startTime = _messages.StringField(22)
-  status = _messages.EnumField('StatusValueValuesEnum', 23)
-  statusDetail = _messages.StringField(24)
-  steps = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuildStep', 25, repeated=True)
-  substitutions = _messages.MessageField('SubstitutionsValue', 26)
-  tags = _messages.StringField(27, repeated=True)
-  timeout = _messages.StringField(28)
-  timing = _messages.MessageField('TimingValue', 29)
-  warnings = _messages.MessageField('GoogleDevtoolsCloudbuildV1Warning', 30, repeated=True)
+  dependencies = _messages.MessageField('GoogleDevtoolsCloudbuildV1Dependency', 6, repeated=True)
+  failureInfo = _messages.MessageField('GoogleDevtoolsCloudbuildV1FailureInfo', 7)
+  finishTime = _messages.StringField(8)
+  gitConfig = _messages.MessageField('GoogleDevtoolsCloudbuildV1GitConfig', 9)
+  id = _messages.StringField(10)
+  images = _messages.StringField(11, repeated=True)
+  logUrl = _messages.StringField(12)
+  logsBucket = _messages.StringField(13)
+  name = _messages.StringField(14)
+  options = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuildOptions', 15)
+  projectId = _messages.StringField(16)
+  queueTtl = _messages.StringField(17)
+  results = _messages.MessageField('GoogleDevtoolsCloudbuildV1Results', 18)
+  secrets = _messages.MessageField('GoogleDevtoolsCloudbuildV1Secret', 19, repeated=True)
+  serviceAccount = _messages.StringField(20)
+  source = _messages.MessageField('GoogleDevtoolsCloudbuildV1Source', 21)
+  sourceProvenance = _messages.MessageField('GoogleDevtoolsCloudbuildV1SourceProvenance', 22)
+  startTime = _messages.StringField(23)
+  status = _messages.EnumField('StatusValueValuesEnum', 24)
+  statusDetail = _messages.StringField(25)
+  steps = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuildStep', 26, repeated=True)
+  substitutions = _messages.MessageField('SubstitutionsValue', 27)
+  tags = _messages.StringField(28, repeated=True)
+  timeout = _messages.StringField(29)
+  timing = _messages.MessageField('TimingValue', 30)
+  warnings = _messages.MessageField('GoogleDevtoolsCloudbuildV1Warning', 31, repeated=True)
 
 
 class GoogleDevtoolsCloudbuildV1BuildApproval(_messages.Message):
@@ -1316,6 +1324,9 @@ class GoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message):
       string operations to the substitutions. NOTE: this is always enabled for
       triggered builds and cannot be overridden in the build configuration
       file.
+    enableStructuredLogging: Optional. Option to specify whether structured
+      logging is enabled. If true, JSON-formatted logs are parsed as
+      structured logs.
     env: A list of global environment variable definitions that will exist for
       all build steps in this build. If a variable is defined in both globally
       and in a build step, the variable will use the build step value. The
@@ -1330,6 +1341,8 @@ class GoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message):
       [running builds in a private
       pool](https://cloud.google.com/build/docs/private-pools/run-builds-in-
       private-pool) for more information.
+    pubsubTopic: Optional. Option to specify the Pub/Sub topic to receive
+      build status updates.
     requestedVerifyOption: Requested verifiability options.
     secretEnv: A list of global environment variables, which are encrypted
       using a Cloud Key Management Service crypto key. These values must be
@@ -1438,12 +1451,15 @@ class GoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message):
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   class SubstitutionOptionValueValuesEnum(_messages.Enum):
     r"""Option to specify behavior when there is an error in the substitution
@@ -1462,17 +1478,19 @@ class GoogleDevtoolsCloudbuildV1BuildOptions(_messages.Message):
   defaultLogsBucketBehavior = _messages.EnumField('DefaultLogsBucketBehaviorValueValuesEnum', 2)
   diskSizeGb = _messages.IntegerField(3)
   dynamicSubstitutions = _messages.BooleanField(4)
-  env = _messages.StringField(5, repeated=True)
-  logStreamingOption = _messages.EnumField('LogStreamingOptionValueValuesEnum', 6)
-  logging = _messages.EnumField('LoggingValueValuesEnum', 7)
-  machineType = _messages.EnumField('MachineTypeValueValuesEnum', 8)
-  pool = _messages.MessageField('GoogleDevtoolsCloudbuildV1PoolOption', 9)
-  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 10)
-  secretEnv = _messages.StringField(11, repeated=True)
-  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 12, repeated=True)
-  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 13)
-  volumes = _messages.MessageField('GoogleDevtoolsCloudbuildV1Volume', 14, repeated=True)
-  workerPool = _messages.StringField(15)
+  enableStructuredLogging = _messages.BooleanField(5)
+  env = _messages.StringField(6, repeated=True)
+  logStreamingOption = _messages.EnumField('LogStreamingOptionValueValuesEnum', 7)
+  logging = _messages.EnumField('LoggingValueValuesEnum', 8)
+  machineType = _messages.EnumField('MachineTypeValueValuesEnum', 9)
+  pool = _messages.MessageField('GoogleDevtoolsCloudbuildV1PoolOption', 10)
+  pubsubTopic = _messages.StringField(11)
+  requestedVerifyOption = _messages.EnumField('RequestedVerifyOptionValueValuesEnum', 12)
+  secretEnv = _messages.StringField(13, repeated=True)
+  sourceProvenanceHash = _messages.EnumField('SourceProvenanceHashValueListEntryValuesEnum', 14, repeated=True)
+  substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 15)
+  volumes = _messages.MessageField('GoogleDevtoolsCloudbuildV1Volume', 16, repeated=True)
+  workerPool = _messages.StringField(17)
 
 
 class GoogleDevtoolsCloudbuildV1BuildStep(_messages.Message):
@@ -1639,6 +1657,20 @@ class GoogleDevtoolsCloudbuildV1ConnectedRepository(_messages.Message):
   revision = _messages.StringField(3)
 
 
+class GoogleDevtoolsCloudbuildV1Dependency(_messages.Message):
+  r"""A dependency that the Cloud Build worker will fetch before executing
+  user steps.
+
+  Fields:
+    empty: If set to true disable all dependency fetching (ignoring the
+      default source as well).
+    gitSource: Represents a git repository as a build dependency.
+  """
+
+  empty = _messages.BooleanField(1)
+  gitSource = _messages.MessageField('GoogleDevtoolsCloudbuildV1GitSourceDependency', 2)
+
+
 class GoogleDevtoolsCloudbuildV1DeveloperConnectConfig(_messages.Message):
   r"""This config defines the location of a source through Developer Connect.
 
@@ -1735,6 +1767,70 @@ class GoogleDevtoolsCloudbuildV1GitSource(_messages.Message):
   url = _messages.StringField(3)
 
 
+class GoogleDevtoolsCloudbuildV1GitSourceDependency(_messages.Message):
+  r"""Represents a git repository as a build dependency.
+
+  Fields:
+    depth: Optional. How much history should be fetched for the build (default
+      1, -1 for all history).
+    destPath: Required. Where should the files be placed on the worker.
+    recurseSubmodules: Optional. True if submodules should be fetched too
+      (default false).
+    repository: Required. The kind of repo (url or dev connect).
+    revision: Required. The revision that we will fetch the repo at.
+  """
+
+  depth = _messages.IntegerField(1)
+  destPath = _messages.StringField(2)
+  recurseSubmodules = _messages.BooleanField(3)
+  repository = _messages.MessageField('GoogleDevtoolsCloudbuildV1GitSourceRepository', 4)
+  revision = _messages.StringField(5)
+
+
+class GoogleDevtoolsCloudbuildV1GitSourceRepository(_messages.Message):
+  r"""A repository for a git source.
+
+  Fields:
+    developerConnect: The Developer Connect Git repository link formatted as
+      `projects/*/locations/*/connections/*/gitRepositoryLink/*`
+    url: Location of the Git repository.
+  """
+
+  developerConnect = _messages.StringField(1)
+  url = _messages.StringField(2)
+
+
+class GoogleDevtoolsCloudbuildV1GoModule(_messages.Message):
+  r"""Go module to upload to Artifact Registry upon successful completion of
+  all build steps. A module refers to all dependencies in a go.mod file.
+
+  Fields:
+    modulePath: Optional. The Go module's "module path". e.g.
+      example.com/foo/v2
+    moduleVersion: Optional. The Go module's semantic version in the form
+      vX.Y.Z. e.g. v0.1.1 Pre-release identifiers can also be added by
+      appending a dash and dot separated ASCII alphanumeric characters and
+      hyphens. e.g. v0.2.3-alpha.x.12m.5
+    repositoryLocation: Optional. Location of the Artifact Registry
+      repository. i.e. us-east1 Defaults to the build's location.
+    repositoryName: Optional. Artifact Registry repository name. Specified Go
+      modules will be zipped and uploaded to Artifact Registry with this
+      location as a prefix. e.g. my-go-repo
+    repositoryProjectId: Optional. Project ID of the Artifact Registry
+      repository. Defaults to the build project.
+    sourcePath: Optional. Source path of the go.mod file in the build's
+      workspace. If not specified, this will default to the current directory.
+      e.g. ~/code/go/mypackage
+  """
+
+  modulePath = _messages.StringField(1)
+  moduleVersion = _messages.StringField(2)
+  repositoryLocation = _messages.StringField(3)
+  repositoryName = _messages.StringField(4)
+  repositoryProjectId = _messages.StringField(5)
+  sourcePath = _messages.StringField(6)
+
+
 class GoogleDevtoolsCloudbuildV1Hash(_messages.Message):
   r"""Container message for hash values.
 
@@ -1753,12 +1849,15 @@ class GoogleDevtoolsCloudbuildV1Hash(_messages.Message):
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   type = _messages.EnumField('TypeValueValuesEnum', 1)
   value = _messages.BytesField(2)
@@ -1840,8 +1939,8 @@ class GoogleDevtoolsCloudbuildV1MavenArtifact(_messages.Message):
       Artifact Registry.
     groupId: Maven `groupId` value used when uploading the artifact to
       Artifact Registry.
-    path: Path to an artifact in the build's workspace to be uploaded to
-      Artifact Registry. This can be either an absolute path, e.g.
+    path: Optional. Path to an artifact in the build's workspace to be
+      uploaded to Artifact Registry. This can be either an absolute path, e.g.
       /workspace/my-app/target/my-app-1.0.SNAPSHOT.jar or a relative path from
       /workspace, e.g. my-app/target/my-app-1.0.SNAPSHOT.jar.
     repository: Artifact Registry repository, in the form "https://$REGION-
@@ -1864,7 +1963,9 @@ class GoogleDevtoolsCloudbuildV1NpmPackage(_messages.Message):
   all build steps.
 
   Fields:
-    packagePath: Path to the package.json. e.g. workspace/path/to/package
+    packagePath: Optional. Path to the package.json. e.g.
+      workspace/path/to/package Only one of `archive` or `package_path` can be
+      specified.
     repository: Artifact Registry repository, in the form "https://$REGION-
       npm.pkg.dev/$PROJECT/$REPOSITORY" Npm package in the workspace specified
       by path will be zipped and uploaded to Artifact Registry with this
@@ -1989,6 +2090,8 @@ class GoogleDevtoolsCloudbuildV1Results(_messages.Message):
       produce this output by writing to `$BUILDER_OUTPUT/output`. Only the
       first 50KB of data is stored. Note that the `$BUILDER_OUTPUT` variable
       is read-only and can't be substituted.
+    goModules: Optional. Go module artifacts uploaded to Artifact Registry at
+      the end of the build.
     images: Container images that were built as a part of the build.
     mavenArtifacts: Maven artifacts uploaded to Artifact Registry at the end
       of the build.
@@ -2004,11 +2107,12 @@ class GoogleDevtoolsCloudbuildV1Results(_messages.Message):
   artifactTiming = _messages.MessageField('GoogleDevtoolsCloudbuildV1TimeSpan', 2)
   buildStepImages = _messages.StringField(3, repeated=True)
   buildStepOutputs = _messages.BytesField(4, repeated=True)
-  images = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuiltImage', 5, repeated=True)
-  mavenArtifacts = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedMavenArtifact', 6, repeated=True)
-  npmPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedNpmPackage', 7, repeated=True)
-  numArtifacts = _messages.IntegerField(8)
-  pythonPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedPythonPackage', 9, repeated=True)
+  goModules = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedGoModule', 5, repeated=True)
+  images = _messages.MessageField('GoogleDevtoolsCloudbuildV1BuiltImage', 6, repeated=True)
+  mavenArtifacts = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedMavenArtifact', 7, repeated=True)
+  npmPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedNpmPackage', 8, repeated=True)
+  numArtifacts = _messages.IntegerField(9)
+  pythonPackages = _messages.MessageField('GoogleDevtoolsCloudbuildV1UploadedPythonPackage', 10, repeated=True)
 
 
 class GoogleDevtoolsCloudbuildV1Secret(_messages.Message):
@@ -2270,6 +2374,22 @@ class GoogleDevtoolsCloudbuildV1TimeSpan(_messages.Message):
   startTime = _messages.StringField(2)
 
 
+class GoogleDevtoolsCloudbuildV1UploadedGoModule(_messages.Message):
+  r"""A Go module artifact uploaded to Artifact Registry using the GoModule
+  directive.
+
+  Fields:
+    fileHashes: Hash types and values of the Go Module Artifact.
+    pushTiming: Output only. Stores timing information for pushing the
+      specified artifact.
+    uri: URI of the uploaded artifact.
+  """
+
+  fileHashes = _messages.MessageField('GoogleDevtoolsCloudbuildV1FileHashes', 1)
+  pushTiming = _messages.MessageField('GoogleDevtoolsCloudbuildV1TimeSpan', 2)
+  uri = _messages.StringField(3)
+
+
 class GoogleDevtoolsCloudbuildV1UploadedMavenArtifact(_messages.Message):
   r"""A Maven artifact uploaded using the MavenArtifact directive.
 
@@ -2369,10 +2489,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):
@@ -2577,6 +2702,24 @@ class HTTPHeader(_messages.Message):
 
   name = _messages.StringField(1)
   value = _messages.StringField(2)
+
+
+class InstanceSplit(_messages.Message):
+  r"""Holds a single instance split entry for the Worker. Allocations can be
+  done to a specific Revision name, or pointing to the latest Ready Revision.
+
+  Fields:
+    latestRevision: Uses the "status.latestReadyRevisionName" to determine the
+      instance split target. When it changes, workloads will automatically
+      migrate from the prior "latest ready" revision to the new one.
+    percent: Optional. Specifies percent of the instance split to this
+      Revision. This defaults to zero if unspecified.
+    revisionName: Revision to which to assign this portion of instances.
+  """
+
+  latestRevision = _messages.BooleanField(1)
+  percent = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  revisionName = _messages.StringField(3)
 
 
 class Job(_messages.Message):
@@ -2869,6 +3012,27 @@ class ListTasksResponse(_messages.Message):
   unreachable = _messages.StringField(5, repeated=True)
 
 
+class ListWorkerPoolsResponse(_messages.Message):
+  r"""A list of WorkerPool resources.
+
+  Fields:
+    apiVersion: The API version for this call; returns
+      "run.googleapis.com/v1".
+    items: List of WorkerPools.
+    kind: The kind of this resource; returns "WorkerPoolList".
+    metadata: Metadata associated with this WorkerPool list.
+    unreachable: For calls against the global endpoint, returns the list of
+      Cloud locations that could not be reached. For regional calls, this
+      field is not used.
+  """
+
+  apiVersion = _messages.StringField(1)
+  items = _messages.MessageField('WorkerPool', 2, repeated=True)
+  kind = _messages.StringField(3)
+  metadata = _messages.MessageField('ListMeta', 4)
+  unreachable = _messages.StringField(5, repeated=True)
+
+
 class LocalObjectReference(_messages.Message):
   r"""Not supported by Cloud Run. LocalObjectReference contains enough
   information to let you locate the referenced object inside the same
@@ -3013,6 +3177,7 @@ class ObjectMeta(_messages.Message):
       `run.googleapis.com/encryption-key`: Revision, Execution. *
       `run.googleapis.com/execution-environment`: Revision, Execution. *
       `run.googleapis.com/gc-traffic-tags`: Service. *
+      `run.googleapis.com/gpu-zonal-redundancy-disabled`: Revision. *
       `run.googleapis.com/health-check-disabled`: Revision. *
       `run.googleapis.com/ingress`: Service. * `run.googleapis.com/launch-
       stage`: Service, Job. * `run.googleapis.com/minScale`: Service *
@@ -3060,6 +3225,7 @@ class ObjectMeta(_messages.Message):
       `run.googleapis.com/encryption-key`: Revision, Execution. *
       `run.googleapis.com/execution-environment`: Revision, Execution. *
       `run.googleapis.com/gc-traffic-tags`: Service. *
+      `run.googleapis.com/gpu-zonal-redundancy-disabled`: Revision. *
       `run.googleapis.com/health-check-disabled`: Revision. *
       `run.googleapis.com/ingress`: Service. * `run.googleapis.com/launch-
       stage`: Service, Job. * `run.googleapis.com/minScale`: Service *
@@ -3133,15 +3299,15 @@ class ObjectMeta(_messages.Message):
     `run.googleapis.com/encryption-key-shutdown-hours`: Revision *
     `run.googleapis.com/encryption-key`: Revision, Execution. *
     `run.googleapis.com/execution-environment`: Revision, Execution. *
-    `run.googleapis.com/gc-traffic-tags`: Service. *
-    `run.googleapis.com/health-check-disabled`: Revision. *
-    `run.googleapis.com/ingress`: Service. * `run.googleapis.com/launch-
-    stage`: Service, Job. * `run.googleapis.com/minScale`: Service *
-    `run.googleapis.com/network-interfaces`: Revision, Execution. *
-    `run.googleapis.com/post-key-revocation-action-type`: Revision. *
-    `run.googleapis.com/secrets`: Revision, Execution. *
-    `run.googleapis.com/secure-session-agent`: Revision. *
-    `run.googleapis.com/sessionAffinity`: Revision. *
+    `run.googleapis.com/gc-traffic-tags`: Service. * `run.googleapis.com/gpu-
+    zonal-redundancy-disabled`: Revision. * `run.googleapis.com/health-check-
+    disabled`: Revision. * `run.googleapis.com/ingress`: Service. *
+    `run.googleapis.com/launch-stage`: Service, Job. *
+    `run.googleapis.com/minScale`: Service * `run.googleapis.com/network-
+    interfaces`: Revision, Execution. * `run.googleapis.com/post-key-
+    revocation-action-type`: Revision. * `run.googleapis.com/secrets`:
+    Revision, Execution. * `run.googleapis.com/secure-session-agent`:
+    Revision. * `run.googleapis.com/sessionAffinity`: Revision. *
     `run.googleapis.com/startup-cpu-boost`: Revision. *
     `run.googleapis.com/vpc-access-connector`: Revision, Execution. *
     `run.googleapis.com/vpc-access-egress`: Revision, Execution.
@@ -3403,10 +3569,12 @@ class ResourceRequirements(_messages.Message):
 
   Messages:
     LimitsValue: Limits describes the maximum amount of compute resources
-      allowed. Only 'cpu' and 'memory' keys are supported. * For supported
-      'cpu' values, go to https://cloud.google.com/run/docs/configuring/cpu. *
-      For supported 'memory' values and syntax, go to
-      https://cloud.google.com/run/docs/configuring/memory-limits
+      allowed. Only 'cpu', 'memory' and 'nvidia.com/gpu' keys are supported. *
+      For supported 'cpu' values, go to
+      https://cloud.google.com/run/docs/configuring/cpu. * For supported
+      'memory' values and syntax, go to
+      https://cloud.google.com/run/docs/configuring/memory-limits. * The only
+      supported 'nvidia.com/gpu' value is '1'.
     RequestsValue: Requests describes the minimum amount of compute resources
       required. Only `cpu` and `memory` are supported. If Requests is omitted
       for a container, it defaults to Limits if that is explicitly specified,
@@ -3417,10 +3585,12 @@ class ResourceRequirements(_messages.Message):
 
   Fields:
     limits: Limits describes the maximum amount of compute resources allowed.
-      Only 'cpu' and 'memory' keys are supported. * For supported 'cpu'
-      values, go to https://cloud.google.com/run/docs/configuring/cpu. * For
-      supported 'memory' values and syntax, go to
-      https://cloud.google.com/run/docs/configuring/memory-limits
+      Only 'cpu', 'memory' and 'nvidia.com/gpu' keys are supported. * For
+      supported 'cpu' values, go to
+      https://cloud.google.com/run/docs/configuring/cpu. * For supported
+      'memory' values and syntax, go to
+      https://cloud.google.com/run/docs/configuring/memory-limits. * The only
+      supported 'nvidia.com/gpu' value is '1'.
     requests: Requests describes the minimum amount of compute resources
       required. Only `cpu` and `memory` are supported. If Requests is omitted
       for a container, it defaults to Limits if that is explicitly specified,
@@ -3433,10 +3603,11 @@ class ResourceRequirements(_messages.Message):
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LimitsValue(_messages.Message):
     r"""Limits describes the maximum amount of compute resources allowed. Only
-    'cpu' and 'memory' keys are supported. * For supported 'cpu' values, go to
-    https://cloud.google.com/run/docs/configuring/cpu. * For supported
-    'memory' values and syntax, go to
-    https://cloud.google.com/run/docs/configuring/memory-limits
+    'cpu', 'memory' and 'nvidia.com/gpu' keys are supported. * For supported
+    'cpu' values, go to https://cloud.google.com/run/docs/configuring/cpu. *
+    For supported 'memory' values and syntax, go to
+    https://cloud.google.com/run/docs/configuring/memory-limits. * The only
+    supported 'nvidia.com/gpu' value is '1'.
 
     Messages:
       AdditionalProperty: An additional property for a LimitsValue object.
@@ -3535,15 +3706,15 @@ class RevisionSpec(_messages.Message):
     imagePullSecrets: Not supported by Cloud Run.
     nodeSelector: Optional. The Node Selector configuration. Map of selector
       key to a value which matches a node.
-    runtimeClassName: Runtime. Leave unset for default.
+    runtimeClassName: Optional. Runtime. Leave unset for default.
     serviceAccountName: Email address of the IAM service account associated
       with the revision of the service. The service account represents the
       identity of the running revision, and determines what permissions the
       revision has. If not provided, the revision will use the project's
       default service account.
-    timeoutSeconds: TimeoutSeconds holds the max duration the instance is
-      allowed for responding to a request. Cloud Run: defaults to 300 seconds
-      (5 minutes). Maximum allowed value is 3600 seconds (1 hour).
+    timeoutSeconds: Optional. TimeoutSeconds holds the max duration the
+      instance is allowed for responding to a request. Cloud Run: defaults to
+      300 seconds (5 minutes). Maximum allowed value is 3600 seconds (1 hour).
     volumes: A Volume attribute.
   """
 
@@ -3995,9 +4166,9 @@ class RunNamespacesJobsGetRequest(_messages.Message):
   r"""A RunNamespacesJobsGetRequest object.
 
   Fields:
-    name: Required. The name of the job to retrieve. Replace {namespace} with
-      the project ID or number. It takes the form namespaces/{namespace}. For
-      example: namespaces/PROJECT_ID
+    name: Required. The name of the job to retrieve. It takes the form
+      namespaces/{namespace}/jobs/{job_name} and the `endpoint` must be
+      regional. Replace {namespace} with the project ID or number.
   """
 
   name = _messages.StringField(1, required=True)
@@ -4327,6 +4498,100 @@ class RunNamespacesTasksListRequest(_messages.Message):
   watch = _messages.BooleanField(8)
 
 
+class RunNamespacesWorkerpoolsCreateRequest(_messages.Message):
+  r"""A RunNamespacesWorkerpoolsCreateRequest object.
+
+  Fields:
+    dryRun: Indicates that the server should validate the request and populate
+      default values without persisting the request. Supported values: `all`
+    parent: Required. The resource's parent. In Cloud Run, it may be one of
+      the following: * `{project_id_or_number}` *
+      `namespaces/{project_id_or_number}` *
+      `namespaces/{project_id_or_number}/workerpools` *
+      `projects/{project_id_or_number}/locations/{region}` *
+      `projects/{project_id_or_number}/regions/{region}`
+    workerPool: A WorkerPool resource to be passed as the request body.
+  """
+
+  dryRun = _messages.StringField(1)
+  parent = _messages.StringField(2, required=True)
+  workerPool = _messages.MessageField('WorkerPool', 3)
+
+
+class RunNamespacesWorkerpoolsDeleteRequest(_messages.Message):
+  r"""A RunNamespacesWorkerpoolsDeleteRequest object.
+
+  Fields:
+    dryRun: Indicates that the server should validate the request and populate
+      default values without persisting the request. Supported values: `all`
+    name: Required. The fully qualified name of the worker pool to delete. It
+      can be any of the following forms: *
+      `namespaces/{project_id_or_number}/workerpools/{worker_pool_name}` (only
+      when the `endpoint` is regional) * `projects/{project_id_or_number}/loca
+      tions/{region}/workerpools/{worker_pool_name}` * `projects/{project_id_o
+      r_number}/regions/{region}/workerpools/{worker_pool_name}`
+  """
+
+  dryRun = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class RunNamespacesWorkerpoolsGetRequest(_messages.Message):
+  r"""A RunNamespacesWorkerpoolsGetRequest object.
+
+  Fields:
+    name: Required. The fully qualified name of the worker pool to retrieve.
+      It can be any of the following forms: *
+      `namespaces/{project_id_or_number}/workerpools/{worker_pool_name}` (only
+      when the `endpoint` is regional) * `projects/{project_id_or_number}/loca
+      tions/{region}/workerpools/{worker_pool_name}` * `projects/{project_id_o
+      r_number}/regions/{region}/workerpools/{worker_pool_name}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class RunNamespacesWorkerpoolsListRequest(_messages.Message):
+  r"""A RunNamespacesWorkerpoolsListRequest object.
+
+  Fields:
+    continue_: Encoded string to continue paging.
+    labelSelector: =, !=, exists, in, and notIn.
+    limit: The maximum number of records that should be returned.
+    parent: Required. The parent from where the resources should be listed. In
+      Cloud Run, it may be one of the following: * `{project_id_or_number}` *
+      `namespaces/{project_id_or_number}` *
+      `namespaces/{project_id_or_number}/workerpools` *
+      `projects/{project_id_or_number}/locations/{region}` *
+      `projects/{project_id_or_number}/regions/{region}`
+  """
+
+  continue_ = _messages.StringField(1)
+  labelSelector = _messages.StringField(2)
+  limit = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  parent = _messages.StringField(4, required=True)
+
+
+class RunNamespacesWorkerpoolsReplaceWorkerPoolRequest(_messages.Message):
+  r"""A RunNamespacesWorkerpoolsReplaceWorkerPoolRequest object.
+
+  Fields:
+    dryRun: Indicates that the server should validate the request and populate
+      default values without persisting the request. Supported values: `all`
+    name: Required. The fully qualified name of the worker pool to replace. It
+      can be any of the following forms: *
+      `namespaces/{project_id_or_number}/workerpools/{worker_pool_name}` (only
+      when the `endpoint` is regional) * `projects/{project_id_or_number}/loca
+      tions/{region}/workerpools/{worker_pool_name}` * `projects/{project_id_o
+      r_number}/regions/{region}/workerpools/{worker_pool_name}`
+    workerPool: A WorkerPool resource to be passed as the request body.
+  """
+
+  dryRun = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  workerPool = _messages.MessageField('WorkerPool', 3)
+
+
 class RunProjectsAuthorizeddomainsListRequest(_messages.Message):
   r"""A RunProjectsAuthorizeddomainsListRequest object.
 
@@ -4545,6 +4810,9 @@ class RunProjectsLocationsListRequest(_messages.Message):
   r"""A RunProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -4555,10 +4823,11 @@ class RunProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class RunProjectsLocationsOperationsDeleteRequest(_messages.Message):
@@ -4596,12 +4865,20 @@ class RunProjectsLocationsOperationsListRequest(_messages.Message):
       0, the default page size is 100. .
     pageToken: Token identifying which result to start with, which is returned
       by a previous list call.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class RunProjectsLocationsOperationsWaitRequest(_messages.Message):
@@ -4881,6 +5158,64 @@ class RunProjectsLocationsServicesSetIamPolicyRequest(_messages.Message):
 
 class RunProjectsLocationsServicesTestIamPermissionsRequest(_messages.Message):
   r"""A RunProjectsLocationsServicesTestIamPermissionsRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy detail is being
+      requested. See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
+      passed as the request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
+
+
+class RunProjectsLocationsWorkerpoolsGetIamPolicyRequest(_messages.Message):
+  r"""A RunProjectsLocationsWorkerpoolsGetIamPolicyRequest object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
+
+
+class RunProjectsLocationsWorkerpoolsSetIamPolicyRequest(_messages.Message):
+  r"""A RunProjectsLocationsWorkerpoolsSetIamPolicyRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
+      request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+
+
+class RunProjectsLocationsWorkerpoolsTestIamPermissionsRequest(_messages.Message):
+  r"""A RunProjectsLocationsWorkerpoolsTestIamPermissionsRequest object.
 
   Fields:
     resource: REQUIRED: The resource for which the policy detail is being
@@ -5303,23 +5638,34 @@ class TaskAttemptResult(_messages.Message):
   Fields:
     exitCode: Optional. The exit code of this attempt. This may be unset if
       the container was unable to exit cleanly with a code due to some other
-      failure. See status field for possible failure details.
+      failure. See status field for possible failure details. At most one of
+      exit_code or term_signal will be set.
     status: Optional. The status of this attempt. If the status code is OK,
       then the attempt succeeded.
+    termSignal: Optional. Termination signal of the container. This is set to
+      non-zero if the container is terminated by the system. At most one of
+      exit_code or term_signal will be set.
   """
 
   exitCode = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   status = _messages.MessageField('GoogleRpcStatus', 2)
+  termSignal = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class TaskSpec(_messages.Message):
   r"""TaskSpec is a description of a task.
+
+  Messages:
+    NodeSelectorValue: Optional. The Node Selector configuration. Map of
+      selector key to a value which matches a node.
 
   Fields:
     containers: Optional. List of containers belonging to the task. We
       disallow a number of fields on this Container.
     maxRetries: Optional. Number of retries allowed per task, before marking
       this job failed. Defaults to 3.
+    nodeSelector: Optional. The Node Selector configuration. Map of selector
+      key to a value which matches a node.
     serviceAccountName: Optional. Email address of the IAM service account
       associated with the task of a job execution. The service account
       represents the identity of the running task, and determines what
@@ -5333,11 +5679,38 @@ class TaskSpec(_messages.Message):
       belonging to the task.
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class NodeSelectorValue(_messages.Message):
+    r"""Optional. The Node Selector configuration. Map of selector key to a
+    value which matches a node.
+
+    Messages:
+      AdditionalProperty: An additional property for a NodeSelectorValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type NodeSelectorValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a NodeSelectorValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   containers = _messages.MessageField('Container', 1, repeated=True)
   maxRetries = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  serviceAccountName = _messages.StringField(3)
-  timeoutSeconds = _messages.IntegerField(4)
-  volumes = _messages.MessageField('Volume', 5, repeated=True)
+  nodeSelector = _messages.MessageField('NodeSelectorValue', 3)
+  serviceAccountName = _messages.StringField(4)
+  timeoutSeconds = _messages.IntegerField(5)
+  volumes = _messages.MessageField('Volume', 6, repeated=True)
 
 
 class TaskStatus(_messages.Message):
@@ -5487,6 +5860,78 @@ class VolumeMount(_messages.Message):
   subPath = _messages.StringField(4)
 
 
+class WorkerPool(_messages.Message):
+  r"""WorkerPool acts as a top-level container that manages a set instance
+  splits among a set of Revisions and a template for creating new Revisions.
+
+  Fields:
+    apiVersion: The API version for this call. It must be
+      "run.googleapis.com/v1".
+    kind: The kind of resource. It must be "WorkerPool".
+    metadata: Metadata associated with this WorkerPool, including name,
+      namespace, labels, and annotations. In Cloud Run, annotations with
+      'run.googleapis.com/' and 'autoscaling.knative.dev' are restricted, and
+      the accepted annotations will be different depending on the resource
+      type. The following Cloud Run-specific annotations are accepted in
+      WorkerPool.metadata.annotations. * `run.googleapis.com/binary-
+      authorization-breakglass` * `run.googleapis.com/binary-authorization` *
+      `run.googleapis.com/client-name` * `run.googleapis.com/description`
+    spec: Holds the desired state of the WorkerPool (from the client).
+    status: Communicates the system-controlled state of the WorkerPool.
+  """
+
+  apiVersion = _messages.StringField(1)
+  kind = _messages.StringField(2)
+  metadata = _messages.MessageField('ObjectMeta', 3)
+  spec = _messages.MessageField('WorkerPoolSpec', 4)
+  status = _messages.MessageField('WorkerPoolStatus', 5)
+
+
+class WorkerPoolSpec(_messages.Message):
+  r"""WorkerPoolSpec holds the desired state of the WorkerPool's template and
+  instance splits.
+
+  Fields:
+    instanceSplits: Specifies how to distribute instances over a collection of
+      Revisions.
+    template: Holds the latest specification for the Revision to be stamped
+      out.
+  """
+
+  instanceSplits = _messages.MessageField('InstanceSplit', 1, repeated=True)
+  template = _messages.MessageField('RevisionTemplate', 2)
+
+
+class WorkerPoolStatus(_messages.Message):
+  r"""The current state of the WorkerPool. Output only.
+
+  Fields:
+    conditions: Conditions communicate information about ongoing/complete
+      reconciliation processes that bring the `spec` inline with the observed
+      state of the world. * `Ready`: `True` when all underlying resources are
+      ready.
+    instanceSplits: Holds the configured workload distribution. These entries
+      will always contain RevisionName references. When ConfigurationName
+      appears in the spec, this will hold the LatestReadyRevisionName that we
+      last observed.
+    latestCreatedRevisionName: Name of the last revision that was created from
+      this WorkerPool's template. It might not be ready yet, for that use
+      LatestReadyRevisionName.
+    latestReadyRevisionName: Name of the latest Revision from this
+      WorkerPool's template that has had its `Ready` condition become `True`.
+    observedGeneration: Returns the generation last seen by the system.
+      Clients polling for completed reconciliation should poll until
+      observedGeneration = metadata.generation and the Ready condition's
+      status is True or False.
+  """
+
+  conditions = _messages.MessageField('GoogleCloudRunV1Condition', 1, repeated=True)
+  instanceSplits = _messages.MessageField('InstanceSplit', 2, repeated=True)
+  latestCreatedRevisionName = _messages.StringField(3)
+  latestReadyRevisionName = _messages.StringField(4)
+  observedGeneration = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+
+
 encoding.AddCustomJsonFieldMapping(
     ListMeta, 'continue_', 'continue')
 encoding.AddCustomJsonFieldMapping(
@@ -5514,6 +5959,8 @@ encoding.AddCustomJsonFieldMapping(
 encoding.AddCustomJsonFieldMapping(
     RunNamespacesTasksListRequest, 'continue_', 'continue')
 encoding.AddCustomJsonFieldMapping(
+    RunNamespacesWorkerpoolsListRequest, 'continue_', 'continue')
+encoding.AddCustomJsonFieldMapping(
     RunProjectsLocationsConfigurationsListRequest, 'continue_', 'continue')
 encoding.AddCustomJsonFieldMapping(
     RunProjectsLocationsDomainmappingsListRequest, 'continue_', 'continue')
@@ -5527,3 +5974,5 @@ encoding.AddCustomJsonFieldMapping(
     RunProjectsLocationsServicesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     RunProjectsLocationsServicesListRequest, 'continue_', 'continue')
+encoding.AddCustomJsonFieldMapping(
+    RunProjectsLocationsWorkerpoolsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')

@@ -117,6 +117,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_CURATIONS = (
+      'projects.locations.curations',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/curations/'
+              '{curationsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_DEPENDENCIES = (
       'projects.locations.dependencies',
       '{+name}',
@@ -135,6 +146,29 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/deployments/'
               '{deploymentsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DISCOVEREDAPIOBSERVATIONS = (
+      'projects.locations.discoveredApiObservations',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'discoveredApiObservations/{discoveredApiObservationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DISCOVEREDAPIOBSERVATIONS_DISCOVEREDAPIOPERATIONS = (
+      'projects.locations.discoveredApiObservations.discoveredApiOperations',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'discoveredApiObservations/{discoveredApiObservationsId}/'
+              'discoveredApiOperations/{discoveredApiOperationsId}',
       },
       ['name'],
       True
@@ -179,6 +213,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/plugins/'
               '{pluginsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_PLUGINS_INSTANCES = (
+      'projects.locations.plugins.instances',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/plugins/'
+              '{pluginsId}/instances/{instancesId}',
       },
       ['name'],
       True

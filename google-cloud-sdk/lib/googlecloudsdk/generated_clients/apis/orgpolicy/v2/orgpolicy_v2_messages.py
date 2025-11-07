@@ -17,7 +17,7 @@ package = 'orgpolicy'
 
 class GoogleCloudOrgpolicyV2AlternatePolicySpec(_messages.Message):
   r"""Similar to PolicySpec but with an extra 'launch' field for launch
-  reference. The PolicySpec here is specific for dry-run/darklaunch.
+  reference. The PolicySpec here is specific for dry-run.
 
   Fields:
     launch: Reference to the launch that will be used while audit logging and
@@ -38,24 +38,26 @@ class GoogleCloudOrgpolicyV2Constraint(_messages.Message):
   of the organization by setting a policy that includes constraints at
   different locations in the organization's resource hierarchy. Policies are
   inherited down the resource hierarchy from higher levels, but can also be
-  overridden. For details about the inheritance rules please read about
-  `policies`. Constraints have a default behavior determined by the
-  `constraint_default` field, which is the enforcement behavior that is used
-  in the absence of a policy being defined or inherited for the resource in
-  question.
+  overridden. For details about the inheritance rules, see `Policy`.
+  Constraints have a default behavior determined by the `constraint_default`
+  field, which is the enforcement behavior that is used in the absence of a
+  policy being defined or inherited for the resource in question.
 
   Enums:
     ConstraintDefaultValueValuesEnum: The evaluation behavior of this
       constraint in the absence of a policy.
 
   Fields:
-    booleanConstraint: Defines this constraint as being a BooleanConstraint.
+    booleanConstraint: Defines this constraint as being a boolean constraint.
     constraintDefault: The evaluation behavior of this constraint in the
       absence of a policy.
     description: Detailed description of what this constraint controls as well
       as how and where it is enforced. Mutable.
     displayName: The human readable name. Mutable.
-    listConstraint: Defines this constraint as being a ListConstraint.
+    equivalentConstraint: Managed constraint and canned constraint sometimes
+      can have equivalents. This field is used to store the equivalent
+      constraint name.
+    listConstraint: Defines this constraint as being a list constraint.
     name: Immutable. The resource name of the constraint. Must be in one of
       the following forms: *
       `projects/{project_number}/constraints/{constraint_name}` *
@@ -63,6 +65,8 @@ class GoogleCloudOrgpolicyV2Constraint(_messages.Message):
       `organizations/{organization_id}/constraints/{constraint_name}` For
       example, "/projects/123/constraints/compute.disableSerialPortAccess".
     supportsDryRun: Shows if dry run is supported for this constraint or not.
+    supportsSimulation: Shows if simulation is supported for this constraint
+      or not.
   """
 
   class ConstraintDefaultValueValuesEnum(_messages.Enum):
@@ -70,7 +74,7 @@ class GoogleCloudOrgpolicyV2Constraint(_messages.Message):
 
     Values:
       CONSTRAINT_DEFAULT_UNSPECIFIED: This is only used for distinguishing
-        unset values and should never be used.
+        unset values and should never be used. Results in an error.
       ALLOW: Indicate that all values are allowed for list constraints.
         Indicate that enforcement is off for boolean constraints.
       DENY: Indicate that all values are denied for list constraints. Indicate
@@ -84,36 +88,37 @@ class GoogleCloudOrgpolicyV2Constraint(_messages.Message):
   constraintDefault = _messages.EnumField('ConstraintDefaultValueValuesEnum', 2)
   description = _messages.StringField(3)
   displayName = _messages.StringField(4)
-  listConstraint = _messages.MessageField('GoogleCloudOrgpolicyV2ConstraintListConstraint', 5)
-  name = _messages.StringField(6)
-  supportsDryRun = _messages.BooleanField(7)
+  equivalentConstraint = _messages.StringField(5)
+  listConstraint = _messages.MessageField('GoogleCloudOrgpolicyV2ConstraintListConstraint', 6)
+  name = _messages.StringField(7)
+  supportsDryRun = _messages.BooleanField(8)
+  supportsSimulation = _messages.BooleanField(9)
 
 
 class GoogleCloudOrgpolicyV2ConstraintBooleanConstraint(_messages.Message):
-  r"""A constraint that is either enforced or not. For example, a constraint
-  `constraints/compute.disableSerialPortAccess`. If it is enforced on a VM
-  instance, serial port connections will not be opened to that instance.
+  r"""A constraint type is enforced or not enforced, which is configured in
+  the `PolicyRule`. If `customConstraintDefinition` is defined, this
+  constraint is a managed constraint.
 
   Fields:
-    customConstraintDefinition: Custom constraint definition. This is set only
-      for Managed Constraints
+    customConstraintDefinition: Custom constraint definition. Defines this as
+      a managed constraint.
   """
 
   customConstraintDefinition = _messages.MessageField('GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition', 1)
 
 
 class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition(_messages.Message):
-  r"""Currently used for Managed Constraints. This represents a subset of
-  fields missing from Constraint proto that are required to describe
-  CustomConstraint
+  r"""Custom constraint definition. Defines this as a managed constraint.
 
   Enums:
     ActionTypeValueValuesEnum: Allow or deny type.
     MethodTypesValueListEntryValuesEnum:
 
   Messages:
-    ParametersValue: Stores Structure of parameters used by Constraint
-      condition. Key of map represents name of the parameter.
+    ParametersValue: Stores the structure of `Parameters` used by the
+      constraint condition. The key of `map` represents the name of the
+      parameter.
 
   Fields:
     actionType: Allow or deny type.
@@ -122,8 +127,8 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition(_messages.Messa
       `resource.management.auto_upgrade == true` The max length of the
       condition is 1000 characters.
     methodTypes: All the operations being applied for this constraint.
-    parameters: Stores Structure of parameters used by Constraint condition.
-      Key of map represents name of the parameter.
+    parameters: Stores the structure of `Parameters` used by the constraint
+      condition. The key of `map` represents the name of the parameter.
     resourceTypes: The resource instance type on which this policy applies.
       Format will be of the form : `/` Example: *
       `compute.googleapis.com/Instance`.
@@ -133,7 +138,8 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition(_messages.Messa
     r"""Allow or deny type.
 
     Values:
-      ACTION_TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      ACTION_TYPE_UNSPECIFIED: This is only used for distinguishing unset
+        values and should never be used. Results in an error.
       ALLOW: Allowed action type.
       DENY: Deny action type.
     """
@@ -145,11 +151,12 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition(_messages.Messa
     r"""MethodTypesValueListEntryValuesEnum enum type.
 
     Values:
-      METHOD_TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      METHOD_TYPE_UNSPECIFIED: This is only used for distinguishing unset
+        values and should never be used. Results in an error.
       CREATE: Constraint applied when creating the resource.
       UPDATE: Constraint applied when updating the resource.
-      DELETE: Constraint applied when deleting the resource. Not supported
-        yet.
+      DELETE: Constraint applied when deleting the resource. Not currently
+        supported.
       REMOVE_GRANT: Constraint applied when removing an IAM grant.
       GOVERN_TAGS: Constraint applied when enforcing forced tagging.
     """
@@ -162,8 +169,8 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinition(_messages.Messa
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParametersValue(_messages.Message):
-    r"""Stores Structure of parameters used by Constraint condition. Key of
-    map represents name of the parameter.
+    r"""Stores the structure of `Parameters` used by the constraint condition.
+    The key of `map` represents the name of the parameter.
 
     Messages:
       AdditionalProperty: An additional property for a ParametersValue object.
@@ -199,15 +206,15 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameter(_messa
 
   Enums:
     ItemValueValuesEnum: Determines the parameter's value structure. For
-      example, LIST can be specified by defining type : LIST, and item type as
-      : STRING.
+      example, `LIST` can be specified by defining `type: LIST`, and `item:
+      STRING`.
     TypeValueValuesEnum: Type of the parameter.
 
   Fields:
     defaultValue: Sets the value of the parameter in an assignment if no value
       is given.
-    item: Determines the parameter's value structure. For example, LIST can be
-      specified by defining type : LIST, and item type as : STRING.
+    item: Determines the parameter's value structure. For example, `LIST` can
+      be specified by defining `type: LIST`, and `item: STRING`.
     metadata: Defines subproperties primarily used by the UI to display user-
       friendly information.
     type: Type of the parameter.
@@ -217,11 +224,12 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameter(_messa
   """
 
   class ItemValueValuesEnum(_messages.Enum):
-    r"""Determines the parameter's value structure. For example, LIST can be
-    specified by defining type : LIST, and item type as : STRING.
+    r"""Determines the parameter's value structure. For example, `LIST` can be
+    specified by defining `type: LIST`, and `item: STRING`.
 
     Values:
-      TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      TYPE_UNSPECIFIED: This is only used for distinguishing unset values and
+        should never be used. Results in an error.
       LIST: List parameter type.
       STRING: String parameter type.
       BOOLEAN: Boolean parameter type.
@@ -235,7 +243,8 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameter(_messa
     r"""Type of the parameter.
 
     Values:
-      TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      TYPE_UNSPECIFIED: This is only used for distinguishing unset values and
+        should never be used. Results in an error.
       LIST: List parameter type.
       STRING: String parameter type.
       BOOLEAN: Boolean parameter type.
@@ -253,7 +262,7 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameter(_messa
 
 
 class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameterMetadata(_messages.Message):
-  r"""Defines Medata structure.
+  r"""Defines Metadata structure.
 
   Fields:
     description: Detailed description of what this `parameter` is and use of
@@ -264,8 +273,8 @@ class GoogleCloudOrgpolicyV2ConstraintCustomConstraintDefinitionParameterMetadat
 
 
 class GoogleCloudOrgpolicyV2ConstraintListConstraint(_messages.Message):
-  r"""A constraint that allows or disallows a list of string values, which are
-  configured by an Organization Policy administrator with a policy.
+  r"""A constraint type that allows or disallows a list of string values,
+  which are configured in the `PolicyRule`.
 
   Fields:
     supportsIn: Indicates whether values grouped into categories can be used
@@ -293,7 +302,8 @@ class GoogleCloudOrgpolicyV2CustomConstraint(_messages.Message):
 
   Fields:
     actionType: Allow or deny type.
-    condition: Org policy condition/expression. For example:
+    condition: A Common Expression Language (CEL) condition which is used in
+      the evaluation of the constraint. For example:
       `resource.instanceName.matches("[production|test]_.*_(\d)+")` or,
       `resource.management.auto_upgrade == true` The max length of the
       condition is 1000 characters.
@@ -314,14 +324,15 @@ class GoogleCloudOrgpolicyV2CustomConstraint(_messages.Message):
       `compute.googleapis.com/Instance`.
     updateTime: Output only. The last time this custom constraint was updated.
       This represents the last time that the `CreateCustomConstraint` or
-      `UpdateCustomConstraint` RPC was called
+      `UpdateCustomConstraint` methods were called.
   """
 
   class ActionTypeValueValuesEnum(_messages.Enum):
     r"""Allow or deny type.
 
     Values:
-      ACTION_TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      ACTION_TYPE_UNSPECIFIED: This is only used for distinguishing unset
+        values and should never be used. Results in an error.
       ALLOW: Allowed action type.
       DENY: Deny action type.
     """
@@ -333,11 +344,12 @@ class GoogleCloudOrgpolicyV2CustomConstraint(_messages.Message):
     r"""MethodTypesValueListEntryValuesEnum enum type.
 
     Values:
-      METHOD_TYPE_UNSPECIFIED: Unspecified. Results in an error.
+      METHOD_TYPE_UNSPECIFIED: This is only used for distinguishing unset
+        values and should never be used. Results in an error.
       CREATE: Constraint applied when creating the resource.
       UPDATE: Constraint applied when updating the resource.
-      DELETE: Constraint applied when deleting the resource. Not supported
-        yet.
+      DELETE: Constraint applied when deleting the resource. Not currently
+        supported.
       REMOVE_GRANT: Constraint applied when removing an IAM grant.
       GOVERN_TAGS: Constraint applied when enforcing forced tagging.
     """
@@ -374,11 +386,13 @@ class GoogleCloudOrgpolicyV2ListConstraintsResponse(_messages.Message):
 
 class GoogleCloudOrgpolicyV2ListCustomConstraintsResponse(_messages.Message):
   r"""The response returned from the ListCustomConstraints method. It will be
-  empty if no custom constraints are set on the organization resource.
+  empty if no custom or managed constraints are set on the organization
+  resource.
 
   Fields:
-    customConstraints: All custom constraints that exist on the organization
-      resource. It will be empty if no custom constraints are set.
+    customConstraints: All custom and managed constraints that exist on the
+      organization resource. It will be empty if no custom constraints are
+      set.
     nextPageToken: Page token used to retrieve the next page. This is
       currently not used, but the server may at any point start supplying a
       valid token.
@@ -427,7 +441,7 @@ class GoogleCloudOrgpolicyV2Policy(_messages.Message):
       `projects/{project_id}/policies/{constraint_name}` is also an acceptable
       name for API requests, but responses will return the name using the
       equivalent project number.
-    spec: Basic information about the Organization Policy.
+    spec: Basic information about the organization policy.
   """
 
   alternate = _messages.MessageField('GoogleCloudOrgpolicyV2AlternatePolicySpec', 1)
@@ -482,11 +496,11 @@ class GoogleCloudOrgpolicyV2PolicySpecPolicyRule(_messages.Message):
   r"""A rule used to express this policy.
 
   Messages:
-    ParametersValue: Optional. Required for GMCs if parameters defined in
-      constraints. Pass parameter values when policy enforcement is enabled.
+    ParametersValue: Optional. Required for managed constraints if parameters
+      are defined. Passes parameter values when policy enforcement is enabled.
       Ensure that parameter value types match those defined in the constraint
-      definition. For example: { "allowedLocations" : ["us-east1", "us-
-      west1"], "allowAll" : true }
+      definition. For example: ``` { "allowedLocations" : ["us-east1", "us-
+      west1"], "allowAll" : true } ```
 
   Fields:
     allowAll: Setting this to true means that all values are allowed. This
@@ -504,25 +518,26 @@ class GoogleCloudOrgpolicyV2PolicySpecPolicyRule(_messages.Message):
     denyAll: Setting this to true means that all values are denied. This field
       can be set only in policies for list constraints.
     enforce: If `true`, then the policy is enforced. If `false`, then any
-      configuration is acceptable. This field can be set only in policies for
-      boolean constraints.
-    parameters: Optional. Required for GMCs if parameters defined in
-      constraints. Pass parameter values when policy enforcement is enabled.
+      configuration is acceptable. This field can be set in policies for
+      boolean constraints, custom constraints and managed constraints.
+    parameters: Optional. Required for managed constraints if parameters are
+      defined. Passes parameter values when policy enforcement is enabled.
       Ensure that parameter value types match those defined in the constraint
-      definition. For example: { "allowedLocations" : ["us-east1", "us-
-      west1"], "allowAll" : true }
-    resourceTypes: Optional. The resource types policy can support, only used
-      for Managed Constraints and method type is GOVERN_TAGS.
+      definition. For example: ``` { "allowedLocations" : ["us-east1", "us-
+      west1"], "allowAll" : true } ```
+    resourceTypes: Optional. The resource types policies can support, only
+      used for managed constraints. Method type is `GOVERN_TAGS`.
     values: List of values to be used for this policy rule. This field can be
       set only in policies for list constraints.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParametersValue(_messages.Message):
-    r"""Optional. Required for GMCs if parameters defined in constraints. Pass
-    parameter values when policy enforcement is enabled. Ensure that parameter
-    value types match those defined in the constraint definition. For example:
-    { "allowedLocations" : ["us-east1", "us-west1"], "allowAll" : true }
+    r"""Optional. Required for managed constraints if parameters are defined.
+    Passes parameter values when policy enforcement is enabled. Ensure that
+    parameter value types match those defined in the constraint definition.
+    For example: ``` { "allowedLocations" : ["us-east1", "us-west1"],
+    "allowAll" : true } ```
 
     Messages:
       AdditionalProperty: An additional property for a ParametersValue object.
@@ -554,16 +569,14 @@ class GoogleCloudOrgpolicyV2PolicySpecPolicyRule(_messages.Message):
 
 
 class GoogleCloudOrgpolicyV2PolicySpecPolicyRuleResourceTypes(_messages.Message):
-  r"""Set multiple resource types for one policy, eg: resourceTypes: included:
-  - compute.googleapis.com/Instance - compute.googleapis.com/Disk Constraint
-  definition contains an empty resource type in order to support multiple
-  resource types in the policy. Only support Managed Constriaints and method
-  type is GOVERN_TAGS Refer go/multi-resource-support-force-tags-gmc to get
-  more details.
+  r"""Set multiple resource types for one policy. For example: ```
+  resourceTypes: included: - compute.googleapis.com/Instance -
+  compute.googleapis.com/Disk ``` Constraint definition contains an empty
+  resource type in order to support multiple resource types in the policy.
+  Only supports managed constraints. Method type is `GOVERN_TAGS`.
 
   Fields:
-    included: Optional. The resource type we currently support.
-      cloud/orgpolicy/customconstraintconfig/prod/resource_types.prototext
+    included: Optional. The resource types we currently support.
   """
 
   included = _messages.StringField(1, repeated=True)
@@ -810,8 +823,8 @@ class OrgpolicyOrganizationsCustomConstraintsGetRequest(_messages.Message):
   r"""A OrgpolicyOrganizationsCustomConstraintsGetRequest object.
 
   Fields:
-    name: Required. Resource name of the custom constraint. See the custom
-      constraint entry for naming requirements.
+    name: Required. Resource name of the custom or managed constraint. See the
+      custom constraint entry for naming requirements.
   """
 
   name = _messages.StringField(1, required=True)

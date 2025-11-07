@@ -20,6 +20,8 @@ from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.backupdr import util
 from googlecloudsdk.api_lib.backupdr.restore_util import ComputeUtil
+from googlecloudsdk.api_lib.backupdr.restore_util import DiskUtil
+from googlecloudsdk.calliope import exceptions
 from googlecloudsdk.command_lib.backupdr import util as command_util
 from googlecloudsdk.core import resources
 from googlecloudsdk.generated_clients.apis.backupdr.v1 import backupdr_v1_messages
@@ -71,6 +73,34 @@ class ComputeRestoreConfig(util.RestrictedDict):
         "InstanceKmsKey",
     ]
     super(ComputeRestoreConfig, self).__init__(supported_flags, *args, **kwargs)
+
+
+class DiskRestoreConfig(util.RestrictedDict):
+  """Restore configuration."""
+
+  def __init__(self, *args, **kwargs):
+    supported_flags = [
+        "Name",
+        "TargetZone",
+        "TargetRegion",
+        "TargetProject",
+        "ReplicaZones",
+        "Description",
+        "Labels",
+        "Licenses",
+        "GuestOsFeatures",
+        "ConfidentialCompute",
+        "Type",
+        "AccessMode",
+        "ResourcePolicies",
+        "ProvisionedIops",
+        "KmsKey",
+        "Architecture",
+        "Size",
+        "ProvisionedThroughput",
+        "StoragePool",
+    ]
+    super(DiskRestoreConfig, self).__init__(supported_flags, *args, **kwargs)
 
 
 class BackupsClient(util.BackupDrClientBase):
@@ -393,3 +423,182 @@ class BackupsClient(util.BackupDrClientBase):
         name=resource.RelativeName(), restoreBackupRequest=restore_request
     )
     return self.service.Restore(request)
+
+  def RestoreDisk(self, resource, restore_config: DiskRestoreConfig):
+    """Restores the given backup.
+
+    Args:
+      resource: The backup to be restored.
+      restore_config: Restore configuration.
+
+    Returns:
+      A long running operation
+    """
+    restore_request = self.messages.RestoreBackupRequest()
+    restore_request.diskRestoreProperties = self.messages.DiskRestoreProperties(
+        name=restore_config["Name"],
+    )
+
+    target_zone = restore_config.get("TargetZone", None)
+    target_region = restore_config.get("TargetRegion", None)
+
+    if target_zone is None and target_region is None:
+      raise exceptions.InvalidArgumentException(
+          "target_zone",
+          "Target zone or target region is required for disk restore",
+      )
+
+    if target_zone is not None and target_region is not None:
+      raise exceptions.InvalidArgumentException(
+          "target_zone",
+          "Both Target zone and target region cannot be specified for disk"
+          " restore",
+      )
+    if target_zone is not None:
+      restore_request.diskTargetEnvironment = (
+          self.messages.DiskTargetEnvironment(
+              zone=restore_config["TargetZone"],
+              project=restore_config["TargetProject"],
+          )
+      )
+    elif target_region is not None:
+      restore_request.regionDiskTargetEnvironment = (
+          self.messages.RegionDiskTargetEnvironment(
+              region=restore_config["TargetRegion"],
+              project=restore_config["TargetProject"],
+              replicaZones=restore_config["ReplicaZones"],
+          )
+      )
+
+    # Description
+    if "Description" in restore_config:
+      restore_request.diskRestoreProperties.description = restore_config[
+          "Description"
+      ]
+
+    # Labels
+    if "Labels" in restore_config:
+      labels_message = DiskUtil.ParseLabels(
+          self.messages, restore_config["Labels"]
+      )
+      if labels_message:
+        restore_request.diskRestoreProperties.labels = labels_message
+
+    # Licenses
+    if "Licenses" in restore_config:
+      restore_request.diskRestoreProperties.licenses = restore_config[
+          "Licenses"
+      ]
+
+    # ConfidentialCompute
+    if "ConfidentialCompute" in restore_config:
+      restore_request.diskRestoreProperties.enableConfidentialCompute = (
+          restore_config["ConfidentialCompute"]
+      )
+
+    # Type
+    if "Type" in restore_config:
+      restore_request.diskRestoreProperties.type = restore_config["Type"]
+
+    # Size
+    if "Size" in restore_config:
+      restore_request.diskRestoreProperties.sizeGb = restore_config["Size"]
+
+    # StoragePool
+    if "StoragePool" in restore_config:
+      restore_request.diskRestoreProperties.storagePool = restore_config[
+          "StoragePool"
+      ]
+
+    # Architecture
+    if "Architecture" in restore_config:
+      restore_request.diskRestoreProperties.architecture = (
+          self.messages.DiskRestoreProperties.ArchitectureValueValuesEnum(
+              restore_config["Architecture"]
+          )
+      )
+
+    # AccessMode
+    if "AccessMode" in restore_config:
+      restore_request.diskRestoreProperties.accessMode = (
+          self.messages.DiskRestoreProperties.AccessModeValueValuesEnum(
+              restore_config["AccessMode"]
+          )
+      )
+
+    # ResourcePolicies
+    if "ResourcePolicies" in restore_config:
+      restore_request.diskRestoreProperties.resourcePolicy = restore_config[
+          "ResourcePolicies"
+      ]
+
+    # ProvisionedIops
+    if "ProvisionedIops" in restore_config:
+      restore_request.diskRestoreProperties.provisionedIops = restore_config[
+          "ProvisionedIops"
+      ]
+
+    # ProvisionedThroughput
+    if "ProvisionedThroughput" in restore_config:
+      restore_request.diskRestoreProperties.provisionedThroughput = (
+          restore_config["ProvisionedThroughput"]
+      )
+
+    # KmsKey
+    if "KmsKey" in restore_config:
+      restore_request.diskRestoreProperties.diskEncryptionKey = (
+          self.messages.CustomerEncryptionKey(
+              kmsKeyName=restore_config["KmsKey"],
+          )
+      )
+
+    # GuestOsFeatures
+    if "GuestOsFeatures" in restore_config:
+      guest_os_features = []
+      for feature in restore_config["GuestOsFeatures"]:
+        guest_os_features.append(
+            self.messages.GuestOsFeature(
+                type=self.messages.GuestOsFeature.TypeValueValuesEnum(feature)
+            )
+        )
+      restore_request.diskRestoreProperties.guestOsFeature = guest_os_features
+
+    request = self.messages.BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsRestoreRequest(
+        name=resource.RelativeName(), restoreBackupRequest=restore_request
+    )
+    return self.service.Restore(request)
+
+  def ParseUpdate(self, enforced_retention, expire_time):
+    updated_backup = self.messages.Backup()
+    if enforced_retention is not None:
+      updated_backup.enforcedRetentionEndTime = enforced_retention
+    if expire_time is not None:
+      updated_backup.expireTime = expire_time
+    return updated_backup
+
+  def Update(self, resource, backup, update_mask):
+    request_id = command_util.GenerateRequestId()
+    request = self.messages.BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsPatchRequest(
+        backup=backup,
+        name=resource.RelativeName(),
+        updateMask=update_mask,
+        requestId=request_id,
+    )
+    return self.service.Patch(request)
+
+  def FetchForResourceType(
+      self,
+      resource,
+      resource_type,
+      filter_expression=None,
+      page_size=None,
+      order_by=None,
+  ):
+    request = self.messages.BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsFetchForResourceTypeRequest(
+        parent=resource.RelativeName(),
+        resourceType=resource_type,
+        pageSize=page_size,
+        filter=filter_expression,
+        orderBy=order_by,
+    )
+    return self.service.FetchForResourceType(request)

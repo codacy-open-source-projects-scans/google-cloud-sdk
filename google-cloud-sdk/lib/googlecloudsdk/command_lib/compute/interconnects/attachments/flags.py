@@ -14,16 +14,14 @@
 # limitations under the License.
 """Flags and helpers for the compute interconnects commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 import collections
+import copy
 
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.compute import completers as compute_completers
 from googlecloudsdk.command_lib.compute import flags as compute_flags
+from googlecloudsdk.command_lib.compute import resource_manager_tags_utils
 from googlecloudsdk.command_lib.util.apis import arg_utils
 
 _BANDWIDTH_CHOICES = collections.OrderedDict([
@@ -39,6 +37,7 @@ _BANDWIDTH_CHOICES = collections.OrderedDict([
     ('10g', '10 Gbit/s'),
     ('20g', '20 Gbit/s'),
     ('50g', '50 Gbit/s'),
+    ('100g', '100 Gbit/s'),
 ])
 
 _EDGE_AVAILABILITY_DOMAIN_CHOICES = {
@@ -138,17 +137,35 @@ def AddAdminEnabled(parser, default_behavior=True, update=False):
       '--enable-admin', action='store_true', default=None, help=help_text)
 
 
-def AddBandwidth(parser, required):
+def AddEnableAdmin(parser):
+  """Adds enable-admin flag to the argparse.ArgumentParser."""
+  parser.add_argument(
+      '--enable-admin',
+      action='store_true',
+      default=None,
+      help="""\
+      Administrative status of the interconnect attachment. If not provided
+      on creation, defaults to enabled.
+      When this is enabled, the attachment is operational and will carry
+      traffic. Use --no-enable-admin to disable it.
+      """)
+
+
+def AddBandwidth(parser, required, release_track=base.ReleaseTrack.GA):
   """Adds bandwidth flag to the argparse.ArgumentParser.
 
   Args:
     parser: The argparse parser.
     required: A boolean indicates whether the Bandwidth is required.
+    release_track: Depending on which release track is specified, different
+      bandwidth options will be surfaced to customers.
   """
   help_text = """\
       Provisioned capacity of the attachment.
       """
-  choices = _BANDWIDTH_CHOICES
+  choices = copy.deepcopy(_BANDWIDTH_CHOICES)
+  if release_track == base.ReleaseTrack.ALPHA:
+    choices['400g'] = '400 Gbit/s'
 
   base.ChoiceArgument(
       '--bandwidth',
@@ -170,6 +187,88 @@ def AddVlan(parser):
       help="""\
       Desired VLAN for this attachment, in the range 2-4093. If not supplied,
       Google will automatically select a VLAN.
+      """)
+
+
+def AddZ2zVlan(parser):
+  """Adds vlan flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--z2z-vlan',
+      hidden=True,
+      type=arg_parsers.BoundedInt(2, 4093),
+      help="""\
+      Desired VLAN for this attachment, in the range 2-4093.
+      Required for Z2Z attachments.
+      """)
+
+
+def AddVlanKey(parser, required=False):
+  """Adds vlan-key flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+    required: A boolean indicates whether the vlan-key is required.
+  """
+  parser.add_argument(
+      '--vlan-key',
+      required=required,
+      help="""\
+      Desired VLAN key for L2 forwarding mapping for the attachment. If not
+      supplied, all mappings will be displayed.
+     """)
+
+
+def AddApplianceIpAddress(parser):
+  """Adds appliance-ip-address flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--appliance-ip-address',
+      metavar='ADDRESSES',
+      help=""" A single IPv4 or IPv6 address used as the destination IP address
+      for ingress packets that match on a VLAN tag, but do not match a more
+      specific inner VLAN tag.
+      """)
+
+
+def AddApplianceName(parser):
+  """Adds L2 appliance mapping name flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--appliance-name',
+      help="""\
+      The name of the L2 appliance mapping rule.
+      """)
+
+
+def AddInnerVlanToApplianceMappings(parser):
+  """Adds inner vlan to appliance mappings flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--inner-vlan-to-appliance-mappings',
+      type=arg_parsers.ArgDict(
+          spec={
+              'innerVlanTags': arg_parsers.ArgList(custom_delim_char=';'),
+              'innerApplianceIpAddress': str,
+          },
+      ),
+      action='append',
+      help="""\
+      A list of mapping rules from inner VLAN tags to IP addresses. If the inner
+      VLAN is not explicitly mapped to an IP address range, the
+      applianceIpAddress is used.
       """)
 
 
@@ -477,6 +576,54 @@ def AddSubnetLength(parser):
       """)
 
 
+def AddGeneveVni(parser, required=True):
+  """Adds geneve vni flag to the argparse.ArgumentParser."""
+  parser.add_argument(
+      '--geneve-vni',
+      metavar='GENEVE_HEADER',
+      type=int,
+      required=required,
+      help="""A VNI identier for Geneve header, as defined in
+      https://datatracker.ietf.org/doc/html/rfc8926, used for L2 forwarding.""",
+  )
+
+
+def AddDefaultApplianceIpAddress(parser):
+  """Adds default appliance ip address flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--default-appliance-ip-address',
+      metavar='DEFAULT_APPLIANCE_IP_ADDRESS',
+      help="""A single IPv4 or IPv6 address used as the default destination IP
+      when there is no VLAN mapping result found for L2 forwarding.
+      Unset field indicates the unmatched packet should be dropped.
+      """,
+  )
+
+
+def AddTunnelEndpointIpAddress(parser, required=True):
+  """Adds tunnel endpoint ip address flag to the argparse.ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+    required: A boolean indicates whether the tunnel endpoint ip address is
+      required.
+  """
+  parser.add_argument(
+      '--tunnel-endpoint-ip-address',
+      metavar='TUNNEL_ENDPOINT_IP_ADDRESS',
+      required=required,
+      help="""A single IPv4 or IPv6 address. This address will be used as the
+      source IP address for L2 forwarding packets sent to the appliances, and
+      must be used as the destination IP address for packets that should be sent
+      out through this attachment.
+      """,
+  )
+
+
 def AddEnableMulticast(parser, update=False):
   """Adds enableMulticast flag to the argparse.ArgumentParser.
 
@@ -503,4 +650,99 @@ def AddEnableMulticast(parser, update=False):
       default=None,
       action='store_true',
       help=help_text,
+  )
+
+
+def AddCandidateCloudRouterIpAddress(parser):
+  """Adds candidate cloud router ip address flag to the ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--candidate-cloud-router-ip-address',
+      help="""\
+      Single IPv4 address + prefix length to be configured on the cloud
+      router interface for this interconnect attachment. Example:
+      203.0.113.1/29
+      """,
+  )
+
+
+def AddCandidateCustomerRouterIpAddress(parser):
+  """Adds candidate customer router ip address flag to the ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--candidate-customer-router-ip-address',
+      help="""\
+      Single IPv4 address + prefix length to be configured on the customer
+      router interface for this interconnect attachment. Example:
+      203.0.113.2/29
+      """,
+  )
+
+
+def AddCandidateCloudRouterIpv6Address(parser):
+  """Adds candidate cloud router ipv6 address flag to the ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--candidate-cloud-router-ipv6-address',
+      help="""\
+      Single IPv6 address + prefix length to be configured on the cloud
+      router interface for this interconnect attachment. Example:
+      2001:db8::1/125
+      """,
+  )
+
+
+def AddCandidateCustomerRouterIpv6Address(parser):
+  """Adds candidate customer router ipv6 address flag to the ArgumentParser.
+
+  Args:
+    parser: The argparse parser.
+  """
+  parser.add_argument(
+      '--candidate-customer-router-ipv6-address',
+      help="""\
+      Single IPv6 address + prefix length to be configured on the customer
+      router interface for this interconnect attachment. Example:
+      2001:db8::2/125
+      """,
+  )
+
+
+def AddResourceManagerTags(parser):
+  """Adds the --resource-manager-tags flag to the argparse.ArgumentParser."""
+  parser.add_argument(
+      '--resource-manager-tags',
+      type=arg_parsers.ArgDict(),
+      metavar='KEY=VALUE',
+      help="""\
+          A comma-separated list of Resource Manager tags to apply to the interconnect.
+      """,
+  )
+
+
+def CreateInterconnectAttachmentParams(messages, resource_manager_tags):
+  """Converts resource manager tags argument into InterconnectAttachmentParams."""
+  resource_manager_tags_map = (
+      resource_manager_tags_utils.GetResourceManagerTags(
+          resource_manager_tags
+      )
+  )
+  params = messages.InterconnectAttachmentParams
+  additional_properties = [
+      params.ResourceManagerTagsValue.AdditionalProperty(key=key, value=value)
+      for key, value in sorted(resource_manager_tags_map.items())
+  ]
+  return params(
+      resourceManagerTags=params.ResourceManagerTagsValue(
+          additionalProperties=additional_properties
+      )
   )

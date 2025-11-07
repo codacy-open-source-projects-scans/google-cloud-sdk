@@ -33,6 +33,8 @@ class AccessLevel(_messages.Message):
   be applied.
 
   Fields:
+    accessLevelFeatures: Output only. Access level features that are used to
+      determine the behavior of the access level.
     basic: A `BasicLevel` composed of `Conditions`.
     custom: A `CustomLevel` written in the Common Expression Language.
     description: Description of the `AccessLevel` and its use. Does not affect
@@ -45,11 +47,27 @@ class AccessLevel(_messages.Message):
     title: Human readable title. Must be unique within the Policy.
   """
 
-  basic = _messages.MessageField('BasicLevel', 1)
-  custom = _messages.MessageField('CustomLevel', 2)
-  description = _messages.StringField(3)
-  name = _messages.StringField(4)
-  title = _messages.StringField(5)
+  accessLevelFeatures = _messages.MessageField('AccessLevelFeatures', 1)
+  basic = _messages.MessageField('BasicLevel', 2)
+  custom = _messages.MessageField('CustomLevel', 3)
+  description = _messages.StringField(4)
+  name = _messages.StringField(5)
+  title = _messages.StringField(6)
+
+
+class AccessLevelFeatures(_messages.Message):
+  r"""Fields capturing features about the access level. Output only.
+
+  Fields:
+    canBeNested: Output only. Indicates that the access level is able to be
+      nested in other access levels.
+    hasAmendableConditions: Output only. Indicates whether there is a
+      amendable response defined within access level conditions. Set to false
+      if deny is the only configured result for all conditions.
+  """
+
+  canBeNested = _messages.BooleanField(1)
+  hasAmendableConditions = _messages.BooleanField(2)
 
 
 class AccessPolicy(_messages.Message):
@@ -669,13 +687,13 @@ class AccesscontextmanagerOrganizationsGcpUserAccessBindingsPatchRequest(_messag
     append: Optional. This field controls whether or not certain repeated
       settings in the update request overwrite or append to existing settings
       on the binding. If true, then append. Otherwise overwrite. So far, only
-      scoped_access_settings with reauth_settings supports appending. Global
+      scoped_access_settings with session_settings supports appending. Global
       access_levels, access_levels in scoped_access_settings,
-      dry_run_access_levels, reauth_settings, and session_settings are not
-      compatible with append functionality, and the request will return an
-      error if append=true when these settings are in the update_mask. The
-      request will also return an error if append=true when
-      "scoped_access_settings" is not set in the update_mask.
+      dry_run_access_levels, and session_settings are not compatible with
+      append functionality, and the request will return an error if
+      append=true when these settings are in the update_mask. The request will
+      also return an error if append=true when "scoped_access_settings" is not
+      set in the update_mask.
     gcpUserAccessBinding: A GcpUserAccessBinding resource to be passed as the
       request body.
     name: Immutable. Identifier. Assigned by the server during creation. The
@@ -721,6 +739,18 @@ class AccesscontextmanagerServicesListRequest(_messages.Message):
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
+
+
+class AddRequestHeader(_messages.Message):
+  r"""Adds a request header to the API.
+
+  Fields:
+    key: HTTP header key.
+    value: HTTP header value.
+  """
+
+  key = _messages.StringField(1)
+  value = _messages.StringField(2)
 
 
 class ApiOperation(_messages.Message):
@@ -1127,6 +1157,11 @@ class Condition(_messages.Message):
       which does not exist is an error. All access levels listed must be
       granted for the Condition to be true. Example:
       "`accessPolicies/MY_POLICY/accessLevels/LEVEL_NAME"`
+    risk: The request must have acceptable risk profile. Following constraints
+      apply to its use: - It cannot be negated and cannot be nested. - If set,
+      no other attributes can be applied within a Condition. - If set, you may
+      optionally specify a amendable response.
+    unsatisfiedResult: The result to apply if the condition is not met.
     vpcNetworkSources: The request must originate from one of the provided VPC
       networks in Google Cloud. Cannot specify this field together with
       `ip_subnetworks`.
@@ -1138,7 +1173,9 @@ class Condition(_messages.Message):
   negate = _messages.BooleanField(4)
   regions = _messages.StringField(5, repeated=True)
   requiredAccessLevels = _messages.StringField(6, repeated=True)
-  vpcNetworkSources = _messages.MessageField('VpcNetworkSource', 7, repeated=True)
+  risk = _messages.MessageField('Risk', 7)
+  unsatisfiedResult = _messages.MessageField('UnsatisfiedResult', 8)
+  vpcNetworkSources = _messages.MessageField('VpcNetworkSource', 9, repeated=True)
 
 
 class CustomLevel(_messages.Message):
@@ -1346,13 +1383,10 @@ class EgressSource(_messages.Message):
       origins within the perimeter. Example:
       `accessPolicies/MY_POLICY/accessLevels/MY_LEVEL`. If a single `*` is
       specified for `access_level`, then all EgressSources will be allowed.
-    resource: A Google Cloud resource that is allowed to egress the perimeter.
-      Requests from these resources are allowed to access data outside the
-      perimeter. Currently only projects are allowed. Project format:
-      `projects/{project_number}`. The resource may be in any Google Cloud
-      organization, not just the organization that the perimeter is defined
-      in. `*` is not allowed, the case of allowing all Google Cloud resources
-      only is not supported.
+    resource: A Google Cloud resource from the service perimeter that you want
+      to allow to access data outside the perimeter. This field supports only
+      projects. The project format is `projects/{project_number}`. You can't
+      use `*` in this field to allow all Google Cloud resources.
   """
 
   accessLevel = _messages.StringField(1)
@@ -1444,9 +1478,9 @@ class GcpUserAccessBinding(_messages.Message):
       be logged. Only one access level is supported, not multiple. This list
       must have exactly one element. Example:
       "accessPolicies/9522/accessLevels/device_trusted"
-    groupKey: Optional. Immutable. Google Group id whose members are subject
-      to this binding's restrictions. See "id" in the [G Suite Directory API's
-      Groups resource] (https://developers.google.com/admin-
+    groupKey: Optional. Immutable. Google Group id whose users are subject to
+      this binding's restrictions. See "id" in the [Google Workspace Directory
+      API's Group Resource] (https://developers.google.com/admin-
       sdk/directory/v1/reference/groups#resource). If a group's email
       address/alias is changed, this resource will continue to point at the
       changed group. This field does not accept group email addresses or
@@ -1465,7 +1499,8 @@ class GcpUserAccessBinding(_messages.Message):
     scopedAccessSettings: Optional. A list of scoped access settings that set
       this binding's restrictions on a subset of applications. This field
       cannot be set if restricted_client_applications is set.
-    sessionSettings: Optional. GCSL policy for the group key.
+    sessionSettings: Optional. The Google Cloud session length (GCSL) policy
+      for the group key.
   """
 
   accessLevels = _messages.StringField(1, repeated=True)
@@ -1732,6 +1767,16 @@ class MethodSelector(_messages.Message):
   permission = _messages.StringField(2)
 
 
+class Modifier(_messages.Message):
+  r"""Modifier to apply to the API requests.
+
+  Fields:
+    addRequestHeader: Adds additional HTTP request headers.
+  """
+
+  addRequestHeader = _messages.MessageField('AddRequestHeader', 1)
+
+
 class Operation(_messages.Message):
   r"""This resource represents a long-running operation that is the result of
   a network API call.
@@ -1967,14 +2012,22 @@ class Principal(_messages.Message):
   ID: 5
 
   Fields:
+    federatedPrincipal: Immutable. IAM federated principal name to assign
+      policies to workforce/workload federated identities. Can be principal
+      set or single principal, here are some examples: Single principal: princ
+      ipal://iam.googleapis.com/projects/{project_number}/locations/global/wor
+      kloadIdentityPools/{pool_id}/subject/{subject_attribute_value}
+      PrincipalSet: principalSet://iam.googleapis.com/projects/{project_number
+      }/locations/global/workloadIdentityPools/{pool_id}/*
     serviceAccount: Immutable. Service account email used to assign policies
       to a single 1p service account.
     serviceAccountProjectNumber: Immutable. Project number used to assign
       policies to all service accounts in a Google Cloud project.
   """
 
-  serviceAccount = _messages.StringField(1)
-  serviceAccountProjectNumber = _messages.StringField(2)
+  federatedPrincipal = _messages.StringField(1)
+  serviceAccount = _messages.StringField(2)
+  serviceAccountProjectNumber = _messages.StringField(3)
 
 
 class ReplaceAccessLevelsRequest(_messages.Message):
@@ -2039,6 +2092,39 @@ class ReplaceServicePerimetersResponse(_messages.Message):
   servicePerimeters = _messages.MessageField('ServicePerimeter', 1, repeated=True)
 
 
+class Risk(_messages.Message):
+  r"""Risk-based access level.
+
+  Fields:
+    userManagedRisk: The user managed risk associated with the access level.
+  """
+
+  userManagedRisk = _messages.MessageField('UserManagedRisk', 1)
+
+
+class RiskType(_messages.Message):
+  r"""The type of the risk used to calculate the access level risk score.
+
+  Fields:
+    atypicalLocation: The request is from an identity that has issued requests
+      from atypical locations.
+    identityReputation: The request is from an identity that has a low
+      reputation (e.g. due to dormancy).
+    maliciousActivity: The request is from an identity that has performed
+      potentially malicious activity (e.g. mass deletion of backups).
+    maliciousSource: The request is associated with signals (e.g. network)
+      that indicate a malicious source.
+    repeatAction: The request is from an identity that has issued repeated,
+      suspicious requests (e.g. too many requests with permission denied).
+  """
+
+  atypicalLocation = _messages.BooleanField(1)
+  identityReputation = _messages.BooleanField(2)
+  maliciousActivity = _messages.BooleanField(3)
+  maliciousSource = _messages.BooleanField(4)
+  repeatAction = _messages.BooleanField(5)
+
+
 class ScopedAccessSettings(_messages.Message):
   r"""A relationship between access settings and its scope.
 
@@ -2055,6 +2141,22 @@ class ScopedAccessSettings(_messages.Message):
   activeSettings = _messages.MessageField('AccessSettings', 1)
   dryRunSettings = _messages.MessageField('AccessSettings', 2)
   scope = _messages.MessageField('AccessScope', 3)
+
+
+class ServicePattern(_messages.Message):
+  r"""Service patterns used to allow access.
+
+  Fields:
+    modifiers: Modifiers to apply to the requests that match the URL pattern.
+    pattern: URL pattern to allow. Only patterns of ".googleapis.com/*",
+      "www.googleapis.com//*" and "*.appspot.com/* form are supported, where
+      should be alphanumerical name.
+    service: Supported service to allow.
+  """
+
+  modifiers = _messages.MessageField('Modifier', 1, repeated=True)
+  pattern = _messages.StringField(2)
+  service = _messages.StringField(3)
 
 
 class ServicePerimeter(_messages.Message):
@@ -2165,7 +2267,7 @@ class ServicePerimeterConfig(_messages.Message):
       separately. Access is granted if any Ingress Policy grants it. Must be
       empty for a perimeter bridge.
     resources: A list Google Cloud resources that are inside of the service
-      perimeter. Only projects and VPCs are allowed. Project format:
+      perimeter. Only projects, VPCs are allowed. Project format:
       `projects/{project_number}`. VPC network format: `//compute.googleapis.c
       om/projects/{PROJECT_ID}/global/networks/{NETWORK_NAME}`.
     restrictedServices: Google Cloud services that are subject to the Service
@@ -2189,23 +2291,23 @@ class SessionSettings(_messages.Message):
   session expires, and other related settings.
 
   Enums:
-    SessionReauthMethodValueValuesEnum: Optional. Session method when users
-      GCP session is up.
+    SessionReauthMethodValueValuesEnum: Optional. Session method when user's
+      Google Cloud session is up.
 
   Fields:
     maxInactivity: Optional. How long a user is allowed to take between
-      actions before a new access token must be issued. Presently only set for
-      Cloud Apps.
+      actions before a new access token must be issued. Only set for Google
+      Cloud apps.
     sessionLength: Optional. The session length. Setting this field to zero is
       equal to disabling reauth. Also can set infinite session by flipping the
       enabled bit to false below. If use_oidc_max_age is true, for OIDC apps,
       the session length will be the minimum of this field and OIDC max_age
       param.
-    sessionLengthEnabled: Optional. Big red button to turn off GCSL. When
-      false, all fields set above will be disregarded and the session length
-      is basically infinite.
-    sessionReauthMethod: Optional. Session method when users GCP session is
-      up.
+    sessionLengthEnabled: Optional. This field enables or disables Google
+      Cloud session length. When false, all fields set above will be
+      disregarded and the session length is basically infinite.
+    sessionReauthMethod: Optional. Session method when user's Google Cloud
+      session is up.
     useOidcMaxAge: Optional. Only useful for OIDC apps. When false, the OIDC
       max_age param, if passed in the authentication request will be ignored.
       When true, the re-auth period will be the minimum of the session_length
@@ -2213,17 +2315,17 @@ class SessionSettings(_messages.Message):
   """
 
   class SessionReauthMethodValueValuesEnum(_messages.Enum):
-    r"""Optional. Session method when users GCP session is up.
+    r"""Optional. Session method when user's Google Cloud session is up.
 
     Values:
-      SESSION_REAUTH_METHOD_UNSPECIFIED: If method undefined in API, we will
-        use LOGIN by default.
-      LOGIN: The user will prompted to perform regular login. Users who are
-        enrolled for two-step verification and haven't chosen to "Remember
-        this computer" will be prompted for their second factor.
-      SECURITY_KEY: The user will be prompted to autheticate using their
-        security key. If no security key has been configured, then we will
-        fallback to LOGIN.
+      SESSION_REAUTH_METHOD_UNSPECIFIED: If method is undefined in the API,
+        LOGIN will be used by default.
+      LOGIN: The user will be prompted to perform regular login. Users who are
+        enrolled for two-step verification and haven't chosen "Remember this
+        computer" will be prompted for their second factor.
+      SECURITY_KEY: The user will be prompted to authenticate using their
+        security key. If no security key has been configured, then
+        authentication will fallback to LOGIN.
       PASSWORD: The user will be prompted for their password.
     """
     SESSION_REAUTH_METHOD_UNSPECIFIED = 0
@@ -2488,11 +2590,58 @@ class TestIamPermissionsResponse(_messages.Message):
   permissions = _messages.StringField(1, repeated=True)
 
 
+class UnsatisfiedResult(_messages.Message):
+  r"""The result to apply if the condition is not met. By default, the result
+  is deny.
+
+  Enums:
+    ResultTypeValueValuesEnum: The type of result to apply if the condition is
+      not met.
+
+  Fields:
+    amendments: List of amendments to apply if the condition is not met. If
+      ALL amendments are satisfied, the condition is as well. For example, a
+      successful user reauthentication may resolve a failing risk condition. -
+      It applies only when result_type == AMENDABLE. - Only a single amendment
+      i.e. "responses.reauthRequired" is allowed today.
+    resultType: The type of result to apply if the condition is not met.
+  """
+
+  class ResultTypeValueValuesEnum(_messages.Enum):
+    r"""The type of result to apply if the condition is not met.
+
+    Values:
+      DENY: Default type of result.
+      AMENDABLE: The result is amendable. Currently, the only supported
+        amendable is reauth.
+    """
+    DENY = 0
+    AMENDABLE = 1
+
+  amendments = _messages.StringField(1, repeated=True)
+  resultType = _messages.EnumField('ResultTypeValueValuesEnum', 2)
+
+
+class UserManagedRisk(_messages.Message):
+  r"""User managed risk associated with the access level.
+
+  Fields:
+    riskType: The type of the risks associated with the access level.
+  """
+
+  riskType = _messages.MessageField('RiskType', 1)
+
+
 class VpcAccessibleServices(_messages.Message):
   r"""Specifies how APIs are allowed to communicate within the Service
   Perimeter.
 
+  Enums:
+    ServicePatternsEnforcementScopesValueListEntryValuesEnum:
+
   Fields:
+    allowedServicePatterns: Specifies which Google services are allowed to be
+      accessed from VPC networks in the service perimeter.
     allowedServices: The list of APIs usable within the Service Perimeter.
       Must be empty unless 'enable_restriction' is True. You can specify a
       list of individual services, as well as include the 'RESTRICTED-
@@ -2500,10 +2649,28 @@ class VpcAccessibleServices(_messages.Message):
       protected by the perimeter.
     enableRestriction: Whether to restrict API calls within the Service
       Perimeter to the list of APIs specified in 'allowed_services'.
+    servicePatternsEnforcementScopes: Defines the enforcement scopes of
+      service patterns.
   """
 
-  allowedServices = _messages.StringField(1, repeated=True)
-  enableRestriction = _messages.BooleanField(2)
+  class ServicePatternsEnforcementScopesValueListEntryValuesEnum(_messages.Enum):
+    r"""ServicePatternsEnforcementScopesValueListEntryValuesEnum enum type.
+
+    Values:
+      SERVICE_PATTERNS_ENFORCEMENT_SCOPE_UNSPECIFIED: Default value. This can
+        not be used.
+      GOOGLE_APIS_VIA_PRIVATE_PATH: Enables VPC Accessible Services
+        enforcement for all APIs (including unsupported APIs) for Private
+        Google Access configured with Private VIP and Private Service Connect
+        Endpoint for Global Google APIs that uses 'all-apis' bundle.
+    """
+    SERVICE_PATTERNS_ENFORCEMENT_SCOPE_UNSPECIFIED = 0
+    GOOGLE_APIS_VIA_PRIVATE_PATH = 1
+
+  allowedServicePatterns = _messages.MessageField('ServicePattern', 1, repeated=True)
+  allowedServices = _messages.StringField(2, repeated=True)
+  enableRestriction = _messages.BooleanField(3)
+  servicePatternsEnforcementScopes = _messages.EnumField('ServicePatternsEnforcementScopesValueListEntryValuesEnum', 4, repeated=True)
 
 
 class VpcNetworkSource(_messages.Message):

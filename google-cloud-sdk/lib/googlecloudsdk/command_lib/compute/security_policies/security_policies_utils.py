@@ -14,10 +14,6 @@
 # limitations under the License.
 """Code that's shared between multiple security policies subcommands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 import base64
 import json
 
@@ -192,6 +188,24 @@ def SecurityPolicyFromFile(input_file, messages, file_format):
             .DdosProtectionValueValuesEnum(
                 parsed_security_policy['ddosProtectionConfig']
                 ['ddosProtection'])))
+    if (
+        'ddosAdaptiveProtection'
+        in parsed_security_policy['ddosProtectionConfig']
+    ):
+      security_policy.ddosProtectionConfig.ddosAdaptiveProtection = messages.SecurityPolicyDdosProtectionConfig.DdosAdaptiveProtectionValueValuesEnum(
+          parsed_security_policy['ddosProtectionConfig'][
+              'ddosAdaptiveProtection'
+          ]
+      )
+    if (
+        'ddosImpactedBaselineThreshold'
+        in parsed_security_policy['ddosProtectionConfig']
+    ):
+      security_policy.ddosProtectionConfig.ddosImpactedBaselineThreshold = (
+          parsed_security_policy['ddosProtectionConfig'][
+              'ddosImpactedBaselineThreshold'
+          ]
+      )
   if 'recaptchaOptionsConfig' in parsed_security_policy:
     security_policy.recaptchaOptionsConfig = (
         messages.SecurityPolicyRecaptchaOptionsConfig())
@@ -610,6 +624,44 @@ def CreateDdosProtectionConfig(client, args, existing_ddos_protection_config):
   return ddos_protection_config
 
 
+def CreateDdosProtectionConfigWithDdosAdaptiveProtection(
+    client, args, existing_ddos_protection_config
+):
+  """Returns a SecurityPolicyDdosProtectionConfig message."""
+
+  messages = client.messages
+  ddos_protection_config = (
+      existing_ddos_protection_config
+      if existing_ddos_protection_config is not None
+      else messages.SecurityPolicyDdosProtectionConfig()
+  )
+  if args.IsSpecified('network_ddos_adaptive_protection'):
+    ddos_protection_config.ddosAdaptiveProtection = messages.SecurityPolicyDdosProtectionConfig.DdosAdaptiveProtectionValueValuesEnum(
+        args.network_ddos_adaptive_protection
+    )
+
+  return ddos_protection_config
+
+
+def CreateDdosProtectionConfigWithNetworkDdosImpactedBaselineThreshold(
+    client, args, existing_ddos_protection_config
+):
+  """Returns a SecurityPolicyDdosProtectionConfig message."""
+
+  messages = client.messages
+  ddos_protection_config = (
+      existing_ddos_protection_config
+      if existing_ddos_protection_config is not None
+      else messages.SecurityPolicyDdosProtectionConfig()
+  )
+  if args.IsSpecified('network_ddos_impacted_baseline_threshold'):
+    ddos_protection_config.ddosImpactedBaselineThreshold = (
+        args.network_ddos_impacted_baseline_threshold
+    )
+
+  return ddos_protection_config
+
+
 def CreateDdosProtectionConfigOld(client, args,
                                   existing_ddos_protection_config):
   """Returns a SecurityPolicyDdosProtectionConfig message."""
@@ -642,9 +694,16 @@ def CreateRecaptchaOptionsConfig(client, args,
   return recaptcha_options_config
 
 
-def CreateRateLimitOptions(
-    client, args, support_fairshare, support_multiple_rate_limit_keys
-):
+def ParseEnforceOnKeyConfig(config):
+  """Parses an enforce-on-key-config string into a key-value tuple."""
+  if '=' in config:
+    k, v = config.split('=', 1)
+    return k, v
+  else:
+    return config, None
+
+
+def CreateRateLimitOptions(client, args, support_fairshare):
   """Returns a SecurityPolicyRuleRateLimitOptions message."""
 
   messages = client.messages
@@ -689,19 +748,16 @@ def CreateRateLimitOptions(
     rate_limit_options.enforceOnKeyName = args.enforce_on_key_name
     is_updated = True
 
-  if support_multiple_rate_limit_keys and args.IsSpecified(
-      'enforce_on_key_configs'
-  ):
+  if args.IsSpecified('enforce_on_key_configs'):
     enforce_on_key_configs = []
-    for k, v in args.enforce_on_key_configs.items():
+    for k, v in args.enforce_on_key_configs:
       enforce_on_key_configs.append(
           messages.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig(
-              enforceOnKeyType=messages.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig.EnforceOnKeyTypeValueValuesEnum(
-                  ConvertEnforceOnKey(k)
-              ),
-              enforceOnKeyName=v if v else None,
-          )
-      )
+              enforceOnKeyType=messages
+              .SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig
+              .EnforceOnKeyTypeValueValuesEnum(ConvertEnforceOnKey(k)),
+              enforceOnKeyName=v,
+          ))
     rate_limit_options.enforceOnKeyConfigs = enforce_on_key_configs
     is_updated = True
 
@@ -761,6 +817,7 @@ def ConvertEnforceOnKey(enforce_on_key):
       'region-code': 'REGION_CODE',
       'tls-ja3-fingerprint': 'TLS_JA3_FINGERPRINT',
       'user-ip': 'USER_IP',
+      'tls-ja4-fingerprint': 'TLS_JA4_FINGERPRINT'
   }.get(enforce_on_key, enforce_on_key)
 
 
@@ -872,9 +929,7 @@ def CreateNetworkMatcher(client, args):
     update_mask.append('network_match.src_asns')
     is_updated = True
 
-  update_mask_str = ','.join(update_mask)
-
-  return (network_matcher, update_mask_str) if is_updated else (None, None)
+  return (network_matcher, update_mask) if is_updated else (None, [])
 
 
 def CreateUserDefinedField(client, args):

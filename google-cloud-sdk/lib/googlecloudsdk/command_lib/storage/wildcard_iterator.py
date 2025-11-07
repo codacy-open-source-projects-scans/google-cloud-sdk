@@ -82,6 +82,7 @@ def get_wildcard_iterator(
     preserve_symlinks=False,
     raise_managed_folder_precondition_errors=False,
     soft_deleted_buckets=False,
+    list_filter=None,
 ):
   """Instantiate a WildcardIterator for the given URL string.
 
@@ -118,6 +119,10 @@ def get_wildcard_iterator(
       these errors. This is helpful in commands that list managed folders by
       default.
     soft_deleted_buckets (bool): If true, soft deleted buckets will be queried.
+    list_filter (str|None): If provided, objects with matching filters
+      will be returned, The prefixes would still be returned regardless of
+      whether they match the specified filter, See
+      go/gcs-object-context-filtering for more details.
 
   Returns:
     A WildcardIterator object.
@@ -139,6 +144,7 @@ def get_wildcard_iterator(
         object_state=object_state,
         raise_managed_folder_precondition_errors=raise_managed_folder_precondition_errors,
         soft_deleted_buckets=soft_deleted_buckets,
+        list_filter=list_filter,
     )
   elif isinstance(url, storage_url.FileUrl):
     return FileWildcardIterator(
@@ -226,12 +232,15 @@ class FileWildcardIterator(WildcardIterator):
     self._ignore_symlinks = ignore_symlinks
     self._preserve_symlinks = preserve_symlinks
 
-    if force_include_hidden_files and url.object_name.rstrip('*')[-1] != os.sep:
+    if (
+        force_include_hidden_files
+        and url.resource_name.rstrip('*')[-1] != os.sep
+    ):
       raise command_errors.InvalidUrlError(
           'If force-including hidden files, input URL must be directory or'
           ' directory followed by wildcards.'
       )
-    self._path = self._url.object_name
+    self._path = self._url.resource_name
     self._recurse = '**' in self._path
     self._include_hidden_files = (
         self._recurse or force_include_hidden_files or _is_hidden(self._path)
@@ -242,7 +251,7 @@ class FileWildcardIterator(WildcardIterator):
     if self._url.is_stdio:
       if self._files_only:
         raise command_errors.InvalidUrlError(
-            _FILES_ONLY_ERROR_FORMAT.format(self._url.object_name)
+            _FILES_ONLY_ERROR_FORMAT.format(self._url.resource_name)
         )
       yield resource_reference.FileObjectResource(self._url)
       return
@@ -287,7 +296,7 @@ class FileWildcardIterator(WildcardIterator):
       if self._files_only and not os.path.isfile(path):
         if storage_url.is_named_pipe(path):
           raise command_errors.InvalidUrlError(
-              _FILES_ONLY_ERROR_FORMAT.format(self._url.object_name)
+              _FILES_ONLY_ERROR_FORMAT.format(self._url.resource_name)
           )
         continue
 
@@ -345,6 +354,7 @@ class CloudWildcardIterator(WildcardIterator):
       object_state=cloud_api.ObjectState.LIVE,
       raise_managed_folder_precondition_errors=True,
       soft_deleted_buckets=False,
+      list_filter=None,
   ):
     """Instantiates an iterator that matches the wildcard URL.
 
@@ -378,6 +388,10 @@ class CloudWildcardIterator(WildcardIterator):
         default.
       soft_deleted_buckets (bool): If true, soft deleted buckets will be
         queried.
+      list_filter (str|None): If provided, objects with matching
+        contexts will be returned. The prefixes would still be returned
+        regardless of whether they match the specified context, See
+        go/gcs-object-context-filtering for more details.
     """
     super(CloudWildcardIterator, self).__init__(
         url, exclude_patterns=exclude_patterns, files_only=files_only
@@ -396,6 +410,7 @@ class CloudWildcardIterator(WildcardIterator):
         raise_managed_folder_precondition_errors
     )
     self._soft_deleted_buckets = soft_deleted_buckets
+    self._list_filter = list_filter
 
     if (
         object_state is cloud_api.ObjectState.LIVE
@@ -444,7 +459,7 @@ class CloudWildcardIterator(WildcardIterator):
             if self._files_only and (
                 not isinstance(resource, resource_reference.ObjectResource)
                 or (  # Directory placeholder object.
-                    resource.storage_url.object_name.endswith(
+                    resource.storage_url.resource_name.endswith(
                         storage_url.CLOUD_URL_DELIMITER
                     )
                     and resource.size == 0
@@ -511,7 +526,7 @@ class CloudWildcardIterator(WildcardIterator):
     try:
       resource = self._client.get_object_metadata(
           bucket_name,
-          self._url.object_name,
+          self._url.resource_name,
           # TODO(b/197754758): add user request args from surface.
           request_config_factory.get_request_config(self._url),
           generation=self._url.generation,
@@ -523,12 +538,28 @@ class CloudWildcardIterator(WildcardIterator):
     except api_errors.NotFoundError:
       # Object does not exist. Could be a prefix.
       pass
+    except api_errors.GcsApiError as e:
+      # GET with soft-deleted objects requires generation.
+      if (
+          e.status_code == 400
+          and 'You must specify a generation' in str(e)
+          and self._url.url_string.endswith(self._url.delimiter)
+          and self._soft_deleted
+      ):
+        log.debug(
+            'GET failed with "must specify generation" error. This is'
+            ' expected for a soft-deleted object listed with a trailing'
+            ' slash. Falling back to a LIST call.'
+        )
+        pass
+      else:
+        raise
     return None
 
   def _fetch_sub_bucket_resources(self, bucket_name, is_hns_bucket=False):
     """Fetch all objects for the given bucket that match the URL."""
     needs_further_expansion = (
-        contains_wildcard(self._url.object_name)
+        contains_wildcard(self._url.resource_name)
         or self._object_state_requires_expansion
         or self._url.url_string.endswith(self._url.delimiter)
     )
@@ -650,6 +681,7 @@ class CloudWildcardIterator(WildcardIterator):
           next_page_token=self._next_page_token,
           prefix=wildcard_parts.prefix or None,
           object_state=self._object_state_for_listing,
+          list_filter=self._list_filter,
       )
     else:
       object_iterator = []
@@ -688,7 +720,7 @@ class CloudWildcardIterator(WildcardIterator):
     try:
       prefix_url = resource.storage_url
       return self._client.get_managed_folder(
-          prefix_url.bucket_name, prefix_url.object_name
+          prefix_url.bucket_name, prefix_url.resource_name
       )
     except api_errors.NotFoundError:
       return resource
@@ -718,7 +750,7 @@ class CloudWildcardIterator(WildcardIterator):
     try:
       prefix_url = resource.storage_url
       return self._client.get_folder(
-          prefix_url.bucket_name, prefix_url.object_name
+          prefix_url.bucket_name, prefix_url.resource_name
       )
     except api_errors.NotFoundError:
       return resource
@@ -734,9 +766,9 @@ class CloudWildcardIterator(WildcardIterator):
       resource_reference.Resource objects where each resource can be
       an ObjectResource object or a PrefixResource object.
     """
-    original_object_name = self._url.object_name
+    original_object_name = self._url.resource_name
     if original_object_name.endswith(self._url.delimiter):
-      if not contains_wildcard(self._url.object_name):
+      if not contains_wildcard(self._url.resource_name):
         # Get object with trailing slash in addition to prefix check below.
         direct_query_result = self._try_getting_object_directly(bucket_name)
         if direct_query_result:
@@ -770,7 +802,7 @@ class CloudWildcardIterator(WildcardIterator):
       )
 
       for resource in filtered_resources:
-        resource_path = resource.storage_url.object_name
+        resource_path = resource.storage_url.resource_name
         if wildcard_parts.suffix:
           # pylint: disable=unidiomatic-typecheck
           # We do not want this check to pass for child classes.
@@ -867,7 +899,7 @@ class CloudWildcardIterator(WildcardIterator):
         # Filter based on generation, if generation is present in the request.
         continue
       for regex_pattern in regex_patterns:
-        if regex_pattern.match(resource.storage_url.object_name):
+        if regex_pattern.match(resource.storage_url.resource_name):
           yield resource
           break
 

@@ -36,6 +36,7 @@ from googlecloudsdk.api_lib.run import job
 from googlecloudsdk.api_lib.run import k8s_object
 from googlecloudsdk.api_lib.run import revision
 from googlecloudsdk.api_lib.run import service
+from googlecloudsdk.api_lib.run import worker_pool
 from googlecloudsdk.calliope import base
 from googlecloudsdk.command_lib.run import exceptions
 from googlecloudsdk.command_lib.run import name_generator
@@ -273,6 +274,33 @@ class ReplaceServiceChange(NonTemplateConfigChanger):
     return self.new_service
 
 
+@dataclasses.dataclass(frozen=True)
+class ReplaceWorkerPoolChange(NonTemplateConfigChanger):
+  """Represents the user intent to replace the worker pool.
+
+  Attributes:
+    new_worker_pool: New worker pool that will replace the existing worker pool.
+  """
+
+  new_worker_pool: worker_pool.WorkerPool
+
+  def Adjust(self, resource):
+    """Returns a replacement for resource.
+
+    The returned worker pool is the worker pool provided to the constructor. If
+    resource.metadata.resourceVersion is not empty, has metadata.resourceVersion
+    of returned worker pool set to this value.
+
+    Args:
+      resource: worker_pool.WorkerPool, The worker pool to adjust.
+    """
+    if resource.metadata.resourceVersion:
+      self.new_worker_pool.metadata.resourceVersion = (
+          resource.metadata.resourceVersion
+      )
+    return self.new_worker_pool
+
+
 @dataclasses.dataclass(frozen=True, init=False)
 class EndpointVisibilityChange(LabelChanges):
   """Represents the user intent to modify the endpoint visibility.
@@ -442,6 +470,69 @@ class BaseImagesAnnotationChange(TemplateConfigChanger):
 
 
 @dataclasses.dataclass(frozen=True)
+class SourcesAnnotationChange(TemplateConfigChanger):
+  """Represents the user intent to update the 'sources' template annotation.
+
+  The value of the annotation is a string representation of a json map of
+  container_name -> GCS objects. E.g.: '{"foo":"gs://my-bucket/my-object"}'.
+
+  Attributes:
+    updates: {container:url} map of values that need to be added/updated
+    deletes: List of containers whose source needs to be deleted.
+  """
+
+  updates: dict[str, str] = dataclasses.field(default_factory=dict)
+  deletes: list[str] = dataclasses.field(default_factory=list)
+
+  def _mergeSources(
+      self,
+      resource: revision.Revision,
+      existing_sources: dict[str, str],
+      updates: dict[str, str],
+      deletes: list[str],
+  ):
+    if deletes:
+      for container in deletes:
+        if container in existing_sources:
+          del existing_sources[container]
+    if updates:
+      for container, url in updates.items():
+        existing_sources[container] = url
+    return self._constructSources(resource, existing_sources)
+
+  def _constructSources(
+      self, resource: revision.Revision, urls: dict[str, str]
+  ):
+    containers = frozenset(
+        [x or '' for x in resource.template.containers.keys()]
+    )
+    return json.dumps(
+        {x: y for x, y in urls.items() if x in containers},
+        separators=(',', ':'),
+    )
+
+  def Adjust(self, resource: revision.Revision):
+    """Updates the revision to use zip deploys."""
+
+    annotations = resource.template.annotations
+    existing_value = annotations.get(revision.SOURCES_ANNOTATION, '')
+
+    if existing_value:
+      existing_sources = json.loads(existing_value)
+      new_value = self._mergeSources(
+          resource, existing_sources, self.updates, self.deletes
+      )
+    else:
+      new_value = self._constructSources(resource, self.updates)
+
+    if new_value and new_value != '{}':
+      resource.template.annotations[revision.SOURCES_ANNOTATION] = new_value
+    elif revision.SOURCES_ANNOTATION in annotations:
+      del resource.template.annotations[revision.SOURCES_ANNOTATION]
+    return resource
+
+
+@dataclasses.dataclass(frozen=True)
 class IngressContainerBaseImagesAnnotationChange(BaseImagesAnnotationChange):
   """Represents the user intent to update the 'base-images' template annotation.
 
@@ -520,18 +611,24 @@ class RegionsChangeAnnotationChange(NonTemplateConfigChanger):
   to_remove: str
 
   def Adjust(self, resource):
+    final_list = self.GetFinalList(resource)
+    resource.annotations[k8s_object.MULTI_REGION_REGIONS_ANNOTATION] = ','.join(
+        final_list
+    )
+    return resource
+
+  def GetFinalList(self, resource):
+    """Returns the final list of regions after applying the changes."""
     annotation = (
-        resource.annotations[k8s_object.MULTI_REGION_REGIONS_ANNOTATION] or None
+        resource.annotations.get(k8s_object.MULTI_REGION_REGIONS_ANNOTATION)
+        or None
     )
     existing = annotation.split(',') if annotation else []
     to_add = self.to_add.split(',') if self.to_add else []
     to_remove = self.to_remove.split(',') if self.to_remove else []
     final_list = [x for x in existing if x not in to_remove]
     final_list.extend([x for x in to_add if x not in existing])
-    resource.annotations[k8s_object.MULTI_REGION_REGIONS_ANNOTATION] = ','.join(
-        final_list
-    )
-    return resource
+    return final_list
 
 
 @dataclasses.dataclass(frozen=True)
@@ -1015,6 +1112,25 @@ class LivenessProbeChanges(ContainerConfigChanger):
 
 
 @dataclasses.dataclass(frozen=True)
+class ReadinessProbeChanges(ContainerConfigChanger):
+  """Represents the user intent to update readiness probe settings.
+
+  Attributes:
+    settings: values to set in the probe.
+    clear: If true, clear the readiness probe.
+  """
+
+  settings: dict[str, str] = dataclasses.field(default_factory=dict)
+  clear: bool = False
+
+  def AdjustContainer(self, container, messages_mod):
+    if self.clear:
+      container.readinessProbe = None
+      return
+    container.readinessProbe = _MakeProbe(messages_mod, self.settings)
+
+
+@dataclasses.dataclass(frozen=True)
 class CloudSQLChanges(TemplateConfigChanger):
   """Represents the intent to update the Cloug SQL instances.
 
@@ -1190,9 +1306,9 @@ class RevisionNameChanges(TemplateConfigChanger):
     return resource
 
 
-def _GenerateVolumeName(prefix):
+def GenerateVolumeName(prefix):
   """Randomly generated name with the given prefix."""
-  return name_generator.GenerateName(sections=3, separator='-', prefix=prefix)
+  return name_generator.GenerateName(sections=2, separator='-', prefix=prefix)
 
 
 def _UniqueVolumeName(source_name, existing_volumes):
@@ -1210,7 +1326,7 @@ def _UniqueVolumeName(source_name, existing_volumes):
   """
   volume_name = None
   while volume_name is None or volume_name in existing_volumes:
-    volume_name = _GenerateVolumeName(source_name)
+    volume_name = GenerateVolumeName(source_name)
   return volume_name
 
 
@@ -1479,24 +1595,6 @@ class NoTrafficChange(NonTemplateConfigChanger):
     if not resource.generation:
       raise exceptions.ConfigurationError(
           '--no-traffic not supported when creating a new service.'
-      )
-
-    resource.spec_traffic.ZeroLatestTraffic(
-        resource.status.latestReadyRevisionName
-    )
-    return resource
-
-
-# TODO(b/322180968): Once worker specific intance split API/message is ready,
-# switch from service traffic to worker instance split reference.
-class NoPromoteChange(NonTemplateConfigChanger):
-  """Represents the user intent to block instance assignment for a new worker revision."""
-
-  def Adjust(self, resource):
-    """Removes LATEST from the workers instance assignments."""
-    if not resource.generation:
-      raise exceptions.ConfigurationError(
-          '--no-promote not supported when creating a new worker.'
       )
 
     resource.spec_traffic.ZeroLatestTraffic(
@@ -1950,6 +2048,23 @@ class GpuTypeChange(TemplateConfigChanger):
 
 
 @dataclasses.dataclass(frozen=True)
+class GpuZonalRedundancyChange(TemplateConfigChanger):
+  """Sets the gpu zonal redundancy annotation on the revision annotations.
+
+  Attributes:
+    gpu_zonal_redundancy: The gpu_zonal_redundancy annotation value to set.
+  """
+
+  gpu_zonal_redundancy: bool
+
+  def Adjust(self, resource):
+    resource.template.annotations[
+        revision.GPU_ZONAL_REDUNDANCY_DISABLED_ANNOTATION
+    ] = str(not self.gpu_zonal_redundancy)
+    return resource
+
+
+@dataclasses.dataclass(frozen=True)
 class RemoveContainersChange(TemplateConfigChanger):
   """Removes the specified containers.
 
@@ -2122,3 +2237,81 @@ class AddVolumeMountChange(ContainerConfigChanger):
         )
       container.volume_mounts[mount['mount-path']] = mount['volume']
     return container
+
+
+@dataclasses.dataclass(frozen=True)
+class SetServiceMeshChange(TemplateConfigChanger):
+  """Sets the service mesh annotation on the service template.
+
+  Attributes:
+    project: The project to use for the mesh when not specified in mesh_name.
+    mesh: Mesh resource name in the format of MESH_NAME or
+      projects/PROJECT/locations/global/meshes/MESH_NAME.
+  """
+
+  project: str
+  mesh_name: str
+
+  def Adjust(self, resource):
+    resource.template.annotations[revision.MESH_ANNOTATION] = (
+        self.mesh_name
+        if '/' in self.mesh_name
+        else f'projects/{self.project}/locations/global/meshes/{self.mesh_name}'
+    )
+    return resource
+
+
+@dataclasses.dataclass(frozen=True)
+class PresetChange(TemplateConfigChanger):
+  """Sets the preset annotation on the service template.
+
+  Attributes:
+    type: The type of preset to use.
+    config: The config to use for the preset.
+    flatten: Whether to flatten the preset values into the service template.
+  """
+
+  type: str
+  config: Mapping[str, str] = dataclasses.field(default_factory=dict)
+  flatten: bool = True
+
+  def Adjust(self, resource):
+    # TODO(b/412784660): Add support for multiple presets and merge existing
+    # presets.
+    presets = []
+    if service.PRESETS_ANNOTATION in resource.annotations:
+      presets = json.loads(resource.annotations[service.PRESETS_ANNOTATION])
+
+    if presets and presets[0]['type'] != self.type:
+      presets.append({
+          'type': self.type,
+          'config': self.config,
+          'flatten': self.flatten,
+      })
+    else:
+      presets = [{
+          'type': self.type,
+          'config': self.config,
+          'flatten': self.flatten,
+      }]
+    resource.annotations[service.PRESETS_ANNOTATION] = json.dumps(presets)
+    return resource
+
+
+@dataclasses.dataclass(frozen=True)
+class RemovePresetsChange(TemplateConfigChanger):
+  """Removes one or more presets from annotation from the service metadata.
+
+  Attributes:
+    clear_presets: Whether to clear all presets.
+  """
+
+  clear_presets: bool
+
+  def Adjust(self, resource):
+    presets = json.loads(
+        resource.annotations.get(service.PRESETS_ANNOTATION, '[]')
+    )
+    if presets and self.clear_presets:
+      del resource.annotations[service.PRESETS_ANNOTATION]
+      return resource

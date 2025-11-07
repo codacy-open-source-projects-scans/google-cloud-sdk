@@ -68,8 +68,7 @@ COMPARE_DURATION_FLAG = base.Argument(
         '--compare-duration',
         warn=textwrap.dedent("""\
             The --compare-duration option is deprecated.
-            For more information, [see the deprecation notice]
-            (https://cloud.google.com/security-command-center/docs/release-notes#April_15_2024)
+            For more information, [see the deprecation notice](https://cloud.google.com/security-command-center/docs/release-notes#April_15_2024)
             on the SCC release notes page."""),
         removed=False,
     ),
@@ -126,6 +125,11 @@ STATE_FLAG = base.ChoiceArgument(
     '--state',
     help_str='State is one of: [ACTIVE, INACTIVE].',
     choices=['active', 'inactive', 'state-unspecified'],
+)
+
+FINDING_FLAG = base.Argument(
+    'finding',
+    help='ID of the finding or fully qualified identifier for the finding.'
 )
 
 
@@ -199,3 +203,22 @@ def ConvertSourceProperties(source_properties_dict):
   return encoding.DictToMessage(
       source_properties_dict, messages.Finding.SourcePropertiesValue
   )
+
+
+def AddParentGroup(parser):
+  """Adds a parent group to the parser."""
+  parent_group = parser.add_mutually_exclusive_group(required=False)
+  parent_group.add_argument(
+      '--organization',
+      help='The organization ID (e.g., 123) that contains the finding.',
+  )
+
+  parent_group.add_argument(
+      '--folder',
+      help='The folder ID (e.g., 456) that contains the finding.',
+  )
+  parent_group.add_argument(
+      '--project',
+      help='The project ID (e.g., example-project) that contains the finding.',
+  )
+  return parser

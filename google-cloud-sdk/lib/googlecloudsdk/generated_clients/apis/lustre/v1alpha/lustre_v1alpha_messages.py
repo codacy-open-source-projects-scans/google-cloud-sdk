@@ -13,11 +13,219 @@ from apitools.base.py import extra_types
 package = 'lustre'
 
 
+class AccessRule(_messages.Message):
+  r"""A single policy group with IP-based access rules for the Managed Lustre
+  instance.
+
+  Enums:
+    AccessModeValueValuesEnum: Optional. The access mode for the access rule
+      nodemap. Default is READ_WRITE.
+    SquashModeValueValuesEnum: Required. Squash mode for the access rule.
+
+  Fields:
+    accessMode: Optional. The access mode for the access rule nodemap. Default
+      is READ_WRITE.
+    ipAddressRanges: Required. The IP address ranges to which to apply this
+      access rule. Accepts non-overlapping CIDR ranges (e.g.,
+      `192.168.1.0/24`) and IP addresses (e.g., `192.168.1.0`).
+    mountableSubdirectories: Optional. The list of non-root directories that
+      can be mounted from clients in this NID range subset. Currently, there
+      can be only a single directory at most. If no directory is mentioned,
+      then the root directory will be accessible.
+    name: Required. The name of the access rule policy group. Must be 16
+      characters or less and include only alphanumeric characters or '_'.
+    squashGid: Optional. Squash GID for the access rule. If the squash mode
+      for this rule is ROOT_SQUASH, root users matching the ip_address_ranges
+      are squashed to this GID. Defaults to 0 (no root squash).
+    squashMode: Required. Squash mode for the access rule.
+    squashUid: Optional. Squash UID for the access rule. If the squash mode
+      for this rule is ROOT_SQUASH, root users matching the ip_address_ranges
+      are squashed to this UID. Defaults to 0 (no root squash).
+  """
+
+  class AccessModeValueValuesEnum(_messages.Enum):
+    r"""Optional. The access mode for the access rule nodemap. Default is
+    READ_WRITE.
+
+    Values:
+      ACCESS_MODE_UNSPECIFIED: Unspecified access mode.
+      READ_ONLY: Read-only access mode.
+      READ_WRITE: Read-write access mode.
+    """
+    ACCESS_MODE_UNSPECIFIED = 0
+    READ_ONLY = 1
+    READ_WRITE = 2
+
+  class SquashModeValueValuesEnum(_messages.Enum):
+    r"""Required. Squash mode for the access rule.
+
+    Values:
+      SQUASH_MODE_UNSPECIFIED: Unspecified squash mode.
+      NO_SQUASH: Squash is disabled. If set inside an AccessRule, root users
+        matching the ip_ranges are not squashed. If set as the
+        default_squash_mode, root squash is disabled for this instance. If the
+        default squash mode is `NO_SQUASH`, do not set the default_squash_uid
+        or default_squash_gid, or an `invalid argument` error is returned.
+      ROOT_SQUASH: Root user squash is enabled. Not supported inside an
+        AccessRule. If set as the default_squash_mode, root users not matching
+        any of the access_rules are squashed to the default_squash_uid and
+        default_squash_gid.
+      ALL_USERS_SQUASH: All users squashed to the squash_uid and squash_gid
+        for the access rule. If this is for the default_squash_mode, then the
+        default_squash_uid and default_squash_gid will be squashed.
+    """
+    SQUASH_MODE_UNSPECIFIED = 0
+    NO_SQUASH = 1
+    ROOT_SQUASH = 2
+    ALL_USERS_SQUASH = 3
+
+  accessMode = _messages.EnumField('AccessModeValueValuesEnum', 1)
+  ipAddressRanges = _messages.StringField(2, repeated=True)
+  mountableSubdirectories = _messages.StringField(3, repeated=True)
+  name = _messages.StringField(4)
+  squashGid = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  squashMode = _messages.EnumField('SquashModeValueValuesEnum', 6)
+  squashUid = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+
+
+class AccessRulesOptions(_messages.Message):
+  r"""IP-based access rules for the Managed Lustre instance. These options
+  define the root user squash configuration.
+
+  Enums:
+    DefaultSquashModeValueValuesEnum: Required. The squash mode for the
+      default access rule.
+
+  Fields:
+    accessRules: Optional. The access rules for the instance.
+    defaultMountableSubdirectories: Optional. The list of non-root directories
+      that can be mounted from clients in the default access rule. Currently,
+      there can be only a single directory at most. If no directory is
+      mentioned, then the root directory will be accessible.
+    defaultSquashGid: Optional. The user squash GID for the default access
+      rule. This user squash GID applies to all root users connecting from
+      clients that are not matched by any of the access rules. If not set, the
+      default is 0 (no GID squash).
+    defaultSquashMode: Required. The squash mode for the default access rule.
+    defaultSquashUid: Optional. The user squash UID for the default access
+      rule. This user squash UID applies to all root users connecting from
+      clients that are not matched by any of the access rules. If not set, the
+      default is 0 (no UID squash).
+  """
+
+  class DefaultSquashModeValueValuesEnum(_messages.Enum):
+    r"""Required. The squash mode for the default access rule.
+
+    Values:
+      SQUASH_MODE_UNSPECIFIED: Unspecified squash mode.
+      NO_SQUASH: Squash is disabled. If set inside an AccessRule, root users
+        matching the ip_ranges are not squashed. If set as the
+        default_squash_mode, root squash is disabled for this instance. If the
+        default squash mode is `NO_SQUASH`, do not set the default_squash_uid
+        or default_squash_gid, or an `invalid argument` error is returned.
+      ROOT_SQUASH: Root user squash is enabled. Not supported inside an
+        AccessRule. If set as the default_squash_mode, root users not matching
+        any of the access_rules are squashed to the default_squash_uid and
+        default_squash_gid.
+      ALL_USERS_SQUASH: All users squashed to the squash_uid and squash_gid
+        for the access rule. If this is for the default_squash_mode, then the
+        default_squash_uid and default_squash_gid will be squashed.
+    """
+    SQUASH_MODE_UNSPECIFIED = 0
+    NO_SQUASH = 1
+    ROOT_SQUASH = 2
+    ALL_USERS_SQUASH = 3
+
+  accessRules = _messages.MessageField('AccessRule', 1, repeated=True)
+  defaultMountableSubdirectories = _messages.StringField(2, repeated=True)
+  defaultSquashGid = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  defaultSquashMode = _messages.EnumField('DefaultSquashModeValueValuesEnum', 4)
+  defaultSquashUid = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+
+
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
 
 
-class Empty(_messages.Message):
+class Date(_messages.Message):
+  r"""Represents a whole or partial calendar date, such as a birthday. The
+  time of day and time zone are either specified elsewhere or are
+  insignificant. The date is relative to the Gregorian Calendar. This can
+  represent one of the following: * A full date, with non-zero year, month,
+  and day values. * A month and day, with a zero year (for example, an
+  anniversary). * A year on its own, with a zero month and a zero day. * A
+  year and month, with a zero day (for example, a credit card expiration
+  date). Related types: * google.type.TimeOfDay * google.type.DateTime *
+  google.protobuf.Timestamp
+
+  Fields:
+    day: Day of a month. Must be from 1 to 31 and valid for the year and
+      month, or 0 to specify a year by itself or a year and month where the
+      day isn't significant.
+    month: Month of a year. Must be from 1 to 12, or 0 to specify a year
+      without a month and day.
+    year: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+      without a year.
+  """
+
+  day = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  month = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  year = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class DenyPeriod(_messages.Message):
+  r"""Deny period for the instance. A deny period can be in either of the
+  following two formats: * Non-recurring : A full date, with non-zero year,
+  month and day values. * Recurring : A month and day value, with a zero year.
+  Time zone is UTC.
+
+  Fields:
+    endDate: Required. End date of the deny period in UTC time zone.
+    startDate: Required. Start date of the deny period in UTC time zone.
+    time: Required. Time in UTC when the deny period starts on start_date and
+      ends on end_date. This can be: * Full time OR * All zeros for 00:00:00
+      UTC
+  """
+
+  endDate = _messages.MessageField('Date', 1)
+  startDate = _messages.MessageField('Date', 2)
+  time = _messages.MessageField('TimeOfDay', 3)
+
+
+class ExportDataRequest(_messages.Message):
+  r"""Export data from Managed Lustre to a Cloud Storage bucket.
+
+  Fields:
+    gcsPath: The URI to a Cloud Storage bucket, or a path within a bucket,
+      using the format `gs:////`. If a path inside the bucket is specified, it
+      must end with a forward slash (`/`).
+    lustrePath: The root directory path to the Managed Lustre file system.
+      Must start with `/`. Default is `/`.
+    requestId: Optional. UUID to identify requests.
+    serviceAccount: Optional. User-specified service account used to perform
+      the transfer. If unspecified, the Managed Lustre service agent is used.
+  """
+
+  gcsPath = _messages.MessageField('GcsPath', 1)
+  lustrePath = _messages.MessageField('LustrePath', 2)
+  requestId = _messages.StringField(3)
+  serviceAccount = _messages.StringField(4)
+
+
+class GcsPath(_messages.Message):
+  r"""Specifies a Cloud Storage bucket and, optionally, a path inside the
+  bucket.
+
+  Fields:
+    uri: Required. The URI to a Cloud Storage bucket, or a path within a
+      bucket, using the format `gs:////`. If a path inside the bucket is
+      specified, it must end with a forward slash (`/`).
+  """
+
+  uri = _messages.StringField(1)
+
+
+class GoogleProtobufEmpty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
   or the response type of an API method. For instance: service Foo { rpc
@@ -26,84 +234,98 @@ class Empty(_messages.Message):
 
 
 
-class ExportDataRequest(_messages.Message):
-  r"""Message for exporting data from Lustre.
-
-  Fields:
-    gcsBucket: Cloud Storage destination.
-    lustrePath: Lustre path source.
-    requestId: Optional. Optional uuid to identify requests.
-    serviceAccount: Optional. User-specified service account used to perform
-      the transfer. If unspecified, the default Lustre P4SA will be used.
-  """
-
-  gcsBucket = _messages.MessageField('GcsBucket', 1)
-  lustrePath = _messages.MessageField('LustrePath', 2)
-  requestId = _messages.StringField(3)
-  serviceAccount = _messages.StringField(4)
-
-
-class GcsBucket(_messages.Message):
-  r"""Cloud Storage as the source of a data transfer.
-
-  Fields:
-    uri: Required. URI to a Cloud Storage bucket in the format: `gs://`.
-  """
-
-  uri = _messages.StringField(1)
-
-
 class ImportDataRequest(_messages.Message):
   r"""Message for importing data to Lustre.
 
   Fields:
-    gcsBucket: The Cloud Storage source bucket and, optionally, path inside
-      the bucket.
+    gcsPath: The Cloud Storage source bucket and, optionally, path inside the
+      bucket. If a path inside the bucket is specified, it must end with a
+      forward slash (`/`).
     lustrePath: Lustre path destination.
-    requestId: Optional. Optional uuid to identify requests.
+    requestId: Optional. UUID to identify requests.
     serviceAccount: Optional. User-specified service account used to perform
-      the transfer. If unspecified, the default Lustre P4 Service Account will
-      be used.
+      the transfer. If unspecified, the default Managed Lustre service agent
+      will be used.
   """
 
-  gcsBucket = _messages.MessageField('GcsBucket', 1)
+  gcsPath = _messages.MessageField('GcsPath', 1)
   lustrePath = _messages.MessageField('LustrePath', 2)
   requestId = _messages.StringField(3)
   serviceAccount = _messages.StringField(4)
 
 
 class Instance(_messages.Message):
-  r"""Message describing Instance object
+  r"""A Managed Lustre instance.
 
   Enums:
-    StateValueValuesEnum: Output only. State of the instance
+    StateValueValuesEnum: Output only. The state of the instance.
 
   Messages:
-    LabelsValue: Optional. Labels as key value pairs
+    LabelsValue: Optional. Labels as key value pairs.
 
   Fields:
-    capacityGib: Required. Capacity of the instance in GiB
-    createTime: Output only. [Output only] Create time stamp
-    description: Optional. Description
-    filesystem: Required. Immutable. Filesystem Name for Lustre.
-    labels: Optional. Labels as key value pairs
-    mountPoint: Output only. Mount point IP address
-    name: Identifier. name of resource
-    network: Required. Immutable. VPC Network name
-    state: Output only. State of the instance
-    updateTime: Output only. [Output only] Update time stamp
+    accessRulesOptions: Optional. The access rules options for the instance.
+    capacityGib: Required. The storage capacity of the instance in gibibytes
+      (GiB). Allowed values are from `18000` to `7632000`, depending on the
+      `perUnitStorageThroughput`. See [Performance tiers and maximum storage
+      capacities](https://cloud.google.com/managed-lustre/docs/create-
+      instance#performance-tiers) for specific minimums, maximums, and step
+      sizes for each performance tier.
+    createTime: Output only. Timestamp when the instance was created.
+    description: Optional. A user-readable description of the instance.
+    filesystem: Required. Immutable. The filesystem name for this instance.
+      This name is used by client-side tools, including when mounting the
+      instance. Must be eight characters or less and can only contain letters
+      and numbers.
+    gkeSupportEnabled: Optional. Indicates whether you want to enable support
+      for GKE clients. By default, GKE clients are not supported. Deprecated.
+      No longer required for GKE instance creation.
+    kmsKey: Optional. Immutable. The Cloud KMS key name to use for data
+      encryption. If not set, the instance will use Google-managed encryption
+      keys. If set, the instance will use customer-managed encryption keys.
+      The key must be in the same region as the instance. The key format is: p
+      rojects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{k
+      ey}
+    labels: Optional. Labels as key value pairs.
+    maintenancePolicy: Optional. The maintenance policy for the instance to
+      determine when to allow or deny updates.
+    mountPoint: Output only. Mount point of the instance in the format
+      `IP_ADDRESS@tcp:/FILESYSTEM`.
+    name: Identifier. The name of the instance.
+    network: Required. Immutable. The full name of the VPC network to which
+      the instance is connected. Must be in the format
+      `projects/{project_id}/global/networks/{network_name}`.
+    perUnitStorageThroughput: Required. The throughput of the instance in
+      MB/s/TiB. Valid values are 125, 250, 500, 1000. See [Performance tiers
+      and maximum storage capacities](https://cloud.google.com/managed-
+      lustre/docs/create-instance#performance-tiers) for more information.
+    placementPolicy: Optional. The placement policy name for the instance in
+      the format of projects/{project}/locations/{location}/resourcePolicies/{
+      resource_policy}
+    satisfiesPzi: Output only. Reserved for future use
+    satisfiesPzs: Output only. Reserved for future use
+    state: Output only. The state of the instance.
+    stateReason: Output only. The reason why the instance is in a certain
+      state (e.g. SUSPENDED).
+    uid: Output only. Unique ID of the resource. This is unrelated to the
+      access rules which allow specifying the root squash uid.
+    upcomingMaintenanceSchedule: Output only. Date and time of upcoming
+      maintenance for the instance, if a maintenance policy is set.
+    updateTime: Output only. Timestamp when the instance was last updated.
   """
 
   class StateValueValuesEnum(_messages.Enum):
-    r"""Output only. State of the instance
+    r"""Output only. The state of the instance.
 
     Values:
-      STATE_UNSPECIFIED: Unspecified Instance State
-      ACTIVE: Instance State is Active
-      CREATING: Instance State is Creating
-      DELETING: Instance State is Deleting
-      UPGRADING: Instance State is Upgrading
-      REPAIRING: Instance State is Repairing
+      STATE_UNSPECIFIED: Not set.
+      ACTIVE: The instance is available for use.
+      CREATING: The instance is being created and is not yet ready for use.
+      DELETING: The instance is being deleted.
+      UPGRADING: The instance is being upgraded.
+      REPAIRING: The instance is being repaired.
+      STOPPED: The instance is stopped.
+      UPDATING: The instance is being updated.
     """
     STATE_UNSPECIFIED = 0
     ACTIVE = 1
@@ -111,10 +333,12 @@ class Instance(_messages.Message):
     DELETING = 3
     UPGRADING = 4
     REPAIRING = 5
+    STOPPED = 6
+    UPDATING = 7
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
-    r"""Optional. Labels as key value pairs
+    r"""Optional. Labels as key value pairs.
 
     Messages:
       AdditionalProperty: An additional property for a LabelsValue object.
@@ -136,23 +360,34 @@ class Instance(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  capacityGib = _messages.IntegerField(1)
-  createTime = _messages.StringField(2)
-  description = _messages.StringField(3)
-  filesystem = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  mountPoint = _messages.StringField(6)
-  name = _messages.StringField(7)
-  network = _messages.StringField(8)
-  state = _messages.EnumField('StateValueValuesEnum', 9)
-  updateTime = _messages.StringField(10)
+  accessRulesOptions = _messages.MessageField('AccessRulesOptions', 1)
+  capacityGib = _messages.IntegerField(2)
+  createTime = _messages.StringField(3)
+  description = _messages.StringField(4)
+  filesystem = _messages.StringField(5)
+  gkeSupportEnabled = _messages.BooleanField(6)
+  kmsKey = _messages.StringField(7)
+  labels = _messages.MessageField('LabelsValue', 8)
+  maintenancePolicy = _messages.MessageField('MaintenancePolicy', 9)
+  mountPoint = _messages.StringField(10)
+  name = _messages.StringField(11)
+  network = _messages.StringField(12)
+  perUnitStorageThroughput = _messages.IntegerField(13)
+  placementPolicy = _messages.StringField(14)
+  satisfiesPzi = _messages.BooleanField(15)
+  satisfiesPzs = _messages.BooleanField(16)
+  state = _messages.EnumField('StateValueValuesEnum', 17)
+  stateReason = _messages.StringField(18)
+  uid = _messages.StringField(19)
+  upcomingMaintenanceSchedule = _messages.MessageField('MaintenanceSchedule', 20)
+  updateTime = _messages.StringField(21)
 
 
 class ListInstancesResponse(_messages.Message):
   r"""Message for response to listing Instances
 
   Fields:
-    instances: The list of Instance
+    instances: Response from ListInstances.
     nextPageToken: A token identifying a page of results the server should
       return.
     unreachable: Unordered list. Locations that could not be reached.
@@ -183,10 +418,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -270,11 +510,13 @@ class Location(_messages.Message):
 
 
 class LustrePath(_messages.Message):
-  r"""LustrePath represents a path in the Lustre filesystem.
+  r"""The root directory path to the Lustre file system.
 
   Fields:
-    path: Optional. Root directory path to the Lustre filesystem, starting
-      with `/`. Defaults to `/` if unset.
+    path: Optional. The root directory path to the Managed Lustre file system.
+      Must start with `/`. Default is `/`. If you're importing data into
+      Managed Lustre, any path other than the default must already exist on
+      the file system.
   """
 
   path = _messages.StringField(1)
@@ -295,10 +537,13 @@ class LustreProjectsLocationsInstancesCreateRequest(_messages.Message):
 
   Fields:
     instance: A Instance resource to be passed as the request body.
-    instanceId: Required. Id of the requesting object If auto-generating Id
-      server-side, remove this field and instance_id from the method_signature
-      of Create RPC
-    parent: Required. Value for parent.
+    instanceId: Required. The name of the Managed Lustre instance. * Must
+      contain only lowercase letters, numbers, and hyphens. * Must start with
+      a letter. * Must be between 1-63 characters. * Must end with a number or
+      a letter.
+    parent: Required. The instance's project and location, in the format
+      `projects/{project}/locations/{location}`. Locations map to Google Cloud
+      zones; for example, `us-west1-b`.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       will know to ignore the request if it has already been completed. The
@@ -322,7 +567,8 @@ class LustreProjectsLocationsInstancesDeleteRequest(_messages.Message):
   r"""A LustreProjectsLocationsInstancesDeleteRequest object.
 
   Fields:
-    name: Required. Name of the resource
+    name: Required. The resource name of the instance to delete, in the format
+      `projects/{projectId}/locations/{location}/instances/{instanceId}`.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       will know to ignore the request if it has already been completed. The
@@ -346,7 +592,8 @@ class LustreProjectsLocationsInstancesExportDataRequest(_messages.Message):
   Fields:
     exportDataRequest: A ExportDataRequest resource to be passed as the
       request body.
-    name: Required. Name of the resource.
+    name: Required. The name of the Managed Lustre instance in the format
+      `projects/{project}/locations/{location}/instances/{instance}`.
   """
 
   exportDataRequest = _messages.MessageField('ExportDataRequest', 1)
@@ -357,7 +604,8 @@ class LustreProjectsLocationsInstancesGetRequest(_messages.Message):
   r"""A LustreProjectsLocationsInstancesGetRequest object.
 
   Fields:
-    name: Required. Name of the resource
+    name: Required. The instance resource name, in the format
+      `projects/{projectId}/locations/{location}/instances/{instanceId}`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -369,7 +617,8 @@ class LustreProjectsLocationsInstancesImportDataRequest(_messages.Message):
   Fields:
     importDataRequest: A ImportDataRequest resource to be passed as the
       request body.
-    name: Required. Name of the resource.
+    name: Required. The name of the Managed Lustre instance in the format
+      `projects/{project}/locations/{location}/instances/{instance}`.
   """
 
   importDataRequest = _messages.MessageField('ImportDataRequest', 1)
@@ -380,13 +629,17 @@ class LustreProjectsLocationsInstancesListRequest(_messages.Message):
   r"""A LustreProjectsLocationsInstancesListRequest object.
 
   Fields:
-    filter: Optional. Filtering results
-    orderBy: Optional. Hint for how to order the results
-    pageSize: Optional. Requested page size. Server may return fewer items
-      than requested. If unspecified, server will pick an appropriate default.
+    filter: Optional. Filtering results.
+    orderBy: Optional. Desired order of results.
+    pageSize: Optional. Requested page size. Server might return fewer items
+      than requested. If unspecified, the server will pick an appropriate
+      default.
     pageToken: Optional. A token identifying a page of results the server
       should return.
-    parent: Required. Parent value for ListInstancesRequest
+    parent: Required. The project and location for which to retrieve a list of
+      instances, in the format `projects/{projectId}/locations/{location}`. To
+      retrieve instance information for all locations, use "-" as the value of
+      `{location}`.
   """
 
   filter = _messages.StringField(1)
@@ -401,7 +654,7 @@ class LustreProjectsLocationsInstancesPatchRequest(_messages.Message):
 
   Fields:
     instance: A Instance resource to be passed as the request body.
-    name: Identifier. name of resource
+    name: Identifier. The name of the instance.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       will know to ignore the request if it has already been completed. The
@@ -413,12 +666,11 @@ class LustreProjectsLocationsInstancesPatchRequest(_messages.Message):
       This prevents clients from accidentally creating duplicate commitments.
       The request ID must be a valid UUID with the exception that zero UUID is
       not supported (00000000-0000-0000-0000-000000000000).
-    updateMask: Optional. Field mask is used to specify the fields to be
-      overwritten in the Instance resource by the update. The fields specified
-      in the update_mask are relative to the resource, not the full request. A
-      field will be overwritten if it is in the mask. If the user does not
-      provide a mask then all fields present in the request will be
-      overwritten.
+    updateMask: Optional. Specifies the fields to be overwritten in the
+      instance resource by the update. The fields specified in the update_mask
+      are relative to the resource, not the full request. A field will be
+      overwritten if it is in the mask. If no mask is provided then all fields
+      present in the request are overwritten.
   """
 
   instance = _messages.MessageField('Instance', 1)
@@ -431,6 +683,9 @@ class LustreProjectsLocationsListRequest(_messages.Message):
   r"""A LustreProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -441,10 +696,11 @@ class LustreProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class LustreProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -488,12 +744,47 @@ class LustreProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class MaintenancePolicy(_messages.Message):
+  r"""The maintenance policy for the instance to determine when to allow or
+  deny updates.
+
+  Fields:
+    denyPeriods: Optional. The deny periods for the instance. Currently
+      limited to 4.
+    maintenanceWindows: Required. The maintenance window for the instance.
+  """
+
+  denyPeriods = _messages.MessageField('DenyPeriod', 1, repeated=True)
+  maintenanceWindows = _messages.MessageField('WeeklyWindow', 2, repeated=True)
+
+
+class MaintenanceSchedule(_messages.Message):
+  r"""Date and time of upcoming maintenance for the instance, if a maintenance
+  policy is set.
+
+  Fields:
+    endTime: Output only. The scheduled end time for the maintenance.
+    startTime: Output only. The scheduled start time for the maintenance.
+  """
+
+  endTime = _messages.StringField(1)
+  startTime = _messages.StringField(2)
 
 
 class Operation(_messages.Message):
@@ -605,7 +896,7 @@ class Operation(_messages.Message):
 
 
 class OperationMetadata(_messages.Message):
-  r"""Represents the metadata of the long-running operation.
+  r"""Represents the metadata of a long-running operation.
 
   Fields:
     apiVersion: Output only. API version used to start the operation.
@@ -629,6 +920,39 @@ class OperationMetadata(_messages.Message):
   statusMessage = _messages.StringField(5)
   target = _messages.StringField(6)
   verb = _messages.StringField(7)
+
+
+class ReconciliationOperationMetadata(_messages.Message):
+  r"""Operation metadata returned by the CLH during resource state
+  reconciliation.
+
+  Enums:
+    ExclusiveActionValueValuesEnum: Excluisive action returned by the CLH.
+
+  Fields:
+    deleteResource: DEPRECATED. Use exclusive_action instead.
+    exclusiveAction: Excluisive action returned by the CLH.
+  """
+
+  class ExclusiveActionValueValuesEnum(_messages.Enum):
+    r"""Excluisive action returned by the CLH.
+
+    Values:
+      UNKNOWN_REPAIR_ACTION: Unknown repair action.
+      DELETE: The resource has to be deleted. When using this bit, the CLH
+        should fail the operation. DEPRECATED. Instead use DELETE_RESOURCE
+        OperationSignal in SideChannel.
+      RETRY: This resource could not be repaired but the repair should be
+        tried again at a later time. This can happen if there is a dependency
+        that needs to be resolved first- e.g. if a parent resource must be
+        repaired before a child resource.
+    """
+    UNKNOWN_REPAIR_ACTION = 0
+    DELETE = 1
+    RETRY = 2
+
+  deleteResource = _messages.BooleanField(1)
+  exclusiveAction = _messages.EnumField('ExclusiveActionValueValuesEnum', 2)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -743,6 +1067,70 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class TimeOfDay(_messages.Message):
+  r"""Represents a time of day. The date and time zone are either not
+  significant or are specified elsewhere. An API may choose to allow leap
+  seconds. Related types are google.type.Date and `google.protobuf.Timestamp`.
+
+  Fields:
+    hours: Hours of a day in 24 hour format. Must be greater than or equal to
+      0 and typically must be less than or equal to 23. An API may choose to
+      allow the value "24:00:00" for scenarios like business closing time.
+    minutes: Minutes of an hour. Must be greater than or equal to 0 and less
+      than or equal to 59.
+    nanos: Fractions of seconds, in nanoseconds. Must be greater than or equal
+      to 0 and less than or equal to 999,999,999.
+    seconds: Seconds of a minute. Must be greater than or equal to 0 and
+      typically must be less than or equal to 59. An API may allow the value
+      60 if it allows leap-seconds.
+  """
+
+  hours = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  minutes = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  nanos = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  seconds = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+
+
+class WeeklyWindow(_messages.Message):
+  r"""Time window in which maintenance updates may occur. Duration of the
+  window is currently fixed at 1 hour. Time zone is UTC.
+
+  Enums:
+    DayOfWeekValueValuesEnum: Required. Day of the week for the maintenance
+      window.
+
+  Fields:
+    dayOfWeek: Required. Day of the week for the maintenance window.
+    startTime: Required. Start time of the maintenance window in UTC time
+      zone.
+  """
+
+  class DayOfWeekValueValuesEnum(_messages.Enum):
+    r"""Required. Day of the week for the maintenance window.
+
+    Values:
+      DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+      MONDAY: Monday
+      TUESDAY: Tuesday
+      WEDNESDAY: Wednesday
+      THURSDAY: Thursday
+      FRIDAY: Friday
+      SATURDAY: Saturday
+      SUNDAY: Sunday
+    """
+    DAY_OF_WEEK_UNSPECIFIED = 0
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+    SUNDAY = 7
+
+  dayOfWeek = _messages.EnumField('DayOfWeekValueValuesEnum', 1)
+  startTime = _messages.MessageField('TimeOfDay', 2)
 
 
 encoding.AddCustomJsonFieldMapping(

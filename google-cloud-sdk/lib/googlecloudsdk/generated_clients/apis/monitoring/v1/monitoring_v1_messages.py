@@ -556,6 +556,41 @@ class ColumnSettings(_messages.Message):
   visible = _messages.BooleanField(5)
 
 
+class ColumnSortingOptions(_messages.Message):
+  r"""Data structure to storing column's sort strategy
+
+  Enums:
+    DirectionValueValuesEnum: Optional. A sorting direction that determines
+      ascending or descending order. This is a legacy field kept for backwards
+      compatibility with table.
+
+  Fields:
+    column: Optional. Column name to sort data by
+    direction: Optional. A sorting direction that determines ascending or
+      descending order. This is a legacy field kept for backwards
+      compatibility with table.
+  """
+
+  class DirectionValueValuesEnum(_messages.Enum):
+    r"""Optional. A sorting direction that determines ascending or descending
+    order. This is a legacy field kept for backwards compatibility with table.
+
+    Values:
+      SORT_ORDER_UNSPECIFIED: An unspecified sort order. This option is
+        invalid when sorting is required.
+      SORT_ORDER_NONE: No sorting is applied.
+      SORT_ORDER_ASCENDING: The lowest-valued entries are selected first.
+      SORT_ORDER_DESCENDING: The highest-valued entries are selected first.
+    """
+    SORT_ORDER_UNSPECIFIED = 0
+    SORT_ORDER_NONE = 1
+    SORT_ORDER_ASCENDING = 2
+    SORT_ORDER_DESCENDING = 3
+
+  column = _messages.StringField(1)
+  direction = _messages.EnumField('DirectionValueValuesEnum', 2)
+
+
 class Dashboard(_messages.Message):
   r"""A Google Stackdriver dashboard. Dashboards define the content and layout
   of pages in the Stackdriver web application.
@@ -738,6 +773,8 @@ class DataSet(_messages.Message):
       minutes. It would not make sense to fetch and align data at one minute
       intervals.
     plotType: How this data should be plotted on the chart.
+    sort: Optional. A collection of sort options, affects the order of the
+      data and legend.
     targetAxis: Optional. The target axis to use for plotting the metric.
     timeSeriesQuery: Required. Fields for querying time series data from the
       Stackdriver metrics API.
@@ -790,8 +827,9 @@ class DataSet(_messages.Message):
   measures = _messages.MessageField('Measure', 4, repeated=True)
   minAlignmentPeriod = _messages.StringField(5)
   plotType = _messages.EnumField('PlotTypeValueValuesEnum', 6)
-  targetAxis = _messages.EnumField('TargetAxisValueValuesEnum', 7)
-  timeSeriesQuery = _messages.MessageField('TimeSeriesQuery', 8)
+  sort = _messages.MessageField('ColumnSortingOptions', 7, repeated=True)
+  targetAxis = _messages.EnumField('TargetAxisValueValuesEnum', 8)
+  timeSeriesQuery = _messages.MessageField('TimeSeriesQuery', 9)
 
 
 class Dimension(_messages.Message):
@@ -802,8 +840,10 @@ class Dimension(_messages.Message):
     SortOrderValueValuesEnum: The sort order applied to the sort column.
 
   Fields:
-    column: Required. The name of the column in the source SQL query that is
-      used to chart the dimension.
+    column: Required. For widgets that use SQL queries, set the value to the
+      name of the column in the results table whose data is charted. For a
+      histogram that uses a time series query, set the value of this field to
+      metric_value.
     columnType: Optional. The type of the dimension column. This is relevant
       only if one of the bin_size fields is set. If it is empty, the type
       TIMESTAMP or INT64 will be assumed based on which bin_size field is set.
@@ -811,18 +851,23 @@ class Dimension(_messages.Message):
       TIME, DATETIME, TIMESTAMP, BIGNUMERIC, INT64, NUMERIC, FLOAT64.
     floatBinSize: Optional. float_bin_size is used when the column type used
       for a dimension is a floating point numeric column.
-    maxBinCount: A limit to the number of bins generated. When 0 is specified,
-      the maximum count is not enforced.
+    maxBinCount: For widgets that use SQL queries, the limit to the number of
+      bins to generate. When 0 is specified, the maximum count is not
+      enforced. For a histogram that uses a time series query, the exact
+      number of bins to generate. If not specified or the value is 0, then the
+      histogram determines the number of bins to use.
     numericBinSize: numeric_bin_size is used when the column type used for a
-      dimension is numeric or string.
+      dimension is numeric or string. If the column field is set to
+      metric_value, then numericBinSize overrides maxBinCount.
     sortColumn: The column name to sort on for binning. This column can be the
       same column as this dimension or any other column used as a measure in
       the results. If sort_order is set to NONE, then this value is not used.
     sortOrder: The sort order applied to the sort column.
-    timeBinSize: time_bin_size is used when the data type specified by column
-      is a time type and the bin size is determined by a time duration. If
-      column_type is DATE, this must be a whole value multiple of 1 day. If
-      column_type is TIME, this must be less than or equal to 24 hours.
+    timeBinSize: time_bin_size is used when the data type of the specified
+      dimension is a time type and the bin size is determined by a time
+      duration. If column_type is DATE, this must be a whole value multiple of
+      1 day. If column_type is TIME, this must be less than or equal to 24
+      hours.
   """
 
   class SortOrderValueValuesEnum(_messages.Enum):
@@ -984,6 +1029,8 @@ class EventAnnotation(_messages.Message):
       CLOUD_ALERTING_ALERT: Alerts from Cloud Alerting
       SERVICE_HEALTH_INCIDENT: Incidents from Service Health
       SAP_BACKINT: Agent for SAP Backint related events.
+      SAP_AVAILABILITY: Agent for SAP availability related events.
+      SAP_OPERATIONS: Agent for SAP operations related events.
     """
     EVENT_TYPE_UNSPECIFIED = 0
     GKE_WORKLOAD_DEPLOYMENT = 1
@@ -1008,6 +1055,8 @@ class EventAnnotation(_messages.Message):
     CLOUD_ALERTING_ALERT = 20
     SERVICE_HEALTH_INCIDENT = 21
     SAP_BACKINT = 22
+    SAP_AVAILABILITY = 23
+    SAP_OPERATIONS = 24
 
   displayName = _messages.StringField(1)
   enabled = _messages.BooleanField(2)
@@ -1017,7 +1066,11 @@ class EventAnnotation(_messages.Message):
 
 
 class Field(_messages.Message):
-  r"""A single field of a message type.
+  r"""A single field of a message type.New usages of this message as an
+  alternative to FieldDescriptorProto are strongly discouraged. This message
+  does not reliability preserve all information necessary to model the schema
+  and preserve semantics. Instead make use of FileDescriptorSet which
+  preserves the necessary information.
 
   Enums:
     CardinalityValueValuesEnum: The field cardinality.
@@ -1329,6 +1382,8 @@ class MonitoredProject(_messages.Message):
 
   Fields:
     createTime: Output only. The time when this MonitoredProject was created.
+    isTombstoned: Output only. Set if the project has been tombstoned by the
+      user.
     name: Immutable. The resource name of the MonitoredProject. On input, the
       resource name includes the scoping project ID and monitored project ID.
       On output, it contains the equivalent project numbers. Example: location
@@ -1337,7 +1392,8 @@ class MonitoredProject(_messages.Message):
   """
 
   createTime = _messages.StringField(1)
-  name = _messages.StringField(2)
+  isTombstoned = _messages.BooleanField(2)
+  name = _messages.StringField(3)
 
 
 class MonitoredResource(_messages.Message):
@@ -1850,7 +1906,9 @@ class OpsAnalyticsQuery(_messages.Message):
 
 class Option(_messages.Message):
   r"""A protocol buffer option, which can be attached to a message, field,
-  enumeration, etc.
+  enumeration, etc.New usages of this message as an alternative to
+  FileOptions, MessageOptions, FieldOptions, EnumOptions, EnumValueOptions,
+  ServiceOptions, or MethodOptions are strongly discouraged.
 
   Messages:
     ValueValue: The option's value packed in an Any message. If the value is a
@@ -2199,6 +2257,9 @@ class Scorecard(_messages.Message):
   Fields:
     blankView: Will cause the Scorecard to show only the value, with no
       indicator to its value relative to its thresholds.
+    breakdowns: Optional. The collection of breakdowns to be applied to the
+      dataset. A breakdown is a way to slice the data. For example, you can
+      break down the data by region.
     dimensions: Optional. A dimension is a structured label, class, or
       category for a set of measurements in your data.
     gaugeView: Will cause the scorecard to show a gauge chart.
@@ -2227,12 +2288,13 @@ class Scorecard(_messages.Message):
   """
 
   blankView = _messages.MessageField('Empty', 1)
-  dimensions = _messages.MessageField('Dimension', 2, repeated=True)
-  gaugeView = _messages.MessageField('GaugeView', 3)
-  measures = _messages.MessageField('Measure', 4, repeated=True)
-  sparkChartView = _messages.MessageField('SparkChartView', 5)
-  thresholds = _messages.MessageField('Threshold', 6, repeated=True)
-  timeSeriesQuery = _messages.MessageField('TimeSeriesQuery', 7)
+  breakdowns = _messages.MessageField('Breakdown', 2, repeated=True)
+  dimensions = _messages.MessageField('Dimension', 3, repeated=True)
+  gaugeView = _messages.MessageField('GaugeView', 4)
+  measures = _messages.MessageField('Measure', 5, repeated=True)
+  sparkChartView = _messages.MessageField('SparkChartView', 6)
+  thresholds = _messages.MessageField('Threshold', 7, repeated=True)
+  timeSeriesQuery = _messages.MessageField('TimeSeriesQuery', 8)
 
 
 class SectionHeader(_messages.Message):
@@ -2253,8 +2315,30 @@ class SingleViewGroup(_messages.Message):
   r"""A widget that groups the other widgets by using a dropdown menu. All
   widgets that are within the area spanned by the grouping widget are
   considered member widgets.
+
+  Enums:
+    DisplayTypeValueValuesEnum: Optional. Determines how the widget selector
+      will be displayed.
+
+  Fields:
+    displayType: Optional. Determines how the widget selector will be
+      displayed.
   """
 
+  class DisplayTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Determines how the widget selector will be displayed.
+
+    Values:
+      DISPLAY_TYPE_UNSPECIFIED: Display type is not specified, defaults to
+        DROPDOWN.
+      DROPDOWN: Renders the widget selector as a dropdown.
+      TAB: Renders the widget selector as a tab list.
+    """
+    DISPLAY_TYPE_UNSPECIFIED = 0
+    DROPDOWN = 1
+    TAB = 2
+
+  displayType = _messages.EnumField('DisplayTypeValueValuesEnum', 1)
 
 
 class SourceContext(_messages.Message):
@@ -2520,6 +2604,49 @@ class TableDisplayOptions(_messages.Message):
   """
 
   shownColumns = _messages.StringField(1, repeated=True)
+
+
+class TemplateVariableCondition(_messages.Message):
+  r"""A condition whose evaluation is based on the value of a template
+  variable.
+
+  Enums:
+    ComparatorValueValuesEnum: Comparator to use to evaluate whether the value
+      of the template variable matches the template_variable_value. For
+      example, if the comparator is REGEX_FULL_MATCH, template_variable_value
+      would contain a regex that is matched against the value of the template
+      variable.
+
+  Fields:
+    comparator: Comparator to use to evaluate whether the value of the
+      template variable matches the template_variable_value. For example, if
+      the comparator is REGEX_FULL_MATCH, template_variable_value would
+      contain a regex that is matched against the value of the template
+      variable.
+    templateVariable: The template variable whose value is evaluated.
+    templateVariableValue: The value to compare the template variable to. For
+      example, if the comparator is REGEX_FULL_MATCH, this field should
+      contain a regex.
+  """
+
+  class ComparatorValueValuesEnum(_messages.Enum):
+    r"""Comparator to use to evaluate whether the value of the template
+    variable matches the template_variable_value. For example, if the
+    comparator is REGEX_FULL_MATCH, template_variable_value would contain a
+    regex that is matched against the value of the template variable.
+
+    Values:
+      COMPARATOR_UNSPECIFIED: No comparator specified. Behavior defaults to
+        REGEX_FULL_MATCH.
+      REGEX_FULL_MATCH: Condition with this comparator evaluates to true when
+        the value of the template variables matches the specified regex.
+    """
+    COMPARATOR_UNSPECIFIED = 0
+    REGEX_FULL_MATCH = 1
+
+  comparator = _messages.EnumField('ComparatorValueValuesEnum', 1)
+  templateVariable = _messages.StringField(2)
+  templateVariableValue = _messages.StringField(3)
 
 
 class Text(_messages.Message):
@@ -2895,8 +3022,49 @@ class TimeSeriesTable(_messages.Message):
   metricVisualization = _messages.EnumField('MetricVisualizationValueValuesEnum', 3)
 
 
+class Treemap(_messages.Message):
+  r"""A widget that displays hierarchical data as a treemap.
+
+  Fields:
+    dataSets: Required. The collection of datasets used to construct and
+      populate the treemap. For the rendered treemap rectangles: Color is
+      determined by the aggregated value for each grouping. Size is
+      proportional to the count of time series aggregated within that
+      rectangle's segment.
+    treemapHierarchy: Required. Ordered labels representing the hierarchical
+      treemap structure.
+  """
+
+  dataSets = _messages.MessageField('TreemapDataSet', 1, repeated=True)
+  treemapHierarchy = _messages.StringField(2, repeated=True)
+
+
+class TreemapDataSet(_messages.Message):
+  r"""The data represented by the treemap. Needs to include the data itself,
+  plus rules on how to organize it hierarchically.
+
+  Fields:
+    breakdowns: Optional. The collection of breakdowns to be applied to the
+      dataset. A breakdown is a way to slice the data. For example, you can
+      break down the data by region.
+    measures: Optional. A collection of measures. A measure is a measured
+      value of a property in your data. For example, rainfall in inches,
+      number of units sold, revenue gained, etc.
+    timeSeriesQuery: Required. The query that fetches the relevant data. See
+      google.monitoring.dashboard.v1.TimeSeriesQuery
+  """
+
+  breakdowns = _messages.MessageField('Breakdown', 1, repeated=True)
+  measures = _messages.MessageField('Measure', 2, repeated=True)
+  timeSeriesQuery = _messages.MessageField('TimeSeriesQuery', 3)
+
+
 class Type(_messages.Message):
-  r"""A protocol buffer message type.
+  r"""A protocol buffer message type.New usages of this message as an
+  alternative to DescriptorProto are strongly discouraged. This message does
+  not reliability preserve all information necessary to model the schema and
+  preserve semantics. Instead make use of FileDescriptorSet which preserves
+  the necessary information.
 
   Enums:
     SyntaxValueValuesEnum: The source syntax.
@@ -2933,6 +3101,17 @@ class Type(_messages.Message):
   syntax = _messages.EnumField('SyntaxValueValuesEnum', 7)
 
 
+class VisibilityCondition(_messages.Message):
+  r"""Condition that determines whether the widget should be displayed.
+
+  Fields:
+    templateVariableCondition: A condition whose evaluation is based on the
+      value of a template variable.
+  """
+
+  templateVariableCondition = _messages.MessageField('TemplateVariableCondition', 1)
+
+
 class Widget(_messages.Message):
   r"""Widget contains a single dashboard component and configuration of how to
   present the component in the dashboard.
@@ -2958,6 +3137,9 @@ class Widget(_messages.Message):
     timeSeriesTable: A widget that displays time series data in a tabular
       format.
     title: Optional. The title of the widget.
+    treemap: A widget that displays data as a treemap.
+    visibilityCondition: Optional. If set, this widget is rendered only when
+      the condition is evaluated to true.
     xyChart: A chart of time series data.
   """
 
@@ -2975,7 +3157,9 @@ class Widget(_messages.Message):
   text = _messages.MessageField('Text', 12)
   timeSeriesTable = _messages.MessageField('TimeSeriesTable', 13)
   title = _messages.StringField(14)
-  xyChart = _messages.MessageField('XyChart', 15)
+  treemap = _messages.MessageField('Treemap', 15)
+  visibilityCondition = _messages.MessageField('VisibilityCondition', 16)
+  xyChart = _messages.MessageField('XyChart', 17)
 
 
 class XyChart(_messages.Message):

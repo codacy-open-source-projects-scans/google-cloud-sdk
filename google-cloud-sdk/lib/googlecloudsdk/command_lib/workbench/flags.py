@@ -217,14 +217,19 @@ def GetReservationTypeMapper(messages):
   )
 
 
-def AddCreateInstanceFlags(parser):
-  """Construct groups and arguments specific to the instance creation."""
+def AddCreateInstanceFlags(support_managed_euc, parser):
+  """Construct groups and arguments specific to the instance creation.
+
+  Args:
+    support_managed_euc: Whether to support managed euc.
+    parser: The parser to add the flags to.
+  """
   accelerator_choices = [
       'NVIDIA_TESLA_K80', 'NVIDIA_TESLA_P100',
       'NVIDIA_TESLA_V100', 'NVIDIA_TESLA_P4', 'NVIDIA_TESLA_T4',
       'NVIDIA_TESLA_A100', 'NVIDIA_A100_80GB',
       'NVIDIA_TESLA_T4_VWS', 'NVIDIA_TESLA_P100_VWS', 'NVIDIA_TESLA_P4_VWS',
-      'NVIDIA_L4'
+      'NVIDIA_L4', 'NVIDIA_H100_80GB', 'NVIDIA_H100_MEGA_80GB'
   ]
   disk_choices = ['PD_STANDARD', 'PD_SSD', 'PD_BALANCED', 'PD_EXTREME']
   encryption_choices = ['GMEK', 'CMEK']
@@ -294,7 +299,7 @@ def AddCreateInstanceFlags(parser):
           'The ID of the Google Cloud project that this VM image belongs to. '
           'Format: projects/`{project_id}`.'
       ),
-      default='deeplearning-platform-release',
+      default='cloud-notebooks-managed',
   )
   vm_mutex_group = vm_source_group.add_group(mutex=True, required=True)
   vm_mutex_group.add_argument(
@@ -391,6 +396,15 @@ def AddCreateInstanceFlags(parser):
       'kms-location': '--data-disk-encryption-key-location',
       'kms-project': '--data-disk-encryption-key-project',
   }
+  data_group.add_argument(
+      '--data-disk-resource-policies',
+      help=(
+          'Resource policies to apply to the data disk. Format:'
+          ' `projects/{project}/regions/{region}/resourcePolicies/{policy}`.'
+      ),
+      type=arg_parsers.ArgList(),
+      metavar='RESOURCE_POLICIES',
+  )
   kms_resource_args.AddKmsKeyResourceArg(
       parser=data_group,
       resource='data_disk',
@@ -422,6 +436,15 @@ def AddCreateInstanceFlags(parser):
           'Supported values: `true`, `false`.'
       ),
       type=str)
+
+  gce_setup_group.add_argument(
+      '--confidential-compute-type',
+      help=(
+          'String. VM instance with CC (Confidential Compute) of type. '
+          'Supported values: `SEV`.'
+      ),
+      type=str,
+  )
 
   gpu_group = gce_setup_group.add_group(help='GPU driver configurations.')
   gpu_group.add_argument(
@@ -503,7 +526,7 @@ def AddCreateInstanceFlags(parser):
   )
 
   reservation_group = gce_setup_group.add_group(
-      help='Reservation configs.', hidden=True
+      help='Reservation configs.'
   )
   reservation_group.add_argument(
       '--reservation-type',
@@ -532,6 +555,27 @@ def AddCreateInstanceFlags(parser):
       metavar='VALUES',
       type=arg_parsers.ArgList(),
   )
+
+  parser.add_argument(
+      '--enable-third-party-identity',
+      action='store_true',
+      dest='enable_third_party_identity',
+      help=(
+          'If true, the notebook instance provide a proxy endpoint which allows'
+          ' for third party identity.'
+      ),
+  )
+
+  if support_managed_euc:
+    parser.add_argument(
+        '--enable-managed-euc',
+        action='store_true',
+        dest='enable_managed_euc',
+        help=(
+            'If true, the notebook instance will be created with managed end'
+            '  user credentials enabled.'
+        ),
+    )
 
   parser.add_argument(
       '--labels',
@@ -613,7 +657,7 @@ def AddUpdateInstanceFlags(parser):
       'NVIDIA_TESLA_V100', 'NVIDIA_TESLA_P4', 'NVIDIA_TESLA_T4',
       'NVIDIA_TESLA_A100', 'NVIDIA_A100_80GB',
       'NVIDIA_TESLA_T4_VWS', 'NVIDIA_TESLA_P100_VWS', 'NVIDIA_TESLA_P4_VWS',
-      'NVIDIA_L4'
+      'NVIDIA_L4', 'NVIDIA_H100_80GB', 'NVIDIA_H100_MEGA_80GB'
   ]
   AddInstanceResource(parser)
   gce_setup_group = parser.add_group(
@@ -681,6 +725,30 @@ def AddUpdateInstanceFlags(parser):
           'The '
           '[Compute Engine machine type](https://cloud.google.com/sdk/gcloud/reference/compute/machine-types) '  # pylint: disable=line-too-long
           'of this instance.'))
+  gce_setup_group.add_argument(
+      '--tags',
+      help='Tags to apply to this instance.',
+      type=arg_parsers.ArgList(),
+      metavar='TAGS',
+  )
+  container_group = gce_setup_group.add_group(
+      help='Container image configurations.'
+  )
+  container_group.add_argument(
+      '--container-repository',
+      help=(
+          'The path to the container image repository. '
+          'For example: gcr.io/`{project_id}`/`{image_name}`.'
+      ),
+      required=True,
+  )
+  container_group.add_argument(
+      '--container-tag',
+      help=(
+          'The tag of the container image. If not specified, '
+          'this defaults to the latest tag.'
+      ),
+  )
 
 
 def AddDiagnoseInstanceFlags(parser):

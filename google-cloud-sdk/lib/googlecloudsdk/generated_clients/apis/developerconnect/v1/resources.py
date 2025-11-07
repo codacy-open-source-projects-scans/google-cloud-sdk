@@ -41,6 +41,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_ACCOUNTCONNECTORS = (
+      'projects.locations.accountConnectors',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'accountConnectors/{accountConnectorsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_CONNECTIONS = (
       'projects.locations.connections',
       '{+name}',
@@ -59,6 +70,28 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/connections/'
               '{connectionsId}/gitRepositoryLinks/{gitRepositoryLinksId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_INSIGHTSCONFIGS = (
+      'projects.locations.insightsConfigs',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/insightsConfigs/'
+              '{insightsConfigsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_INSIGHTSCONFIGS_DEPLOYMENTEVENTS = (
+      'projects.locations.insightsConfigs.deploymentEvents',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/insightsConfigs/'
+              '{insightsConfigsId}/deploymentEvents/{deploymentEventsId}',
       },
       ['name'],
       True

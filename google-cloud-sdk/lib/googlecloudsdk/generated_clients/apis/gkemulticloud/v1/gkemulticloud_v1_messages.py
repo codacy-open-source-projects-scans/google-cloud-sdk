@@ -168,7 +168,8 @@ class GkemulticloudProjectsLocationsAttachedClustersPatchRequest(_messages.Messa
       `monitoring_config.managed_prometheus_config.enabled`. *
       `platform_version`. * `proxy_config.kubernetes_secret.name`. *
       `proxy_config.kubernetes_secret.namespace`. *
-      `security_posture_config.vulnerability_mode`
+      `security_posture_config.vulnerability_mode` *
+      `monitoring_config.cloud_monitoring_config.enabled`
     validateOnly: If set, only validate the request, but do not actually
       update the cluster.
   """
@@ -1044,12 +1045,20 @@ class GkemulticloudProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class GoogleCloudGkemulticloudV1AttachedCluster(_messages.Message):
@@ -1066,13 +1075,16 @@ class GoogleCloudGkemulticloudV1AttachedCluster(_messages.Message):
       a DNS subdomain. Name must be 63 characters or less, begin and end with
       alphanumerics, with dashes (-), underscores (_), dots (.), and
       alphanumerics between.
-    TagsValue: Optional. Input only. Tag keys/values directly bound to this
-      resource. The short name of a tag key or value can have a maximum length
-      of 256 characters. The permitted character set for the short name
-      includes UTF-8 encoded Unicode characters except single quotes ('),
-      double quotes ("), backslashes (\), and forward slashes (/). See
-      [Tags](http://cloud/resource-manager/docs/tags/tags-overview) for more
-      details on Google Cloud Platform tags.
+    TagsValue: Optional. Input only. Tag keys and values directly bound to
+      this resource. The tag key must be specified in the format `/,` where
+      the tag namespace is the ID of the organization or name of the project
+      that the tag key is defined in. The short name of a tag key or value can
+      have a maximum length of 256 characters. The permitted character set for
+      the short name includes UTF-8 encoded Unicode characters except single
+      quotation marks (`'`), double quotation marks (`"`), backslashes (`\`),
+      and forward slashes (`/`). See [Tags](https://cloud.google.com/resource-
+      manager/docs/tags/tags-overview) for more details on Google Cloud
+      Platform tags.
 
   Fields:
     annotations: Optional. Annotations on the cluster. This field has the same
@@ -1116,13 +1128,18 @@ class GoogleCloudGkemulticloudV1AttachedCluster(_messages.Message):
     securityPostureConfig: Optional. Security Posture configuration for this
       cluster.
     state: Output only. The current state of the cluster.
-    tags: Optional. Input only. Tag keys/values directly bound to this
-      resource. The short name of a tag key or value can have a maximum length
-      of 256 characters. The permitted character set for the short name
-      includes UTF-8 encoded Unicode characters except single quotes ('),
-      double quotes ("), backslashes (\), and forward slashes (/). See
-      [Tags](http://cloud/resource-manager/docs/tags/tags-overview) for more
-      details on Google Cloud Platform tags.
+    systemComponentsConfig: Optional. Kubernetes configurationss for auto-
+      installed components on the cluster.
+    tags: Optional. Input only. Tag keys and values directly bound to this
+      resource. The tag key must be specified in the format `/,` where the tag
+      namespace is the ID of the organization or name of the project that the
+      tag key is defined in. The short name of a tag key or value can have a
+      maximum length of 256 characters. The permitted character set for the
+      short name includes UTF-8 encoded Unicode characters except single
+      quotation marks (`'`), double quotation marks (`"`), backslashes (`\`),
+      and forward slashes (`/`). See [Tags](https://cloud.google.com/resource-
+      manager/docs/tags/tags-overview) for more details on Google Cloud
+      Platform tags.
     uid: Output only. A globally unique identifier for the cluster.
     updateTime: Output only. The time at which this cluster was last updated.
     workloadIdentityConfig: Output only. Workload Identity settings.
@@ -1187,13 +1204,16 @@ class GoogleCloudGkemulticloudV1AttachedCluster(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class TagsValue(_messages.Message):
-    r"""Optional. Input only. Tag keys/values directly bound to this resource.
-    The short name of a tag key or value can have a maximum length of 256
-    characters. The permitted character set for the short name includes UTF-8
-    encoded Unicode characters except single quotes ('), double quotes ("),
-    backslashes (\), and forward slashes (/). See
-    [Tags](http://cloud/resource-manager/docs/tags/tags-overview) for more
-    details on Google Cloud Platform tags.
+    r"""Optional. Input only. Tag keys and values directly bound to this
+    resource. The tag key must be specified in the format `/,` where the tag
+    namespace is the ID of the organization or name of the project that the
+    tag key is defined in. The short name of a tag key or value can have a
+    maximum length of 256 characters. The permitted character set for the
+    short name includes UTF-8 encoded Unicode characters except single
+    quotation marks (`'`), double quotation marks (`"`), backslashes (`\`),
+    and forward slashes (`/`). See [Tags](https://cloud.google.com/resource-
+    manager/docs/tags/tags-overview) for more details on Google Cloud Platform
+    tags.
 
     Messages:
       AdditionalProperty: An additional property for a TagsValue object.
@@ -1235,10 +1255,11 @@ class GoogleCloudGkemulticloudV1AttachedCluster(_messages.Message):
   reconciling = _messages.BooleanField(18)
   securityPostureConfig = _messages.MessageField('GoogleCloudGkemulticloudV1SecurityPostureConfig', 19)
   state = _messages.EnumField('StateValueValuesEnum', 20)
-  tags = _messages.MessageField('TagsValue', 21)
-  uid = _messages.StringField(22)
-  updateTime = _messages.StringField(23)
-  workloadIdentityConfig = _messages.MessageField('GoogleCloudGkemulticloudV1WorkloadIdentityConfig', 24)
+  systemComponentsConfig = _messages.MessageField('GoogleCloudGkemulticloudV1SystemComponentsConfig', 21)
+  tags = _messages.MessageField('TagsValue', 22)
+  uid = _messages.StringField(23)
+  updateTime = _messages.StringField(24)
+  workloadIdentityConfig = _messages.MessageField('GoogleCloudGkemulticloudV1WorkloadIdentityConfig', 25)
 
 
 class GoogleCloudGkemulticloudV1AttachedClusterError(_messages.Message):
@@ -1321,10 +1342,26 @@ class GoogleCloudGkemulticloudV1AttachedPlatformVersionInfo(_messages.Message):
   r"""Information about a supported Attached Clusters platform version.
 
   Fields:
+    enabled: Optional. True if the version is available for attachedcluster
+      creation. If a version is enabled, it can be used to attach new
+      clusters.
+    endOfLife: Optional. True if this cluster version belongs to a minor
+      version that has reached its end of life and is no longer in scope to
+      receive security and bug fixes.
+    endOfLifeDate: Optional. The estimated date (in Pacific Time) when this
+      cluster version will reach its end of life. Or if this version is no
+      longer supported (the `end_of_life` field is true), this is the actual
+      date (in Pacific time) when the version reached its end of life.
+    releaseDate: Optional. The date (in Pacific Time) when the cluster version
+      was released.
     version: Platform version name.
   """
 
-  version = _messages.StringField(1)
+  enabled = _messages.BooleanField(1)
+  endOfLife = _messages.BooleanField(2)
+  endOfLifeDate = _messages.MessageField('GoogleTypeDate', 3)
+  releaseDate = _messages.MessageField('GoogleTypeDate', 4)
+  version = _messages.StringField(5)
 
 
 class GoogleCloudGkemulticloudV1AttachedProxyConfig(_messages.Message):
@@ -2162,7 +2199,7 @@ class GoogleCloudGkemulticloudV1AwsVolumeTemplate(_messages.Message):
       resource.
     throughput: Optional. The throughput that the volume supports, in MiB/s.
       Only valid if volume_type is GP3. If the volume_type is GP3 and this is
-      not speficied, it defaults to 125.
+      not specified, it defaults to 125.
     volumeType: Optional. Type of the EBS volume. When unspecified, it
       defaults to GP2 volume.
   """
@@ -3086,6 +3123,18 @@ class GoogleCloudGkemulticloudV1BinaryAuthorization(_messages.Message):
   evaluationMode = _messages.EnumField('EvaluationModeValueValuesEnum', 1)
 
 
+class GoogleCloudGkemulticloudV1CloudMonitoringConfig(_messages.Message):
+  r"""CloudMonitoringConfig defines the configuration for built-in Cloud
+  Logging and Monitoring. Only for Attached Clusters.
+
+  Fields:
+    enabled: Enable GKE-native logging and metrics. Only for Attached
+      Clusters.
+  """
+
+  enabled = _messages.BooleanField(1)
+
+
 class GoogleCloudGkemulticloudV1Fleet(_messages.Message):
   r"""Fleet related configuration. Fleets are a Google Cloud concept for
   logically organizing clusters, letting you use and manage multi-cluster
@@ -3324,6 +3373,19 @@ class GoogleCloudGkemulticloudV1KubernetesSecret(_messages.Message):
   namespace = _messages.StringField(2)
 
 
+class GoogleCloudGkemulticloudV1Label(_messages.Message):
+  r"""Label defines the additional fields for labels for pods created by auto-
+  installed components.
+
+  Fields:
+    key: This is the key of the label.
+    value: This is the value of the label.
+  """
+
+  key = _messages.StringField(1)
+  value = _messages.StringField(2)
+
+
 class GoogleCloudGkemulticloudV1ListAttachedClustersResponse(_messages.Message):
   r"""Response message for `AttachedClusters.ListAttachedClusters` method.
 
@@ -3472,6 +3534,8 @@ class GoogleCloudGkemulticloudV1MonitoringConfig(_messages.Message):
   r"""Parameters that describe the Monitoring configuration in a cluster.
 
   Fields:
+    cloudMonitoringConfig: Optionally enable GKE metrics. Only for Attached
+      Clusters.
     kubernetesMetadataEndpointOverride: Optional. Override of the default
       (prod) Kubernetes metadata endpoint. Only supported for Attached
       clusters now.
@@ -3479,8 +3543,9 @@ class GoogleCloudGkemulticloudV1MonitoringConfig(_messages.Message):
       Prometheus in the cluster.
   """
 
-  kubernetesMetadataEndpointOverride = _messages.StringField(1)
-  managedPrometheusConfig = _messages.MessageField('GoogleCloudGkemulticloudV1ManagedPrometheusConfig', 2)
+  cloudMonitoringConfig = _messages.MessageField('GoogleCloudGkemulticloudV1CloudMonitoringConfig', 1)
+  kubernetesMetadataEndpointOverride = _messages.StringField(2)
+  managedPrometheusConfig = _messages.MessageField('GoogleCloudGkemulticloudV1ManagedPrometheusConfig', 3)
 
 
 class GoogleCloudGkemulticloudV1NodeKubeletConfig(_messages.Message):
@@ -3569,9 +3634,9 @@ class GoogleCloudGkemulticloudV1OperationMetadata(_messages.Message):
     endTime: Output only. The time at which this operation was completed.
     errorDetail: Output only. Human-readable status of any error that occurred
       during the operation.
-    requestedCancellation: Output only. Identifies whether it has been
-      requested cancellation for the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
+    requestedCancellation: Output only. Identifies whether cancellation has
+      been requested for the operation. Operations that have successfully been
+      cancelled have google.longrunning.Operation.error value with a
       google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
     statusDetail: Output only. Human-readable status of the operation, if any.
     target: Output only. The name of the resource associated to this
@@ -3672,6 +3737,70 @@ class GoogleCloudGkemulticloudV1SurgeSettings(_messages.Message):
   maxUnavailable = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudGkemulticloudV1SystemComponentsConfig(_messages.Message):
+  r"""SystemComponentsConfig defines the fields for customizing configurations
+  for auto-installed components.
+
+  Fields:
+    labels: Sets custom labels for pods created by auto-installed components.
+    tolerations: Sets custom tolerations for pods created by auto-installed
+      components.
+  """
+
+  labels = _messages.MessageField('GoogleCloudGkemulticloudV1Label', 1, repeated=True)
+  tolerations = _messages.MessageField('GoogleCloudGkemulticloudV1Toleration', 2, repeated=True)
+
+
+class GoogleCloudGkemulticloudV1Toleration(_messages.Message):
+  r"""Toleration defines the fields for tolerations for pods created by auto-
+  installed components.
+
+  Enums:
+    EffectValueValuesEnum: Effect indicates the taint effect to match e.g.
+      'NoSchedule'
+    KeyOperatorValueValuesEnum: KeyOperator represents a key's relationship to
+      the value e.g. 'Exist'.
+
+  Fields:
+    effect: Effect indicates the taint effect to match e.g. 'NoSchedule'
+    key: Key is the taint key that the toleration applies to.
+    keyOperator: KeyOperator represents a key's relationship to the value e.g.
+      'Exist'.
+    value: Value is the taint value that the toleration applies to.
+  """
+
+  class EffectValueValuesEnum(_messages.Enum):
+    r"""Effect indicates the taint effect to match e.g. 'NoSchedule'
+
+    Values:
+      EFFECT_UNSPECIFIED: Effect is not specified.
+      EFFECT_NO_SCHEDULE: Effect maps to 'NoSchedule'.
+      EFFECT_PREFER_NO_SCHEDULE: Effect maps to 'PreferNoSchedule'.
+      EFFECT_NO_EXECUTE: Effect maps to 'NoExecute'.
+    """
+    EFFECT_UNSPECIFIED = 0
+    EFFECT_NO_SCHEDULE = 1
+    EFFECT_PREFER_NO_SCHEDULE = 2
+    EFFECT_NO_EXECUTE = 3
+
+  class KeyOperatorValueValuesEnum(_messages.Enum):
+    r"""KeyOperator represents a key's relationship to the value e.g. 'Exist'.
+
+    Values:
+      KEY_OPERATOR_UNSPECIFIED: Operator is not specified.
+      KEY_OPERATOR_EQUAL: Operator maps to 'Equal'.
+      KEY_OPERATOR_EXISTS: Operator maps to 'Exists'.
+    """
+    KEY_OPERATOR_UNSPECIFIED = 0
+    KEY_OPERATOR_EQUAL = 1
+    KEY_OPERATOR_EXISTS = 2
+
+  effect = _messages.EnumField('EffectValueValuesEnum', 1)
+  key = _messages.StringField(2)
+  keyOperator = _messages.EnumField('KeyOperatorValueValuesEnum', 3)
+  value = _messages.StringField(4)
+
+
 class GoogleCloudGkemulticloudV1UpdateSettings(_messages.Message):
   r"""UpdateSettings control the level of parallelism and the level of
   disruption caused during the update of a node pool. These settings are
@@ -3725,10 +3854,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):

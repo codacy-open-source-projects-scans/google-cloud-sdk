@@ -208,7 +208,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instanceConfigs.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstanceConfigsOperationsListRequest',
@@ -326,7 +326,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instanceConfigs.ssdCaches.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstanceConfigsSsdCachesOperationsListRequest',
@@ -717,7 +717,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instances.backups.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstancesBackupsOperationsListRequest',
@@ -1415,7 +1415,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instances.databases.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstancesDatabasesOperationsListRequest',
@@ -1432,6 +1432,60 @@ class SpannerV1(base_api.BaseApiClient):
       super(SpannerV1.ProjectsInstancesDatabasesSessionsService, self).__init__(client)
       self._upload_configs = {
           }
+
+    def AdaptMessage(self, request, global_params=None):
+      r"""Handles a single message from the client and returns the result as a stream. The server will interpret the message frame and respond with message frames to the client.
+
+      Args:
+        request: (SpannerProjectsInstancesDatabasesSessionsAdaptMessageRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (AdaptMessageResponse) The response message.
+      """
+      config = self.GetMethodConfig('AdaptMessage')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    AdaptMessage.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions/{sessionsId}:adaptMessage',
+        http_method='POST',
+        method_id='spanner.projects.instances.databases.sessions.adaptMessage',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:adaptMessage',
+        request_field='adaptMessageRequest',
+        request_type_name='SpannerProjectsInstancesDatabasesSessionsAdaptMessageRequest',
+        response_type_name='AdaptMessageResponse',
+        supports_download=False,
+    )
+
+    def Adapter(self, request, global_params=None):
+      r"""Creates a new session to be used for requests made by the adapter. A session identifies a specific incarnation of a database resource and is meant to be reused across many `AdaptMessage` calls.
+
+      Args:
+        request: (SpannerProjectsInstancesDatabasesSessionsAdapterRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (AdapterSession) The response message.
+      """
+      config = self.GetMethodConfig('Adapter')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Adapter.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions:adapter',
+        http_method='POST',
+        method_id='spanner.projects.instances.databases.sessions.adapter',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1/{+parent}/sessions:adapter',
+        request_field='adapterSession',
+        request_type_name='SpannerProjectsInstancesDatabasesSessionsAdapterRequest',
+        response_type_name='AdapterSession',
+        supports_download=False,
+    )
 
     def BatchCreate(self, request, global_params=None):
       r"""Creates multiple new sessions. This API can be used to initialize a session cache on the clients. See https://goo.gl/TgSFN2 for best practices on session cache management.
@@ -1461,7 +1515,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def BatchWrite(self, request, global_params=None):
-      r"""Batches the supplied mutation groups in a collection of efficient transactions. All mutations in a group are committed atomically. However, mutations across groups can be committed non-atomically in an unspecified order and thus, they must be independent of each other. Partial failure is possible, i.e., some groups may have been committed successfully, while some may have failed. The results of individual batches are streamed into the response as the batches are applied. BatchWrite requests are not replay protected, meaning that each mutation group may be applied more than once. Replays of non-idempotent mutations may have undesirable effects. For example, replays of an insert mutation may produce an already exists error or if you use generated or commit timestamp-based keys, it may result in additional rows being added to the mutation's table. We recommend structuring your mutation groups to be idempotent to avoid this issue.
+      r"""Batches the supplied mutation groups in a collection of efficient transactions. All mutations in a group are committed atomically. However, mutations across groups can be committed non-atomically in an unspecified order and thus, they must be independent of each other. Partial failure is possible, that is, some groups might have been committed successfully, while some might have failed. The results of individual batches are streamed into the response as the batches are applied. `BatchWrite` requests are not replay protected, meaning that each mutation group can be applied more than once. Replays of non-idempotent mutations can have undesirable effects. For example, replays of an insert mutation can produce an already exists error or if you use generated or commit timestamp-based keys, it can result in additional rows being added to the mutation's table. We recommend structuring your mutation groups to be idempotent to avoid this issue.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsBatchWriteRequest) input message
@@ -1515,7 +1569,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Commit(self, request, global_params=None):
-      r"""Commits a transaction. The request includes the mutations to be applied to rows in the database. `Commit` might return an `ABORTED` error. This can occur at any time; commonly, the cause is conflicts with concurrent transactions. However, it can also happen for a variety of other reasons. If `Commit` returns `ABORTED`, the caller should re-attempt the transaction from the beginning, re-using the same session. On very rare occasions, `Commit` might return `UNKNOWN`. This can happen, for example, if the client job experiences a 1+ hour networking failure. At that point, Cloud Spanner has lost track of the transaction outcome and we recommend that you perform another read from the database to see the state of things as they are now.
+      r"""Commits a transaction. The request includes the mutations to be applied to rows in the database. `Commit` might return an `ABORTED` error. This can occur at any time; commonly, the cause is conflicts with concurrent transactions. However, it can also happen for a variety of other reasons. If `Commit` returns `ABORTED`, the caller should retry the transaction from the beginning, reusing the same session. On very rare occasions, `Commit` might return `UNKNOWN`. This can happen, for example, if the client job experiences a 1+ hour networking failure. At that point, Cloud Spanner has lost track of the transaction outcome and we recommend that you perform another read from the database to see the state of things as they are now.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsCommitRequest) input message
@@ -1542,7 +1596,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Create(self, request, global_params=None):
-      r"""Creates a new session. A session can be used to perform transactions that read and/or modify data in a Cloud Spanner database. Sessions are meant to be reused for many consecutive transactions. Sessions can only execute one transaction at a time. To execute multiple concurrent read-write/write-only transactions, create multiple sessions. Note that standalone reads and queries use a transaction internally, and count toward the one transaction limit. Active sessions use additional server resources, so it is a good idea to delete idle and unneeded sessions. Aside from explicit deletes, Cloud Spanner may delete sessions for which no operations are sent for more than an hour. If a session is deleted, requests to it return `NOT_FOUND`. Idle sessions can be kept alive by sending a trivial SQL query periodically, e.g., `"SELECT 1"`.
+      r"""Creates a new session. A session can be used to perform transactions that read and/or modify data in a Cloud Spanner database. Sessions are meant to be reused for many consecutive transactions. Sessions can only execute one transaction at a time. To execute multiple concurrent read-write/write-only transactions, create multiple sessions. Note that standalone reads and queries use a transaction internally, and count toward the one transaction limit. Active sessions use additional server resources, so it's a good idea to delete idle and unneeded sessions. Aside from explicit deletes, Cloud Spanner can delete sessions when no operations are sent for more than an hour. If a session is deleted, requests to it return `NOT_FOUND`. Idle sessions can be kept alive by sending a trivial SQL query periodically, for example, `"SELECT 1"`.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsCreateRequest) input message
@@ -1569,7 +1623,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Delete(self, request, global_params=None):
-      r"""Ends a session, releasing server resources associated with it. This will asynchronously trigger cancellation of any operations that are running with this session.
+      r"""Ends a session, releasing server resources associated with it. This asynchronously triggers the cancellation of any operations that are running with this session.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsDeleteRequest) input message
@@ -1623,7 +1677,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def ExecuteSql(self, request, global_params=None):
-      r"""Executes an SQL statement, returning all results in a single reply. This method cannot be used to return a result set larger than 10 MiB; if the query yields more data than that, the query fails with a `FAILED_PRECONDITION` error. Operations inside read-write transactions might return `ABORTED`. If this occurs, the application should restart the transaction from the beginning. See Transaction for more details. Larger result sets can be fetched in streaming fashion by calling ExecuteStreamingSql instead. The query string can be SQL or [Graph Query Language (GQL)](https://cloud.google.com/spanner/docs/reference/standard-sql/graph-intro).
+      r"""Executes an SQL statement, returning all results in a single reply. This method can't be used to return a result set larger than 10 MiB; if the query yields more data than that, the query fails with a `FAILED_PRECONDITION` error. Operations inside read-write transactions might return `ABORTED`. If this occurs, the application should restart the transaction from the beginning. See Transaction for more details. Larger result sets can be fetched in streaming fashion by calling ExecuteStreamingSql instead. The query string can be SQL or [Graph Query Language (GQL)](https://cloud.google.com/spanner/docs/reference/standard-sql/graph-intro).
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsExecuteSqlRequest) input message
@@ -1677,7 +1731,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Get(self, request, global_params=None):
-      r"""Gets a session. Returns `NOT_FOUND` if the session does not exist. This is mainly useful for determining whether a session is still alive.
+      r"""Gets a session. Returns `NOT_FOUND` if the session doesn't exist. This is mainly useful for determining whether a session is still alive.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsGetRequest) input message
@@ -1731,7 +1785,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def PartitionQuery(self, request, global_params=None):
-      r"""Creates a set of partition tokens that can be used to execute a query operation in parallel. Each of the returned partition tokens can be used by ExecuteStreamingSql to specify a subset of the query result to read. The same session and read-only transaction must be used by the PartitionQueryRequest used to create the partition tokens and the ExecuteSqlRequests that use the partition tokens. Partition tokens become invalid when the session used to create them is deleted, is idle for too long, begins a new transaction, or becomes too old. When any of these happen, it is not possible to resume the query, and the whole operation must be restarted from the beginning.
+      r"""Creates a set of partition tokens that can be used to execute a query operation in parallel. Each of the returned partition tokens can be used by ExecuteStreamingSql to specify a subset of the query result to read. The same session and read-only transaction must be used by the `PartitionQueryRequest` used to create the partition tokens and the `ExecuteSqlRequests` that use the partition tokens. Partition tokens become invalid when the session used to create them is deleted, is idle for too long, begins a new transaction, or becomes too old. When any of these happen, it isn't possible to resume the query, and the whole operation must be restarted from the beginning.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsPartitionQueryRequest) input message
@@ -1758,7 +1812,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def PartitionRead(self, request, global_params=None):
-      r"""Creates a set of partition tokens that can be used to execute a read operation in parallel. Each of the returned partition tokens can be used by StreamingRead to specify a subset of the read result to read. The same session and read-only transaction must be used by the PartitionReadRequest used to create the partition tokens and the ReadRequests that use the partition tokens. There are no ordering guarantees on rows returned among the returned partition tokens, or even within each individual StreamingRead call issued with a partition_token. Partition tokens become invalid when the session used to create them is deleted, is idle for too long, begins a new transaction, or becomes too old. When any of these happen, it is not possible to resume the read, and the whole operation must be restarted from the beginning.
+      r"""Creates a set of partition tokens that can be used to execute a read operation in parallel. Each of the returned partition tokens can be used by StreamingRead to specify a subset of the read result to read. The same session and read-only transaction must be used by the `PartitionReadRequest` used to create the partition tokens and the `ReadRequests` that use the partition tokens. There are no ordering guarantees on rows returned among the returned partition tokens, or even within each individual `StreamingRead` call issued with a `partition_token`. Partition tokens become invalid when the session used to create them is deleted, is idle for too long, begins a new transaction, or becomes too old. When any of these happen, it isn't possible to resume the read, and the whole operation must be restarted from the beginning.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsPartitionReadRequest) input message
@@ -1785,7 +1839,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Read(self, request, global_params=None):
-      r"""Reads rows from the database using key lookups and scans, as a simple key/value style alternative to ExecuteSql. This method cannot be used to return a result set larger than 10 MiB; if the read matches more data than that, the read fails with a `FAILED_PRECONDITION` error. Reads inside read-write transactions might return `ABORTED`. If this occurs, the application should restart the transaction from the beginning. See Transaction for more details. Larger result sets can be yielded in streaming fashion by calling StreamingRead instead.
+      r"""Reads rows from the database using key lookups and scans, as a simple key/value style alternative to ExecuteSql. This method can't be used to return a result set larger than 10 MiB; if the read matches more data than that, the read fails with a `FAILED_PRECONDITION` error. Reads inside read-write transactions might return `ABORTED`. If this occurs, the application should restart the transaction from the beginning. See Transaction for more details. Larger result sets can be yielded in streaming fashion by calling StreamingRead instead.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsReadRequest) input message
@@ -1812,7 +1866,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def Rollback(self, request, global_params=None):
-      r"""Rolls back a transaction, releasing any locks it holds. It is a good idea to call this for any transaction that includes one or more Read or ExecuteSql requests and ultimately decides not to commit. `Rollback` returns `OK` if it successfully aborts the transaction, the transaction was already aborted, or the transaction is not found. `Rollback` never returns `ABORTED`.
+      r"""Rolls back a transaction, releasing any locks it holds. It's a good idea to call this for any transaction that includes one or more Read or ExecuteSql requests and ultimately decides not to commit. `Rollback` returns `OK` if it successfully aborts the transaction, the transaction was already aborted, or the transaction isn't found. `Rollback` never returns `ABORTED`.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesSessionsRollbackRequest) input message
@@ -1876,7 +1930,7 @@ class SpannerV1(base_api.BaseApiClient):
           }
 
     def AddSplitPoints(self, request, global_params=None):
-      r"""Adds split points to specified tables, indexes of a database.
+      r"""Adds split points to specified tables and indexes of a database.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesAddSplitPointsRequest) input message
@@ -2227,7 +2281,7 @@ class SpannerV1(base_api.BaseApiClient):
     )
 
     def UpdateDdl(self, request, global_params=None):
-      r"""Updates the schema of a Cloud Spanner database by creating/altering/dropping tables, columns, indexes, etc. The returned long-running operation will have a name of the format `/operations/` and can be used to track execution of the schema change(s). The metadata field type is UpdateDatabaseDdlMetadata. The operation has no response.
+      r"""Updates the schema of a Cloud Spanner database by creating/altering/dropping tables, columns, indexes, etc. The returned long-running operation will have a name of the format `/operations/` and can be used to track execution of the schema changes. The metadata field type is UpdateDatabaseDdlMetadata. The operation has no response.
 
       Args:
         request: (SpannerProjectsInstancesDatabasesUpdateDdlRequest) input message
@@ -2400,7 +2454,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instances.instancePartitions.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstancesInstancePartitionsOperationsListRequest',
@@ -2663,7 +2717,7 @@ class SpannerV1(base_api.BaseApiClient):
         method_id='spanner.projects.instances.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='SpannerProjectsInstancesOperationsListRequest',

@@ -8,9 +8,34 @@ from __future__ import absolute_import
 
 from apitools.base.protorpclite import messages as _messages
 from apitools.base.py import encoding
+from apitools.base.py import extra_types
 
 
 package = 'pubsub'
+
+
+class AIInference(_messages.Message):
+  r"""Configuration for making inference requests against Vertex AI models.
+
+  Fields:
+    endpoint: Required. An endpoint to a Vertex AI model of the form
+      `projects/{project}/locations/{location}/endpoints/{endpoint}` or `proje
+      cts/{project}/locations/{location}/publishers/{publisher}/models/{model}
+      `. Vertex AI API requests will be sent to this endpoint.
+    serviceAccountEmail: Optional. The service account to use to make
+      prediction requests against endpoints. The resource creator or updater
+      that specifies this field must have `iam.serviceAccounts.actAs`
+      permission on the service account. If not specified, the Pub/Sub
+      [service agent]({$universe.dns_names.final_documentation_domain}/iam/doc
+      s/service-agents), service-{project_number}@gcp-sa-
+      pubsub.iam.gserviceaccount.com, is used.
+    unstructuredInference: Optional. Requests and responses can be any
+      arbitrary JSON object.
+  """
+
+  endpoint = _messages.StringField(1)
+  serviceAccountEmail = _messages.StringField(2)
+  unstructuredInference = _messages.MessageField('UnstructuredInference', 3)
 
 
 class AcknowledgeRequest(_messages.Message):
@@ -26,8 +51,9 @@ class AcknowledgeRequest(_messages.Message):
 
 
 class AnalyticsHubSubscriptionInfo(_messages.Message):
-  r"""Information about an associated Analytics Hub subscription
-  (https://cloud.google.com/bigquery/docs/analytics-hub-manage-subscriptions).
+  r"""Information about an associated [Analytics Hub
+  subscription](https://cloud.google.com/bigquery/docs/analytics-hub-manage-
+  subscriptions).
 
   Fields:
     listing: Optional. The name of the associated Analytics Hub listing
@@ -211,14 +237,18 @@ class AzureEventHubs(_messages.Message):
       STATE_UNSPECIFIED: Default value. This value is unused.
       ACTIVE: Ingestion is active.
       EVENT_HUBS_PERMISSION_DENIED: Permission denied encountered while
-        consuming data from Event Hubs. This can happen when `client_id`,
-        `tenant_id`, or `subscription_id` are invalid, or the right
-        permissions haven't been granted.
+        consuming data from Event Hubs. This can happen when `client_id`, or
+        `tenant_id` are invalid. Or the right permissions haven't been
+        granted.
       PUBLISH_PERMISSION_DENIED: Permission denied encountered while
         publishing to the topic.
       NAMESPACE_NOT_FOUND: The provided Event Hubs namespace couldn't be
         found.
       EVENT_HUB_NOT_FOUND: The provided Event Hub couldn't be found.
+      SUBSCRIPTION_NOT_FOUND: The provided Event Hubs subscription couldn't be
+        found.
+      RESOURCE_GROUP_NOT_FOUND: The provided Event Hubs resource group
+        couldn't be found.
     """
     STATE_UNSPECIFIED = 0
     ACTIVE = 1
@@ -226,6 +256,8 @@ class AzureEventHubs(_messages.Message):
     PUBLISH_PERMISSION_DENIED = 3
     NAMESPACE_NOT_FOUND = 4
     EVENT_HUB_NOT_FOUND = 5
+    SUBSCRIPTION_NOT_FOUND = 6
+    RESOURCE_GROUP_NOT_FOUND = 7
 
   clientId = _messages.StringField(1)
   eventHub = _messages.StringField(2)
@@ -496,7 +528,7 @@ class CloudStorageConfig(_messages.Message):
       the limit.
     maxDuration: Optional. The maximum duration that can elapse before a new
       Cloud Storage file is created. Min 1 minute, max 10 minutes, default 5
-      minutes. May not exceed the subscription's acknowledgement deadline.
+      minutes. May not exceed the subscription's acknowledgment deadline.
     maxMessages: Optional. The maximum number of messages that can be written
       to a Cloud Storage file before a new file is created. Min 1000 messages.
     serviceAccountEmail: Optional. The service account to use to write to
@@ -620,6 +652,9 @@ class CreateSnapshotRequest(_messages.Message):
   Messages:
     LabelsValue: Optional. See [Creating and managing
       labels](https://cloud.google.com/pubsub/docs/labels).
+    TagsValue: Optional. Input only. Immutable. Tag keys/values directly bound
+      to this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     labels: Optional. See [Creating and managing
@@ -632,6 +667,9 @@ class CreateSnapshotRequest(_messages.Message):
       request; as well as: (b) Any messages published to the subscription's
       topic following the successful completion of the CreateSnapshot request.
       Format is `projects/{project}/subscriptions/{sub}`.
+    tags: Optional. Input only. Immutable. Tag keys/values directly bound to
+      this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
@@ -659,8 +697,35 @@ class CreateSnapshotRequest(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Input only. Immutable. Tag keys/values directly bound to
+    this resource. For example: "123/environment": "production",
+    "123/costCenter": "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   labels = _messages.MessageField('LabelsValue', 1)
   subscription = _messages.StringField(2)
+  tags = _messages.MessageField('TagsValue', 3)
 
 
 class DeadLetterPolicy(_messages.Message):
@@ -682,7 +747,7 @@ class DeadLetterPolicy(_messages.Message):
     maxDeliveryAttempts: Optional. The maximum number of delivery attempts for
       any message. The value must be between 5 and 100. The number of delivery
       attempts is defined as 1 + (the sum of number of NACKs and number of
-      times the acknowledgement deadline has been exceeded for the message). A
+      times the acknowledgment deadline has been exceeded for the message). A
       NACK is any call to ModifyAckDeadline with a 0 deadline. Note that
       client libraries may automatically extend ack_deadlines. This field will
       be honored on a best effort basis. If this parameter is 0, a default
@@ -758,6 +823,20 @@ class Expr(_messages.Message):
   title = _messages.StringField(4)
 
 
+class FailedMessage(_messages.Message):
+  r"""Pub/Sub message that failed to be transformed.
+
+  Fields:
+    error: Required. Error status of the failed transform.
+  """
+
+  error = _messages.MessageField('Status', 1)
+
+
+class FilteredMessage(_messages.Message):
+  r"""Filtered Pub/Sub message."""
+
+
 class IngestionDataSourceSettings(_messages.Message):
   r"""Settings for an ingestion data source on a topic.
 
@@ -777,6 +856,31 @@ class IngestionDataSourceSettings(_messages.Message):
   cloudStorage = _messages.MessageField('CloudStorage', 4)
   confluentCloud = _messages.MessageField('ConfluentCloud', 5)
   platformLogsSettings = _messages.MessageField('PlatformLogsSettings', 6)
+
+
+class JavaScriptUDF(_messages.Message):
+  r"""User-defined JavaScript function that can transform or filter a Pub/Sub
+  message.
+
+  Fields:
+    code: Required. JavaScript code that contains a function `function_name`
+      with the below signature: ``` /** * Transforms a Pub/Sub message. *
+      @return {(Object)>|null)} - To * filter a message, return `null`. To
+      transform a message return a map * with the following keys: * -
+      (required) 'data' : {string} * - (optional) 'attributes' : {Object} *
+      Returning empty `attributes` will remove all attributes from the *
+      message. * * @param {(Object)>} Pub/Sub * message. Keys: * - (required)
+      'data' : {string} * - (required) 'attributes' : {Object} * * @param
+      {Object} metadata - Pub/Sub message metadata. * Keys: * - (optional)
+      'message_id' : {string} * - (optional) 'publish_time': {string} YYYY-MM-
+      DDTHH:MM:SSZ format * - (optional) 'ordering_key': {string} */ function
+      (message, metadata) { } ```
+    functionName: Required. Name of the JavasScript function that should
+      applied to Pub/Sub messages.
+  """
+
+  code = _messages.StringField(1)
+  functionName = _messages.StringField(2)
 
 
 class ListSchemaRevisionsResponse(_messages.Message):
@@ -896,6 +1000,39 @@ class MessageStoragePolicy(_messages.Message):
 
   allowedPersistenceRegions = _messages.StringField(1, repeated=True)
   enforceInTransit = _messages.BooleanField(2)
+
+
+class MessageTransform(_messages.Message):
+  r"""All supported message transforms types.
+
+  Fields:
+    aiInference: Optional. AI Inference.
+    disabled: Optional. If true, the transform is disabled and will not be
+      applied to messages. Defaults to `false`.
+    enabled: Optional. This field is deprecated, use the `disabled` field to
+      disable transforms.
+    javascriptUdf: Optional. JavaScript User Defined Function. If multiple
+      JavaScriptUDF's are specified on a resource, each must have a unique
+      `function_name`.
+    schemaEncoding: Optional. Validate a message against a schema and
+      optionally transforms between JSON and BINARY format.
+  """
+
+  aiInference = _messages.MessageField('AIInference', 1)
+  disabled = _messages.BooleanField(2)
+  enabled = _messages.BooleanField(3)
+  javascriptUdf = _messages.MessageField('JavaScriptUDF', 4)
+  schemaEncoding = _messages.MessageField('SchemaEncoding', 5)
+
+
+class MessageTransforms(_messages.Message):
+  r"""List of MessageTransforms
+
+  Fields:
+    messageTransforms: Required. List of MessageTransforms
+  """
+
+  messageTransforms = _messages.MessageField('MessageTransform', 1, repeated=True)
 
 
 class ModifyAckDeadlineRequest(_messages.Message):
@@ -1879,6 +2016,20 @@ class PubsubProjectsSubscriptionsTestIamPermissionsRequest(_messages.Message):
   testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
 
 
+class PubsubProjectsTestMessageTransformsRequest(_messages.Message):
+  r"""A PubsubProjectsTestMessageTransformsRequest object.
+
+  Fields:
+    project: Required. The name of the project in which to test the
+      MessageTransforms. Format is `projects/{project-id}`.
+    testMessageTransformsRequest: A TestMessageTransformsRequest resource to
+      be passed as the request body.
+  """
+
+  project = _messages.StringField(1, required=True)
+  testMessageTransformsRequest = _messages.MessageField('TestMessageTransformsRequest', 2)
+
+
 class PubsubProjectsTopicsDeleteRequest(_messages.Message):
   r"""A PubsubProjectsTopicsDeleteRequest object.
 
@@ -2044,6 +2195,20 @@ class PubsubProjectsTopicsTestIamPermissionsRequest(_messages.Message):
   testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
 
 
+class PubsubProjectsValidateMessageTransformRequest(_messages.Message):
+  r"""A PubsubProjectsValidateMessageTransformRequest object.
+
+  Fields:
+    project: Required. The name of the project in which to validate the
+      MessageTransform. Format is `projects/{project-id}`.
+    validateMessageTransformRequest: A ValidateMessageTransformRequest
+      resource to be passed as the request body.
+  """
+
+  project = _messages.StringField(1, required=True)
+  validateMessageTransformRequest = _messages.MessageField('ValidateMessageTransformRequest', 2)
+
+
 class PubsubWrapper(_messages.Message):
   r"""The payload to the push endpoint is in the form of the JSON
   representation of a PubsubMessage (https://cloud.google.com/pubsub/docs/refe
@@ -2203,11 +2368,52 @@ class ReceivedMessage(_messages.Message):
   message = _messages.MessageField('PubsubMessage', 3)
 
 
+class ReplicationPolicy(_messages.Message):
+  r"""A policy for replication of messages published to the topic. Messages
+  are replicated based on the set properties. By default, messages are
+  replicated to different zones within the same region.
+
+  Enums:
+    ReplicationStrategyValueValuesEnum: The replication strategy to use for
+      the topic. If unspecified, messages are replicated across different
+      zones within the same region. Otherwise, messages are replicated to a
+      second region within the same continent.
+
+  Fields:
+    replicationStrategy: The replication strategy to use for the topic. If
+      unspecified, messages are replicated across different zones within the
+      same region. Otherwise, messages are replicated to a second region
+      within the same continent.
+  """
+
+  class ReplicationStrategyValueValuesEnum(_messages.Enum):
+    r"""The replication strategy to use for the topic. If unspecified,
+    messages are replicated across different zones within the same region.
+    Otherwise, messages are replicated to a second region within the same
+    continent.
+
+    Values:
+      REPLICATION_STRATEGY_UNSPECIFIED: Default value. This value is unused.
+      ZONAL_SYNCHRONOUS: Default value if not specified, messages are
+        replicated across different zones within the same region.
+      REGIONAL_SYNCHRONOUS: If specified, synchronously replicates messages
+        published to a second, nearby region. The second region is chosen by
+        the service and may not be the same for all messages published to the
+        same original region. The chosen region adheres to the topic's message
+        storage policy.
+    """
+    REPLICATION_STRATEGY_UNSPECIFIED = 0
+    ZONAL_SYNCHRONOUS = 1
+    REGIONAL_SYNCHRONOUS = 2
+
+  replicationStrategy = _messages.EnumField('ReplicationStrategyValueValuesEnum', 1)
+
+
 class RetryPolicy(_messages.Message):
   r"""A policy that specifies how Pub/Sub retries message delivery. Retry
   delay will be exponential based on provided minimum and maximum backoffs.
   https://en.wikipedia.org/wiki/Exponential_backoff. RetryPolicy will be
-  triggered on NACKs or acknowledgement deadline exceeded events for a given
+  triggered on NACKs or acknowledgment deadline exceeded events for a given
   message. Retry Policy is implemented on a best effort basis. At times, the
   delay between consecutive deliveries may not match the configuration. That
   is, delay can be more or less than configured backoff.
@@ -2242,6 +2448,11 @@ class Schema(_messages.Message):
   Enums:
     TypeValueValuesEnum: The type of the schema definition.
 
+  Messages:
+    TagsValue: Optional. Input only. Immutable. Tag keys/values directly bound
+      to this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
+
   Fields:
     definition: The definition of the schema. This should contain a string
       representing the full definition of the schema that is a valid schema
@@ -2251,6 +2462,9 @@ class Schema(_messages.Message):
     revisionCreateTime: Output only. The timestamp that the revision was
       created.
     revisionId: Output only. Immutable. The revision ID of the schema.
+    tags: Optional. Input only. Immutable. Tag keys/values directly bound to
+      this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
     type: The type of the schema definition.
   """
 
@@ -2266,11 +2480,102 @@ class Schema(_messages.Message):
     PROTOCOL_BUFFER = 1
     AVRO = 2
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Input only. Immutable. Tag keys/values directly bound to
+    this resource. For example: "123/environment": "production",
+    "123/costCenter": "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   definition = _messages.StringField(1)
   name = _messages.StringField(2)
   revisionCreateTime = _messages.StringField(3)
   revisionId = _messages.StringField(4)
-  type = _messages.EnumField('TypeValueValuesEnum', 5)
+  tags = _messages.MessageField('TagsValue', 5)
+  type = _messages.EnumField('TypeValueValuesEnum', 6)
+
+
+class SchemaEncoding(_messages.Message):
+  r"""Single message transform that can validate messages against a schema and
+  convert from one encoding to another.
+
+  Enums:
+    InputEncodingValueValuesEnum: Required. The encoding of messages validated
+      against `schema`.
+    OutputEncodingValueValuesEnum: Required. The encoding of messages to
+      output. If `output_encoding` is the same as `input_encoding`, then
+      messages are validated against `schema` without changing the format.
+
+  Fields:
+    firstRevisionId: Optional. The minimum (inclusive) revision allowed for
+      validating messages. If empty or not present, allow any revision to be
+      validated against last_revision or any revision created before.
+    inputEncoding: Required. The encoding of messages validated against
+      `schema`.
+    lastRevisionId: Optional. The maximum (inclusive) revision allowed for
+      validating messages. If empty or not present, allow any revision to be
+      validated against first_revision or any revision created after.
+    outputEncoding: Required. The encoding of messages to output. If
+      `output_encoding` is the same as `input_encoding`, then messages are
+      validated against `schema` without changing the format.
+    schema: Required. The name of the schema that messages published should be
+      validated against. Format is `projects/{project}/schemas/{schema}`. The
+      value of this field will be `_deleted-schema_` if the schema is deleted
+      after the SMT was created.
+  """
+
+  class InputEncodingValueValuesEnum(_messages.Enum):
+    r"""Required. The encoding of messages validated against `schema`.
+
+    Values:
+      ENCODING_UNSPECIFIED: Unspecified
+      JSON: JSON encoding
+      BINARY: Binary encoding, as defined by the schema type. For some schema
+        types, binary encoding may not be available.
+    """
+    ENCODING_UNSPECIFIED = 0
+    JSON = 1
+    BINARY = 2
+
+  class OutputEncodingValueValuesEnum(_messages.Enum):
+    r"""Required. The encoding of messages to output. If `output_encoding` is
+    the same as `input_encoding`, then messages are validated against `schema`
+    without changing the format.
+
+    Values:
+      ENCODING_UNSPECIFIED: Unspecified
+      JSON: JSON encoding
+      BINARY: Binary encoding, as defined by the schema type. For some schema
+        types, binary encoding may not be available.
+    """
+    ENCODING_UNSPECIFIED = 0
+    JSON = 1
+    BINARY = 2
+
+  firstRevisionId = _messages.StringField(1)
+  inputEncoding = _messages.EnumField('InputEncodingValueValuesEnum', 2)
+  lastRevisionId = _messages.StringField(3)
+  outputEncoding = _messages.EnumField('OutputEncodingValueValuesEnum', 4)
+  schema = _messages.StringField(5)
 
 
 class SchemaSettings(_messages.Message):
@@ -2478,6 +2783,57 @@ class StandardQueryParameters(_messages.Message):
   upload_protocol = _messages.StringField(12)
 
 
+class Status(_messages.Message):
+  r"""The `Status` type defines a logical error model that is suitable for
+  different programming environments, including REST APIs and RPC APIs. It is
+  used by [gRPC](https://github.com/grpc). Each `Status` message contains
+  three pieces of data: error code, error message, and error details. You can
+  find out more about this error model and how to work with it in the [API
+  Design Guide](https://cloud.google.com/apis/design/errors).
+
+  Messages:
+    DetailsValueListEntry: A DetailsValueListEntry object.
+
+  Fields:
+    code: The status code, which should be an enum value of google.rpc.Code.
+    details: A list of messages that carry the error details. There is a
+      common set of message types for APIs to use.
+    message: A developer-facing error message, which should be in English. Any
+      user-facing error message should be localized and sent in the
+      google.rpc.Status.details field, or localized by the client.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class DetailsValueListEntry(_messages.Message):
+    r"""A DetailsValueListEntry object.
+
+    Messages:
+      AdditionalProperty: An additional property for a DetailsValueListEntry
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a DetailsValueListEntry object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
+  message = _messages.StringField(3)
+
+
 class Subscription(_messages.Message):
   r"""A subscription resource. If none of `push_config`, `bigquery_config`, or
   `cloud_storage_config` is set, then the subscriber will pull and ack
@@ -2490,6 +2846,9 @@ class Subscription(_messages.Message):
   Messages:
     LabelsValue: Optional. See [Creating and managing
       labels](https://cloud.google.com/pubsub/docs/labels).
+    TagsValue: Optional. Input only. Immutable. Tag keys/values directly bound
+      to this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     ackDeadlineSeconds: Optional. The approximate amount of time (on a best-
@@ -2529,12 +2888,12 @@ class Subscription(_messages.Message):
     enableExactlyOnceDelivery: Optional. If true, Pub/Sub provides the
       following guarantees for the delivery of a message with a given value of
       `message_id` on this subscription: * The message sent to a subscriber is
-      guaranteed not to be resent before the message's acknowledgement
-      deadline expires. * An acknowledged message will not be resent to a
-      subscriber. Note that subscribers may still receive multiple copies of a
-      message when `enable_exactly_once_delivery` is true if the message was
-      published multiple times by a publisher client. These copies are
-      considered distinct by Pub/Sub and have distinct `message_id` values.
+      guaranteed not to be resent before the message's acknowledgment deadline
+      expires. * An acknowledged message will not be resent to a subscriber.
+      Note that subscribers may still receive multiple copies of a message
+      when `enable_exactly_once_delivery` is true if the message was published
+      multiple times by a publisher client. These copies are considered
+      distinct by Pub/Sub and have distinct `message_id` values.
     enableMessageOrdering: Optional. If true, messages published with the same
       `ordering_key` in `PubsubMessage` will be delivered to the subscribers
       in the order in which they are received by the Pub/Sub system.
@@ -2560,6 +2919,9 @@ class Subscription(_messages.Message):
       the retention of acknowledged messages, and thus configures how far back
       in time a `Seek` can be done. Defaults to 7 days. Cannot be more than 31
       days or less than 10 minutes.
+    messageTransforms: Optional. Transforms to be applied to messages before
+      they are delivered to subscribers. Transforms are applied in the order
+      specified.
     name: Required. The name of the subscription. It must have the format
       `"projects/{project}/subscriptions/{subscription}"`. `{subscription}`
       must start with a letter, and contain only letters (`[A-Za-z]`), numbers
@@ -2583,9 +2945,12 @@ class Subscription(_messages.Message):
       delivery for this subscription. If not set, the default retry policy is
       applied. This generally implies that messages will be retried as soon as
       possible for healthy subscribers. RetryPolicy will be triggered on NACKs
-      or acknowledgement deadline exceeded events for a given message.
+      or acknowledgment deadline exceeded events for a given message.
     state: Output only. An output-only field indicating whether or not the
       subscription can receive messages.
+    tags: Optional. Input only. Immutable. Tag keys/values directly bound to
+      this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
     topic: Required. The name of the topic from which this subscription is
       receiving messages. Format is `projects/{project}/topics/{topic}`. The
       value of this field will be `_deleted-topic_` if the topic has been
@@ -2639,6 +3004,32 @@ class Subscription(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Input only. Immutable. Tag keys/values directly bound to
+    this resource. For example: "123/environment": "production",
+    "123/costCenter": "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   ackDeadlineSeconds = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   analyticsHubSubscriptionInfo = _messages.MessageField('AnalyticsHubSubscriptionInfo', 2)
   bigqueryConfig = _messages.MessageField('BigQueryConfig', 3)
@@ -2651,15 +3042,17 @@ class Subscription(_messages.Message):
   filter = _messages.StringField(10)
   labels = _messages.MessageField('LabelsValue', 11)
   messageRetentionDuration = _messages.StringField(12)
-  name = _messages.StringField(13)
-  pubsubExportConfig = _messages.MessageField('PubSubExportConfig', 14)
-  pubsubliteExportConfig = _messages.MessageField('PubSubLiteExportConfig', 15)
-  pushConfig = _messages.MessageField('PushConfig', 16)
-  retainAckedMessages = _messages.BooleanField(17)
-  retryPolicy = _messages.MessageField('RetryPolicy', 18)
-  state = _messages.EnumField('StateValueValuesEnum', 19)
-  topic = _messages.StringField(20)
-  topicMessageRetentionDuration = _messages.StringField(21)
+  messageTransforms = _messages.MessageField('MessageTransform', 13, repeated=True)
+  name = _messages.StringField(14)
+  pubsubExportConfig = _messages.MessageField('PubSubExportConfig', 15)
+  pubsubliteExportConfig = _messages.MessageField('PubSubLiteExportConfig', 16)
+  pushConfig = _messages.MessageField('PushConfig', 17)
+  retainAckedMessages = _messages.BooleanField(18)
+  retryPolicy = _messages.MessageField('RetryPolicy', 19)
+  state = _messages.EnumField('StateValueValuesEnum', 20)
+  tags = _messages.MessageField('TagsValue', 21)
+  topic = _messages.StringField(22)
+  topicMessageRetentionDuration = _messages.StringField(23)
 
 
 class TestIamPermissionsRequest(_messages.Message):
@@ -2684,6 +3077,38 @@ class TestIamPermissionsResponse(_messages.Message):
   """
 
   permissions = _messages.StringField(1, repeated=True)
+
+
+class TestMessageTransformsRequest(_messages.Message):
+  r"""Request for `TestMessageTransforms` method.
+
+  Fields:
+    message: Required. The message to transform.
+    messageTransforms: Optional. Ad-hoc MessageTransforms to test against.
+    subscription: Optional. If specified, test against the subscription's
+      MessageTransforms. Format is
+      `projects/{project}/subscriptions/{subscription}`.
+    topic: Optional. If specified, test against the topic's MessageTransforms.
+      Format is `projects/{project}/topics/{topic}`.
+  """
+
+  message = _messages.MessageField('PubsubMessage', 1)
+  messageTransforms = _messages.MessageField('MessageTransforms', 2)
+  subscription = _messages.StringField(3)
+  topic = _messages.StringField(4)
+
+
+class TestMessageTransformsResponse(_messages.Message):
+  r"""Response for `TestMessageTransforms` method.
+
+  Fields:
+    transformedMessages: Optional. The state of the Pub/Sub message after
+      applying each MessageTransform incrementally. If the message is filtered
+      or fails transform at any point, subsequent transforms will not be
+      applied.
+  """
+
+  transformedMessages = _messages.MessageField('TransformedMessage', 1, repeated=True)
 
 
 class TextConfig(_messages.Message):
@@ -2715,6 +3140,9 @@ class Topic(_messages.Message):
   Messages:
     LabelsValue: Optional. See [Creating and managing labels]
       (https://cloud.google.com/pubsub/docs/labels).
+    TagsValue: Optional. Input only. Immutable. Tag keys/values directly bound
+      to this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     ingestionDataSourceSettings: Optional. Settings for ingestion from a data
@@ -2737,18 +3165,27 @@ class Topic(_messages.Message):
     messageStoragePolicy: Optional. Policy constraining the set of Google
       Cloud Platform regions where messages published to the topic may be
       stored. If not present, then no constraints are in effect.
+    messageTransforms: Optional. Transforms to be applied to messages
+      published to the topic. Transforms are applied in the order specified.
     name: Required. The name of the topic. It must have the format
       `"projects/{project}/topics/{topic}"`. `{topic}` must start with a
       letter, and contain only letters (`[A-Za-z]`), numbers (`[0-9]`), dashes
       (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus (`+`) or
       percent signs (`%`). It must be between 3 and 255 characters in length,
       and it must not start with `"goog"`.
+    replicationPolicy: The replication policy to use for the topic. If
+      unspecified, no cross-region replication happens for published messages.
+      Messages are still replicated to multiple zones within the region to
+      which they are published.
     satisfiesPzs: Optional. Reserved for future use. This field is set only in
       responses from the server; it is ignored if it is set in any requests.
     schemaSettings: Optional. Settings for validating messages published
       against a schema.
     state: Output only. An output-only field indicating the state of the
       topic.
+    tags: Optional. Input only. Immutable. Tag keys/values directly bound to
+      this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
   """
 
   class StateValueValuesEnum(_messages.Enum):
@@ -2790,15 +3227,101 @@ class Topic(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Input only. Immutable. Tag keys/values directly bound to
+    this resource. For example: "123/environment": "production",
+    "123/costCenter": "marketing"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   ingestionDataSourceSettings = _messages.MessageField('IngestionDataSourceSettings', 1)
   kmsKeyName = _messages.StringField(2)
   labels = _messages.MessageField('LabelsValue', 3)
   messageRetentionDuration = _messages.StringField(4)
   messageStoragePolicy = _messages.MessageField('MessageStoragePolicy', 5)
-  name = _messages.StringField(6)
-  satisfiesPzs = _messages.BooleanField(7)
-  schemaSettings = _messages.MessageField('SchemaSettings', 8)
-  state = _messages.EnumField('StateValueValuesEnum', 9)
+  messageTransforms = _messages.MessageField('MessageTransform', 6, repeated=True)
+  name = _messages.StringField(7)
+  replicationPolicy = _messages.MessageField('ReplicationPolicy', 8)
+  satisfiesPzs = _messages.BooleanField(9)
+  schemaSettings = _messages.MessageField('SchemaSettings', 10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  tags = _messages.MessageField('TagsValue', 12)
+
+
+class TransformedMessage(_messages.Message):
+  r"""Result of applying a MessageTransform to a Pub/Sub message.
+
+  Fields:
+    failedMessage: Optional. Pub/Sub message that failed to be transformed.
+    filteredMessage: Optional. Filtered Pub/Sub message.
+    transformedMessage: Optional. Transformed Pub/Sub message.
+  """
+
+  failedMessage = _messages.MessageField('FailedMessage', 1)
+  filteredMessage = _messages.MessageField('FilteredMessage', 2)
+  transformedMessage = _messages.MessageField('PubsubMessage', 3)
+
+
+class UnstructuredInference(_messages.Message):
+  r"""Configuration for making inferences using arbitrary JSON payloads.
+
+  Messages:
+    ParametersValue: Optional. A parameters object to be included in each
+      inference request. The parameters object is combined with the data field
+      of the Pub/Sub message to form the inference request.
+
+  Fields:
+    parameters: Optional. A parameters object to be included in each inference
+      request. The parameters object is combined with the data field of the
+      Pub/Sub message to form the inference request.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ParametersValue(_messages.Message):
+    r"""Optional. A parameters object to be included in each inference
+    request. The parameters object is combined with the data field of the
+    Pub/Sub message to form the inference request.
+
+    Messages:
+      AdditionalProperty: An additional property for a ParametersValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  parameters = _messages.MessageField('ParametersValue', 1)
 
 
 class UpdateSnapshotRequest(_messages.Message):
@@ -2879,6 +3402,20 @@ class ValidateMessageRequest(_messages.Message):
 
 class ValidateMessageResponse(_messages.Message):
   r"""Response for the `ValidateMessage` method. Empty for now."""
+
+
+class ValidateMessageTransformRequest(_messages.Message):
+  r"""Request for `ValidateMessageTransform` method.
+
+  Fields:
+    messageTransform: Required. MessageTransform to validate.
+  """
+
+  messageTransform = _messages.MessageField('MessageTransform', 1)
+
+
+class ValidateMessageTransformResponse(_messages.Message):
+  r"""Response for `ValidateMessageTransform` method."""
 
 
 class ValidateSchemaRequest(_messages.Message):

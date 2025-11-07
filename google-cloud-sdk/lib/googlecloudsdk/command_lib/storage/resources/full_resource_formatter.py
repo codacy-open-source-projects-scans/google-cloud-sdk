@@ -145,6 +145,7 @@ ObjectDisplayTitlesAndDefaults = collections.namedtuple(
         'component_count',
         'custom_time',
         'noncurrent_time',
+        'contexts',
         'custom_fields',
         'crc32c_hash',
         'md5_hash',

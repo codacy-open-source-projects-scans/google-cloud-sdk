@@ -47,7 +47,9 @@ class Client(sp_api.Client):
       return response.etag, {
           'severityOverrides': [],
           'threatOverrides': [],
+          'antivirusOverrides': [],
       }
+
     else:
       profile = encoding.MessageToDict(response.threatPreventionProfile)
 
@@ -56,12 +58,16 @@ class Client(sp_api.Client):
         return response.etag, {
             'severityOverrides': [],
             'threatOverrides': [],
+            'antivirusOverrides': [],
         }
       else:
+        if profile.get('antivirusOverrides') is None:
+          profile['antivirusOverrides'] = []
         if profile.get('severityOverrides') is None:
           profile['severityOverrides'] = []
         if profile.get('threatOverrides') is None:
           profile['threatOverrides'] = []
+
         return response.etag, profile
 
   def CheckOverridesExist(
@@ -85,6 +91,8 @@ class Client(sp_api.Client):
     """
     update_field = ''
 
+    if update_mask == 'antivirusOverrides':
+      update_field = 'protocol'
     if update_mask == 'severityOverrides':
       update_field = 'severity'
     elif update_mask == 'threatOverrides':
@@ -122,7 +130,9 @@ class Client(sp_api.Client):
     if operation_type == 'add_override':
       for override in overrides:
         does_override_exist, _ = self.CheckOverridesExist(
-            existing_threat_prevention_profile_object, update_mask, override
+            existing_threat_prevention_profile_object,
+            update_mask,
+            override,
         )
         if not does_override_exist:
           existing_threat_prevention_profile_object.get(update_mask).extend(
@@ -132,7 +142,9 @@ class Client(sp_api.Client):
     elif operation_type == 'update_override':
       for override in overrides:
         does_override_exist, override_index = self.CheckOverridesExist(
-            existing_threat_prevention_profile_object, update_mask, override
+            existing_threat_prevention_profile_object,
+            update_mask,
+            override,
         )
         if does_override_exist:
           existing_threat_prevention_profile_object.get(update_mask).pop(
@@ -215,7 +227,8 @@ class Client(sp_api.Client):
 
     if update_mask in existing_threat_prevention_profile_object:
       update_field = ''
-
+      if update_mask == 'antivirusOverrides':
+        update_field = 'protocol'
       if update_mask == 'severityOverrides':
         update_field = 'severity'
       elif update_mask == 'threatOverrides':

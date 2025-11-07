@@ -25,6 +25,7 @@ from googlecloudsdk.api_lib.compute import kms_utils
 from googlecloudsdk.api_lib.compute import utils
 from googlecloudsdk.api_lib.compute.instances import utils as instances_utils
 from googlecloudsdk.api_lib.util import messages as messages_util
+from googlecloudsdk.calliope import exceptions as calliope_exceptions
 from googlecloudsdk.command_lib.compute import scope as compute_scopes
 from googlecloudsdk.command_lib.compute.instances import flags as instances_flags
 from googlecloudsdk.command_lib.util.args import labels_util
@@ -96,6 +97,7 @@ def CreateDiskMessages(
     support_boot_instant_snapshot_uri=False,
     support_enable_confidential_compute=False,
     support_disk_labels=False,
+    support_source_snapshot_region=False,
 ):
   """Creates disk messages for a single instance."""
 
@@ -137,24 +139,49 @@ def CreateDiskMessages(
       enable_source_instant_snapshots=support_source_instant_snapshot,
       support_enable_confidential_compute=support_enable_confidential_compute,
       support_disk_labels=support_disk_labels,
+      support_source_snapshot_region=support_source_snapshot_region,
   )
 
   local_nvdimms = []
   if support_nvdimm:
-    local_nvdimms = CreateLocalNvdimmMessages(args, resource_parser,
-                                              compute_client.messages, location,
-                                              scope, project)
+    local_nvdimms = CreateLocalNvdimmMessages(
+        args, resource_parser, compute_client.messages, location, scope, project
+    )
 
-  local_ssds = CreateLocalSsdMessages(args, resource_parser,
-                                      compute_client.messages, location, scope,
-                                      project, use_disk_type_uri)
+  local_ssds = CreateLocalSsdMessages(
+      args,
+      resource_parser,
+      compute_client.messages,
+      location,
+      scope,
+      project,
+      use_disk_type_uri,
+  )
   if create_boot_disk:
     boot_snapshot_uri = None
     if support_boot_snapshot_uri:
-      boot_snapshot_uri = instance_utils.ResolveSnapshotURI(
-          user_project=project,
-          snapshot=args.source_snapshot,
-          resource_parser=resource_parser)
+      if (
+          support_source_snapshot_region
+          and args.source_snapshot_region is not None
+      ):
+        if args.source_snapshot is None:
+          raise calliope_exceptions.BadArgumentException(
+              '--source-snapshot-region',
+              'Cannot set [--source-snapshot-region] without setting'
+              ' [--source-snapshot].',
+          )
+        boot_snapshot_uri = instance_utils.ResolveSnapshotURI(
+            user_project=project,
+            snapshot=args.source_snapshot,
+            resource_parser=resource_parser,
+            region=args.source_snapshot_region,
+        )
+      else:
+        boot_snapshot_uri = instance_utils.ResolveSnapshotURI(
+            user_project=project,
+            snapshot=args.source_snapshot,
+            resource_parser=resource_parser,
+        )
 
     boot_instant_snapshot_uri = None
     if support_boot_instant_snapshot_uri:
@@ -294,6 +321,7 @@ def CreatePersistentCreateDiskMessages(
     enable_source_instant_snapshots=False,
     support_enable_confidential_compute=False,
     support_disk_labels=False,
+    support_source_snapshot_region=False,
 ):
   """Returns a list of AttachedDisk messages for newly creating disks.
 
@@ -332,6 +360,7 @@ def CreatePersistentCreateDiskMessages(
       supported for the disk.
     support_enable_confidential_compute: True to use confidential mode for disk.
     support_disk_labels: True to add disk labels.
+    support_source_snapshot_region: True to use source snapshot region.
 
   Returns:
     list of API messages for attached disks
@@ -417,10 +446,30 @@ def CreatePersistentCreateDiskMessages(
 
     if enable_snapshots:
       snapshot_name = disk.get('source-snapshot')
-      attached_snapshot_uri = instance_utils.ResolveSnapshotURI(
-          snapshot=snapshot_name,
-          user_project=project,
-          resource_parser=resources)
+      if (
+          support_source_snapshot_region
+          and disk.get('source-snapshot-region') is not None
+      ):
+        snapshot_region = disk.get('source-snapshot-region')
+        if snapshot_name is None:
+          raise calliope_exceptions.BadArgumentException(
+              'source-snapshot-region',
+              'Cannot set [source-snapshot-region] without setting'
+              ' [source-snapshot].',
+          )
+
+        attached_snapshot_uri = instance_utils.ResolveSnapshotURI(
+            snapshot=snapshot_name,
+            user_project=project,
+            resource_parser=resources,
+            region=snapshot_region,
+        )
+      else:
+        attached_snapshot_uri = instance_utils.ResolveSnapshotURI(
+            snapshot=snapshot_name,
+            user_project=project,
+            resource_parser=resources,
+        )
       if attached_snapshot_uri:
         initialize_params.sourceImage = None
         initialize_params.sourceSnapshot = attached_snapshot_uri
@@ -940,6 +989,7 @@ def CreateNetworkInterfaceMessages(
     scope,
     network_interface_json=None,
     support_internal_ipv6_reservation=False,
+    support_enable_vpc_scoped_dns=False,
 ):
   """Create network interface messages.
 
@@ -956,6 +1006,8 @@ def CreateNetworkInterfaceMessages(
       a JSON string directly in the command or in a file.
     support_internal_ipv6_reservation: The flag indicates whether internal IPv6
       reservation is supported.
+    support_enable_vpc_scoped_dns: The flag indicates whether VPC scoped DNS is
+      supported.
 
   Returns:
     list, items are NetworkInterfaceMessages.
@@ -974,6 +1026,9 @@ def CreateNetworkInterfaceMessages(
         internal_ipv6_prefix_length = interface.get(
             'internal-ipv6-prefix-length', None
         )
+      enable_vpc_scoped_dns = None
+      if support_enable_vpc_scoped_dns:
+        enable_vpc_scoped_dns = 'enable-vpc-scoped-dns' in interface
 
       result.append(
           instances_utils.CreateNetworkInterfaceMessage(
@@ -997,6 +1052,7 @@ def CreateNetworkInterfaceMessages(
               ),
               queue_count=interface.get('queue-count', None),
               network_attachment=interface.get('network-attachment', None),
+              enable_vpc_scoped_dns=enable_vpc_scoped_dns,
               internal_ipv6_address=internal_ipv6_address,
               internal_ipv6_prefix_length=internal_ipv6_prefix_length,
               external_ipv6_address=interface.get(
@@ -1035,6 +1091,7 @@ def GetNetworkInterfacesWithValidation(
     support_public_dns=False,
     support_ipv6_assignment=False,
     support_internal_ipv6_reservation=False,
+    support_enable_vpc_scoped_dns=False,
 ):
   """Validates and retrieves the network interface message."""
   network_interface_from_file = getattr(args, 'network_interface_from_file',
@@ -1054,6 +1111,7 @@ def GetNetworkInterfacesWithValidation(
         location=location,
         scope=scope,
         support_internal_ipv6_reservation=support_internal_ipv6_reservation,
+        support_enable_vpc_scoped_dns=support_enable_vpc_scoped_dns,
     )
   else:
     instances_flags.ValidatePublicPtrFlags(args)
@@ -1146,12 +1204,14 @@ def BuildShieldedInstanceConfigMessage(messages, args):
 def BuildConfidentialInstanceConfigMessage(
     messages, args,
     support_confidential_compute_type=False,
-    support_confidential_compute_type_tdx=False):
+    support_confidential_compute_type_tdx=False,
+    support_snp_svsm=False):
   """Builds a confidential instance configuration message."""
   return instance_utils.CreateConfidentialInstanceMessage(
       messages, args,
       support_confidential_compute_type,
-      support_confidential_compute_type_tdx)
+      support_confidential_compute_type_tdx,
+      support_snp_svsm)
 
 
 def GetImageUri(args,

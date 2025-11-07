@@ -25,6 +25,20 @@ deactivated:
     If set, no further changes may be made to this backup plan and no further backups may be created
     for this plan. Backup deletion is still allowed.
 
+backup_plan_tags:
+  arg_name: tags
+  api_field: backupPlan.tags.additionalProperties
+  hidden: true
+  metavar: KEY=VALUE
+  help_text: |
+    List of tag KEY=VALUE pairs to add.
+  type:
+    arg_dict:
+      flatten: true
+      spec:
+      - api_field: key
+      - api_field: value
+
 backup_delete_lock_days:
   arg_name: backup-delete-lock-days
   api_field: backupPlan.retentionPolicy.backupDeleteLockDays
@@ -104,7 +118,7 @@ all_namespaces:
   default: null
   help_text: |
     Scope of the backup includes resources from all namespaces.  Mutually exclusive with
-    --selected-namespaces and --selected-applications.
+    --selected-namespaces, --selected-applications and --selected-namespace-labels.
 
 selected_namespaces:
   arg_name: selected-namespaces
@@ -114,7 +128,7 @@ selected_namespaces:
   default: null
   help_text: |
     List of namespaces whose resources are included in the backup. Mutually exclusive with
-    --all-namespaces and --selected-applications. e.g:
+    --all-namespaces, --selected-applications and --selected-namespace-labels. e.g:
     --selected-namespaces=foo,bar
 
 selected_applications:
@@ -124,8 +138,18 @@ selected_applications:
   default: null
   help_text: |
     List of ProtectedApplication instances whose resources are included in the backup. Mutually
-    exclusive with --all-namespaces and --selected-namespaces. e.g:
+    exclusive with --all-namespaces, --selected-namespaces and --selected-namespace-labels. e.g:
     --selected-applications=namespace1/foo,namespace2/bar
+
+selected_namespace_labels:
+  arg_name: selected-namespace-labels
+  api_field: backupPlan.backupConfig.selectedNamespaceLabels
+  processor: googlecloudsdk.command_lib.container.backup_restore.hooks:ProcessSelectedNamespaceLabels
+  default: null
+  help_text: |
+    List of Namespace labels whose resources are included in the backup. Mutually
+    exclusive with --all-namespaces, --selected-namespaces and --selected-applications. e.g:
+    --selected-namespace-labels=namespacelabel1=value1,namespacelabel2=value2
 
 include_volume_data:
   arg_name: include-volume-data
@@ -164,6 +188,21 @@ permissive_mode:
   help_text: |
     If true, backups won't fail when Backup for GKE detects
     Kubernetes configuration that is known to cause restore failures.
+
+backup_channel_description:
+  arg_name: description
+  api_field: backupChannel.description
+  help_text: |
+    The description of the backup channel.
+
+backup_destination_project:
+  arg_name: destination-project
+  api_field: backupChannel.destinationProject
+  help_text: |
+    The project where Backups are allowed to be created.
+    The format is `projects/{project}`.
+    Project can be project number or project ID.
+    E.g. `projects/1234567890` or `projects/my-project`.
 
 delete_lock_days:
   arg_name: delete-lock-days
@@ -237,6 +276,35 @@ restore_plan_description:
   api_field: restorePlan.description
   help_text: |
     The description of the restore plan.
+
+restore_plan_tags:
+  arg_name: tags
+  api_field: restorePlan.tags.additionalProperties
+  hidden: true
+  metavar: KEY=VALUE
+  help_text: |
+    List of tag KEY=VALUE pairs to add.
+  type:
+    arg_dict:
+      flatten: true
+      spec:
+      - api_field: key
+      - api_field: value
+
+restore_channel_description:
+  arg_name: description
+  api_field: restoreChannel.description
+  help_text: |
+    The description of the restore channel.
+
+restore_destination_project:
+  arg_name: destination-project
+  api_field: restoreChannel.destinationProject
+  help_text: |
+    The project where Restores are allowed to be created.
+    The format is `projects/{project}`.
+    Project can be project number or project ID.
+    E.g. `projects/1234567890` or `projects/my-project`.
 
 volume_data_restore_policy:
   arg_name: volume-data-restore-policy
@@ -413,23 +481,6 @@ namespaced_resource_restore_mode_update:
       in the target cluster, and the original PV can be retained or deleted depending on its reclaim
       policy.
 
-cluster_resource_restore_scope:
-  arg_name: cluster-resource-restore-scope
-  api_field: restorePlan.restoreConfig.clusterResourceRestoreScope
-  action:
-    deprecated:
-      removed: true
-      error: |
-        Flag cluster-resource-restore-scope has been removed.
-          Please use --cluster-resource-scope-selected-group-kinds instead.
-  hidden: true
-  type: arg_list
-  processor: googlecloudsdk.command_lib.container.backup_restore.hooks:ProcessClusterResourceRestoreScope
-  help_text: |
-    List of cluster-scoped resource group kinds to restore from the backup. If specified,
-    only the selected resources will be restored. The format of a resource is "<group>/<kind>", e.g.
-    `storage.k8s.io/StorageClass` for StorageClass. Use an empty string for core API group.
-
 cluster_resource_selected_group_kinds:
   arg_name: cluster-resource-scope-selected-group-kinds
   api_field: restorePlan.restoreConfig.clusterResourceRestoreScope
@@ -566,6 +617,14 @@ backup_plan_etag:
     The etag is used for optimistic concurrency control as a way to help
     prevent simultaneous updates or deletes of a resource from overwriting each other.
 
+backup_channel_etag:
+  arg_name: etag
+  api_field: backupChannel.etag
+  type: str
+  help_text: |
+    The etag is used for optimistic concurrency control as a way to help
+    prevent simultaneous updates or deletes of a resource from overwriting each other.
+
 backup_etag:
   arg_name: etag
   api_field: backup.etag
@@ -577,6 +636,14 @@ backup_etag:
 restore_plan_etag:
   arg_name: etag
   api_field: restorePlan.etag
+  type: str
+  help_text: |
+    The etag is used for optimistic concurrency control as a way to help
+    prevent simultaneous updates or deletes of a resource from overwriting each other.
+
+restore_channel_etag:
+  arg_name: etag
+  api_field: restoreChannel.etag
   type: str
   help_text: |
     The etag is used for optimistic concurrency control as a way to help

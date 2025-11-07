@@ -40,6 +40,7 @@ class CloudkmsV1(base_api.BaseApiClient):
         additional_http_headers=additional_http_headers,
         response_encoding=response_encoding)
     self.folders = self.FoldersService(self)
+    self.organizations = self.OrganizationsService(self)
     self.projects_locations_ekmConfig = self.ProjectsLocationsEkmConfigService(self)
     self.projects_locations_ekmConnections = self.ProjectsLocationsEkmConnectionsService(self)
     self.projects_locations_keyHandles = self.ProjectsLocationsKeyHandlesService(self)
@@ -88,6 +89,33 @@ class CloudkmsV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def GetKajPolicyConfig(self, request, global_params=None):
+      r"""Gets the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsFoldersGetKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('GetKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/folders/{foldersId}/kajPolicyConfig',
+        http_method='GET',
+        method_id='cloudkms.folders.getKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudkmsFoldersGetKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
+        supports_download=False,
+    )
+
     def UpdateAutokeyConfig(self, request, global_params=None):
       r"""Updates the AutokeyConfig for a folder. The caller must have both `cloudkms.autokeyConfigs.update` permission on the parent folder and `cloudkms.cryptoKeys.setIamPolicy` permission on the provided key project. A KeyHandle creation in the folder's descendant projects will use this configuration to determine where to create the resulting CryptoKey.
 
@@ -112,6 +140,97 @@ class CloudkmsV1(base_api.BaseApiClient):
         request_field='autokeyConfig',
         request_type_name='CloudkmsFoldersUpdateAutokeyConfigRequest',
         response_type_name='AutokeyConfig',
+        supports_download=False,
+    )
+
+    def UpdateKajPolicyConfig(self, request, global_params=None):
+      r"""Updates the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsFoldersUpdateKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('UpdateKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    UpdateKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/folders/{foldersId}/kajPolicyConfig',
+        http_method='PATCH',
+        method_id='cloudkms.folders.updateKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='keyAccessJustificationsPolicyConfig',
+        request_type_name='CloudkmsFoldersUpdateKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
+        supports_download=False,
+    )
+
+  class OrganizationsService(base_api.BaseApiService):
+    """Service class for the organizations resource."""
+
+    _NAME = 'organizations'
+
+    def __init__(self, client):
+      super(CloudkmsV1.OrganizationsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def GetKajPolicyConfig(self, request, global_params=None):
+      r"""Gets the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsOrganizationsGetKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('GetKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/organizations/{organizationsId}/kajPolicyConfig',
+        http_method='GET',
+        method_id='cloudkms.organizations.getKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudkmsOrganizationsGetKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
+        supports_download=False,
+    )
+
+    def UpdateKajPolicyConfig(self, request, global_params=None):
+      r"""Updates the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsOrganizationsUpdateKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('UpdateKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    UpdateKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/organizations/{organizationsId}/kajPolicyConfig',
+        http_method='PATCH',
+        method_id='cloudkms.organizations.updateKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='keyAccessJustificationsPolicyConfig',
+        request_type_name='CloudkmsOrganizationsUpdateKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
         supports_download=False,
     )
 
@@ -614,6 +733,33 @@ class CloudkmsV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Decapsulate(self, request, global_params=None):
+      r"""Decapsulates data that was encapsulated with a public key retrieved from GetPublicKey corresponding to a CryptoKeyVersion with CryptoKey.purpose KEY_ENCAPSULATION.
+
+      Args:
+        request: (CloudkmsProjectsLocationsKeyRingsCryptoKeysCryptoKeyVersionsDecapsulateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DecapsulateResponse) The response message.
+      """
+      config = self.GetMethodConfig('Decapsulate')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Decapsulate.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:decapsulate',
+        http_method='POST',
+        method_id='cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.decapsulate',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:decapsulate',
+        request_field='decapsulateRequest',
+        request_type_name='CloudkmsProjectsLocationsKeyRingsCryptoKeysCryptoKeyVersionsDecapsulateRequest',
+        response_type_name='DecapsulateResponse',
+        supports_download=False,
+    )
+
     def Destroy(self, request, global_params=None):
       r"""Schedule a CryptoKeyVersion for destruction. Upon calling this method, CryptoKeyVersion.state will be set to DESTROY_SCHEDULED, and destroy_time will be set to the time destroy_scheduled_duration in the future. At that time, the state will automatically change to DESTROYED, and the key material will be irrevocably destroyed. Before the destroy_time is reached, RestoreCryptoKeyVersion may be called to reverse the process.
 
@@ -687,7 +833,7 @@ class CloudkmsV1(base_api.BaseApiClient):
         method_id='cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.getPublicKey',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=[],
+        query_params=['publicKeyFormat'],
         relative_path='v1/{+name}/publicKey',
         request_field='',
         request_type_name='CloudkmsProjectsLocationsKeyRingsCryptoKeysCryptoKeyVersionsGetPublicKeyRequest',
@@ -1682,7 +1828,7 @@ class CloudkmsV1(base_api.BaseApiClient):
         method_id='cloudkms.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1/{+name}/locations',
         request_field='',
         request_type_name='CloudkmsProjectsLocationsListRequest',
@@ -1727,6 +1873,33 @@ class CloudkmsV1(base_api.BaseApiClient):
       self._upload_configs = {
           }
 
+    def GetKajPolicyConfig(self, request, global_params=None):
+      r"""Gets the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsProjectsGetKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('GetKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/kajPolicyConfig',
+        http_method='GET',
+        method_id='cloudkms.projects.getKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='CloudkmsProjectsGetKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
+        supports_download=False,
+    )
+
     def ShowEffectiveAutokeyConfig(self, request, global_params=None):
       r"""Returns the effective Cloud KMS Autokey configuration for a given project.
 
@@ -1751,5 +1924,86 @@ class CloudkmsV1(base_api.BaseApiClient):
         request_field='',
         request_type_name='CloudkmsProjectsShowEffectiveAutokeyConfigRequest',
         response_type_name='ShowEffectiveAutokeyConfigResponse',
+        supports_download=False,
+    )
+
+    def ShowEffectiveKeyAccessJustificationsEnrollmentConfig(self, request, global_params=None):
+      r"""Returns the KeyAccessJustificationsEnrollmentConfig of the resource closest to the given project in hierarchy.
+
+      Args:
+        request: (CloudkmsProjectsShowEffectiveKeyAccessJustificationsEnrollmentConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ShowEffectiveKeyAccessJustificationsEnrollmentConfigResponse) The response message.
+      """
+      config = self.GetMethodConfig('ShowEffectiveKeyAccessJustificationsEnrollmentConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ShowEffectiveKeyAccessJustificationsEnrollmentConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}:showEffectiveKeyAccessJustificationsEnrollmentConfig',
+        http_method='GET',
+        method_id='cloudkms.projects.showEffectiveKeyAccessJustificationsEnrollmentConfig',
+        ordered_params=['project'],
+        path_params=['project'],
+        query_params=[],
+        relative_path='v1/{+project}:showEffectiveKeyAccessJustificationsEnrollmentConfig',
+        request_field='',
+        request_type_name='CloudkmsProjectsShowEffectiveKeyAccessJustificationsEnrollmentConfigRequest',
+        response_type_name='ShowEffectiveKeyAccessJustificationsEnrollmentConfigResponse',
+        supports_download=False,
+    )
+
+    def ShowEffectiveKeyAccessJustificationsPolicyConfig(self, request, global_params=None):
+      r"""Returns the KeyAccessJustificationsPolicyConfig of the resource closest to the given project in hierarchy.
+
+      Args:
+        request: (CloudkmsProjectsShowEffectiveKeyAccessJustificationsPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ShowEffectiveKeyAccessJustificationsPolicyConfigResponse) The response message.
+      """
+      config = self.GetMethodConfig('ShowEffectiveKeyAccessJustificationsPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ShowEffectiveKeyAccessJustificationsPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}:showEffectiveKeyAccessJustificationsPolicyConfig',
+        http_method='GET',
+        method_id='cloudkms.projects.showEffectiveKeyAccessJustificationsPolicyConfig',
+        ordered_params=['project'],
+        path_params=['project'],
+        query_params=[],
+        relative_path='v1/{+project}:showEffectiveKeyAccessJustificationsPolicyConfig',
+        request_field='',
+        request_type_name='CloudkmsProjectsShowEffectiveKeyAccessJustificationsPolicyConfigRequest',
+        response_type_name='ShowEffectiveKeyAccessJustificationsPolicyConfigResponse',
+        supports_download=False,
+    )
+
+    def UpdateKajPolicyConfig(self, request, global_params=None):
+      r"""Updates the KeyAccessJustificationsPolicyConfig for a given organization, folder, or project.
+
+      Args:
+        request: (CloudkmsProjectsUpdateKajPolicyConfigRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KeyAccessJustificationsPolicyConfig) The response message.
+      """
+      config = self.GetMethodConfig('UpdateKajPolicyConfig')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    UpdateKajPolicyConfig.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/kajPolicyConfig',
+        http_method='PATCH',
+        method_id='cloudkms.projects.updateKajPolicyConfig',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='keyAccessJustificationsPolicyConfig',
+        request_type_name='CloudkmsProjectsUpdateKajPolicyConfigRequest',
+        response_type_name='KeyAccessJustificationsPolicyConfig',
         supports_download=False,
     )

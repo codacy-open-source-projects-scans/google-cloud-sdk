@@ -44,8 +44,8 @@ def AddVlanArg(parser):
       '--vlan',
       type=int,
       help="""
-        VLAN tag of a dynamic network interface, must be in range from 2 to
-        4094 inclusively.
+        VLAN tag of a dynamic network interface, must be  an integer in the
+        range from 2 to 255 inclusively.
       """,
   )
 
@@ -145,11 +145,12 @@ def AddStackTypeArg(parser):
           'IPV4_IPV6': (
               'The network interface can have both IPv4 and IPv6 addresses.'
           ),
+          'IPV6_ONLY': 'The network interface will be assigned IPv6 addresses.',
       },
       type=arg_utils.ChoiceToEnumName,
       help=(
-          'The stack type for the default network interface. Determines if '
-          'IPv6 is enabled on the default network interface.'
+          'The stack type for the network interface. Determines if IPv6 is'
+          ' enabled on the network interface.'
       ),
   )
 
@@ -232,8 +233,8 @@ def AddExternalIpv6AddressArg(parser):
       type=str,
       help="""
         Assigns the given external IPv6 address to an instance.
-        The address must be the first IP in the range. This option is applicable
-        only to dual-stack instances with stack-type=IPV4_ONLY.
+        The address must be the first IP in the range. This option is not
+        applicable to instances with stack-type=IPV4_ONLY.
       """,
   )
 

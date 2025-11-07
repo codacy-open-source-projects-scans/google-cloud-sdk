@@ -40,6 +40,7 @@ from google.api import httpbody_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from cloudsdk.google.protobuf import any_pb2  # type: ignore
 from cloudsdk.google.protobuf import struct_pb2  # type: ignore
+from cloudsdk.google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1.types import content
 from googlecloudsdk.generated_clients.gapic_clients.aiplatform_v1.types import explanation
@@ -173,6 +174,39 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 instance.
         """
         return self._transport
+
+    @staticmethod
+    def rag_corpus_path(project: str,location: str,rag_corpus: str,) -> str:
+        """Returns a fully-qualified rag_corpus string."""
+        return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(project=project, location=location, rag_corpus=rag_corpus, )
+
+    @staticmethod
+    def parse_rag_corpus_path(path: str) -> Dict[str,str]:
+        """Parses a rag_corpus path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def secret_version_path(project: str,secret: str,secret_version: str,) -> str:
+        """Returns a fully-qualified secret_version string."""
+        return "projects/{project}/secrets/{secret}/versions/{secret_version}".format(project=project, secret=secret, secret_version=secret_version, )
+
+    @staticmethod
+    def parse_secret_version_path(path: str) -> Dict[str,str]:
+        """Parses a secret_version path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/secrets/(?P<secret>.+?)/versions/(?P<secret_version>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def template_path(project: str,location: str,template: str,) -> str:
+        """Returns a fully-qualified template string."""
+        return "projects/{project}/locations/{location}/templates/{template}".format(project=project, location=location, template=template, )
+
+    @staticmethod
+    def parse_template_path(path: str) -> Dict[str,str]:
+        """Parses a template path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/templates/(?P<template>.+?)$", path)
+        return m.groupdict() if m else {}
 
     @staticmethod
     def common_billing_account_path(billing_account: str, ) -> str:
@@ -824,10 +858,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 
@@ -982,10 +1017,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 
@@ -2433,10 +2469,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                       }
 
                       service ResourceService {
-                         rpc GetResource(GetResourceRequest) returns
-                         (google.api.HttpBody); rpc
-                         UpdateResource(google.api.HttpBody) returns
-                         (google.protobuf.Empty);
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
 
                       }
 

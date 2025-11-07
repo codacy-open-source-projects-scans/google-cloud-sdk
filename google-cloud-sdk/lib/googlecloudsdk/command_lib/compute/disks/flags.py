@@ -44,6 +44,10 @@ _DETAILED_SOURCE_INSTANT_SNAPSHOT_HELP = """\
       Name of the source instant snapshot used to create the disks.
 """
 
+_DETAILED_SOURCE_INSTANT_SNAPSHOT_PROJECT_HELP = """\
+      The project containing the instant snapshot used to create the disks.
+"""
+
 _SOURCE_DISK_DETAILED_HELP = """\
       Source disk used to create the disk(s). It is safe to
       delete a source disk after a disk has been created from the
@@ -131,6 +135,16 @@ class SnapshotsCompleter(compute_completers.ListCommandCompleter):
     super(SnapshotsCompleter, self).__init__(
         collection='compute.snapshots',
         list_command='compute snapshots list --uri',
+        **kwargs)
+
+
+class SnapshotGroupsCompleter(compute_completers.ListCommandCompleter):
+
+  def __init__(self, **kwargs):
+    super(SnapshotGroupsCompleter, self).__init__(
+        collection='compute.snapshotGroups',
+        list_command='alpha compute snapshot-groups list --uri',
+        api_version='alpha',
         **kwargs)
 
 
@@ -245,6 +259,33 @@ def AddBulkCreateArgs(parser):
       # This argument is required because consistent cloning is only supported
       # feature under the BulkCreate now. May become optional in the future.
       required=True)
+
+  help_text = """Target {0} of the created disks, which currently must be the same as the source {0}. {1}"""
+  scope_parser = parser.add_mutually_exclusive_group(required=True)
+  scope_parser.add_argument(
+      '--zone',
+      completer=compute_completers.ZonesCompleter,
+      action=actions.StoreProperty(properties.VALUES.compute.zone),
+      help=help_text.format('zone', compute_flags.ZONE_PROPERTY_EXPLANATION))
+  scope_parser.add_argument(
+      '--region',
+      completer=compute_completers.RegionsCompleter,
+      action=actions.StoreProperty(properties.VALUES.compute.region),
+      help=help_text.format('region',
+                            compute_flags.REGION_PROPERTY_EXPLANATION))
+
+
+def AddBulkCreateArgsAlpha(parser):
+  """Adds bulk create specific arguments to parser."""
+  parser.add_argument(
+      '--source-consistency-group-policy',
+      help='''
+      URL of the source consistency group resource policy. The resource policy
+      is always the same region as the source disks.
+      ''',
+      # This argument is optional because we now support bulk insert from
+      # multiple source types.
+      required=False)
 
   help_text = """Target {0} of the created disks, which currently must be the same as the source {0}. {1}"""
   scope_parser = parser.add_mutually_exclusive_group(required=True)
@@ -381,6 +422,29 @@ def AddKeepOldDiskArgs(parser):
   )
 
 
+def AddGuestOsFeatureArgs(parser, messages):
+  group = parser.add_group()
+  guest_os_feature_choices = [
+      messages.GuestOsFeature.TypeValueValuesEnum.GVNIC.name
+  ]
+  group.add_argument(
+      '--add-guest-os-features',
+      choices=guest_os_feature_choices,
+      help=(
+          'Specifies guest OS features to add to the disk. Refer to'
+          ' https://cloud.google.com/compute/docs/images/create-custom#guest-os-features'
+          ' for a list of available options.'
+      ),
+  )
+
+
+def AddSourceInstantSnapshotProject(parser, category=None):
+  parser.add_argument(
+      '--source-instant-snapshot-project',
+      category=category,
+      help=_DETAILED_SOURCE_INSTANT_SNAPSHOT_PROJECT_HELP,
+  )
+
 SOURCE_SNAPSHOT_ARG = compute_flags.ResourceArgument(
     resource_name='snapshot',
     completer=SnapshotsCompleter,
@@ -415,6 +479,25 @@ SOURCE_INSTANT_SNAPSHOT_ARG = compute_flags.ResourceArgument(
     short_help='Name of the source instant snapshot used to create the disks.',
     detailed_help=_DETAILED_SOURCE_INSTANT_SNAPSHOT_HELP,
     scope_flags_usage=compute_flags.ScopeFlagsUsage.USE_EXISTING_SCOPE_FLAGS)
+
+SOURCE_INSTANT_SNAPSHOT_GROUP_ARG = compute_flags.ResourceArgument(
+    resource_name='source instant snapshot group',
+    name='--source-instant-snapshot-group',
+    completer=compute_completers.InstantSnapshotGroupsCompleter,
+    short_help='Source instant snapshot group used to create the disks.',
+    zonal_collection='compute.instantSnapshotGroups',
+    regional_collection='compute.regionInstantSnapshotGroups',
+    required=False,
+)
+
+SOURCE_SNAPSHOT_GROUP_ARG = compute_flags.ResourceArgument(
+    resource_name='source snapshot group',
+    name='--source-snapshot-group',
+    completer=SnapshotGroupsCompleter,
+    short_help='Source snapshot group used to create the disks.',
+    global_collection='compute.snapshotGroups',
+    required=False,
+)
 
 SOURCE_DISK_ARG = compute_flags.ResourceArgument(
     resource_name='source disk',
@@ -454,3 +537,30 @@ STORAGE_POOL_ARG = compute_flags.ResourceArgument(
     plural=False,
     required=False,
     scope_flags_usage=compute_flags.ScopeFlagsUsage.USE_EXISTING_SCOPE_FLAGS)
+
+
+def AddSourceMachineImageNameArg(parser):
+  # TODO: b/421424530 - switch to compute_flags.ResourceArgument when
+  # disks.insert goes GA. compute_flags.ResourceArgument does not support
+  # the hidden flag.
+  parser.add_argument(
+      '--source-machine-image',
+      help="""\
+        Specifies the URI of the source machine image contiaining the disk to
+        restore. Requires *--source-machine-image-disk-device-name* with the
+        disk to restores device name.
+      """,
+      hidden=True,
+  )
+
+
+def AddSourceMachineImageDiskDeviceNameArg(parser):
+  parser.add_argument(
+      '--source-machine-image-disk-device-name',
+      help="""\
+        Specifies the name of the disk to be restored from the source machine
+        image. Requires *--source-machine-image* with the URI of the source
+        machine image.
+      """,
+      hidden=True,
+  )

@@ -278,12 +278,12 @@ class Brand(_messages.Message):
 
 class CorsSettings(_messages.Message):
   r"""Allows customers to configure HTTP request paths that'll allow HTTP
-  OPTIONS call to bypass authentication and authorization.
+  `OPTIONS` call to bypass authentication and authorization.
 
   Fields:
-    allowHttpOptions: Configuration to allow HTTP OPTIONS calls to skip
-      authorization. If undefined, IAP will not apply any special logic to
-      OPTIONS requests.
+    allowHttpOptions: Configuration to allow HTTP `OPTIONS` calls to skip
+      authentication and authorization. If undefined, IAP will not apply any
+      special logic to `OPTIONS` requests.
   """
 
   allowHttpOptions = _messages.BooleanField(1)
@@ -350,18 +350,19 @@ class Expr(_messages.Message):
 
 
 class GcipSettings(_messages.Message):
-  r"""Allows customers to configure tenant_id for GCIP instance per-app.
+  r"""Allows customers to configure tenant IDs for a Cloud Identity Platform
+  (GCIP) instance for each application.
 
   Fields:
     loginPageUri: Login page URI associated with the GCIP tenants. Typically,
       all resources within the same project share the same login page, though
       it could be overridden at the sub resource level.
-    tenantIds: Optional. GCIP tenant ids that are linked to the IAP resource.
-      tenant_ids could be a string beginning with a number character to
-      indicate authenticating with GCIP tenant flow, or in the format of _ to
-      indicate authenticating with GCIP agent flow. If agent flow is used,
-      tenant_ids should only contain one single element, while for tenant
-      flow, tenant_ids can contain multiple elements.
+    tenantIds: Optional. GCIP tenant IDs that are linked to the IAP resource.
+      `tenant_ids` could be a string beginning with a number character to
+      indicate authenticating with GCIP tenant flow, or in the format of `_`
+      to indicate authenticating with GCIP agent flow. If agent flow is used,
+      `tenant_ids` should only contain one single element, while for tenant
+      flow, `tenant_ids` can contain multiple elements.
   """
 
   loginPageUri = _messages.StringField(1)
@@ -999,14 +1000,11 @@ class Resource(_messages.Message):
       policy can omit this field. Services integrated with custom org policy
       must populate this field for all requests where the API call changes the
       state of the resource. Custom org policy backend uses these attributes
-      to enforce custom org policies. When a proto is wrapped, it is generally
-      the One Platform API proto. When a JSON string is wrapped, use
-      `google.protobuf.StringValue` for the inner value. For create
-      operations, GCP service is expected to pass resource from customer
-      request as is. For update/patch operations, GCP service is expected to
-      compute the next state with the patch provided by the user. See
-      go/custom-constraints-org-policy-integration-guide for additional
-      details.
+      to enforce custom org policies. For create operations, GCP service is
+      expected to pass resource from customer request as is. For update/patch
+      operations, GCP service is expected to compute the next state with the
+      patch provided by the user. See go/federated-custom-org-policy-
+      integration-guide for additional details.
     LabelsValue: The service defined labels of the resource on which the
       conditions will be evaluated. The semantics - including the key names -
       are vague to IAM. If the effective condition has a reference to a
@@ -1027,14 +1025,11 @@ class Resource(_messages.Message):
       policy can omit this field. Services integrated with custom org policy
       must populate this field for all requests where the API call changes the
       state of the resource. Custom org policy backend uses these attributes
-      to enforce custom org policies. When a proto is wrapped, it is generally
-      the One Platform API proto. When a JSON string is wrapped, use
-      `google.protobuf.StringValue` for the inner value. For create
-      operations, GCP service is expected to pass resource from customer
-      request as is. For update/patch operations, GCP service is expected to
-      compute the next state with the patch provided by the user. See
-      go/custom-constraints-org-policy-integration-guide for additional
-      details.
+      to enforce custom org policies. For create operations, GCP service is
+      expected to pass resource from customer request as is. For update/patch
+      operations, GCP service is expected to compute the next state with the
+      patch provided by the user. See go/federated-custom-org-policy-
+      integration-guide for additional details.
     labels: The service defined labels of the resource on which the conditions
       will be evaluated. The semantics - including the key names - are vague
       to IAM. If the effective condition has a reference to a
@@ -1047,6 +1042,16 @@ class Resource(_messages.Message):
       attribute please: * Read go/iam-conditions-labels-comm and ensure your
       service can meet the data availability and management requirements. *
       Talk to iam-conditions-eng@ about your use case.
+    locations: The locations of the resource. This field is used to determine
+      whether the request is compliant with Trust Boundaries. Usage: - Must
+      not be empty for services in-scope for Trust Boundaries. Once Trust
+      Boundaries is GA, empty values will cause the request to be rejected if
+      customers enforce Trust Boundaries on the parent CRM nodes. - For global
+      resources: use a single value of "global". - For regional/multi-regional
+      resources: use name of the GCP region(s) where the resource exists
+      (e.g., ["us-east1", "us-west1"]). For multi-regional resources specify
+      the name of each GCP region in the resource's multi-region. NOTE: Only
+      GCP cloud region names are supported - go/cloud-region-names.
     name: The **relative** name of the resource, which is the URI path of the
       resource without the leading "/". See
       https://cloud.google.com/iam/docs/conditions-resource-
@@ -1099,13 +1104,11 @@ class Resource(_messages.Message):
     field. Services integrated with custom org policy must populate this field
     for all requests where the API call changes the state of the resource.
     Custom org policy backend uses these attributes to enforce custom org
-    policies. When a proto is wrapped, it is generally the One Platform API
-    proto. When a JSON string is wrapped, use `google.protobuf.StringValue`
-    for the inner value. For create operations, GCP service is expected to
-    pass resource from customer request as is. For update/patch operations,
-    GCP service is expected to compute the next state with the patch provided
-    by the user. See go/custom-constraints-org-policy-integration-guide for
-    additional details.
+    policies. For create operations, GCP service is expected to pass resource
+    from customer request as is. For update/patch operations, GCP service is
+    expected to compute the next state with the patch provided by the user.
+    See go/federated-custom-org-policy-integration-guide for additional
+    details.
 
     Messages:
       AdditionalProperty: An additional property for a ExpectedNextStateValue
@@ -1166,10 +1169,11 @@ class Resource(_messages.Message):
 
   expectedNextState = _messages.MessageField('ExpectedNextStateValue', 1)
   labels = _messages.MessageField('LabelsValue', 2)
-  name = _messages.StringField(3)
-  nextStateOfTags = _messages.MessageField('NextStateOfTags', 4)
-  service = _messages.StringField(5)
-  type = _messages.StringField(6)
+  locations = _messages.StringField(3, repeated=True)
+  name = _messages.StringField(4)
+  nextStateOfTags = _messages.MessageField('NextStateOfTags', 5)
+  service = _messages.StringField(6)
+  type = _messages.StringField(7)
 
 
 class SetIamPolicyRequest(_messages.Message):

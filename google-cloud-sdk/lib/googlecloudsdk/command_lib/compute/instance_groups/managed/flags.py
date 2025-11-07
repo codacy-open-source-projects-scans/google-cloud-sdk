@@ -26,8 +26,10 @@ from typing import Any
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope import exceptions
+from googlecloudsdk.calliope import parser_arguments
 from googlecloudsdk.command_lib.compute import flags as compute_flags
 from googlecloudsdk.command_lib.util.apis import arg_utils
+
 
 INSTANCE_TEMPLATE_ARG = compute_flags.ResourceArgument(
     '--template',
@@ -617,6 +619,8 @@ def AddMigForceUpdateOnRepairFlags(parser):
 def AddMigDefaultActionOnVmFailure(parser, release_track):
   if release_track == base.ReleaseTrack.ALPHA:
     AddMigDefaultActionOnVmFailureAlpha(parser)
+  elif release_track == base.ReleaseTrack.BETA:
+    AddMigDefaultActionOnVmFailureBeta(parser)
   else:
     AddMigDefaultActionOnVmFailureGA(parser)
 
@@ -642,6 +646,30 @@ def AddMigDefaultActionOnVmFailureGA(parser):
   )
 
 
+def AddMigDefaultActionOnVmFailureBeta(parser):
+  """Add default action on VM failure to the parser."""
+  help_text = """\
+      Specifies the action that a MIG performs on a failed VM. If the value of
+      the onFailedHealthCheck field is `DEFAULT_ACTION`, then the same action
+      also applies to the VMs on which your application fails a health check.
+      By default, the value of the flag is set to ``repair''."""
+  choices = collections.OrderedDict([
+      (
+          'repair',
+          '(Default) MIG automatically repairs a failed VM by recreating it.',
+      ),
+      ('do-nothing', 'MIG does not repair a failed VM.'),
+  ])
+
+  parser.add_argument(
+      '--default-action-on-vm-failure',
+      metavar='ACTION_ON_VM_FAILURE',
+      type=arg_utils.EnumNameToChoice,
+      choices=choices,
+      help=help_text,
+  )
+
+
 def AddMigDefaultActionOnVmFailureAlpha(parser):
   """Add default action on VM failure to the parser."""
   help_text = """\
@@ -655,6 +683,8 @@ def AddMigDefaultActionOnVmFailureAlpha(parser):
           '(Default) MIG automatically repairs a failed VM by recreating it.',
       ),
       ('do-nothing', 'MIG does not repair a failed VM.'),
+      ('delete', ('MIG deletes a failed VM. Deleting the VM decreases the '
+                  'target size of the MIG.')),
   ])
 
   parser.add_argument(
@@ -810,19 +840,18 @@ def AddInstanceFlexibilityPolicyArgs(
 
 def AddTargetSizePolicyModeFlag(parser):
   """Add target size policy mode to the parser."""
-  help_text = 'Specifies mode in which operations on size are processed.'
+  help_text = 'Specifies the mode in which the MIG creates VMs in the group.'
   choices = {
       'individual': (
-          'Default mode in which MIG creates and starts VMs individually'
-          ' without cross-dependency between VMs. This means that in case of'
-          ' something blocking part of VMs to be provisioned, the other part'
-          ' will be created.'
+          '(Default) MIG creates VMs individually. If the MIG cannot create any'
+          ' VM to meet the specified ``size``, then the MIG creates the VMs for'
+          ' which resources are available. The MIG then attempts to create the'
+          ' remaining VMs until the resources become available.'
       ),
       'bulk': (
-          'Mode in which MIG creates and starts VMs in all-or-nothing manner.'
-          ' If any VM from the request cannot be provisioned, the whole request'
-          ' waits for conditions that allow for provisioning whole capacity in'
-          ' bulk.'
+          'MIG creates VMs all at once. If the MIG cannot create any VM to meet'
+          ' the specified ``size``, then the MIG waits until the resources'
+          ' become available to create all VMs.'
       ),
   }
 
@@ -833,6 +862,38 @@ def AddTargetSizePolicyModeFlag(parser):
       choices=choices,
       help=help_text,
   )
+
+
+def AddWorkloadPolicyFlag(parser: parser_arguments.ArgumentInterceptor):
+  """Add workload policy flag."""
+  parser.add_argument(
+      '--workload-policy',
+      type=str,
+      metavar='WORKLOAD_POLICY',
+      help=(
+          'Specifies the workload policy for the managed instance group. It '
+          'can be a full or partial URL to a resource policy containing '
+          'the workload policy.'
+      ),
+  )
+
+
+def AddRemoveWorkloadPolicyFlag(parser: parser_arguments.ArgumentInterceptor):
+  """Add remove workload policy flag."""
+  parser.add_argument(
+      '--remove-workload-policy',
+      action='store_true',
+      help=(
+          'Detaches the workload policy from the managed instance group.'
+      ),
+  )
+
+
+def AddWorkloadPolicyFlags(parser: parser_arguments.ArgumentInterceptor):
+  """Add flags for managing workload policy."""
+  workload_policy_group = parser.add_group(mutex=True)
+  AddWorkloadPolicyFlag(workload_policy_group)
+  AddRemoveWorkloadPolicyFlag(workload_policy_group)
 
 
 class ArgMultiValueDict:
@@ -874,3 +935,18 @@ class ArgMultiValueDict:
       arg_dict.setdefault(key, []).append(value)
 
     return arg_dict
+
+
+def AddOnRepairFlags(parser: parser_arguments.ArgumentInterceptor):
+  """Add on repair flags to the parser."""
+  allow_changing_zone_choices = {
+      'no': "(Default) MIG cannot change a VM's zone during a repair.",
+      'yes': 'MIG can select a different zone for the VM during a repair.',
+  }
+  parser.add_argument(
+      '--on-repair-allow-changing-zone',
+      metavar='ON_REPAIR_ALLOW_CHANGING_ZONE',
+      type=arg_utils.EnumNameToChoice,
+      choices=allow_changing_zone_choices,
+      help="Specifies whether the MIG can change a VM's zone during a repair.",
+  )

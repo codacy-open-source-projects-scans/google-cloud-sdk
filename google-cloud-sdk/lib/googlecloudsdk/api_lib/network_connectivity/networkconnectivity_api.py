@@ -216,6 +216,30 @@ class HubsClient(object):
     )
     return self.hub_service.AcceptSpoke(accept_req)
 
+  def AcceptSpokeUpdate(self, hub_ref, spoke, spoke_etag):
+    """Call API to accept proposal to update spoke in a hub in the GA release track."""
+    accept_spoke_update_req = self.messages.AcceptSpokeUpdateRequest(
+        spokeUri=spoke, spokeEtag=spoke_etag
+    )
+    req = self.messages.NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest(
+        name=hub_ref.RelativeName(),
+        acceptSpokeUpdateRequest=accept_spoke_update_req,
+    )
+    return self.hub_service.AcceptSpokeUpdate(req)
+
+  def AcceptSpokeUpdateBeta(self, hub_ref, spoke, spoke_etag):
+    """Call API to accept proposal to update spoke in a hub in the BETA release track."""
+    accept_spoke_update_req = (
+        self.messages.GoogleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest(
+            spokeUri=spoke, spokeEtag=spoke_etag
+        )
+    )
+    req = self.messages.NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest(
+        name=hub_ref.RelativeName(),
+        googleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest=accept_spoke_update_req,
+    )
+    return self.hub_service.AcceptSpokeUpdate(req)
+
   def RejectSpoke(self, hub_ref, spoke, details):
     """Call API to reject a spoke from a hub in the GA release track."""
     reject_hub_spoke_req = self.messages.RejectHubSpokeRequest(
@@ -238,6 +262,30 @@ class HubsClient(object):
         googleCloudNetworkconnectivityV1betaRejectHubSpokeRequest=reject_hub_spoke_req,
     )
     return self.hub_service.RejectSpoke(reject_req)
+
+  def RejectSpokeUpdate(self, hub_ref, spoke, spoke_etag, details):
+    """Call API to reject proposal to update spoke in a hub in the GA release track."""
+    reject_spoke_update_req = self.messages.RejectSpokeUpdateRequest(
+        spokeUri=spoke, spokeEtag=spoke_etag, details=details
+    )
+    req = self.messages.NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest(
+        name=hub_ref.RelativeName(),
+        rejectSpokeUpdateRequest=reject_spoke_update_req,
+    )
+    return self.hub_service.RejectSpokeUpdate(req)
+
+  def RejectSpokeUpdateBeta(self, hub_ref, spoke, spoke_etag, details):
+    """Call API to reject proposal to update spoke in a hub in the BETA release track."""
+    reject_spoke_update_req = (
+        self.messages.GoogleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest(
+            spokeUri=spoke, spokeEtag=spoke_etag, details=details
+        )
+    )
+    req = self.messages.NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest(
+        name=hub_ref.RelativeName(),
+        googleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest=reject_spoke_update_req,
+    )
+    return self.hub_service.RejectSpokeUpdate(req)
 
   def QueryHubStatus(
       self,
@@ -264,6 +312,28 @@ class HubsClient(object):
         batch_size_attribute='pageSize',
         method='QueryStatus',
     )
+
+  def Get(self, hub_ref):
+    """Call API to get an existing hub."""
+    get_req = (
+        self.messages.NetworkconnectivityProjectsLocationsGlobalHubsGetRequest(
+            name=hub_ref.RelativeName()
+        )
+    )
+    return self.hub_service.Get(get_req)
+
+  def UpdateHubBeta(self, hub_ref, hub, update_mask, request_id=None):
+    """Call API to update a hub in the BETA release track."""
+    name = hub_ref.RelativeName()
+    update_mask_string = ','.join(update_mask)
+
+    update_req = self.messages.NetworkconnectivityProjectsLocationsGlobalHubsPatchRequest(
+        name=name,
+        requestId=request_id,
+        googleCloudNetworkconnectivityV1betaHub=hub,
+        updateMask=update_mask_string,
+    )
+    return self.hub_service.Patch(update_req)
 
 
 class GroupsClient(object):

@@ -181,8 +181,8 @@ class GoogleIamV2DenyRule(_messages.Message):
       `{service_fqdn}/{resource}.{verb}`, where `{service_fqdn}` is the fully
       qualified domain name for the service. For example,
       `iam.googleapis.com/roles.list`.
-    deniedPrincipals: The identities that are prevented from using one or more
-      permissions on Google Cloud resources. This field can contain the
+    deniedPrincipals:  The identities that are prevented from using one or
+      more permissions on Google Cloud resources. This field can contain the
       following values: * `principal://goog/subject/{email_id}`: A specific
       Google Account. Includes Gmail, Cloud Identity, and Google Workspace
       user accounts. For example,
@@ -218,7 +218,14 @@ class GoogleIamV2DenyRule(_messages.Message):
       attribute_name}/{attribute_value}`: All identities in a workload
       identity pool with a certain attribute. * `principalSet://iam.googleapis
       .com/projects/{project_number}/locations/global/workloadIdentityPools/{p
-      ool_id}/*`: All identities in a workload identity pool. *
+      ool_id}/*`: All identities in a workload identity pool. * `principalSet:
+      //cloudresourcemanager.googleapis.com/[projects|folders|organizations]/{
+      project_number|folder_number|org_number}/type/ServiceAccount`: All
+      service accounts grouped under a resource (project, folder, or
+      organization). * `principalSet://cloudresourcemanager.googleapis.com/[pr
+      ojects|folders|organizations]/{project_number|folder_number|org_number}/
+      type/ServiceAgent`: All service agents grouped under a resource
+      (project, folder, or organization). *
       `deleted:principal://goog/subject/{email_id}?uid={uid}`: A specific
       Google Account that was deleted recently. For example,
       `deleted:principal://goog/subject/alice@example.com?uid=1234567890`. If

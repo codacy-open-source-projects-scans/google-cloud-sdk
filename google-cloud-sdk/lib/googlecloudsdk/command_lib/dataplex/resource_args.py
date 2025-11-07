@@ -25,6 +25,9 @@ from googlecloudsdk.command_lib.util.concepts import concept_parsers
 from googlecloudsdk.core import properties
 
 
+GENERATE_ID = '@%!#DATAPLEX_GENERATE_UUID@%!#'
+
+
 def GetProjectSpec():
   """Gets Project spec."""
   return concepts.ResourceSpec(
@@ -195,6 +198,18 @@ def GetEntryTypeResourceSpec():
   )
 
 
+def GetDataplexEntryLinkResourceSpec():
+  """Gets Entry Link resource spec."""
+  return concepts.ResourceSpec(
+      'dataplex.projects.locations.entryGroups.entryLinks',
+      resource_name='entry link',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      entryGroupsId=EntryGroupAttributeConfig(),
+      entryLinksId=EntryLinkAttributeConfig(),
+  )
+
+
 def GetGovernanceRuleResourceSpec():
   """Gets GovernanceRule resource spec."""
   return concepts.ResourceSpec(
@@ -238,6 +253,28 @@ def GetGlossaryTermResourceSpec():
       locationsId=LocationAttributeConfig(),
       glossariesId=GlossaryAttributeConfig(),
       termsId=GlossaryTermAttributeConfig(),
+  )
+
+
+def GetMetadataJobResourceSpec():
+  """Gets Metadata Job resource spec."""
+  return concepts.ResourceSpec(
+      'dataplex.projects.locations.metadataJobs',
+      resource_name='metadata job',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      metadataJobsId=MetadataJobAttributeConfig(),
+  )
+
+
+def GetEncryptionConfigResourceSpec():
+  """Gets EncryptionConfig resource spec."""
+  return concepts.ResourceSpec(
+      'dataplex.organizations.locations.encryptionConfigs',
+      resource_name='encryption config',
+      organizationsId=OrganizationAttributeConfig(),
+      locationsId=LocationAttributeConfig(),
+      encryptionConfigsId=EncryptionConfigAttributeConfig(),
   )
 
 
@@ -315,7 +352,7 @@ def DataAttributeBindingAttributeConfig():
 
 def EntryGroupAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
-      name='entry_group', help_text='The name of {resource} to use.'
+      name='entry-group', help_text='The name of {resource} to use.'
   )
 
 
@@ -328,6 +365,12 @@ def AspectTypeAttributeConfig():
 def EntryTypeAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
       name='entry_type', help_text='The name of {resource} to use.'
+  )
+
+
+def EntryLinkAttributeConfig():
+  return concepts.ResourceParameterAttributeConfig(
+      name='entry-link', help_text='The name of {resource} to use.'
   )
 
 
@@ -364,6 +407,34 @@ def GlossaryCategoryAttributeConfig():
 def GlossaryTermAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
       name='glossary_term', help_text='The name of {resource} to use.'
+  )
+
+
+def MetadataJobAttributeConfig():
+  return concepts.ResourceParameterAttributeConfig(
+      name='metadata_job',
+      # Adding invalid job_id to keep job resource in the right format,
+      # this invalid value will be removed if no job_id is specified from
+      # the input and the underlaying client would generate a valid one.
+      fallthroughs=[
+          deps.ValueFallthrough(
+              GENERATE_ID,
+              hint='job ID is optional and will be generated if not specified',
+          )
+      ],
+      help_text='The name of {resource} to use.',
+  )
+
+
+def EncryptionConfigAttributeConfig():
+  return concepts.ResourceParameterAttributeConfig(
+      name='encryption_config', help_text='The name of {resource} to use.'
+  )
+
+
+def OrganizationAttributeConfig():
+  return concepts.ResourceParameterAttributeConfig(
+      name='organization', help_text='The name of {resource} to use.'
   )
 
 
@@ -505,7 +576,7 @@ def AddDataAttributeBindingResourceArg(parser, verb, positional=True):
 
 def AddDataplexEntryGroupResourceArg(parser, verb, positional=True):
   """Adds a resource argument for a Dataplex EntryGroup."""
-  name = 'entry_group' if positional else '--entry_group'
+  name = 'entry_group' if positional else '--entry-group'
   return concept_parsers.ConceptParser.ForResource(
       name,
       GetDataplexEntryGroupResourceSpec(),
@@ -562,6 +633,18 @@ def AddEntryResourceArg(parser):
   ).AddToParser(parser)
 
 
+def AddDataplexEntryLinkResourceArg(parser, verb, positional=True):
+  """Adds a resource argument for a Dataplex EntryLink."""
+  name = 'entry_link' if positional else '--entry-link'
+  return concept_parsers.ConceptParser.ForResource(
+      name,
+      GetDataplexEntryLinkResourceSpec(),
+      'Arguments and flags that define the Dataplex entry link you want {}'
+      .format(verb),
+      required=True,
+  ).AddToParser(parser)
+
+
 def AddGovernanceRuleResourceArg(parser, verb, positional=True):
   """Adds a resource argument for a Dataplex GovernanceRule."""
   name = 'governance_rule' if positional else '--governance_rule'
@@ -610,6 +693,18 @@ def AddGlossaryTermResourceArg(parser, verb, positional=True):
   ).AddToParser(parser)
 
 
+def AddEncryptionConfigResourceArg(parser, verb, positional=True):
+  """Adds a resource argument for a Dataplex EncryptionConfig."""
+  name = 'encryption_config' if positional else '--encryption_config'
+  return concept_parsers.ConceptParser.ForResource(
+      name,
+      GetEncryptionConfigResourceSpec(),
+      'Arguments and flags that define the Dataplex EncryptionConfig you'
+      ' want {}'.format(verb),
+      required=True,
+  ).AddToParser(parser)
+
+
 def AddParentEntryResourceArg(parser):
   """Adds a resource argument for a Dataplex Entry parent."""
   entry_data = yaml_data.ResourceYAMLData.FromPath('dataplex.entry')
@@ -629,4 +724,16 @@ def AddParentEntryResourceArg(parser):
           'location': '',
           'entry_group': '',
       },
+  ).AddToParser(parser)
+
+
+def AddMetadataJobResourceArg(parser, verb, positional=True):
+  """Adds a resource argument for a Dataplex MetadataJob."""
+  name = 'metadata_job' if positional else '--metadata_job'
+  return concept_parsers.ConceptParser.ForResource(
+      name,
+      GetMetadataJobResourceSpec(),
+      'Arguments and flags that define the Dataplex metdata job you want {}'
+      .format(verb),
+      required=True,
   ).AddToParser(parser)

@@ -97,6 +97,33 @@ class GoogleCloudOsconfigV1OSPolicyAssignmentOperationMetadata(_messages.Message
   rolloutUpdateTime = _messages.StringField(5)
 
 
+class GoogleCloudOsconfigV2OperationMetadata(_messages.Message):
+  r"""Represents the metadata of the long-running operation.
+
+  Fields:
+    apiVersion: Output only. API version used to start the operation.
+    createTime: Output only. The time the operation was created.
+    endTime: Output only. The time the operation finished running.
+    requestedCancellation: Output only. Identifies whether the user has
+      requested cancellation of the operation. Operations that have been
+      cancelled successfully have Operation.error value with a
+      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+    statusMessage: Output only. Human-readable status of the operation, if
+      any.
+    target: Output only. Server-defined resource path for the target of the
+      operation.
+    verb: Output only. Name of the verb executed by the operation.
+  """
+
+  apiVersion = _messages.StringField(1)
+  createTime = _messages.StringField(2)
+  endTime = _messages.StringField(3)
+  requestedCancellation = _messages.BooleanField(4)
+  statusMessage = _messages.StringField(5)
+  target = _messages.StringField(6)
+  verb = _messages.StringField(7)
+
+
 class GoogleCloudOsconfigV2betaListPolicyOrchestratorsResponse(_messages.Message):
   r"""Response for the list policy orchestrator resources.
 
@@ -328,13 +355,11 @@ class GoogleCloudOsconfigV2betaPolicyOrchestratorIterationState(_messages.Messag
     failedActions: Output only. Number of orchestration actions which failed
       so far. For more details, query the Cloud Logs.
     finishTime: Output only. Finish time of the wave iteration.
+    iterationId: Output only. Unique identifier of the iteration.
     performedActions: Output only. Overall number of actions done by the
       orchestrator so far.
     progress: Output only. An estimated percentage of the progress. Number
       between 0 and 100.
-    rolloutResource: Output only. Handle to the Progressive Rollouts API
-      rollout resource, which contains detailed information about a particular
-      orchestration iteration.
     startTime: Output only. Start time of the wave iteration.
     state: Output only. State of the iteration.
   """
@@ -360,9 +385,9 @@ class GoogleCloudOsconfigV2betaPolicyOrchestratorIterationState(_messages.Messag
   error = _messages.MessageField('Status', 1)
   failedActions = _messages.IntegerField(2)
   finishTime = _messages.StringField(3)
-  performedActions = _messages.IntegerField(4)
-  progress = _messages.FloatField(5, variant=_messages.Variant.FLOAT)
-  rolloutResource = _messages.StringField(6)
+  iterationId = _messages.StringField(4)
+  performedActions = _messages.IntegerField(5)
+  progress = _messages.FloatField(6, variant=_messages.Variant.FLOAT)
   startTime = _messages.StringField(7)
   state = _messages.EnumField('StateValueValuesEnum', 8)
 
@@ -386,10 +411,29 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class MessageSet(_messages.Message):
+  r"""This is proto2's version of MessageSet. DEPRECATED: DO NOT USE FOR NEW
+  FIELDS. If you are using editions or proto2, please make your own extendable
+  messages for your use case. If you are using proto3, please use `Any`
+  instead. MessageSet was the implementation of extensions for proto1. When
+  proto2 was introduced, extensions were implemented as a first-class feature.
+  This schema for MessageSet was meant to be a "bridge" solution to migrate
+  MessageSet-bearing messages from proto1 to proto2. This schema has been
+  open-sourced only to facilitate the migration of Google products with
+  MessageSet-bearing messages to open-source environments.
+  """
+
 
 
 class OSPolicy(_messages.Message):
@@ -1357,7 +1401,21 @@ class OsconfigFoldersLocationsGlobalPolicyOrchestratorsPatchRequest(_messages.Me
       der_id}/locations/global/policyOrchestrators/{orchestrator_id}` * `proje
       cts/{project_id_or_number}/locations/global/policyOrchestrators/{orchest
       rator_id}`
-    updateMask: Optional. The list of fields to update.
+    updateMask: Optional. The list of fields to merge into the existing policy
+      orchestrator. A special ["*"] field mask can be used to simply replace
+      the entire resource. Otherwise, for all paths referenced in the mask,
+      following merge rules are used: * output only fields are ignored, *
+      primitive fields are replaced, * repeated fields are replaced, * map
+      fields are merged key by key, * message fields are cleared if not set in
+      the request, otherwise they are merged recursively (in particular -
+      message fields set to an empty message has no side effects) If field
+      mask (or its paths) is not specified, it is automatically inferred from
+      the request using following rules: * primitive fields are listed, if set
+      to a non-default value (as there is no way to distinguish between
+      default and unset value), * map and repeated fields are listed, *
+      `google.protobuf.Any` fields are listed, * other message fields are
+      traversed recursively. Note: implicit mask does not allow clearing
+      fields.
   """
 
   googleCloudOsconfigV2betaPolicyOrchestrator = _messages.MessageField('GoogleCloudOsconfigV2betaPolicyOrchestrator', 1)
@@ -1406,12 +1464,20 @@ class OsconfigFoldersLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class OsconfigOrganizationsLocationsGlobalPolicyOrchestratorsCreateRequest(_messages.Message):
@@ -1522,7 +1588,21 @@ class OsconfigOrganizationsLocationsGlobalPolicyOrchestratorsPatchRequest(_messa
       der_id}/locations/global/policyOrchestrators/{orchestrator_id}` * `proje
       cts/{project_id_or_number}/locations/global/policyOrchestrators/{orchest
       rator_id}`
-    updateMask: Optional. The list of fields to update.
+    updateMask: Optional. The list of fields to merge into the existing policy
+      orchestrator. A special ["*"] field mask can be used to simply replace
+      the entire resource. Otherwise, for all paths referenced in the mask,
+      following merge rules are used: * output only fields are ignored, *
+      primitive fields are replaced, * repeated fields are replaced, * map
+      fields are merged key by key, * message fields are cleared if not set in
+      the request, otherwise they are merged recursively (in particular -
+      message fields set to an empty message has no side effects) If field
+      mask (or its paths) is not specified, it is automatically inferred from
+      the request using following rules: * primitive fields are listed, if set
+      to a non-default value (as there is no way to distinguish between
+      default and unset value), * map and repeated fields are listed, *
+      `google.protobuf.Any` fields are listed, * other message fields are
+      traversed recursively. Note: implicit mask does not allow clearing
+      fields.
   """
 
   googleCloudOsconfigV2betaPolicyOrchestrator = _messages.MessageField('GoogleCloudOsconfigV2betaPolicyOrchestrator', 1)
@@ -1571,12 +1651,20 @@ class OsconfigOrganizationsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class OsconfigProjectsLocationsGlobalPolicyOrchestratorsCreateRequest(_messages.Message):
@@ -1684,7 +1772,21 @@ class OsconfigProjectsLocationsGlobalPolicyOrchestratorsPatchRequest(_messages.M
       der_id}/locations/global/policyOrchestrators/{orchestrator_id}` * `proje
       cts/{project_id_or_number}/locations/global/policyOrchestrators/{orchest
       rator_id}`
-    updateMask: Optional. The list of fields to update.
+    updateMask: Optional. The list of fields to merge into the existing policy
+      orchestrator. A special ["*"] field mask can be used to simply replace
+      the entire resource. Otherwise, for all paths referenced in the mask,
+      following merge rules are used: * output only fields are ignored, *
+      primitive fields are replaced, * repeated fields are replaced, * map
+      fields are merged key by key, * message fields are cleared if not set in
+      the request, otherwise they are merged recursively (in particular -
+      message fields set to an empty message has no side effects) If field
+      mask (or its paths) is not specified, it is automatically inferred from
+      the request using following rules: * primitive fields are listed, if set
+      to a non-default value (as there is no way to distinguish between
+      default and unset value), * map and repeated fields are listed, *
+      `google.protobuf.Any` fields are listed, * other message fields are
+      traversed recursively. Note: implicit mask does not allow clearing
+      fields.
   """
 
   googleCloudOsconfigV2betaPolicyOrchestrator = _messages.MessageField('GoogleCloudOsconfigV2betaPolicyOrchestrator', 1)
@@ -1733,12 +1835,20 @@ class OsconfigProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -1853,6 +1963,33 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class StatusProto(_messages.Message):
+  r"""Wire-format for a Status object
+
+  Fields:
+    canonicalCode: copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional int32 canonical_code = 6;
+    code: Numeric code drawn from the space specified below. Often, this is
+      the canonical error space, and code is drawn from
+      google3/util/task/codes.proto copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional int32 code = 1;
+    message: Detail message copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional string message = 3;
+    messageSet: message_set associates an arbitrary proto message with the
+      status. copybara:strip_begin(b/383363683) copybara:strip_end_and_replace
+      optional proto2.bridge.MessageSet message_set = 5;
+    space: copybara:strip_begin(b/383363683) Space to which this status
+      belongs copybara:strip_end_and_replace optional string space = 2; //
+      Space to which this status belongs
+  """
+
+  canonicalCode = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  code = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  message = _messages.StringField(3)
+  messageSet = _messages.MessageField('MessageSet', 4)
+  space = _messages.StringField(5)
 
 
 encoding.AddCustomJsonFieldMapping(

@@ -182,9 +182,14 @@ class BuildConfig(_messages.Message):
   Enums:
     DockerRegistryValueValuesEnum: Docker Registry to use for this deployment.
       This configuration is only applicable to 1st Gen functions, 2nd Gen
-      functions can only use Artifact Registry. If unspecified, it defaults to
-      `ARTIFACT_REGISTRY`. If `docker_repository` field is specified, this
-      field should either be left unspecified or set to `ARTIFACT_REGISTRY`.
+      functions can only use Artifact Registry. Deprecated: as of March 2025,
+      `CONTAINER_REGISTRY` option is no longer available in response to
+      Container Registry's deprecation: https://cloud.google.com/artifact-
+      registry/docs/transition/transition-from-gcr Please use Artifact
+      Registry instead, which is the default choice. If unspecified, it
+      defaults to `ARTIFACT_REGISTRY`. If `docker_repository` field is
+      specified, this field should either be left unspecified or set to
+      `ARTIFACT_REGISTRY`.
 
   Messages:
     EnvironmentVariablesValue: User-provided build-time environment variables
@@ -196,9 +201,14 @@ class BuildConfig(_messages.Message):
       deployment of the function.
     dockerRegistry: Docker Registry to use for this deployment. This
       configuration is only applicable to 1st Gen functions, 2nd Gen functions
-      can only use Artifact Registry. If unspecified, it defaults to
-      `ARTIFACT_REGISTRY`. If `docker_repository` field is specified, this
-      field should either be left unspecified or set to `ARTIFACT_REGISTRY`.
+      can only use Artifact Registry. Deprecated: as of March 2025,
+      `CONTAINER_REGISTRY` option is no longer available in response to
+      Container Registry's deprecation: https://cloud.google.com/artifact-
+      registry/docs/transition/transition-from-gcr Please use Artifact
+      Registry instead, which is the default choice. If unspecified, it
+      defaults to `ARTIFACT_REGISTRY`. If `docker_repository` field is
+      specified, this field should either be left unspecified or set to
+      `ARTIFACT_REGISTRY`.
     dockerRepository: Repository in Artifact Registry to which the function
       docker image will be pushed after it is built by Cloud Build. If
       specified by user, it is created and managed by user with a customer
@@ -206,8 +216,7 @@ class BuildConfig(_messages.Message):
       named 'gcf-artifacts' for every deployed region. It must match the
       pattern
       `projects/{project}/locations/{location}/repositories/{repository}`.
-      Cross-project repositories are not supported. Cross-location
-      repositories are not supported. Repository format must be 'DOCKER'.
+      Repository format must be 'DOCKER'.
     entryPoint: The name of the function (as defined in source code) that will
       be executed. Defaults to the resource name suffix, if not specified. For
       backward compatibility, if function with given name is not found, then
@@ -244,7 +253,11 @@ class BuildConfig(_messages.Message):
   class DockerRegistryValueValuesEnum(_messages.Enum):
     r"""Docker Registry to use for this deployment. This configuration is only
     applicable to 1st Gen functions, 2nd Gen functions can only use Artifact
-    Registry. If unspecified, it defaults to `ARTIFACT_REGISTRY`. If
+    Registry. Deprecated: as of March 2025, `CONTAINER_REGISTRY` option is no
+    longer available in response to Container Registry's deprecation:
+    https://cloud.google.com/artifact-registry/docs/transition/transition-
+    from-gcr Please use Artifact Registry instead, which is the default
+    choice. If unspecified, it defaults to `ARTIFACT_REGISTRY`. If
     `docker_repository` field is specified, this field should either be left
     unspecified or set to `ARTIFACT_REGISTRY`.
 
@@ -454,7 +467,7 @@ class CloudfunctionsProjectsLocationsFunctionsListRequest(_messages.Message):
     filter: The filter for Functions that match the filter expression,
       following the syntax outlined in https://google.aip.dev/160.
     orderBy: The sorting order of the resources returned. Value should be a
-      comma separated list of fields. The default sorting oder is ascending.
+      comma separated list of fields. The default sorting order is ascending.
       See https://google.aip.dev/132#ordering.
     pageSize: Maximum number of functions to return per call. The largest
       allowed page_size is 1,000, if the page_size is omitted or specified as
@@ -579,6 +592,9 @@ class CloudfunctionsProjectsLocationsListRequest(_messages.Message):
   r"""A CloudfunctionsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -589,10 +605,11 @@ class CloudfunctionsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class CloudfunctionsProjectsLocationsOperationsGetRequest(_messages.Message):
@@ -613,12 +630,20 @@ class CloudfunctionsProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class CloudfunctionsProjectsLocationsRuntimesListRequest(_messages.Message):
@@ -667,6 +692,28 @@ class Date(_messages.Message):
 
 class DetachFunctionRequest(_messages.Message):
   r"""Request for the `DetachFunction` method."""
+
+
+class DirectVpcNetworkInterface(_messages.Message):
+  r"""The Direct VPC network interface. This is mutually exclusive with VPC
+  Connector.
+
+  Fields:
+    network: Optional. The name of the VPC network to which the function will
+      be connected. Specify either a VPC network or a subnet, or both. If you
+      specify only a network, the subnet uses the same name as the network.
+    subnetwork: Optional. The name of the VPC subnetwork that the Cloud
+      Function resource will get IPs from. Specify either a VPC network or a
+      subnet, or both. If both network and subnetwork are specified, the given
+      VPC subnetwork must belong to the given VPC network. If subnetwork is
+      not specified, the subnetwork with the same name with the network will
+      be used.
+    tags: Optional. Network tags applied to this Cloud Function resource.
+  """
+
+  network = _messages.StringField(1)
+  subnetwork = _messages.StringField(2)
+  tags = _messages.StringField(3, repeated=True)
 
 
 class EventFilter(_messages.Message):
@@ -821,6 +868,7 @@ class Function(_messages.Message):
     labels: Labels associated with this Cloud Function.
     name: A user-defined name of the function. Function names must be unique
       globally and match pattern `projects/*/locations/*/functions/*`
+    satisfiesPzi: Output only. Reserved for future use.
     satisfiesPzs: Output only. Reserved for future use.
     serviceConfig: Describes the Service being deployed. Currently deploys
       services to Cloud Run (fully managed).
@@ -855,6 +903,8 @@ class Function(_messages.Message):
       UNKNOWN: Function deployment failed and the function serving state is
         undefined. The function should be updated or deleted to move it out of
         this state.
+      DETACHING: Function is being detached.
+      DETACH_FAILED: Function detach failed and the function is still serving.
     """
     STATE_UNSPECIFIED = 0
     ACTIVE = 1
@@ -862,6 +912,8 @@ class Function(_messages.Message):
     DEPLOYING = 3
     DELETING = 4
     UNKNOWN = 5
+    DETACHING = 6
+    DETACH_FAILED = 7
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -896,13 +948,14 @@ class Function(_messages.Message):
   kmsKeyName = _messages.StringField(7)
   labels = _messages.MessageField('LabelsValue', 8)
   name = _messages.StringField(9)
-  satisfiesPzs = _messages.BooleanField(10)
-  serviceConfig = _messages.MessageField('ServiceConfig', 11)
-  state = _messages.EnumField('StateValueValuesEnum', 12)
-  stateMessages = _messages.MessageField('GoogleCloudFunctionsV2alphaStateMessage', 13, repeated=True)
-  updateTime = _messages.StringField(14)
-  upgradeInfo = _messages.MessageField('UpgradeInfo', 15)
-  url = _messages.StringField(16)
+  satisfiesPzi = _messages.BooleanField(10)
+  satisfiesPzs = _messages.BooleanField(11)
+  serviceConfig = _messages.MessageField('ServiceConfig', 12)
+  state = _messages.EnumField('StateValueValuesEnum', 13)
+  stateMessages = _messages.MessageField('GoogleCloudFunctionsV2alphaStateMessage', 14, repeated=True)
+  updateTime = _messages.StringField(15)
+  upgradeInfo = _messages.MessageField('UpgradeInfo', 16)
+  url = _messages.StringField(17)
 
 
 class GenerateDownloadUrlRequest(_messages.Message):
@@ -1028,6 +1081,8 @@ class GoogleCloudFunctionsV2alphaOperationMetadata(_messages.Message):
       google.longrunning.Operation.error value with a google.rpc.Status.code
       of 1, corresponding to `Code.CANCELLED`.
     createTime: The time the operation was created.
+    customIamRoleDetected: Output only. Whether a custom IAM role binding was
+      detected during the upgrade.
     endTime: The time the operation finished running.
     operationType: The operation type.
     requestResource: The original request that started the operation.
@@ -1052,6 +1107,7 @@ class GoogleCloudFunctionsV2alphaOperationMetadata(_messages.Message):
       SETUP_FUNCTION_UPGRADE_CONFIG: SetupFunctionUpgradeConfig
       ABORT_FUNCTION_UPGRADE: AbortFunctionUpgrade
       COMMIT_FUNCTION_UPGRADE: CommitFunctionUpgrade
+      DETACH_FUNCTION: DetachFunction
     """
     OPERATIONTYPE_UNSPECIFIED = 0
     CREATE_FUNCTION = 1
@@ -1062,6 +1118,7 @@ class GoogleCloudFunctionsV2alphaOperationMetadata(_messages.Message):
     SETUP_FUNCTION_UPGRADE_CONFIG = 6
     ABORT_FUNCTION_UPGRADE = 7
     COMMIT_FUNCTION_UPGRADE = 8
+    DETACH_FUNCTION = 9
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class RequestResourceValue(_messages.Message):
@@ -1093,14 +1150,15 @@ class GoogleCloudFunctionsV2alphaOperationMetadata(_messages.Message):
   buildName = _messages.StringField(2)
   cancelRequested = _messages.BooleanField(3)
   createTime = _messages.StringField(4)
-  endTime = _messages.StringField(5)
-  operationType = _messages.EnumField('OperationTypeValueValuesEnum', 6)
-  requestResource = _messages.MessageField('RequestResourceValue', 7)
-  sourceToken = _messages.StringField(8)
-  stages = _messages.MessageField('GoogleCloudFunctionsV2alphaStage', 9, repeated=True)
-  statusDetail = _messages.StringField(10)
-  target = _messages.StringField(11)
-  verb = _messages.StringField(12)
+  customIamRoleDetected = _messages.BooleanField(5)
+  endTime = _messages.StringField(6)
+  operationType = _messages.EnumField('OperationTypeValueValuesEnum', 7)
+  requestResource = _messages.MessageField('RequestResourceValue', 8)
+  sourceToken = _messages.StringField(9)
+  stages = _messages.MessageField('GoogleCloudFunctionsV2alphaStage', 10, repeated=True)
+  statusDetail = _messages.StringField(11)
+  target = _messages.StringField(12)
+  verb = _messages.StringField(13)
 
 
 class GoogleCloudFunctionsV2alphaStage(_messages.Message):
@@ -1125,7 +1183,7 @@ class GoogleCloudFunctionsV2alphaStage(_messages.Message):
 
     Values:
       NAME_UNSPECIFIED: Not specified. Invalid name.
-      ARTIFACT_REGISTRY: Artifact Regsitry Stage
+      ARTIFACT_REGISTRY: Artifact Registry Stage
       BUILD: Build Stage
       SERVICE: Service Stage
       TRIGGER: Trigger Stage
@@ -1230,10 +1288,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListRuntimesResponse(_messages.Message):
@@ -1765,6 +1828,8 @@ class ServiceConfig(_messages.Message):
   (fully managed).
 
   Enums:
+    DirectVpcEgressValueValuesEnum: Optional. Egress settings for direct VPC.
+      If not provided, it defaults to VPC_EGRESS_PRIVATE_RANGES_ONLY.
     IngressSettingsValueValuesEnum: The ingress settings for the function,
       controlling what traffic can reach it.
     SecurityLevelValueValuesEnum: Security level configure whether the
@@ -1795,6 +1860,10 @@ class ServiceConfig(_messages.Message):
       y.go a full description.
     binaryAuthorizationPolicy: Optional. The binary authorization policy to be
       checked when deploying the Cloud Run service.
+    directVpcEgress: Optional. Egress settings for direct VPC. If not
+      provided, it defaults to VPC_EGRESS_PRIVATE_RANGES_ONLY.
+    directVpcNetworkInterface: Optional. The Direct VPC network interface for
+      the Cloud Function. Currently only a single Direct VPC is supported.
     environmentVariables: Environment variables that shall be available during
       function execution.
     ingressSettings: The ingress settings for the function, controlling what
@@ -1840,6 +1909,21 @@ class ServiceConfig(_messages.Message):
     vpcConnectorEgressSettings: The egress settings for the connector,
       controlling what traffic is diverted through it.
   """
+
+  class DirectVpcEgressValueValuesEnum(_messages.Enum):
+    r"""Optional. Egress settings for direct VPC. If not provided, it defaults
+    to VPC_EGRESS_PRIVATE_RANGES_ONLY.
+
+    Values:
+      DIRECT_VPC_EGRESS_UNSPECIFIED: Unspecified.
+      VPC_EGRESS_PRIVATE_RANGES_ONLY: Sends only traffic to internal addresses
+        through the VPC network.
+      VPC_EGRESS_ALL_TRAFFIC: Sends all outbound traffic through the VPC
+        network.
+    """
+    DIRECT_VPC_EGRESS_UNSPECIFIED = 0
+    VPC_EGRESS_PRIVATE_RANGES_ONLY = 1
+    VPC_EGRESS_ALL_TRAFFIC = 2
 
   class IngressSettingsValueValuesEnum(_messages.Enum):
     r"""The ingress settings for the function, controlling what traffic can
@@ -1922,21 +2006,23 @@ class ServiceConfig(_messages.Message):
   availableCpu = _messages.StringField(2)
   availableMemory = _messages.StringField(3)
   binaryAuthorizationPolicy = _messages.StringField(4)
-  environmentVariables = _messages.MessageField('EnvironmentVariablesValue', 5)
-  ingressSettings = _messages.EnumField('IngressSettingsValueValuesEnum', 6)
-  maxInstanceCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
-  maxInstanceRequestConcurrency = _messages.IntegerField(8, variant=_messages.Variant.INT32)
-  minInstanceCount = _messages.IntegerField(9, variant=_messages.Variant.INT32)
-  revision = _messages.StringField(10)
-  secretEnvironmentVariables = _messages.MessageField('SecretEnvVar', 11, repeated=True)
-  secretVolumes = _messages.MessageField('SecretVolume', 12, repeated=True)
-  securityLevel = _messages.EnumField('SecurityLevelValueValuesEnum', 13)
-  service = _messages.StringField(14)
-  serviceAccountEmail = _messages.StringField(15)
-  timeoutSeconds = _messages.IntegerField(16, variant=_messages.Variant.INT32)
-  uri = _messages.StringField(17)
-  vpcConnector = _messages.StringField(18)
-  vpcConnectorEgressSettings = _messages.EnumField('VpcConnectorEgressSettingsValueValuesEnum', 19)
+  directVpcEgress = _messages.EnumField('DirectVpcEgressValueValuesEnum', 5)
+  directVpcNetworkInterface = _messages.MessageField('DirectVpcNetworkInterface', 6, repeated=True)
+  environmentVariables = _messages.MessageField('EnvironmentVariablesValue', 7)
+  ingressSettings = _messages.EnumField('IngressSettingsValueValuesEnum', 8)
+  maxInstanceCount = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  maxInstanceRequestConcurrency = _messages.IntegerField(10, variant=_messages.Variant.INT32)
+  minInstanceCount = _messages.IntegerField(11, variant=_messages.Variant.INT32)
+  revision = _messages.StringField(12)
+  secretEnvironmentVariables = _messages.MessageField('SecretEnvVar', 13, repeated=True)
+  secretVolumes = _messages.MessageField('SecretVolume', 14, repeated=True)
+  securityLevel = _messages.EnumField('SecurityLevelValueValuesEnum', 15)
+  service = _messages.StringField(16)
+  serviceAccountEmail = _messages.StringField(17)
+  timeoutSeconds = _messages.IntegerField(18, variant=_messages.Variant.INT32)
+  uri = _messages.StringField(19)
+  vpcConnector = _messages.StringField(20)
+  vpcConnectorEgressSettings = _messages.EnumField('VpcConnectorEgressSettingsValueValuesEnum', 21)
 
 
 class SetIamPolicyRequest(_messages.Message):
@@ -1957,7 +2043,17 @@ class SetIamPolicyRequest(_messages.Message):
 
 
 class SetupFunctionUpgradeConfigRequest(_messages.Message):
-  r"""Request for the `SetupFunctionUpgradeConfig` method."""
+  r"""Request for the `SetupFunctionUpgradeConfig` method.
+
+  Fields:
+    triggerServiceAccount: Optional. The trigger's service account. The
+      service account must have permission to invoke Cloud Run services, the
+      permission is `run.routes.invoke`. If empty, defaults to the Compute
+      Engine default service account:
+      `{project_number}-compute@developer.gserviceaccount.com`.
+  """
+
+  triggerServiceAccount = _messages.StringField(1)
 
 
 class Source(_messages.Message):
@@ -2158,8 +2254,8 @@ class TestIamPermissionsResponse(_messages.Message):
 
 class UpgradeInfo(_messages.Message):
   r"""Information related to: * A function's eligibility for 1st Gen to 2nd
-  Gen migration and 2nd Gen to CRf detach. * Current state of migration for
-  function undergoing migration/detach.
+  Gen migration. * Current state of migration for function undergoing
+  migration.
 
   Enums:
     UpgradeStateValueValuesEnum: UpgradeState of the function
@@ -2181,7 +2277,9 @@ class UpgradeInfo(_messages.Message):
       UPGRADE_STATE_UNSPECIFIED: Unspecified state. Most functions are in this
         upgrade state.
       ELIGIBLE_FOR_2ND_GEN_UPGRADE: Functions in this state are eligible for
-        1st Gen -> 2nd Gen upgrade.
+        1st Gen upgrade.
+      INELIGIBLE_FOR_UPGRADE_UNTIL_REDEPLOYMENT: Functions in this state are
+        ineligible for 1st Gen upgrade until redeployment with newer runtime.
       UPGRADE_OPERATION_IN_PROGRESS: An upgrade related operation is in
         progress.
       SETUP_FUNCTION_UPGRADE_CONFIG_SUCCESSFUL: SetupFunctionUpgradeConfig API
@@ -2200,20 +2298,18 @@ class UpgradeInfo(_messages.Message):
         API was un-successful.
       COMMIT_FUNCTION_UPGRADE_ERROR: CommitFunctionUpgrade API was un-
         successful.
-      DETACH_IN_PROGRESS: Function is requested to be detached from 2nd Gen to
-        CRf.
     """
     UPGRADE_STATE_UNSPECIFIED = 0
     ELIGIBLE_FOR_2ND_GEN_UPGRADE = 1
-    UPGRADE_OPERATION_IN_PROGRESS = 2
-    SETUP_FUNCTION_UPGRADE_CONFIG_SUCCESSFUL = 3
-    SETUP_FUNCTION_UPGRADE_CONFIG_ERROR = 4
-    ABORT_FUNCTION_UPGRADE_ERROR = 5
-    REDIRECT_FUNCTION_UPGRADE_TRAFFIC_SUCCESSFUL = 6
-    REDIRECT_FUNCTION_UPGRADE_TRAFFIC_ERROR = 7
-    ROLLBACK_FUNCTION_UPGRADE_TRAFFIC_ERROR = 8
-    COMMIT_FUNCTION_UPGRADE_ERROR = 9
-    DETACH_IN_PROGRESS = 10
+    INELIGIBLE_FOR_UPGRADE_UNTIL_REDEPLOYMENT = 2
+    UPGRADE_OPERATION_IN_PROGRESS = 3
+    SETUP_FUNCTION_UPGRADE_CONFIG_SUCCESSFUL = 4
+    SETUP_FUNCTION_UPGRADE_CONFIG_ERROR = 5
+    ABORT_FUNCTION_UPGRADE_ERROR = 6
+    REDIRECT_FUNCTION_UPGRADE_TRAFFIC_SUCCESSFUL = 7
+    REDIRECT_FUNCTION_UPGRADE_TRAFFIC_ERROR = 8
+    ROLLBACK_FUNCTION_UPGRADE_TRAFFIC_ERROR = 9
+    COMMIT_FUNCTION_UPGRADE_ERROR = 10
 
   buildConfig = _messages.MessageField('BuildConfig', 1)
   eventTrigger = _messages.MessageField('EventTrigger', 2)

@@ -49,7 +49,9 @@ class AppengineV1alpha(base_api.BaseApiClient):
     self.apps_services_versions = self.AppsServicesVersionsService(self)
     self.apps_services = self.AppsServicesService(self)
     self.apps = self.AppsService(self)
+    self.projects_locations_applications_authorizedCertificates = self.ProjectsLocationsApplicationsAuthorizedCertificatesService(self)
     self.projects_locations_applications_authorizedDomains = self.ProjectsLocationsApplicationsAuthorizedDomainsService(self)
+    self.projects_locations_applications_domainMappings = self.ProjectsLocationsApplicationsDomainMappingsService(self)
     self.projects_locations_applications_services_migration = self.ProjectsLocationsApplicationsServicesMigrationService(self)
     self.projects_locations_applications_services_versions = self.ProjectsLocationsApplicationsServicesVersionsService(self)
     self.projects_locations_applications_services = self.ProjectsLocationsApplicationsServicesService(self)
@@ -441,7 +443,7 @@ class AppengineV1alpha(base_api.BaseApiClient):
         method_id='appengine.apps.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1alpha/{+name}/locations',
         request_field='',
         request_type_name='AppengineAppsLocationsListRequest',
@@ -505,7 +507,7 @@ class AppengineV1alpha(base_api.BaseApiClient):
         method_id='appengine.apps.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1alpha/{+name}/operations',
         request_field='',
         request_type_name='AppengineAppsOperationsListRequest',
@@ -1291,6 +1293,151 @@ class AppengineV1alpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsApplicationsAuthorizedCertificatesService(base_api.BaseApiService):
+    """Service class for the projects_locations_applications_authorizedCertificates resource."""
+
+    _NAME = 'projects_locations_applications_authorizedCertificates'
+
+    def __init__(self, client):
+      super(AppengineV1alpha.ProjectsLocationsApplicationsAuthorizedCertificatesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Uploads the specified SSL certificate.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsAuthorizedCertificatesCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (AuthorizedCertificate) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/authorizedCertificates',
+        http_method='POST',
+        method_id='appengine.projects.locations.applications.authorizedCertificates.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1alpha/{+parent}/authorizedCertificates',
+        request_field='authorizedCertificate',
+        request_type_name='AppengineProjectsLocationsApplicationsAuthorizedCertificatesCreateRequest',
+        response_type_name='AuthorizedCertificate',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes the specified SSL certificate.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsAuthorizedCertificatesDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Empty) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/authorizedCertificates/{authorizedCertificatesId}',
+        http_method='DELETE',
+        method_id='appengine.projects.locations.applications.authorizedCertificates.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsAuthorizedCertificatesDeleteRequest',
+        response_type_name='Empty',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets the specified SSL certificate.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsAuthorizedCertificatesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (AuthorizedCertificate) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/authorizedCertificates/{authorizedCertificatesId}',
+        http_method='GET',
+        method_id='appengine.projects.locations.applications.authorizedCertificates.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['view'],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsAuthorizedCertificatesGetRequest',
+        response_type_name='AuthorizedCertificate',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists all SSL certificates the user is authorized to administer.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsAuthorizedCertificatesListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListAuthorizedCertificatesResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/authorizedCertificates',
+        http_method='GET',
+        method_id='appengine.projects.locations.applications.authorizedCertificates.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['pageSize', 'pageToken', 'view'],
+        relative_path='v1alpha/{+parent}/authorizedCertificates',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsAuthorizedCertificatesListRequest',
+        response_type_name='ListAuthorizedCertificatesResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the specified SSL certificate. To renew a certificate and maintain its existing domain mappings, update certificate_data with a new certificate. The new certificate must be applicable to the same domains as the original certificate. The certificate display_name may also be updated.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsAuthorizedCertificatesPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (AuthorizedCertificate) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/authorizedCertificates/{authorizedCertificatesId}',
+        http_method='PATCH',
+        method_id='appengine.projects.locations.applications.authorizedCertificates.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1alpha/{+name}',
+        request_field='authorizedCertificate',
+        request_type_name='AppengineProjectsLocationsApplicationsAuthorizedCertificatesPatchRequest',
+        response_type_name='AuthorizedCertificate',
+        supports_download=False,
+    )
+
   class ProjectsLocationsApplicationsAuthorizedDomainsService(base_api.BaseApiService):
     """Service class for the projects_locations_applications_authorizedDomains resource."""
 
@@ -1325,6 +1472,124 @@ class AppengineV1alpha(base_api.BaseApiClient):
         request_field='',
         request_type_name='AppengineProjectsLocationsApplicationsAuthorizedDomainsListRequest',
         response_type_name='ListAuthorizedDomainsResponse',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsApplicationsDomainMappingsService(base_api.BaseApiService):
+    """Service class for the projects_locations_applications_domainMappings resource."""
+
+    _NAME = 'projects_locations_applications_domainMappings'
+
+    def __init__(self, client):
+      super(AppengineV1alpha.ProjectsLocationsApplicationsDomainMappingsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Maps a domain to an application. A user must be authorized to administer a domain in order to map it to an application. For a list of available authorized domains, see AuthorizedDomains.ListAuthorizedDomains.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsDomainMappingsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/domainMappings',
+        http_method='POST',
+        method_id='appengine.projects.locations.applications.domainMappings.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['noManagedCertificate', 'overrideStrategy'],
+        relative_path='v1alpha/{+parent}/domainMappings',
+        request_field='domainMapping',
+        request_type_name='AppengineProjectsLocationsApplicationsDomainMappingsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes the specified domain mapping. A user must be authorized to administer the associated domain in order to delete a DomainMapping resource.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsDomainMappingsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/domainMappings/{domainMappingsId}',
+        http_method='DELETE',
+        method_id='appengine.projects.locations.applications.domainMappings.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsDomainMappingsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets the specified domain mapping.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsDomainMappingsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DomainMapping) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/domainMappings/{domainMappingsId}',
+        http_method='GET',
+        method_id='appengine.projects.locations.applications.domainMappings.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsDomainMappingsGetRequest',
+        response_type_name='DomainMapping',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the specified domain mapping. To map an SSL certificate to a domain mapping, update certificate_id to point to an AuthorizedCertificate resource. A user must be authorized to administer the associated domain in order to update a DomainMapping resource.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsDomainMappingsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/domainMappings/{domainMappingsId}',
+        http_method='PATCH',
+        method_id='appengine.projects.locations.applications.domainMappings.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['noManagedCertificate', 'updateMask'],
+        relative_path='v1alpha/{+name}',
+        request_field='domainMapping',
+        request_type_name='AppengineProjectsLocationsApplicationsDomainMappingsPatchRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
@@ -1456,6 +1721,33 @@ class AppengineV1alpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Patch(self, request, global_params=None):
+      r"""Updates the specified Version resource. You can specify the following fields depending on the App Engine environment and type of scaling that the version resource uses:Standard environment instance_class (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.instance_class)automatic scaling in the standard environment: automatic_scaling.min_idle_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling) automatic_scaling.max_idle_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling) automaticScaling.standard_scheduler_settings.max_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#StandardSchedulerSettings) automaticScaling.standard_scheduler_settings.min_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#StandardSchedulerSettings) automaticScaling.standard_scheduler_settings.target_cpu_utilization (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#StandardSchedulerSettings) automaticScaling.standard_scheduler_settings.target_throughput_utilization (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#StandardSchedulerSettings)basic scaling or manual scaling in the standard environment: serving_status (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.serving_status) manual_scaling.instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#manualscaling)Flexible environment serving_status (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.serving_status)automatic scaling in the flexible environment: automatic_scaling.min_total_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling) automatic_scaling.max_total_instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling) automatic_scaling.cool_down_period_sec (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling) automatic_scaling.cpu_utilization.target_utilization (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#Version.FIELDS.automatic_scaling)manual scaling in the flexible environment: manual_scaling.instances (https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1alpha/apps.services.versions#manualscaling).
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsServicesVersionsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/services/{servicesId}/versions/{versionsId}',
+        http_method='PATCH',
+        method_id='appengine.projects.locations.applications.services.versions.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1alpha/{+name}',
+        request_field='version',
+        request_type_name='AppengineProjectsLocationsApplicationsServicesVersionsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class ProjectsLocationsApplicationsServicesService(base_api.BaseApiService):
     """Service class for the projects_locations_applications_services resource."""
 
@@ -1465,6 +1757,60 @@ class AppengineV1alpha(base_api.BaseApiClient):
       super(AppengineV1alpha.ProjectsLocationsApplicationsServicesService, self).__init__(client)
       self._upload_configs = {
           }
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes the specified service and all enclosed versions.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsServicesDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/services/{servicesId}',
+        http_method='DELETE',
+        method_id='appengine.projects.locations.applications.services.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1alpha/{+name}',
+        request_field='',
+        request_type_name='AppengineProjectsLocationsApplicationsServicesDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the configuration of the specified service.
+
+      Args:
+        request: (AppengineProjectsLocationsApplicationsServicesPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}/services/{servicesId}',
+        http_method='PATCH',
+        method_id='appengine.projects.locations.applications.services.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['migrateTraffic', 'updateMask'],
+        relative_path='v1alpha/{+name}',
+        request_field='service',
+        request_type_name='AppengineProjectsLocationsApplicationsServicesPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
 
   class ProjectsLocationsApplicationsService(base_api.BaseApiService):
     """Service class for the projects_locations_applications resource."""
@@ -1532,7 +1878,7 @@ class AppengineV1alpha(base_api.BaseApiClient):
         method_id='appengine.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1alpha/{+name}/operations',
         request_field='',
         request_type_name='AppengineProjectsLocationsOperationsListRequest',
@@ -1596,7 +1942,7 @@ class AppengineV1alpha(base_api.BaseApiClient):
         method_id='appengine.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1alpha/{+name}/locations',
         request_field='',
         request_type_name='AppengineProjectsLocationsListRequest',

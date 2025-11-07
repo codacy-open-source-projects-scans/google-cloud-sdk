@@ -18,8 +18,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import json
 import re
 
+from apitools.base.protorpclite import protojson
 from googlecloudsdk.api_lib.artifacts import exceptions
 from googlecloudsdk.api_lib.artifacts import filter_rewriter
 from googlecloudsdk.api_lib.util import common_args
@@ -36,8 +38,9 @@ def EscapeFileName(ref):
       projectsId=ref.projectsId,
       locationsId=ref.locationsId,
       repositoriesId=ref.repositoriesId,
-      filesId=
-      ref.filesId.replace("/", "%2F").replace("+", "%2B").replace("^", "%5E"),
+      filesId=ref.filesId.replace("/", "%2F")
+      .replace("+", "%2B")
+      .replace("^", "%5E"),
   )
 
 
@@ -63,9 +66,49 @@ def EscapeFileNameFromIDs(project_id, location_id, repo_id, file_id):
       projectsId=project_id,
       locationsId=location_id,
       repositoriesId=repo_id,
-      filesId=
-      file_id.replace("/", "%2F").replace("+", "%2B").replace("^", "%5E"),
+      filesId=file_id.replace("/", "%2F")
+      .replace("+", "%2B")
+      .replace("^", "%5E"),
   )
+
+
+def ConvertFilesHashes(files):
+  """Convert hashes of file list to hex strings."""
+  return [ConvertFileHashes(f, None) for f in files]
+
+
+def ConvertFileHashes(response, unused_args):
+  """Convert file hashes to hex strings."""
+
+  # File hashes are "bytes", and if it's returned directly, it will be
+  # automatically encoded with base64.
+  # We want to display them as hex strings instead.
+
+  # The returned file obj restricts the field type, so we can't simply update
+  # the "bytes" field to a "string" field.
+  # Convert it to a json object and then update the field as a workaround.
+  json_obj = json.loads(protojson.encode_message(response))
+
+  hashes = []
+  for h in response.hashes:
+    hashes.append({
+        "type": h.type,
+        "value": h.value.hex(),
+    })
+  if hashes:
+    json_obj["hashes"] = hashes
+
+  # Proto map fields are converted into type "AnnotationsValue" in the response,
+  # which contains a list of key-value pairs as "additionalProperties".
+  # We want to convert this back to a dict.
+  annotations = {}
+  if response.annotations:
+    for p in response.annotations.additionalProperties:
+      annotations[p.key] = p.value
+  if annotations:
+    json_obj["annotations"] = annotations
+
+  return json_obj
 
 
 def ListGenericFiles(args):
@@ -84,14 +127,18 @@ def ListGenericFiles(args):
           locationsId=location,
           repositoriesId=repo,
           packagesId=package,
-          versionsId=version))
+          versionsId=version,
+      )
+  )
   arg_filters = 'owner="{}"'.format(version_path)
   repo_path = resources.Resource.RelativeName(
       resources.REGISTRY.Create(
           "artifactregistry.projects.locations.repositories",
           projectsId=project,
           locationsId=location,
-          repositoriesId=repo))
+          repositoriesId=repo,
+      )
+  )
   files = requests.ListFiles(client, messages, repo_path, arg_filters)
 
   return files
@@ -130,9 +177,9 @@ def ListFiles(args):
 
   if args.limit is not None and args.filter is not None:
     if server_filter is not None:
-      # Use server-side paging with server-side filtering.
+      # Apply limit to server-side page_size to improve performance when
+      # server-side filter is used.
       page_size = args.limit
-      args.page_size = args.limit
     else:
       # Fall back to client-side paging with client-side filtering.
       page_size = None
@@ -145,12 +192,16 @@ def ListFiles(args):
 
   # Parse fully qualified path in package argument
   if package:
-    if re.match(r"projects\/.*\/locations\/.*\/repositories\/.*\/packages\/.*",
-                package):
-      params = package.replace("projects/", "", 1).replace(
-          "/locations/", " ", 1).replace("/repositories/", " ",
-                                         1).replace("/packages/", " ",
-                                                    1).split(" ")
+    if re.match(
+        r"projects\/.*\/locations\/.*\/repositories\/.*\/packages\/.*", package
+    ):
+      params = (
+          package.replace("projects/", "", 1)
+          .replace("/locations/", " ", 1)
+          .replace("/repositories/", " ", 1)
+          .replace("/packages/", " ", 1)
+          .split(" ")
+      )
       project, location, repo, package = [params[i] for i in range(len(params))]
 
   # Escape slashes, pluses and carets in package name
@@ -161,7 +212,8 @@ def ListFiles(args):
   # Retrieve version from tag name
   if version and tag:
     raise exceptions.InvalidInputValueError(
-        "Specify either --version or --tag with --package argument.")
+        "Specify either --version or --tag with --package argument."
+    )
   if package and tag:
     tag_path = resources.Resource.RelativeName(
         resources.REGISTRY.Create(
@@ -170,7 +222,9 @@ def ListFiles(args):
             locationsId=location,
             repositoriesId=repo,
             packagesId=package,
-            tagsId=tag))
+            tagsId=tag,
+        )
+    )
     version = requests.GetVersionFromTag(client, messages, tag_path)
 
   if package and version:
@@ -181,7 +235,9 @@ def ListFiles(args):
             locationsId=location,
             repositoriesId=repo,
             packagesId=package,
-            versionsId=version))
+            versionsId=version,
+        )
+    )
     server_filter = 'owner="{}"'.format(version_path)
   elif package:
     package_path = resources.Resource.RelativeName(
@@ -190,29 +246,34 @@ def ListFiles(args):
             projectsId=project,
             locationsId=location,
             repositoriesId=repo,
-            packagesId=package))
+            packagesId=package,
+        )
+    )
     server_filter = 'owner="{}"'.format(package_path)
   elif version or tag:
     raise exceptions.InvalidInputValueError(
-        "Package name is required when specifying version or tag.")
+        "Package name is required when specifying version or tag."
+    )
 
   repo_path = resources.Resource.RelativeName(
       resources.REGISTRY.Create(
           "artifactregistry.projects.locations.repositories",
           projectsId=project,
           locationsId=location,
-          repositoriesId=repo))
+          repositoriesId=repo,
+      )
+  )
   server_args = {
       "client": client,
       "messages": messages,
       "repo": repo_path,
       "server_filter": server_filter,
       "page_size": page_size,
-      "order_by": order_by
+      "order_by": order_by,
   }
   server_args_skipped, lfiles = util.RetryOnInvalidArguments(
-      requests.ListFiles,
-      **server_args)
+      requests.ListFiles, **server_args
+  )
 
   if not server_args_skipped:
     # If server-side filter or sort-by is parsed correctly and the request
@@ -221,4 +282,4 @@ def ListFiles(args):
       args.filter = None
     if order_by:
       args.sort_by = None
-  return lfiles
+  return ConvertFilesHashes(lfiles)

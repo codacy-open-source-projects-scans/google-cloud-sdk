@@ -23,6 +23,7 @@ from typing import Generator
 
 from apitools.base.py import encoding
 from apitools.base.py import list_pager
+from googlecloudsdk.api_lib.container.fleet import gkehub_api_util
 from googlecloudsdk.api_lib.container.fleet import types
 from googlecloudsdk.api_lib.container.fleet import util
 from googlecloudsdk.api_lib.util import waiter
@@ -52,7 +53,7 @@ class HubClient(object):
     self.resourceless_waiter = waiter.CloudOperationPollerNoResources(
         operation_service=self.client.projects_locations_operations
     )
-    self.feature_waiter = waiter.CloudOperationPoller(
+    self.feature_waiter = gkehub_api_util.HubFeatureOperationPoller(
         result_service=self.client.projects_locations_features,
         operation_service=self.client.projects_locations_operations,
     )
@@ -87,7 +88,10 @@ class HubClient(object):
     Returns:
       The Feature message.
     """
-    req = self.messages.GkehubProjectsLocationsFeaturesGetRequest(name=name)
+    req = self.messages.GkehubProjectsLocationsFeaturesGetRequest(
+        name=name,
+        returnPartialSuccess=True,
+    )
     return self.client.projects_locations_features.Get(req)
 
   def ListFeatures(self, parent):
@@ -100,7 +104,8 @@ class HubClient(object):
       A list of Features.
     """
     req = self.messages.GkehubProjectsLocationsFeaturesListRequest(
-        parent=parent
+        parent=parent,
+        returnPartialSuccess=True,
     )
     # We skip the pagination for now, since it will never be hit.
     resp = self.client.projects_locations_features.List(req)
@@ -254,7 +259,7 @@ class HubV2Client(object):
       typically using waiter.WaitFor to present a user-friendly spinner.
     """
     req = self.messages.GkehubProjectsLocationsMembershipsFeaturesCreateRequest(
-        membership_feature=membership_feature,
+        membershipFeature=membership_feature,
         featureId=feature_id,
         parent=parent,
     )
@@ -1525,6 +1530,56 @@ class FleetClient(object):
   ):
     """Delete a fleet rollout."""
     return self.client.projects_locations_rollouts.Delete(req)
+
+  def CreateRolloutSequence(
+      self, req: types.GkehubProjectsLocationsRolloutSequencesCreateRequest
+  ):
+    """Creates a rollout sequence resource.
+
+    Args:
+      req: An HTTP create rollout sequence request to be sent to the API server.
+
+    Returns:
+      A long-running operation.
+
+    Raises:
+      apitools.base.py.HttpError: if the request returns an HTTP error
+    """
+    return self.client.projects_locations_rolloutSequences.Create(req)
+
+  def DescribeRolloutSequence(
+      self, req: types.GkehubProjectsLocationsRolloutSequencesGetRequest
+  ) -> types.RolloutSequence:
+    """Describes a rollout sequence."""
+    return self.client.projects_locations_rolloutSequences.Get(req)
+
+  def ListRolloutSequences(
+      self,
+      req: types.GkehubProjectsLocationsRolloutSequencesListRequest,
+      page_size=None,
+      limit=None,
+  ) -> types.RolloutSequenceGenerator:
+    """Lists rollout sequences."""
+    return list_pager.YieldFromList(
+        self.client.projects_locations_rolloutSequences,
+        req,
+        field='rolloutSequences',
+        batch_size=page_size,
+        limit=limit,
+        batch_size_attribute='pageSize',
+    )
+
+  def UpdateRolloutSequence(
+      self, req: types.GkehubProjectsLocationsRolloutSequencesPatchRequest
+  ):
+    """Updates a RolloutSequence and returns the long-running operation message."""
+    return self.client.projects_locations_rolloutSequences.Patch(req)
+
+  def DeleteRolloutSequence(
+      self, req: types.GkehubProjectsLocationsRolloutSequencesDeleteRequest
+  ):
+    """Deletes a rollout sequence."""
+    return self.client.projects_locations_rolloutSequences.Delete(req)
 
 
 class OperationClient:

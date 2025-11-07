@@ -40,13 +40,17 @@ class BackupdrV1(base_api.BaseApiClient):
         additional_http_headers=additional_http_headers,
         response_encoding=response_encoding)
     self.projects_locations_backupPlanAssociations = self.ProjectsLocationsBackupPlanAssociationsService(self)
+    self.projects_locations_backupPlans_revisions = self.ProjectsLocationsBackupPlansRevisionsService(self)
     self.projects_locations_backupPlans = self.ProjectsLocationsBackupPlansService(self)
     self.projects_locations_backupVaults_dataSources_backups = self.ProjectsLocationsBackupVaultsDataSourcesBackupsService(self)
     self.projects_locations_backupVaults_dataSources = self.ProjectsLocationsBackupVaultsDataSourcesService(self)
     self.projects_locations_backupVaults = self.ProjectsLocationsBackupVaultsService(self)
+    self.projects_locations_dataSourceReferences = self.ProjectsLocationsDataSourceReferencesService(self)
     self.projects_locations_managementServers = self.ProjectsLocationsManagementServersService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
+    self.projects_locations_resourceBackupConfigs = self.ProjectsLocationsResourceBackupConfigsService(self)
     self.projects_locations_serviceConfig = self.ProjectsLocationsServiceConfigService(self)
+    self.projects_locations_trial = self.ProjectsLocationsTrialService(self)
     self.projects_locations = self.ProjectsLocationsService(self)
     self.projects = self.ProjectsService(self)
 
@@ -114,6 +118,33 @@ class BackupdrV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def FetchForResourceType(self, request, global_params=None):
+      r"""List BackupPlanAssociations for a given resource type.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupPlanAssociationsFetchForResourceTypeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (FetchBackupPlanAssociationsForResourceTypeResponse) The response message.
+      """
+      config = self.GetMethodConfig('FetchForResourceType')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    FetchForResourceType.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupPlanAssociations:fetchForResourceType',
+        http_method='GET',
+        method_id='backupdr.projects.locations.backupPlanAssociations.fetchForResourceType',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken', 'resourceType'],
+        relative_path='v1/{+parent}/backupPlanAssociations:fetchForResourceType',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsBackupPlanAssociationsFetchForResourceTypeRequest',
+        response_type_name='FetchBackupPlanAssociationsForResourceTypeResponse',
+        supports_download=False,
+    )
+
     def Get(self, request, global_params=None):
       r"""Gets details of a single BackupPlanAssociation.
 
@@ -168,6 +199,33 @@ class BackupdrV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Patch(self, request, global_params=None):
+      r"""Update a BackupPlanAssociation.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupPlanAssociationsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupPlanAssociations/{backupPlanAssociationsId}',
+        http_method='PATCH',
+        method_id='backupdr.projects.locations.backupPlanAssociations.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='backupPlanAssociation',
+        request_type_name='BackupdrProjectsLocationsBackupPlanAssociationsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def TriggerBackup(self, request, global_params=None):
       r"""Triggers a new Backup.
 
@@ -192,6 +250,70 @@ class BackupdrV1(base_api.BaseApiClient):
         request_field='triggerBackupRequest',
         request_type_name='BackupdrProjectsLocationsBackupPlanAssociationsTriggerBackupRequest',
         response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsBackupPlansRevisionsService(base_api.BaseApiService):
+    """Service class for the projects_locations_backupPlans_revisions resource."""
+
+    _NAME = 'projects_locations_backupPlans_revisions'
+
+    def __init__(self, client):
+      super(BackupdrV1.ProjectsLocationsBackupPlansRevisionsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single BackupPlanRevision.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupPlansRevisionsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (BackupPlanRevision) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupPlans/{backupPlansId}/revisions/{revisionsId}',
+        http_method='GET',
+        method_id='backupdr.projects.locations.backupPlans.revisions.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsBackupPlansRevisionsGetRequest',
+        response_type_name='BackupPlanRevision',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists BackupPlanRevisions in a given project and location.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupPlansRevisionsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListBackupPlanRevisionsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupPlans/{backupPlansId}/revisions',
+        http_method='GET',
+        method_id='backupdr.projects.locations.backupPlans.revisions.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/revisions',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsBackupPlansRevisionsListRequest',
+        response_type_name='ListBackupPlanRevisionsResponse',
         supports_download=False,
     )
 
@@ -313,6 +435,33 @@ class BackupdrV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Patch(self, request, global_params=None):
+      r"""Update a BackupPlan.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupPlansPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupPlans/{backupPlansId}',
+        http_method='PATCH',
+        method_id='backupdr.projects.locations.backupPlans.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['requestId', 'updateMask'],
+        relative_path='v1/{+name}',
+        request_field='backupPlan',
+        request_type_name='BackupdrProjectsLocationsBackupPlansPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class ProjectsLocationsBackupVaultsDataSourcesBackupsService(base_api.BaseApiService):
     """Service class for the projects_locations_backupVaults_dataSources_backups resource."""
 
@@ -347,6 +496,33 @@ class BackupdrV1(base_api.BaseApiClient):
         request_field='',
         request_type_name='BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsDeleteRequest',
         response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def FetchForResourceType(self, request, global_params=None):
+      r"""Fetch Backups for a given resource type.
+
+      Args:
+        request: (BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsFetchForResourceTypeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (FetchBackupsForResourceTypeResponse) The response message.
+      """
+      config = self.GetMethodConfig('FetchForResourceType')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    FetchForResourceType.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/backupVaults/{backupVaultsId}/dataSources/{dataSourcesId}/backups:fetchForResourceType',
+        http_method='GET',
+        method_id='backupdr.projects.locations.backupVaults.dataSources.backups.fetchForResourceType',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken', 'resourceType', 'view'],
+        relative_path='v1/{+parent}/backups:fetchForResourceType',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsBackupVaultsDataSourcesBackupsFetchForResourceTypeRequest',
+        response_type_name='FetchBackupsForResourceTypeResponse',
         supports_download=False,
     )
 
@@ -875,7 +1051,7 @@ class BackupdrV1(base_api.BaseApiClient):
         method_id='backupdr.projects.locations.backupVaults.patch',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['force', 'requestId', 'updateMask', 'validateOnly'],
+        query_params=['force', 'forceUpdateAccessRestriction', 'requestId', 'updateMask', 'validateOnly'],
         relative_path='v1/{+name}',
         request_field='backupVault',
         request_type_name='BackupdrProjectsLocationsBackupVaultsPatchRequest',
@@ -907,6 +1083,97 @@ class BackupdrV1(base_api.BaseApiClient):
         request_field='testIamPermissionsRequest',
         request_type_name='BackupdrProjectsLocationsBackupVaultsTestIamPermissionsRequest',
         response_type_name='TestIamPermissionsResponse',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsDataSourceReferencesService(base_api.BaseApiService):
+    """Service class for the projects_locations_dataSourceReferences resource."""
+
+    _NAME = 'projects_locations_dataSourceReferences'
+
+    def __init__(self, client):
+      super(BackupdrV1.ProjectsLocationsDataSourceReferencesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def FetchForResourceType(self, request, global_params=None):
+      r"""Fetch DataSourceReferences for a given project, location and resource type.
+
+      Args:
+        request: (BackupdrProjectsLocationsDataSourceReferencesFetchForResourceTypeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (FetchDataSourceReferencesForResourceTypeResponse) The response message.
+      """
+      config = self.GetMethodConfig('FetchForResourceType')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    FetchForResourceType.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSourceReferences:fetchForResourceType',
+        http_method='GET',
+        method_id='backupdr.projects.locations.dataSourceReferences.fetchForResourceType',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken', 'resourceType'],
+        relative_path='v1/{+parent}/dataSourceReferences:fetchForResourceType',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsDataSourceReferencesFetchForResourceTypeRequest',
+        response_type_name='FetchDataSourceReferencesForResourceTypeResponse',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single DataSourceReference.
+
+      Args:
+        request: (BackupdrProjectsLocationsDataSourceReferencesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (DataSourceReference) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSourceReferences/{dataSourceReferencesId}',
+        http_method='GET',
+        method_id='backupdr.projects.locations.dataSourceReferences.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsDataSourceReferencesGetRequest',
+        response_type_name='DataSourceReference',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists DataSourceReferences for a given project and location.
+
+      Args:
+        request: (BackupdrProjectsLocationsDataSourceReferencesListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListDataSourceReferencesResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/dataSourceReferences',
+        http_method='GET',
+        method_id='backupdr.projects.locations.dataSourceReferences.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/dataSourceReferences',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsDataSourceReferencesListRequest',
+        response_type_name='ListDataSourceReferencesResponse',
         supports_download=False,
     )
 
@@ -1052,6 +1319,33 @@ class BackupdrV1(base_api.BaseApiClient):
         request_field='',
         request_type_name='BackupdrProjectsLocationsManagementServersListRequest',
         response_type_name='ListManagementServersResponse',
+        supports_download=False,
+    )
+
+    def MsComplianceMetadata(self, request, global_params=None):
+      r"""Returns the Assured Workloads compliance metadata for a given project.
+
+      Args:
+        request: (BackupdrProjectsLocationsManagementServersMsComplianceMetadataRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (FetchMsComplianceMetadataResponse) The response message.
+      """
+      config = self.GetMethodConfig('MsComplianceMetadata')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    MsComplianceMetadata.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/managementServers:msComplianceMetadata',
+        http_method='POST',
+        method_id='backupdr.projects.locations.managementServers.msComplianceMetadata',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1/{+parent}:msComplianceMetadata',
+        request_field='fetchMsComplianceMetadataRequest',
+        request_type_name='BackupdrProjectsLocationsManagementServersMsComplianceMetadataRequest',
+        response_type_name='FetchMsComplianceMetadataResponse',
         supports_download=False,
     )
 
@@ -1219,11 +1513,48 @@ class BackupdrV1(base_api.BaseApiClient):
         method_id='backupdr.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}/operations',
         request_field='',
         request_type_name='BackupdrProjectsLocationsOperationsListRequest',
         response_type_name='ListOperationsResponse',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsResourceBackupConfigsService(base_api.BaseApiService):
+    """Service class for the projects_locations_resourceBackupConfigs resource."""
+
+    _NAME = 'projects_locations_resourceBackupConfigs'
+
+    def __init__(self, client):
+      super(BackupdrV1.ProjectsLocationsResourceBackupConfigsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def List(self, request, global_params=None):
+      r"""Lists ResourceBackupConfigs.
+
+      Args:
+        request: (BackupdrProjectsLocationsResourceBackupConfigsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListResourceBackupConfigsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/resourceBackupConfigs',
+        http_method='GET',
+        method_id='backupdr.projects.locations.resourceBackupConfigs.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/resourceBackupConfigs',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsResourceBackupConfigsListRequest',
+        response_type_name='ListResourceBackupConfigsResponse',
         supports_download=False,
     )
 
@@ -1264,6 +1595,43 @@ class BackupdrV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsTrialService(base_api.BaseApiService):
+    """Service class for the projects_locations_trial resource."""
+
+    _NAME = 'projects_locations_trial'
+
+    def __init__(self, client):
+      super(BackupdrV1.ProjectsLocationsTrialService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Subscribe(self, request, global_params=None):
+      r"""Subscribes to a trial for a project.
+
+      Args:
+        request: (BackupdrProjectsLocationsTrialSubscribeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Trial) The response message.
+      """
+      config = self.GetMethodConfig('Subscribe')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Subscribe.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/trial:subscribe',
+        http_method='POST',
+        method_id='backupdr.projects.locations.trial.subscribe',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1/{+parent}/trial:subscribe',
+        request_field='subscribeTrialRequest',
+        request_type_name='BackupdrProjectsLocationsTrialSubscribeRequest',
+        response_type_name='Trial',
+        supports_download=False,
+    )
+
   class ProjectsLocationsService(base_api.BaseApiService):
     """Service class for the projects_locations resource."""
 
@@ -1301,6 +1669,33 @@ class BackupdrV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def GetTrial(self, request, global_params=None):
+      r"""Gets the Trial state for a given project.
+
+      Args:
+        request: (BackupdrProjectsLocationsGetTrialRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Trial) The response message.
+      """
+      config = self.GetMethodConfig('GetTrial')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetTrial.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/trial',
+        http_method='GET',
+        method_id='backupdr.projects.locations.getTrial',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='BackupdrProjectsLocationsGetTrialRequest',
+        response_type_name='Trial',
+        supports_download=False,
+    )
+
     def List(self, request, global_params=None):
       r"""Lists information about the supported locations for this service.
 
@@ -1320,7 +1715,7 @@ class BackupdrV1(base_api.BaseApiClient):
         method_id='backupdr.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1/{+name}/locations',
         request_field='',
         request_type_name='BackupdrProjectsLocationsListRequest',

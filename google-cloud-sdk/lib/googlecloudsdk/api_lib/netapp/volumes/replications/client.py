@@ -33,6 +33,8 @@ class ReplicationsClient(object):
   def __init__(self, release_track=base.ReleaseTrack.BETA):
     if release_track == base.ReleaseTrack.BETA:
       self._adapter = BetaReplicationsAdapter()
+    elif release_track == base.ReleaseTrack.ALPHA:
+      self._adapter = AlphaReplicationsAdapter()
     elif release_track == base.ReleaseTrack.GA:
       self._adapter = ReplicationsAdapter()
     else:
@@ -200,7 +202,7 @@ class ReplicationsClient(object):
     return self._adapter.ParseUpdatedReplicationConfig(
         replication_config, description=description, labels=labels,
         replication_schedule=replication_schedule,
-        cluster_location=cluster_location
+        cluster_location=cluster_location,
     )
 
   def UpdateReplication(
@@ -391,6 +393,11 @@ class ReplicationsAdapter(object):
         parameters.shareName = val
       elif key == 'description':
         parameters.description = val
+      elif key == 'tiering_policy':
+        parameters.tieringPolicy = self.messages.TieringPolicy(
+            tierAction=val['tier-action'],
+            coolingThresholdDays=val['cooling-threshold-days'],
+        )
       else:
         log.warning('The attribute {} is not recognized.'.format(key))
     replication.destinationVolumeParameters = parameters
@@ -506,6 +513,20 @@ class BetaReplicationsAdapter(ReplicationsAdapter):
   def __init__(self):
     super(BetaReplicationsAdapter, self).__init__()
     self.release_track = base.ReleaseTrack.BETA
+    self.client = netapp_api_util.GetClientInstance(
+        release_track=self.release_track
+    )
+    self.messages = netapp_api_util.GetMessagesModule(
+        release_track=self.release_track
+    )
+
+
+class AlphaReplicationsAdapter(BetaReplicationsAdapter):
+  """Adapter for the Alpha Cloud NetApp Files API Replication resource."""
+
+  def __init__(self):
+    super(AlphaReplicationsAdapter, self).__init__()
+    self.release_track = base.ReleaseTrack.ALPHA
     self.client = netapp_api_util.GetClientInstance(
         release_track=self.release_track
     )

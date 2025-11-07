@@ -15,6 +15,410 @@ from apitools.base.py import extra_types
 package = 'aiplatform'
 
 
+class AiplatformAgentsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformAgentsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAgentsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformAgentsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAgentsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformAgentsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAgentsOperationsListRequest(_messages.Message):
+  r"""A AiplatformAgentsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformAgentsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformAgentsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformAppsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformAppsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAppsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformAppsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAppsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformAppsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformAppsOperationsListRequest(_messages.Message):
+  r"""A AiplatformAppsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformAppsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformAppsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformBatchPredictionJobsCreateRequest(_messages.Message):
+  r"""A AiplatformBatchPredictionJobsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1BatchPredictionJob: A
+      GoogleCloudAiplatformV1beta1BatchPredictionJob resource to be passed as
+      the request body.
+    parent: Required. The resource name of the Location to create the
+      BatchPredictionJob in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1BatchPredictionJob = _messages.MessageField('GoogleCloudAiplatformV1beta1BatchPredictionJob', 1)
+  parent = _messages.StringField(2)
+
+
+class AiplatformBatchPredictionJobsGetRequest(_messages.Message):
+  r"""A AiplatformBatchPredictionJobsGetRequest object.
+
+  Fields:
+    name: Required. The name of the BatchPredictionJob resource. Format: `proj
+      ects/{project}/locations/{location}/batchPredictionJobs/{batch_predictio
+      n_job}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformBatchPredictionJobsListRequest(_messages.Message):
+  r"""A AiplatformBatchPredictionJobsListRequest object.
+
+  Fields:
+    filter: The standard list filter. Supported fields: * `display_name`
+      supports `=`, `!=` comparisons, and `:` wildcard. * `model_display_name`
+      supports `=`, `!=` comparisons. * `state` supports `=`, `!=`
+      comparisons. * `create_time` supports `=`, `!=`,`<`, `<=`,`>`, `>=`
+      comparisons. `create_time` must be in RFC 3339 format. * `labels`
+      supports general map functions that is: `labels.key=value` - key:value
+      equality `labels.key:* - key existence Some examples of using the filter
+      are: * `state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"` *
+      `state!="JOB_STATE_FAILED" OR display_name="my_job"` * `NOT
+      display_name="my_job"` * `create_time>"2021-05-18T00:00:00Z"` *
+      `labels.keyA=valueA` * `labels.keyB:*`
+    pageSize: The standard list page size.
+    pageToken: The standard list page token. Typically obtained via
+      ListBatchPredictionJobsResponse.next_page_token of the previous
+      JobService.ListBatchPredictionJobs call.
+    parent: Required. The resource name of the Location to list the
+      BatchPredictionJobs from. Format:
+      `projects/{project}/locations/{location}`
+    readMask: Mask specifying which fields to read.
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4)
+  readMask = _messages.StringField(5)
+
+
+class AiplatformCustomJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformCustomJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformCustomJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformCustomJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformCustomJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformCustomJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformCustomJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformCustomJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformCustomJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformCustomJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformDataLabelingJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDataLabelingJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDataLabelingJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDataLabelingJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDataLabelingJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDataLabelingJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDataLabelingJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDataLabelingJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDataLabelingJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDataLabelingJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformDatasetsAnnotationSpecsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDatasetsAnnotationSpecsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsAnnotationSpecsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDatasetsAnnotationSpecsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsAnnotationSpecsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDatasetsAnnotationSpecsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsAnnotationSpecsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDatasetsAnnotationSpecsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDatasetsAnnotationSpecsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDatasetsAnnotationSpecsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
 class AiplatformDatasetsCreateRequest(_messages.Message):
   r"""A AiplatformDatasetsCreateRequest object.
 
@@ -27,6 +431,144 @@ class AiplatformDatasetsCreateRequest(_messages.Message):
 
   googleCloudAiplatformV1beta1Dataset = _messages.MessageField('GoogleCloudAiplatformV1beta1Dataset', 1)
   parent = _messages.StringField(2)
+
+
+class AiplatformDatasetsDataItemsAnnotationsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsAnnotationsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsAnnotationsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsAnnotationsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsAnnotationsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsAnnotationsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsAnnotationsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsAnnotationsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDatasetsDataItemsAnnotationsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsAnnotationsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformDatasetsDataItemsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsDataItemsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDatasetsDataItemsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDatasetsDataItemsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
 
 
 class AiplatformDatasetsDatasetVersionsCreateRequest(_messages.Message):
@@ -101,6 +643,8 @@ class AiplatformDatasetsDatasetVersionsPatchRequest(_messages.Message):
       GoogleCloudAiplatformV1beta1DatasetVersion resource to be passed as the
       request body.
     name: Output only. Identifier. The resource name of the DatasetVersion.
+      Format: `projects/{project}/locations/{location}/datasets/{dataset}/data
+      setVersions/{dataset_version}`
     updateMask: Required. The update mask applies to the resource. For the
       `FieldMask` definition, see google.protobuf.FieldMask. Updatable fields:
       * `display_name`
@@ -175,13 +719,83 @@ class AiplatformDatasetsListRequest(_messages.Message):
   readMask = _messages.StringField(6)
 
 
+class AiplatformDatasetsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDatasetsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDatasetsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDatasetsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDatasetsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDatasetsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDatasetsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
 class AiplatformDatasetsPatchRequest(_messages.Message):
   r"""A AiplatformDatasetsPatchRequest object.
 
   Fields:
     googleCloudAiplatformV1beta1Dataset: A GoogleCloudAiplatformV1beta1Dataset
       resource to be passed as the request body.
-    name: Output only. Identifier. The resource name of the Dataset.
+    name: Output only. Identifier. The resource name of the Dataset. Format:
+      `projects/{project}/locations/{location}/datasets/{dataset}`
     updateMask: Required. The update mask applies to the resource. For the
       `FieldMask` definition, see google.protobuf.FieldMask. Updatable fields:
       * `display_name` * `description` * `labels`
@@ -190,6 +804,228 @@ class AiplatformDatasetsPatchRequest(_messages.Message):
   googleCloudAiplatformV1beta1Dataset = _messages.MessageField('GoogleCloudAiplatformV1beta1Dataset', 1)
   name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
+
+
+class AiplatformDatasetsSavedQueriesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDatasetsSavedQueriesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsSavedQueriesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDatasetsSavedQueriesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsSavedQueriesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDatasetsSavedQueriesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDatasetsSavedQueriesOperationsListRequest(_messages.Message):
+  r"""A AiplatformDatasetsSavedQueriesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDatasetsSavedQueriesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDatasetsSavedQueriesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformDeploymentResourcePoolsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformDeploymentResourcePoolsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDeploymentResourcePoolsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformDeploymentResourcePoolsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDeploymentResourcePoolsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformDeploymentResourcePoolsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformDeploymentResourcePoolsOperationsListRequest(_messages.Message):
+  r"""A AiplatformDeploymentResourcePoolsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformDeploymentResourcePoolsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformDeploymentResourcePoolsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEdgeDevicesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformEdgeDevicesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEdgeDevicesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEdgeDevicesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEdgeDevicesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEdgeDevicesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEdgeDevicesOperationsListRequest(_messages.Message):
+  r"""A AiplatformEdgeDevicesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEdgeDevicesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEdgeDevicesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEndpointsChatCompletionsRequest(_messages.Message):
+  r"""A AiplatformEndpointsChatCompletionsRequest object.
+
+  Fields:
+    endpoint: Required. The name of the endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleApiHttpBody: A GoogleApiHttpBody resource to be passed as the
+      request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleApiHttpBody = _messages.MessageField('GoogleApiHttpBody', 2)
 
 
 class AiplatformEndpointsComputeTokensRequest(_messages.Message):
@@ -223,6 +1059,24 @@ class AiplatformEndpointsCountTokensRequest(_messages.Message):
   googleCloudAiplatformV1beta1CountTokensRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CountTokensRequest', 2)
 
 
+class AiplatformEndpointsFetchPredictOperationRequest(_messages.Message):
+  r"""A AiplatformEndpointsFetchPredictOperationRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}` or `proje
+      cts/{project}/locations/{location}/publishers/{publisher}/models/{model}
+      `
+    googleCloudAiplatformV1beta1FetchPredictOperationRequest: A
+      GoogleCloudAiplatformV1beta1FetchPredictOperationRequest resource to be
+      passed as the request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1FetchPredictOperationRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FetchPredictOperationRequest', 2)
+
+
 class AiplatformEndpointsGenerateContentRequest(_messages.Message):
   r"""A AiplatformEndpointsGenerateContentRequest object.
 
@@ -239,6 +1093,109 @@ class AiplatformEndpointsGenerateContentRequest(_messages.Message):
 
   googleCloudAiplatformV1beta1GenerateContentRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateContentRequest', 1)
   model = _messages.StringField(2, required=True)
+
+
+class AiplatformEndpointsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformEndpointsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEndpointsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEndpointsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEndpointsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEndpointsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEndpointsOperationsListRequest(_messages.Message):
+  r"""A AiplatformEndpointsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEndpointsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEndpointsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEndpointsPredictLongRunningRequest(_messages.Message):
+  r"""A AiplatformEndpointsPredictLongRunningRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}` or `proje
+      cts/{project}/locations/{location}/publishers/{publisher}/models/{model}
+      `
+    googleCloudAiplatformV1beta1PredictLongRunningRequest: A
+      GoogleCloudAiplatformV1beta1PredictLongRunningRequest resource to be
+      passed as the request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1PredictLongRunningRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictLongRunningRequest', 2)
+
+
+class AiplatformEndpointsPredictRequest(_messages.Message):
+  r"""A AiplatformEndpointsPredictRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleCloudAiplatformV1beta1PredictRequest: A
+      GoogleCloudAiplatformV1beta1PredictRequest resource to be passed as the
+      request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1PredictRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictRequest', 2)
 
 
 class AiplatformEndpointsStreamGenerateContentRequest(_messages.Message):
@@ -259,6 +1216,1163 @@ class AiplatformEndpointsStreamGenerateContentRequest(_messages.Message):
   model = _messages.StringField(2, required=True)
 
 
+class AiplatformEvaluationItemsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEvaluationItemsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationItemsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEvaluationItemsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationItemsOperationsListRequest(_messages.Message):
+  r"""A AiplatformEvaluationItemsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEvaluationItemsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEvaluationItemsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEvaluationRunsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEvaluationRunsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationRunsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEvaluationRunsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationRunsOperationsListRequest(_messages.Message):
+  r"""A AiplatformEvaluationRunsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEvaluationRunsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEvaluationRunsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEvaluationSetsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEvaluationSetsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationSetsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEvaluationSetsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationSetsOperationsListRequest(_messages.Message):
+  r"""A AiplatformEvaluationSetsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEvaluationSetsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEvaluationSetsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformEvaluationTasksOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformEvaluationTasksOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationTasksOperationsGetRequest(_messages.Message):
+  r"""A AiplatformEvaluationTasksOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformEvaluationTasksOperationsListRequest(_messages.Message):
+  r"""A AiplatformEvaluationTasksOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformEvaluationTasksOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformEvaluationTasksOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformExampleStoresOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformExampleStoresOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExampleStoresOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformExampleStoresOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExampleStoresOperationsGetRequest(_messages.Message):
+  r"""A AiplatformExampleStoresOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExampleStoresOperationsListRequest(_messages.Message):
+  r"""A AiplatformExampleStoresOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformExampleStoresOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformExampleStoresOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformExtensionControllersOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformExtensionControllersOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionControllersOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformExtensionControllersOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionControllersOperationsGetRequest(_messages.Message):
+  r"""A AiplatformExtensionControllersOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionControllersOperationsListRequest(_messages.Message):
+  r"""A AiplatformExtensionControllersOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformExtensionControllersOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformExtensionControllersOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformExtensionsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformExtensionsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformExtensionsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformExtensionsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformExtensionsOperationsListRequest(_messages.Message):
+  r"""A AiplatformExtensionsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformExtensionsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformExtensionsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeatureGroupsFeatureMonitorsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeatureMonitorsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsFeatureMonitorsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeatureMonitorsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsFeatureMonitorsOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeatureMonitorsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeatureGroupsFeatureMonitorsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeatureMonitorsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeatureGroupsFeaturesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeaturesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsFeaturesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeaturesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsFeaturesOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeaturesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeatureGroupsFeaturesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsFeaturesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeatureGroupsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureGroupsOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeatureGroupsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeatureGroupsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeatureOnlineStoresFeatureViewsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresFeatureViewsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureOnlineStoresFeatureViewsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresFeatureViewsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureOnlineStoresFeatureViewsOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresFeatureViewsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeatureOnlineStoresFeatureViewsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresFeatureViewsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeatureOnlineStoresOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureOnlineStoresOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeatureOnlineStoresOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeatureOnlineStoresOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeatureOnlineStoresOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeaturestoresEntityTypesFeaturesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesFeaturesOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesFeaturesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesFeaturesOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesFeaturesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesFeaturesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesFeaturesOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesFeaturesOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeaturestoresEntityTypesFeaturesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesFeaturesOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeaturestoresEntityTypesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresEntityTypesOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeaturestoresEntityTypesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresEntityTypesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformFeaturestoresOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresOperationsGetRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformFeaturestoresOperationsListRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformFeaturestoresOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformFeaturestoresOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformHyperparameterTuningJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformHyperparameterTuningJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformHyperparameterTuningJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformHyperparameterTuningJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformHyperparameterTuningJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformHyperparameterTuningJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformHyperparameterTuningJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformHyperparameterTuningJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformHyperparameterTuningJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformHyperparameterTuningJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformIndexEndpointsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformIndexEndpointsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexEndpointsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformIndexEndpointsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexEndpointsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformIndexEndpointsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexEndpointsOperationsListRequest(_messages.Message):
+  r"""A AiplatformIndexEndpointsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformIndexEndpointsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformIndexEndpointsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformIndexesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformIndexesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformIndexesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformIndexesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformIndexesOperationsListRequest(_messages.Message):
+  r"""A AiplatformIndexesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformIndexesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformIndexesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
 class AiplatformMediaUploadRequest(_messages.Message):
   r"""A AiplatformMediaUploadRequest object.
 
@@ -273,6 +2387,1052 @@ class AiplatformMediaUploadRequest(_messages.Message):
 
   googleCloudAiplatformV1beta1UploadRagFileRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1UploadRagFileRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class AiplatformMetadataStoresArtifactsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresArtifactsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresArtifactsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresArtifactsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresArtifactsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresArtifactsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresArtifactsOperationsListRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresArtifactsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformMetadataStoresArtifactsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresArtifactsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformMetadataStoresContextsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresContextsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresContextsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresContextsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresContextsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresContextsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresContextsOperationsListRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresContextsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformMetadataStoresContextsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresContextsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformMetadataStoresExecutionsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresExecutionsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresExecutionsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresExecutionsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresExecutionsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresExecutionsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresExecutionsOperationsListRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresExecutionsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformMetadataStoresExecutionsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresExecutionsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformMetadataStoresOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresOperationsGetRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMetadataStoresOperationsListRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformMetadataStoresOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformMetadataStoresOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformMigratableResourcesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformMigratableResourcesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMigratableResourcesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformMigratableResourcesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMigratableResourcesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformMigratableResourcesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformMigratableResourcesOperationsListRequest(_messages.Message):
+  r"""A AiplatformMigratableResourcesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformMigratableResourcesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformMigratableResourcesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformModelDeploymentMonitoringJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformModelDeploymentMonitoringJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelDeploymentMonitoringJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformModelDeploymentMonitoringJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelDeploymentMonitoringJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformModelDeploymentMonitoringJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelDeploymentMonitoringJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformModelDeploymentMonitoringJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformModelDeploymentMonitoringJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformModelDeploymentMonitoringJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformModelMonitorsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformModelMonitorsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelMonitorsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformModelMonitorsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelMonitorsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformModelMonitorsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelMonitorsOperationsListRequest(_messages.Message):
+  r"""A AiplatformModelMonitorsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformModelMonitorsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformModelMonitorsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformModelsEvaluationsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformModelsEvaluationsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsEvaluationsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformModelsEvaluationsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsEvaluationsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformModelsEvaluationsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsEvaluationsOperationsListRequest(_messages.Message):
+  r"""A AiplatformModelsEvaluationsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformModelsEvaluationsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformModelsEvaluationsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformModelsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformModelsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformModelsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformModelsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformModelsOperationsListRequest(_messages.Message):
+  r"""A AiplatformModelsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformModelsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformModelsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformNotebookExecutionJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformNotebookExecutionJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookExecutionJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformNotebookExecutionJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookExecutionJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformNotebookExecutionJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookExecutionJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformNotebookExecutionJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformNotebookExecutionJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformNotebookExecutionJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformNotebookRuntimeTemplatesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimeTemplatesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimeTemplatesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimeTemplatesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimeTemplatesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimeTemplatesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimeTemplatesOperationsListRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimeTemplatesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformNotebookRuntimeTemplatesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimeTemplatesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformNotebookRuntimesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformNotebookRuntimesOperationsListRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformNotebookRuntimesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformNotebookRuntimesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformOperationsGetRequest(_messages.Message):
+  r"""A AiplatformOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformOperationsListRequest(_messages.Message):
+  r"""A AiplatformOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformPersistentResourcesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformPersistentResourcesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPersistentResourcesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformPersistentResourcesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPersistentResourcesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformPersistentResourcesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPersistentResourcesOperationsListRequest(_messages.Message):
+  r"""A AiplatformPersistentResourcesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformPersistentResourcesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformPersistentResourcesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformPipelineJobsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformPipelineJobsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPipelineJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformPipelineJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPipelineJobsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformPipelineJobsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformPipelineJobsOperationsListRequest(_messages.Message):
+  r"""A AiplatformPipelineJobsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformPipelineJobsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformPipelineJobsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsFetchPublisherModelConfigRequest(_messages.Message):
+  r"""A AiplatformProjectsFetchPublisherModelConfigRequest object.
+
+  Fields:
+    name: Required. The name of the publisher model, in the format of `project
+      s/{project}/locations/{location}/publishers/{publisher}/models/{model}`.
+  """
+
+  name = _messages.StringField(1, required=True)
 
 
 class AiplatformProjectsGetCacheConfigRequest(_messages.Message):
@@ -324,12 +3484,20 @@ class AiplatformProjectsLocationsAgentsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsAgentsOperationsWaitRequest(_messages.Message):
@@ -385,12 +3553,20 @@ class AiplatformProjectsLocationsAppsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsAppsOperationsWaitRequest(_messages.Message):
@@ -721,12 +3897,20 @@ class AiplatformProjectsLocationsCustomJobsOperationsListRequest(_messages.Messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsCustomJobsOperationsWaitRequest(_messages.Message):
@@ -873,12 +4057,20 @@ class AiplatformProjectsLocationsDataLabelingJobsOperationsListRequest(_messages
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDataLabelingJobsOperationsWaitRequest(_messages.Message):
@@ -956,12 +4148,20 @@ class AiplatformProjectsLocationsDatasetsAnnotationSpecsOperationsListRequest(_m
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDatasetsAnnotationSpecsOperationsWaitRequest(_messages.Message):
@@ -979,6 +4179,38 @@ class AiplatformProjectsLocationsDatasetsAnnotationSpecsOperationsWaitRequest(_m
 
   name = _messages.StringField(1, required=True)
   timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsDatasetsAssembleRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsDatasetsAssembleRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1AssembleDataRequest: A
+      GoogleCloudAiplatformV1beta1AssembleDataRequest resource to be passed as
+      the request body.
+    name: Required. The name of the Dataset resource (used only for MULTIMODAL
+      datasets). Format:
+      `projects/{project}/locations/{location}/datasets/{dataset}`
+  """
+
+  googleCloudAiplatformV1beta1AssembleDataRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1AssembleDataRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsDatasetsAssessRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsDatasetsAssessRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1AssessDataRequest: A
+      GoogleCloudAiplatformV1beta1AssessDataRequest resource to be passed as
+      the request body.
+    name: Required. The name of the Dataset resource. Used only for MULTIMODAL
+      datasets. Format:
+      `projects/{project}/locations/{location}/datasets/{dataset}`
+  """
+
+  googleCloudAiplatformV1beta1AssessDataRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1AssessDataRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsDatasetsCreateRequest(_messages.Message):
@@ -1063,12 +4295,20 @@ class AiplatformProjectsLocationsDatasetsDataItemsAnnotationsOperationsListReque
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDatasetsDataItemsAnnotationsOperationsWaitRequest(_messages.Message):
@@ -1152,12 +4392,20 @@ class AiplatformProjectsLocationsDatasetsDataItemsOperationsListRequest(_message
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDatasetsDataItemsOperationsWaitRequest(_messages.Message):
@@ -1250,6 +4498,8 @@ class AiplatformProjectsLocationsDatasetsDatasetVersionsPatchRequest(_messages.M
       GoogleCloudAiplatformV1beta1DatasetVersion resource to be passed as the
       request body.
     name: Output only. Identifier. The resource name of the DatasetVersion.
+      Format: `projects/{project}/locations/{location}/datasets/{dataset}/data
+      setVersions/{dataset_version}`
     updateMask: Required. The update mask applies to the resource. For the
       `FieldMask` definition, see google.protobuf.FieldMask. Updatable fields:
       * `display_name`
@@ -1393,12 +4643,20 @@ class AiplatformProjectsLocationsDatasetsOperationsListRequest(_messages.Message
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDatasetsOperationsWaitRequest(_messages.Message):
@@ -1422,7 +4680,8 @@ class AiplatformProjectsLocationsDatasetsPatchRequest(_messages.Message):
   Fields:
     googleCloudAiplatformV1beta1Dataset: A GoogleCloudAiplatformV1beta1Dataset
       resource to be passed as the request body.
-    name: Output only. Identifier. The resource name of the Dataset.
+    name: Output only. Identifier. The resource name of the Dataset. Format:
+      `projects/{project}/locations/{location}/datasets/{dataset}`
     updateMask: Required. The update mask applies to the resource. For the
       `FieldMask` definition, see google.protobuf.FieldMask. Updatable fields:
       * `display_name` * `description` * `labels`
@@ -1510,12 +4769,20 @@ class AiplatformProjectsLocationsDatasetsSavedQueriesOperationsListRequest(_mess
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDatasetsSavedQueriesOperationsWaitRequest(_messages.Message):
@@ -1598,8 +4865,8 @@ class AiplatformProjectsLocationsDatasetsSearchDataItemsRequest(_messages.Messag
   savedQuery = _messages.StringField(14)
 
 
-class AiplatformProjectsLocationsDeployRequest(_messages.Message):
-  r"""A AiplatformProjectsLocationsDeployRequest object.
+class AiplatformProjectsLocationsDeployPublisherModelRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsDeployPublisherModelRequest object.
 
   Fields:
     destination: Required. The resource name of the Location to deploy the
@@ -1611,6 +4878,21 @@ class AiplatformProjectsLocationsDeployRequest(_messages.Message):
 
   destination = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1DeployPublisherModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployPublisherModelRequest', 2)
+
+
+class AiplatformProjectsLocationsDeployRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsDeployRequest object.
+
+  Fields:
+    destination: Required. The resource name of the Location to deploy the
+      model in. Format: `projects/{project}/locations/{location}`
+    googleCloudAiplatformV1beta1DeployRequest: A
+      GoogleCloudAiplatformV1beta1DeployRequest resource to be passed as the
+      request body.
+  """
+
+  destination = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1DeployRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployRequest', 2)
 
 
 class AiplatformProjectsLocationsDeploymentResourcePoolsCreateRequest(_messages.Message):
@@ -1721,12 +5003,20 @@ class AiplatformProjectsLocationsDeploymentResourcePoolsOperationsListRequest(_m
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsDeploymentResourcePoolsOperationsWaitRequest(_messages.Message):
@@ -1824,12 +5114,20 @@ class AiplatformProjectsLocationsEdgeDevicesOperationsListRequest(_messages.Mess
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsEdgeDevicesOperationsWaitRequest(_messages.Message):
@@ -1944,6 +5242,27 @@ class AiplatformProjectsLocationsEndpointsDeployModelRequest(_messages.Message):
 
   endpoint = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1DeployModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployModelRequest', 2)
+
+
+class AiplatformProjectsLocationsEndpointsDeployedModelsInvokeInvokeRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEndpointsDeployedModelsInvokeInvokeRequest
+  object.
+
+  Fields:
+    deployedModelId: ID of the DeployedModel that serves the invoke request.
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleCloudAiplatformV1beta1InvokeRequest: A
+      GoogleCloudAiplatformV1beta1InvokeRequest resource to be passed as the
+      request body.
+    invokeId: A string attribute.
+  """
+
+  deployedModelId = _messages.StringField(1, required=True)
+  endpoint = _messages.StringField(2, required=True)
+  googleCloudAiplatformV1beta1InvokeRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1InvokeRequest', 3)
+  invokeId = _messages.StringField(4, required=True)
 
 
 class AiplatformProjectsLocationsEndpointsDirectPredictRequest(_messages.Message):
@@ -2068,6 +5387,24 @@ class AiplatformProjectsLocationsEndpointsGetRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class AiplatformProjectsLocationsEndpointsInvokeInvokeRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEndpointsInvokeInvokeRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleCloudAiplatformV1beta1InvokeRequest: A
+      GoogleCloudAiplatformV1beta1InvokeRequest resource to be passed as the
+      request body.
+    invokeId: A string attribute.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1InvokeRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1InvokeRequest', 2)
+  invokeId = _messages.StringField(3, required=True)
+
+
 class AiplatformProjectsLocationsEndpointsListRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsEndpointsListRequest object.
 
@@ -2082,6 +5419,9 @@ class AiplatformProjectsLocationsEndpointsListRequest(_messages.Message):
       `labels."a key"`. * `base_model_name` only supports `=`. Some examples:
       * `endpoint=1` * `displayName="myDisplayName"` *
       `labels.myKey="myValue"` * `baseModelName="text-bison"`
+    gdcZone: Optional. Configures the Google Distributed Cloud (GDC)
+      environment for online prediction. Only set this field when the Endpoint
+      is to be deployed in a GDC environment.
     pageSize: Optional. The standard list page size.
     pageToken: Optional. The standard list page token. Typically obtained via
       ListEndpointsResponse.next_page_token of the previous
@@ -2092,10 +5432,11 @@ class AiplatformProjectsLocationsEndpointsListRequest(_messages.Message):
   """
 
   filter = _messages.StringField(1)
-  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(3)
-  parent = _messages.StringField(4, required=True)
-  readMask = _messages.StringField(5)
+  gdcZone = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  readMask = _messages.StringField(6)
 
 
 class AiplatformProjectsLocationsEndpointsMutateDeployedModelRequest(_messages.Message):
@@ -2112,6 +5453,23 @@ class AiplatformProjectsLocationsEndpointsMutateDeployedModelRequest(_messages.M
 
   endpoint = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1MutateDeployedModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1MutateDeployedModelRequest', 2)
+
+
+class AiplatformProjectsLocationsEndpointsOpenapiEmbeddingsRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEndpointsOpenapiEmbeddingsRequest object.
+
+  Fields:
+    deployedModelId: ID of the DeployedModel that serves the invoke request.
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleApiHttpBody: A GoogleApiHttpBody resource to be passed as the
+      request body.
+  """
+
+  deployedModelId = _messages.StringField(1)
+  endpoint = _messages.StringField(2, required=True)
+  googleApiHttpBody = _messages.MessageField('GoogleApiHttpBody', 3)
 
 
 class AiplatformProjectsLocationsEndpointsOperationsCancelRequest(_messages.Message):
@@ -2152,12 +5510,20 @@ class AiplatformProjectsLocationsEndpointsOperationsListRequest(_messages.Messag
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsEndpointsOperationsWaitRequest(_messages.Message):
@@ -2358,6 +5724,21 @@ class AiplatformProjectsLocationsEndpointsUpdateRequest(_messages.Message):
   name = _messages.StringField(2, required=True)
 
 
+class AiplatformProjectsLocationsEvaluateDatasetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluateDatasetRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EvaluateDatasetRequest: A
+      GoogleCloudAiplatformV1beta1EvaluateDatasetRequest resource to be passed
+      as the request body.
+    location: Required. The resource name of the Location to evaluate the
+      dataset. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1EvaluateDatasetRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluateDatasetRequest', 1)
+  location = _messages.StringField(2, required=True)
+
+
 class AiplatformProjectsLocationsEvaluateInstancesRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsEvaluateInstancesRequest object.
 
@@ -2371,6 +5752,415 @@ class AiplatformProjectsLocationsEvaluateInstancesRequest(_messages.Message):
 
   googleCloudAiplatformV1beta1EvaluateInstancesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluateInstancesRequest', 1)
   location = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EvaluationItem: A
+      GoogleCloudAiplatformV1beta1EvaluationItem resource to be passed as the
+      request body.
+    parent: Required. The resource name of the Location to create the
+      Evaluation Item in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1EvaluationItem = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationItem', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationItem resource to be deleted.
+      Format: `projects/{project}/locations/{location}/evaluationItems/{evalua
+      tion_item}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsGetRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationItem resource. Format: `projects
+      /{project}/locations/{location}/evaluationItems/{evaluation_item}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsListRequest object.
+
+  Fields:
+    filter: Optional. Filter expression that matches a subset of the
+      EvaluationItems to show. For field names both snake_case and camelCase
+      are supported. For more information about filter syntax, see
+      [AIP-160](https://google.aip.dev/160).
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order by default. Use `desc` after a field name for
+      descending.
+    pageSize: Optional. The maximum number of Evaluation Items to return.
+    pageToken: Optional. A page token, received from a previous
+      `ListEvaluationItems` call. Provide this to retrieve the subsequent
+      page.
+    parent: Required. The resource name of the Location from which to list the
+      Evaluation Items. Format: `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationItemsOperationsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsEvaluationItemsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationItemsOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsEvaluationRunsCancelRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsCancelRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1CancelEvaluationRunRequest: A
+      GoogleCloudAiplatformV1beta1CancelEvaluationRunRequest resource to be
+      passed as the request body.
+    name: Required. The name of the EvaluationRun resource to be cancelled.
+      Format: `projects/{project}/locations/{location}/evaluationRuns/{evaluat
+      ion_run}`
+  """
+
+  googleCloudAiplatformV1beta1CancelEvaluationRunRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CancelEvaluationRunRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EvaluationRun: A
+      GoogleCloudAiplatformV1beta1EvaluationRun resource to be passed as the
+      request body.
+    parent: Required. The resource name of the Location to create the
+      Evaluation Run in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1EvaluationRun = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRun', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationRun resource to be deleted.
+      Format: `projects/{project}/locations/{location}/evaluationRuns/{evaluat
+      ion_run}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsGetRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationRun resource. Format:
+      `projects/{project}/locations/{location}/evaluationRuns/{evaluation_run}
+      `
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsListRequest object.
+
+  Fields:
+    filter: Optional. Filter expression that matches a subset of the
+      EvaluationRuns to show. For field names both snake_case and camelCase
+      are supported. For more information about filter syntax, see
+      [AIP-160](https://google.aip.dev/160).
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order by default. Use `desc` after a field name for
+      descending.
+    pageSize: Optional. The maximum number of Evaluation Runs to return.
+    pageToken: Optional. A page token, received from a previous
+      `ListEvaluationRuns` call. Provide this to retrieve the subsequent page.
+    parent: Required. The resource name of the Location from which to list the
+      Evaluation Runs. Format: `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationRunsOperationsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsEvaluationRunsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationRunsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsEvaluationSetsCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EvaluationSet: A
+      GoogleCloudAiplatformV1beta1EvaluationSet resource to be passed as the
+      request body.
+    parent: Required. The resource name of the Location to create the
+      Evaluation Set in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1EvaluationSet = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationSet', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationSet resource to be deleted.
+      Format: `projects/{project}/locations/{location}/evaluationSets/{evaluat
+      ion_set}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsGetRequest object.
+
+  Fields:
+    name: Required. The name of the EvaluationSet resource. Format:
+      `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}
+      `
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsListRequest object.
+
+  Fields:
+    filter: Optional. Filter expression that matches a subset of the
+      EvaluationSets to show. For field names both snake_case and camelCase
+      are supported. For more information about filter syntax, see
+      [AIP-160](https://google.aip.dev/160).
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order by default. Use `desc` after a field name for
+      descending.
+    pageSize: Optional. The maximum number of Evaluation Sets to return.
+    pageToken: Optional. A page token, received from a previous
+      `ListEvaluationSets` call. Provide this to retrieve the subsequent page.
+    parent: Required. The resource name of the Location from which to list the
+      Evaluation Sets. Format: `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsEvaluationSetsOperationsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsEvaluationSetsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsEvaluationSetsPatchRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsEvaluationSetsPatchRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EvaluationSet: A
+      GoogleCloudAiplatformV1beta1EvaluationSet resource to be passed as the
+      request body.
+    name: Identifier. The resource name of the EvaluationSet. Format:
+      `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}
+      `
+    updateMask: Optional. The update mask applies to the resource. For the
+      `FieldMask` definition, see google.protobuf.FieldMask.
+  """
+
+  googleCloudAiplatformV1beta1EvaluationSet = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationSet', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
 
 
 class AiplatformProjectsLocationsEvaluationTasksOperationsDeleteRequest(_messages.Message):
@@ -2403,12 +6193,20 @@ class AiplatformProjectsLocationsEvaluationTasksOperationsListRequest(_messages.
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsEvaluationTasksOperationsWaitRequest(_messages.Message):
@@ -2425,6 +6223,92 @@ class AiplatformProjectsLocationsEvaluationTasksOperationsWaitRequest(_messages.
 
   name = _messages.StringField(1, required=True)
   timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsExampleStoresCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresCreateRequest object.
+
+  Fields:
+    exampleStore_createTime: Output only. Timestamp when this ExampleStore was
+      created.
+    exampleStore_description: Optional. Description of the ExampleStore.
+    exampleStore_displayName: Required. Display name of the ExampleStore.
+    exampleStore_exampleStoreConfig_vertexEmbeddingModel: Required. The
+      embedding model to be used for vector embedding. Immutable. Supported
+      models: * "text-embedding-005" * "text-multilingual-embedding-002"
+    exampleStore_name: Identifier. The resource name of the ExampleStore. This
+      is a unique identifier. Format:
+      projects/{project}/locations/{location}/exampleStores/{example_store}
+    exampleStore_updateTime: Output only. Timestamp when this ExampleStore was
+      most recently updated.
+    parent: Required. The resource name of the Location to create the
+      ExampleStore in. Format: `projects/{project}/locations/{location}`
+  """
+
+  exampleStore_createTime = _messages.StringField(1)
+  exampleStore_description = _messages.StringField(2)
+  exampleStore_displayName = _messages.StringField(3)
+  exampleStore_exampleStoreConfig_vertexEmbeddingModel = _messages.StringField(4)
+  exampleStore_name = _messages.StringField(5)
+  exampleStore_updateTime = _messages.StringField(6)
+  parent = _messages.StringField(7, required=True)
+
+
+class AiplatformProjectsLocationsExampleStoresDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresDeleteRequest object.
+
+  Fields:
+    name: Required. The resource name of the ExampleStore to be deleted.
+      Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsExampleStoresFetchExamplesRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresFetchExamplesRequest object.
+
+  Fields:
+    exampleStore: Required. The name of the ExampleStore resource that the
+      examples should be fetched from. Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+    googleCloudAiplatformV1beta1FetchExamplesRequest: A
+      GoogleCloudAiplatformV1beta1FetchExamplesRequest resource to be passed
+      as the request body.
+  """
+
+  exampleStore = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1FetchExamplesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FetchExamplesRequest', 2)
+
+
+class AiplatformProjectsLocationsExampleStoresGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the ExampleStore. Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsExampleStoresListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160).
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the Location to list the
+      ExampleStores from. Format: `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class AiplatformProjectsLocationsExampleStoresOperationsCancelRequest(_messages.Message):
@@ -2467,12 +6351,20 @@ class AiplatformProjectsLocationsExampleStoresOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsExampleStoresOperationsWaitRequest(_messages.Message):
@@ -2488,6 +6380,73 @@ class AiplatformProjectsLocationsExampleStoresOperationsWaitRequest(_messages.Me
 
   name = _messages.StringField(1, required=True)
   timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsExampleStoresPatchRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresPatchRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ExampleStore: A
+      GoogleCloudAiplatformV1beta1ExampleStore resource to be passed as the
+      request body.
+    name: Identifier. The resource name of the ExampleStore. This is a unique
+      identifier. Format:
+      projects/{project}/locations/{location}/exampleStores/{example_store}
+    updateMask: Optional. Mask specifying which fields to update. Supported
+      fields: * `display_name` * `description`
+  """
+
+  googleCloudAiplatformV1beta1ExampleStore = _messages.MessageField('GoogleCloudAiplatformV1beta1ExampleStore', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class AiplatformProjectsLocationsExampleStoresRemoveExamplesRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresRemoveExamplesRequest object.
+
+  Fields:
+    exampleStore: Required. The name of the ExampleStore resource that the
+      examples should be removed from. Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+    googleCloudAiplatformV1beta1RemoveExamplesRequest: A
+      GoogleCloudAiplatformV1beta1RemoveExamplesRequest resource to be passed
+      as the request body.
+  """
+
+  exampleStore = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1RemoveExamplesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RemoveExamplesRequest', 2)
+
+
+class AiplatformProjectsLocationsExampleStoresSearchExamplesRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresSearchExamplesRequest object.
+
+  Fields:
+    exampleStore: Required. The name of the ExampleStore resource that
+      examples are retrieved from. Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+    googleCloudAiplatformV1beta1SearchExamplesRequest: A
+      GoogleCloudAiplatformV1beta1SearchExamplesRequest resource to be passed
+      as the request body.
+  """
+
+  exampleStore = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1SearchExamplesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1SearchExamplesRequest', 2)
+
+
+class AiplatformProjectsLocationsExampleStoresUpsertExamplesRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsExampleStoresUpsertExamplesRequest object.
+
+  Fields:
+    exampleStore: Required. The name of the ExampleStore resource that
+      examples are added to or updated in. Format:
+      `projects/{project}/locations/{location}/exampleStores/{example_store}`
+    googleCloudAiplatformV1beta1UpsertExamplesRequest: A
+      GoogleCloudAiplatformV1beta1UpsertExamplesRequest resource to be passed
+      as the request body.
+  """
+
+  exampleStore = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1UpsertExamplesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1UpsertExamplesRequest', 2)
 
 
 class AiplatformProjectsLocationsExtensionControllersOperationsCancelRequest(_messages.Message):
@@ -2532,12 +6491,20 @@ class AiplatformProjectsLocationsExtensionControllersOperationsListRequest(_mess
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsExtensionControllersOperationsWaitRequest(_messages.Message):
@@ -2670,12 +6637,20 @@ class AiplatformProjectsLocationsExtensionsOperationsListRequest(_messages.Messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsExtensionsOperationsWaitRequest(_messages.Message):
@@ -2947,12 +6922,20 @@ class AiplatformProjectsLocationsFeatureGroupsFeatureMonitorsOperationsListReque
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeatureGroupsFeatureMonitorsOperationsWaitRequest(_messages.Message):
@@ -2970,6 +6953,32 @@ class AiplatformProjectsLocationsFeatureGroupsFeatureMonitorsOperationsWaitReque
 
   name = _messages.StringField(1, required=True)
   timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsFeatureGroupsFeatureMonitorsPatchRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsFeatureGroupsFeatureMonitorsPatchRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1FeatureMonitor: A
+      GoogleCloudAiplatformV1beta1FeatureMonitor resource to be passed as the
+      request body.
+    name: Identifier. Name of the FeatureMonitor. Format: `projects/{project}/
+      locations/{location}/featureGroups/{featureGroup}/featureMonitors/{featu
+      reMonitor}`
+    updateMask: Optional. Field mask is used to specify the fields to be
+      overwritten in the FeatureMonitor resource by the update. The fields
+      specified in the update_mask are relative to the resource, not the full
+      request. A field will be overwritten if it is in the mask. If the user
+      does not provide a mask then only the non-empty fields present in the
+      request will be overwritten. Set the update_mask to `*` to override all
+      fields. Updatable fields: * `labels` * `description` * `schedule_config`
+      * `feature_selection_config`
+  """
+
+  googleCloudAiplatformV1beta1FeatureMonitor = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureMonitor', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
 
 
 class AiplatformProjectsLocationsFeatureGroupsFeaturesBatchCreateRequest(_messages.Message):
@@ -3135,12 +7144,20 @@ class AiplatformProjectsLocationsFeatureGroupsFeaturesOperationsListRequest(_mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeatureGroupsFeaturesOperationsWaitRequest(_messages.Message):
@@ -3187,6 +7204,32 @@ class AiplatformProjectsLocationsFeatureGroupsFeaturesPatchRequest(_messages.Mes
   googleCloudAiplatformV1beta1Feature = _messages.MessageField('GoogleCloudAiplatformV1beta1Feature', 1)
   name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
+
+
+class AiplatformProjectsLocationsFeatureGroupsGetIamPolicyRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsFeatureGroupsGetIamPolicyRequest object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsFeatureGroupsGetRequest(_messages.Message):
@@ -3264,12 +7307,20 @@ class AiplatformProjectsLocationsFeatureGroupsOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeatureGroupsOperationsWaitRequest(_messages.Message):
@@ -3303,12 +7354,47 @@ class AiplatformProjectsLocationsFeatureGroupsPatchRequest(_messages.Message):
       mask then only the non-empty fields present in the request will be
       overwritten. Set the update_mask to `*` to override all fields.
       Updatable fields: * `labels` * `description` * `big_query` *
-      `big_query.entity_id_columns`
+      `big_query.entity_id_columns` * `service_agent_type`
   """
 
   googleCloudAiplatformV1beta1FeatureGroup = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureGroup', 1)
   name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
+
+
+class AiplatformProjectsLocationsFeatureGroupsSetIamPolicyRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsFeatureGroupsSetIamPolicyRequest object.
+
+  Fields:
+    googleIamV1SetIamPolicyRequest: A GoogleIamV1SetIamPolicyRequest resource
+      to be passed as the request body.
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  googleIamV1SetIamPolicyRequest = _messages.MessageField('GoogleIamV1SetIamPolicyRequest', 1)
+  resource = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsFeatureGroupsTestIamPermissionsRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsFeatureGroupsTestIamPermissionsRequest
+  object.
+
+  Fields:
+    permissions: The set of permissions to check for the `resource`.
+      Permissions with wildcards (such as `*` or `storage.*`) are not allowed.
+      For more information see [IAM
+      Overview](https://cloud.google.com/iam/docs/overview#permissions).
+    resource: REQUIRED: The resource for which the policy detail is being
+      requested. See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  permissions = _messages.StringField(1, repeated=True)
+  resource = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsFeatureOnlineStoresCreateRequest(_messages.Message):
@@ -3390,6 +7476,24 @@ class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsDeleteRequest(_m
   name = _messages.StringField(1, required=True)
 
 
+class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsDirectWriteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsDirectWriteRequest
+  object.
+
+  Fields:
+    featureView: FeatureView resource format `projects/{project}/locations/{lo
+      cation}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureVi
+      ew}`
+    googleCloudAiplatformV1beta1FeatureViewDirectWriteRequest: A
+      GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequest resource to be
+      passed as the request body.
+  """
+
+  featureView = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1FeatureViewDirectWriteRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequest', 2)
+
+
 class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsFeatureViewSyncsGetRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsFeatureViewS
   yncsGetRequest object.
@@ -3452,6 +7556,23 @@ class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsFetchFeatureValu
 
   featureView = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1FetchFeatureValuesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FetchFeatureValuesRequest', 2)
+
+
+class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsGenerateFetchAccessTokenRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsGenerateFetc
+  hAccessTokenRequest object.
+
+  Fields:
+    featureView: FeatureView resource format `projects/{project}/locations/{lo
+      cation}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureVi
+      ew}`
+    googleCloudAiplatformV1beta1GenerateFetchAccessTokenRequest: A
+      GoogleCloudAiplatformV1beta1GenerateFetchAccessTokenRequest resource to
+      be passed as the request body.
+  """
+
+  featureView = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1GenerateFetchAccessTokenRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateFetchAccessTokenRequest', 2)
 
 
 class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsGetIamPolicyRequest(_messages.Message):
@@ -3566,12 +7687,20 @@ class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsOperationsListRe
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeatureOnlineStoresFeatureViewsOperationsWaitRequest(_messages.Message):
@@ -3810,12 +7939,20 @@ class AiplatformProjectsLocationsFeatureOnlineStoresOperationsListRequest(_messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeatureOnlineStoresOperationsWaitRequest(_messages.Message):
@@ -4202,12 +8339,20 @@ class AiplatformProjectsLocationsFeaturestoresEntityTypesFeaturesOperationsListR
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeaturestoresEntityTypesFeaturesOperationsWaitRequest(_messages.Message):
@@ -4403,12 +8548,20 @@ class AiplatformProjectsLocationsFeaturestoresEntityTypesOperationsListRequest(_
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeaturestoresEntityTypesOperationsWaitRequest(_messages.Message):
@@ -4666,12 +8819,20 @@ class AiplatformProjectsLocationsFeaturestoresOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsFeaturestoresOperationsWaitRequest(_messages.Message):
@@ -4803,6 +8964,47 @@ class AiplatformProjectsLocationsFeaturestoresTestIamPermissionsRequest(_message
 
   googleIamV1TestIamPermissionsRequest = _messages.MessageField('GoogleIamV1TestIamPermissionsRequest', 1)
   resource = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsGenerateInstanceRubricsRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsGenerateInstanceRubricsRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1GenerateInstanceRubricsRequest: A
+      GoogleCloudAiplatformV1beta1GenerateInstanceRubricsRequest resource to
+      be passed as the request body.
+    location: Required. The resource name of the Location to generate rubrics
+      from. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1GenerateInstanceRubricsRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateInstanceRubricsRequest', 1)
+  location = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsGenerateSyntheticDataRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsGenerateSyntheticDataRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1GenerateSyntheticDataRequest: A
+      GoogleCloudAiplatformV1beta1GenerateSyntheticDataRequest resource to be
+      passed as the request body.
+    location: Required. The resource name of the Location to run the job.
+      Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1GenerateSyntheticDataRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateSyntheticDataRequest', 1)
+  location = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsGetRagEngineConfigRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsGetRagEngineConfigRequest object.
+
+  Fields:
+    name: Required. The name of the RagEngineConfig resource. Format:
+      `projects/{project}/locations/{location}/ragEngineConfig`
+  """
+
+  name = _messages.StringField(1, required=True)
 
 
 class AiplatformProjectsLocationsGetRequest(_messages.Message):
@@ -4951,12 +9153,20 @@ class AiplatformProjectsLocationsHyperparameterTuningJobsOperationsListRequest(_
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsHyperparameterTuningJobsOperationsWaitRequest(_messages.Message):
@@ -5136,12 +9346,20 @@ class AiplatformProjectsLocationsIndexEndpointsOperationsListRequest(_messages.M
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsIndexEndpointsOperationsWaitRequest(_messages.Message):
@@ -5245,6 +9463,21 @@ class AiplatformProjectsLocationsIndexesGetRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class AiplatformProjectsLocationsIndexesImportRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsIndexesImportRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ImportIndexRequest: A
+      GoogleCloudAiplatformV1beta1ImportIndexRequest resource to be passed as
+      the request body.
+    name: Required. The name of the Index resource to import data to. Format:
+      `projects/{project}/locations/{location}/indexes/{index}`
+  """
+
+  googleCloudAiplatformV1beta1ImportIndexRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
 class AiplatformProjectsLocationsIndexesListRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsIndexesListRequest object.
 
@@ -5304,12 +9537,20 @@ class AiplatformProjectsLocationsIndexesOperationsListRequest(_messages.Message)
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsIndexesOperationsWaitRequest(_messages.Message):
@@ -5377,6 +9618,9 @@ class AiplatformProjectsLocationsListRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -5387,10 +9631,11 @@ class AiplatformProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class AiplatformProjectsLocationsMetadataStoresArtifactsCreateRequest(_messages.Message):
@@ -5480,7 +9725,7 @@ class AiplatformProjectsLocationsMetadataStoresArtifactsListRequest(_messages.Me
       such as foo.bar. see https://google.aip.dev/132#ordering for more
       details.
     pageSize: The maximum number of Artifacts to return. The service may
-      return fewer. Must be in range 1-1000, inclusive. Defaults to 100.
+      return fewer. Must be in range 1-100, inclusive. Defaults to 100.
     pageToken: A page token, received from a previous
       MetadataService.ListArtifacts call. Provide this to retrieve the
       subsequent page. When paginating, all other provided parameters must
@@ -5543,12 +9788,20 @@ class AiplatformProjectsLocationsMetadataStoresArtifactsOperationsListRequest(_m
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsMetadataStoresArtifactsOperationsWaitRequest(_messages.Message):
@@ -5763,7 +10016,7 @@ class AiplatformProjectsLocationsMetadataStoresContextsListRequest(_messages.Mes
       such as foo.bar. see https://google.aip.dev/132#ordering for more
       details.
     pageSize: The maximum number of Contexts to return. The service may return
-      fewer. Must be in range 1-1000, inclusive. Defaults to 100.
+      fewer. Must be in range 1-100, inclusive. Defaults to 100.
     pageToken: A page token, received from a previous
       MetadataService.ListContexts call. Provide this to retrieve the
       subsequent page. When paginating, all other provided parameters must
@@ -5825,12 +10078,20 @@ class AiplatformProjectsLocationsMetadataStoresContextsOperationsListRequest(_me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsMetadataStoresContextsOperationsWaitRequest(_messages.Message):
@@ -6060,7 +10321,7 @@ class AiplatformProjectsLocationsMetadataStoresExecutionsListRequest(_messages.M
       such as foo.bar. see https://google.aip.dev/132#ordering for more
       details.
     pageSize: The maximum number of Executions to return. The service may
-      return fewer. Must be in range 1-1000, inclusive. Defaults to 100.
+      return fewer. Must be in range 1-100, inclusive. Defaults to 100.
     pageToken: A page token, received from a previous
       MetadataService.ListExecutions call. Provide this to retrieve the
       subsequent page. When paginating, all other provided parameters must
@@ -6124,12 +10385,20 @@ class AiplatformProjectsLocationsMetadataStoresExecutionsOperationsListRequest(_
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsMetadataStoresExecutionsOperationsWaitRequest(_messages.Message):
@@ -6217,7 +10486,7 @@ class AiplatformProjectsLocationsMetadataStoresListRequest(_messages.Message):
 
   Fields:
     pageSize: The maximum number of Metadata Stores to return. The service may
-      return fewer. Must be in range 1-1000, inclusive. Defaults to 100.
+      return fewer. Must be in range 1-100, inclusive. Defaults to 100.
     pageToken: A page token, received from a previous
       MetadataService.ListMetadataStores call. Provide this to retrieve the
       subsequent page. When paginating, all other provided parameters must
@@ -6278,7 +10547,7 @@ class AiplatformProjectsLocationsMetadataStoresMetadataSchemasListRequest(_messa
   Fields:
     filter: A query to filter available MetadataSchemas for matching results.
     pageSize: The maximum number of MetadataSchemas to return. The service may
-      return fewer. Must be in range 1-1000, inclusive. Defaults to 100.
+      return fewer. Must be in range 1-100, inclusive. Defaults to 100.
     pageToken: A page token, received from a previous
       MetadataService.ListMetadataSchemas call. Provide this to retrieve the
       next page. When paginating, all other provided parameters must match the
@@ -6335,12 +10604,20 @@ class AiplatformProjectsLocationsMetadataStoresOperationsListRequest(_messages.M
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsMetadataStoresOperationsWaitRequest(_messages.Message):
@@ -6416,12 +10693,20 @@ class AiplatformProjectsLocationsMigratableResourcesOperationsListRequest(_messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsMigratableResourcesOperationsWaitRequest(_messages.Message):
@@ -6571,12 +10856,20 @@ class AiplatformProjectsLocationsModelDeploymentMonitoringJobsOperationsListRequ
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsModelDeploymentMonitoringJobsOperationsWaitRequest(_messages.Message):
@@ -6856,12 +11149,20 @@ class AiplatformProjectsLocationsModelMonitorsOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsModelMonitorsOperationsWaitRequest(_messages.Message):
@@ -7059,12 +11360,20 @@ class AiplatformProjectsLocationsModelsEvaluationsOperationsListRequest(_message
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsModelsEvaluationsOperationsWaitRequest(_messages.Message):
@@ -7195,6 +11504,25 @@ class AiplatformProjectsLocationsModelsGetRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class AiplatformProjectsLocationsModelsListCheckpointsRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsModelsListCheckpointsRequest object.
+
+  Fields:
+    name: Required. The name of the model version to list checkpoints for.
+      `projects/{project}/locations/{location}/models/{model}@{version}`
+      Example: `projects/{project}/locations/{location}/models/{model}@2` or
+      `projects/{project}/locations/{location}/models/{model}@golden` If no
+      version ID or alias is specified, the latest version will be used.
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token. Typically obtained via
+      next_page_token of the previous ListModelVersionCheckpoints call.
+  """
+
+  name = _messages.StringField(1, required=True)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+
+
 class AiplatformProjectsLocationsModelsListRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsModelsListRequest object.
 
@@ -7307,12 +11635,20 @@ class AiplatformProjectsLocationsModelsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsModelsOperationsWaitRequest(_messages.Message):
@@ -7693,12 +12029,20 @@ class AiplatformProjectsLocationsNotebookExecutionJobsOperationsListRequest(_mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsNotebookExecutionJobsOperationsWaitRequest(_messages.Message):
@@ -7893,12 +12237,20 @@ class AiplatformProjectsLocationsNotebookRuntimeTemplatesOperationsListRequest(_
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsNotebookRuntimeTemplatesOperationsWaitRequest(_messages.Message):
@@ -8128,12 +12480,20 @@ class AiplatformProjectsLocationsNotebookRuntimesOperationsListRequest(_messages
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsNotebookRuntimesOperationsWaitRequest(_messages.Message):
@@ -8256,12 +12616,20 @@ class AiplatformProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsOperationsWaitRequest(_messages.Message):
@@ -8383,12 +12751,20 @@ class AiplatformProjectsLocationsPersistentResourcesOperationsListRequest(_messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsPersistentResourcesOperationsWaitRequest(_messages.Message):
@@ -8619,12 +12995,20 @@ class AiplatformProjectsLocationsPipelineJobsOperationsListRequest(_messages.Mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsPipelineJobsOperationsWaitRequest(_messages.Message):
@@ -8674,6 +13058,42 @@ class AiplatformProjectsLocationsPublishersModelsCountTokensRequest(_messages.Me
   googleCloudAiplatformV1beta1CountTokensRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CountTokensRequest', 2)
 
 
+class AiplatformProjectsLocationsPublishersModelsEmbedContentRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsPublishersModelsEmbedContentRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EmbedContentRequest: A
+      GoogleCloudAiplatformV1beta1EmbedContentRequest resource to be passed as
+      the request body.
+    model: Required. The name of the publisher model requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/publishers/*/models/*`
+  """
+
+  googleCloudAiplatformV1beta1EmbedContentRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1EmbedContentRequest', 1)
+  model = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsPublishersModelsExportRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsPublishersModelsExportRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ExportPublisherModelRequest: A
+      GoogleCloudAiplatformV1beta1ExportPublisherModelRequest resource to be
+      passed as the request body.
+    name: Required. The name of the PublisherModel resource. Format:
+      `publishers/{publisher}/models/{publisher_model}@{version_id}`, or
+      `publishers/hf-{hugging-face-author}/models/{hugging-face-model-
+      name}@001`
+    parent: Required. The Location to export the model weights from Format:
+      `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1ExportPublisherModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1ExportPublisherModelRequest', 1)
+  name = _messages.StringField(2, required=True)
+  parent = _messages.StringField(3, required=True)
+
+
 class AiplatformProjectsLocationsPublishersModelsFetchPredictOperationRequest(_messages.Message):
   r"""A
   AiplatformProjectsLocationsPublishersModelsFetchPredictOperationRequest
@@ -8692,6 +13112,19 @@ class AiplatformProjectsLocationsPublishersModelsFetchPredictOperationRequest(_m
 
   endpoint = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1FetchPredictOperationRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FetchPredictOperationRequest', 2)
+
+
+class AiplatformProjectsLocationsPublishersModelsFetchPublisherModelConfigRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsPublishersModelsFetchPublisherModelConfigRequest
+  object.
+
+  Fields:
+    name: Required. The name of the publisher model, in the format of `project
+      s/{project}/locations/{location}/publishers/{publisher}/models/{model}`.
+  """
+
+  name = _messages.StringField(1, required=True)
 
 
 class AiplatformProjectsLocationsPublishersModelsGenerateContentRequest(_messages.Message):
@@ -8806,6 +13239,23 @@ class AiplatformProjectsLocationsPublishersModelsServerStreamingPredictRequest(_
 
   endpoint = _messages.StringField(1, required=True)
   googleCloudAiplatformV1beta1StreamingPredictRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1StreamingPredictRequest', 2)
+
+
+class AiplatformProjectsLocationsPublishersModelsSetPublisherModelConfigRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsPublishersModelsSetPublisherModelConfigRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1SetPublisherModelConfigRequest: A
+      GoogleCloudAiplatformV1beta1SetPublisherModelConfigRequest resource to
+      be passed as the request body.
+    name: Required. The name of the publisher model, in the format of `project
+      s/{project}/locations/{location}/publishers/{publisher}/models/{model}`.
+  """
+
+  googleCloudAiplatformV1beta1SetPublisherModelConfigRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1SetPublisherModelConfigRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsPublishersModelsStreamGenerateContentRequest(_messages.Message):
@@ -8941,12 +13391,20 @@ class AiplatformProjectsLocationsRagCorporaOperationsListRequest(_messages.Messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsRagCorporaOperationsWaitRequest(_messages.Message):
@@ -8968,12 +13426,16 @@ class AiplatformProjectsLocationsRagCorporaRagFilesDeleteRequest(_messages.Messa
   r"""A AiplatformProjectsLocationsRagCorporaRagFilesDeleteRequest object.
 
   Fields:
+    forceDelete: Optional. If set to true, any errors generated by external
+      vector database during the deletion will be ignored. The default value
+      is false.
     name: Required. The name of the RagFile resource to be deleted. Format: `p
       rojects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/
       {rag_file}`
   """
 
-  name = _messages.StringField(1, required=True)
+  forceDelete = _messages.BooleanField(1)
+  name = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsRagCorporaRagFilesGetRequest(_messages.Message):
@@ -9063,16 +13525,97 @@ class AiplatformProjectsLocationsRagCorporaRagFilesOperationsListRequest(_messag
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsRagCorporaRagFilesOperationsWaitRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsRagCorporaRagFilesOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsRagEngineConfigOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRagEngineConfigOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsRagEngineConfigOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRagEngineConfigOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsRagEngineConfigOperationsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRagEngineConfigOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsRagEngineConfigOperationsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRagEngineConfigOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsRagEngineConfigOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRagEngineConfigOperationsWaitRequest
   object.
 
   Fields:
@@ -9106,12 +13649,70 @@ class AiplatformProjectsLocationsReasoningEnginesDeleteRequest(_messages.Message
   r"""A AiplatformProjectsLocationsReasoningEnginesDeleteRequest object.
 
   Fields:
+    force: Optional. If set to true, child resources of this reasoning engine
+      will also be deleted. Otherwise, the request will fail with
+      FAILED_PRECONDITION error when the reasoning engine has undeleted child
+      resources.
     name: Required. The name of the ReasoningEngine resource to be deleted.
       Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
       ning_engine}`
   """
 
+  force = _messages.BooleanField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesExamplesOperationsCancelRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesExamplesOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
   name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesExamplesOperationsDeleteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesExamplesOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesExamplesOperationsGetRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesExamplesOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesExamplesOperationsWaitRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesExamplesOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
 
 
 class AiplatformProjectsLocationsReasoningEnginesGetRequest(_messages.Message):
@@ -9141,6 +13742,257 @@ class AiplatformProjectsLocationsReasoningEnginesListRequest(_messages.Message):
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesCreateRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Memory: A GoogleCloudAiplatformV1beta1Memory
+      resource to be passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to create the
+      Memory under. Format: `projects/{project}/locations/{location}/reasoning
+      Engines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1Memory = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the Memory to delete. Format: `projec
+      ts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/me
+      mories/{memory}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesGenerateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesGenerateRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1GenerateMemoriesRequest: A
+      GoogleCloudAiplatformV1beta1GenerateMemoriesRequest resource to be
+      passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to generate
+      memories for. Format: `projects/{project}/locations/{location}/reasoning
+      Engines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1GenerateMemoriesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the Memory. Format: `projects/{projec
+      t}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{me
+      mory}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160). Supported fields (equality match
+      only): * `scope` (as a JSON string)
+    orderBy: Optional. The standard list order by string. If not specified,
+      the default order is `create_time desc`. If specified, the default
+      sorting order of provided fields is ascending. More detail in
+      [AIP-132](https://google.aip.dev/132). Supported fields: * `create_time`
+      * `update_time`
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the ReasoningEngine to list the
+      Memories under. Format: `projects/{project}/locations/{location}/reasoni
+      ngEngines/{reasoning_engine}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsCancelRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsDeleteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsGetRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsListRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsWaitRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesPatchRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesPatchRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Memory: A GoogleCloudAiplatformV1beta1Memory
+      resource to be passed as the request body.
+    name: Identifier. The resource name of the Memory. Format: `projects/{proj
+      ect}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{
+      memory}`
+    updateMask: Optional. Mask specifying which fields to update. Supported
+      fields: * `display_name` * `description` * `fact`
+  """
+
+  googleCloudAiplatformV1beta1Memory = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesRetrieveRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesRetrieveRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1RetrieveMemoriesRequest: A
+      GoogleCloudAiplatformV1beta1RetrieveMemoriesRequest resource to be
+      passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to retrieve
+      memories from. Format: `projects/{project}/locations/{location}/reasonin
+      gEngines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1RetrieveMemoriesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrieveMemoriesRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesRevisionsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesRevisionsGetRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the Memory Revision to retrieve.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/memories/{memory}/revisions/{revision}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesRevisionsListRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesMemoriesRevisionsListRequest
+  object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160). Supported fields (equality match
+      only): * `labels`
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the Memory to list revisions for.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/memories/{memory}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesMemoriesRollbackRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesMemoriesRollbackRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1RollbackMemoryRequest: A
+      GoogleCloudAiplatformV1beta1RollbackMemoryRequest resource to be passed
+      as the request body.
+    name: Required. The resource name of the Memory to rollback. Format: `proj
+      ects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/
+      memories/{memory}`
+  """
+
+  googleCloudAiplatformV1beta1RollbackMemoryRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RollbackMemoryRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsReasoningEnginesOperationsCancelRequest(_messages.Message):
@@ -9185,12 +14037,20 @@ class AiplatformProjectsLocationsReasoningEnginesOperationsListRequest(_messages
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsReasoningEnginesOperationsWaitRequest(_messages.Message):
@@ -9216,7 +14076,8 @@ class AiplatformProjectsLocationsReasoningEnginesPatchRequest(_messages.Message)
     googleCloudAiplatformV1beta1ReasoningEngine: A
       GoogleCloudAiplatformV1beta1ReasoningEngine resource to be passed as the
       request body.
-    name: Identifier. The resource name of the ReasoningEngine.
+    name: Identifier. The resource name of the ReasoningEngine. Format: `proje
+      cts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`
     updateMask: Optional. Mask specifying which fields to update.
   """
 
@@ -9241,6 +14102,365 @@ class AiplatformProjectsLocationsReasoningEnginesQueryRequest(_messages.Message)
   name = _messages.StringField(2, required=True)
 
 
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsCreateRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsCreateRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1SandboxEnvironment: A
+      GoogleCloudAiplatformV1beta1SandboxEnvironment resource to be passed as
+      the request body.
+    parent: Required. The resource name of the reasoning engine to create the
+      SandboxEnvironment in. Format: `projects/{project}/locations/{location}/
+      reasoningEngines/{reasoning_engine}`.
+  """
+
+  googleCloudAiplatformV1beta1SandboxEnvironment = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironment', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsDeleteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the SandboxEnvironment to delete.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/sandboxEnvironments/{sandbox_environment}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsExecuteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsExecuteRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ExecuteSandboxEnvironmentRequest: A
+      GoogleCloudAiplatformV1beta1ExecuteSandboxEnvironmentRequest resource to
+      be passed as the request body.
+    name: Required. The resource name of the sandbox environment to execute.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/sandboxEnvironments/{sandbox_environment}`
+  """
+
+  googleCloudAiplatformV1beta1ExecuteSandboxEnvironmentRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1ExecuteSandboxEnvironmentRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsGetRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsGetRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the sandbox environment. Format: `pro
+      jects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}
+      /sandboxEnvironments/{sandbox_environment}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsListRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsListRequest
+  object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160).
+    pageSize: Optional. The maximum number of SandboxEnvironments to return.
+      The service may return fewer than this value. If unspecified, at most
+      100 SandboxEnvironments will be returned.
+    pageToken: Optional. The standard list page token, received from a
+      previous `ListSandboxEnvironments` call. Provide this to retrieve the
+      subsequent page.
+    parent: Required. The resource name of the reasoning engine to list
+      sandbox environments from. Format: `projects/{project}/locations/{locati
+      on}/reasoningEngines/{reasoning_engine}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperatio
+  nsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperatio
+  nsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperatio
+  nsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperationsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperatio
+  nsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSandboxEnvironmentsOperatio
+  nsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsCreateRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Session: A GoogleCloudAiplatformV1beta1Session
+      resource to be passed as the request body.
+    parent: Required. The resource name of the location to create the session
+      in. Format: `projects/{project}/locations/{location}/reasoningEngines/{r
+      easoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1Session = _messages.MessageField('GoogleCloudAiplatformV1beta1Session', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the session. Format: `projects/{proje
+      ct}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{s
+      ession}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsEventsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsEventsListRequest
+  object.
+
+  Fields:
+    filter: Optional. The standard list filter. Supported fields: *
+      `timestamp` range (i.e. `timestamp>="2025-01-31T11:30:00-04:00"` where
+      the timestamp is in RFC 3339 format) More detail in
+      [AIP-160](https://google.aip.dev/160).
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order. Use "desc" after a field name for descending. Supported
+      fields: * `timestamp` Example: `timestamp desc`.
+    pageSize: Optional. The maximum number of events to return. The service
+      may return fewer than this value. If unspecified, at most 100 events
+      will be returned. These events are ordered by timestamp in ascending
+      order.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list SessionService.ListEvents call.
+    parent: Required. The resource name of the session to list events from.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/sessions/{session}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the session. Format: `projects/{proje
+      ct}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{s
+      ession}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. Supported fields: *
+      `display_name` * `user_id` Example: `display_name="abc"`,
+      `user_id="123"`.
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order. Use "desc" after a field name for descending. Supported
+      fields: * `create_time` * `update_time` Example: `create_time desc`.
+    pageSize: Optional. The maximum number of sessions to return. The service
+      may return fewer than this value. If unspecified, at most 100 sessions
+      will be returned.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list SessionService.ListSessions call.
+    parent: Required. The resource name of the location to list sessions from.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsOperationsCancelRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSessionsOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsOperationsDeleteRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSessionsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsOperationsGetRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSessionsOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsOperationsListRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSessionsOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsOperationsWaitRequest(_messages.Message):
+  r"""A
+  AiplatformProjectsLocationsReasoningEnginesSessionsOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformProjectsLocationsReasoningEnginesSessionsPatchRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsReasoningEnginesSessionsPatchRequest
+  object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Session: A GoogleCloudAiplatformV1beta1Session
+      resource to be passed as the request body.
+    name: Identifier. The resource name of the session. Format: 'projects/{pro
+      ject}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/
+      {session}'.
+    updateMask: Optional. Field mask is used to control which fields get
+      updated. If the mask is not present, all fields will be updated.
+  """
+
+  googleCloudAiplatformV1beta1Session = _messages.MessageField('GoogleCloudAiplatformV1beta1Session', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
 class AiplatformProjectsLocationsReasoningEnginesStreamQueryRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsReasoningEnginesStreamQueryRequest object.
 
@@ -9255,6 +14475,22 @@ class AiplatformProjectsLocationsReasoningEnginesStreamQueryRequest(_messages.Me
 
   googleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest', 1)
   name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsRecommendSpecRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsRecommendSpecRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1RecommendSpecRequest: A
+      GoogleCloudAiplatformV1beta1RecommendSpecRequest resource to be passed
+      as the request body.
+    parent: Required. The resource name of the Location from which to
+      recommend specs. The users must have permission to make a call in the
+      project. Format: `projects/{project}/locations/{location}`.
+  """
+
+  googleCloudAiplatformV1beta1RecommendSpecRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RecommendSpecRequest', 1)
+  parent = _messages.StringField(2, required=True)
 
 
 class AiplatformProjectsLocationsRetrieveContextsRequest(_messages.Message):
@@ -9394,12 +14630,20 @@ class AiplatformProjectsLocationsSchedulesOperationsListRequest(_messages.Messag
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsSchedulesOperationsWaitRequest(_messages.Message):
@@ -9464,6 +14708,85 @@ class AiplatformProjectsLocationsSchedulesResumeRequest(_messages.Message):
   name = _messages.StringField(2, required=True)
 
 
+class AiplatformProjectsLocationsServerlessRayJobsCancelRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsServerlessRayJobsCancelRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1CancelServerlessRayJobRequest: A
+      GoogleCloudAiplatformV1beta1CancelServerlessRayJobRequest resource to be
+      passed as the request body.
+    name: Required. The name of the ServerlessRayJob to cancel. Format: `proje
+      cts/{project}/locations/{location}/ServerlessRayJobs/{serverless_ray_job
+      }`
+  """
+
+  googleCloudAiplatformV1beta1CancelServerlessRayJobRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CancelServerlessRayJobRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsServerlessRayJobsCreateRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsServerlessRayJobsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ServerlessRayJob: A
+      GoogleCloudAiplatformV1beta1ServerlessRayJob resource to be passed as
+      the request body.
+    parent: Required. The resource name of the Location to create the
+      ServerlessRayJob in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1ServerlessRayJob = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJob', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsLocationsServerlessRayJobsDeleteRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsServerlessRayJobsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the ServerlessRayJob resource to be deleted.
+      Format: `projects/{project}/locations/{location}/ServerlessRayJobs/{serv
+      erless_ray_job}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsServerlessRayJobsGetRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsServerlessRayJobsGetRequest object.
+
+  Fields:
+    name: Required. The name of the ServerlessRayJob resource. Format: `projec
+      ts/{project}/locations/{location}/serverlessRayJobs/{serverless_ray_job}
+      `
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformProjectsLocationsServerlessRayJobsListRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsServerlessRayJobsListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. Supported fields: *
+      `serverless_ray_job_id` supports `=`, `!=` comparisons, and `:`
+      wildcard. * `state` supports `=`, `!=` comparisons. * `labels` supports
+      general map functions that is: `labels.key=value` - key:value equality
+      `labels.key:* - key existence
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token. Typically obtained via
+      ListServerlessRayJobsResponse.next_page_token of the previous
+      JobService.ListServerlessRayJobs call.
+    parent: Required. The resource name of the Location to list the
+      ServerlessRayJobs from. Format:
+      `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
 class AiplatformProjectsLocationsSolversOperationsDeleteRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsSolversOperationsDeleteRequest object.
 
@@ -9492,12 +14815,20 @@ class AiplatformProjectsLocationsSolversOperationsListRequest(_messages.Message)
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsSpecialistPoolsCreateRequest(_messages.Message):
@@ -9604,12 +14935,20 @@ class AiplatformProjectsLocationsSpecialistPoolsOperationsListRequest(_messages.
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsSpecialistPoolsOperationsWaitRequest(_messages.Message):
@@ -9750,12 +15089,20 @@ class AiplatformProjectsLocationsStudiesOperationsListRequest(_messages.Message)
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsStudiesOperationsWaitRequest(_messages.Message):
@@ -9929,12 +15276,20 @@ class AiplatformProjectsLocationsStudiesTrialsOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsStudiesTrialsOperationsWaitRequest(_messages.Message):
@@ -10168,12 +15523,20 @@ class AiplatformProjectsLocationsTensorboardsExperimentsOperationsListRequest(_m
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsTensorboardsExperimentsOperationsWaitRequest(_messages.Message):
@@ -10356,12 +15719,20 @@ class AiplatformProjectsLocationsTensorboardsExperimentsRunsOperationsListReques
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsTensorboardsExperimentsRunsOperationsWaitRequest(_messages.Message):
@@ -10545,12 +15916,20 @@ class AiplatformProjectsLocationsTensorboardsExperimentsRunsTimeSeriesOperations
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsTensorboardsExperimentsRunsTimeSeriesOperationsWaitRequest(_messages.Message):
@@ -10723,12 +16102,20 @@ class AiplatformProjectsLocationsTensorboardsOperationsListRequest(_messages.Mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsTensorboardsOperationsWaitRequest(_messages.Message):
@@ -10919,12 +16306,20 @@ class AiplatformProjectsLocationsTrainingPipelinesOperationsListRequest(_message
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class AiplatformProjectsLocationsTrainingPipelinesOperationsWaitRequest(_messages.Message):
@@ -11013,6 +16408,21 @@ class AiplatformProjectsLocationsTuningJobsOperationsDeleteRequest(_messages.Mes
   name = _messages.StringField(1, required=True)
 
 
+class AiplatformProjectsLocationsTuningJobsOptimizePromptRequest(_messages.Message):
+  r"""A AiplatformProjectsLocationsTuningJobsOptimizePromptRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1OptimizePromptRequest: A
+      GoogleCloudAiplatformV1beta1OptimizePromptRequest resource to be passed
+      as the request body.
+    parent: Required. The resource name of the Location to optimize the prompt
+      in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1OptimizePromptRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1OptimizePromptRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
 class AiplatformProjectsLocationsTuningJobsRebaseTunedModelRequest(_messages.Message):
   r"""A AiplatformProjectsLocationsTuningJobsRebaseTunedModelRequest object.
 
@@ -11026,6 +16436,69 @@ class AiplatformProjectsLocationsTuningJobsRebaseTunedModelRequest(_messages.Mes
 
   googleCloudAiplatformV1beta1RebaseTunedModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RebaseTunedModelRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsModelGardenEulaAcceptRequest(_messages.Message):
+  r"""A AiplatformProjectsModelGardenEulaAcceptRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1AcceptPublisherModelEulaRequest: A
+      GoogleCloudAiplatformV1beta1AcceptPublisherModelEulaRequest resource to
+      be passed as the request body.
+    parent: Required. The project requesting access for named model. The
+      format is `projects/{project}`.
+  """
+
+  googleCloudAiplatformV1beta1AcceptPublisherModelEulaRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1AcceptPublisherModelEulaRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsModelGardenEulaCheckRequest(_messages.Message):
+  r"""A AiplatformProjectsModelGardenEulaCheckRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1CheckPublisherModelEulaAcceptanceRequest: A
+      GoogleCloudAiplatformV1beta1CheckPublisherModelEulaAcceptanceRequest
+      resource to be passed as the request body.
+    parent: Required. The project requesting access for named model. The
+      format is `projects/{project}`.
+  """
+
+  googleCloudAiplatformV1beta1CheckPublisherModelEulaAcceptanceRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CheckPublisherModelEulaAcceptanceRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformProjectsPublishersModelsEnableModelRequest(_messages.Message):
+  r"""A AiplatformProjectsPublishersModelsEnableModelRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1EnableModelRequest: A
+      GoogleCloudAiplatformV1beta1EnableModelRequest resource to be passed as
+      the request body.
+    name: Required. The name of the PublisherModel resource. Format:
+      `publishers/{publisher}/models/{publisher_model}`
+    parent: Required. The project requesting access for named model. Format:
+      `projects/{project}`
+  """
+
+  googleCloudAiplatformV1beta1EnableModelRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1EnableModelRequest', 1)
+  name = _messages.StringField(2, required=True)
+  parent = _messages.StringField(3, required=True)
+
+
+class AiplatformProjectsSetPublisherModelConfigRequest(_messages.Message):
+  r"""A AiplatformProjectsSetPublisherModelConfigRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1SetPublisherModelConfigRequest: A
+      GoogleCloudAiplatformV1beta1SetPublisherModelConfigRequest resource to
+      be passed as the request body.
+    name: Required. The name of the publisher model, in the format of `project
+      s/{project}/locations/{location}/publishers/{publisher}/models/{model}`.
+  """
+
+  googleCloudAiplatformV1beta1SetPublisherModelConfigRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1SetPublisherModelConfigRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class AiplatformPublishersModelsComputeTokensRequest(_messages.Message):
@@ -11059,6 +16532,24 @@ class AiplatformPublishersModelsCountTokensRequest(_messages.Message):
   googleCloudAiplatformV1beta1CountTokensRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1CountTokensRequest', 2)
 
 
+class AiplatformPublishersModelsFetchPredictOperationRequest(_messages.Message):
+  r"""A AiplatformPublishersModelsFetchPredictOperationRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}` or `proje
+      cts/{project}/locations/{location}/publishers/{publisher}/models/{model}
+      `
+    googleCloudAiplatformV1beta1FetchPredictOperationRequest: A
+      GoogleCloudAiplatformV1beta1FetchPredictOperationRequest resource to be
+      passed as the request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1FetchPredictOperationRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1FetchPredictOperationRequest', 2)
+
+
 class AiplatformPublishersModelsGenerateContentRequest(_messages.Message):
   r"""A AiplatformPublishersModelsGenerateContentRequest object.
 
@@ -11087,6 +16578,9 @@ class AiplatformPublishersModelsGetRequest(_messages.Message):
   Fields:
     huggingFaceToken: Optional. Token used to access Hugging Face gated
       models.
+    includeEquivalentModelGardenModelDeploymentConfigs: Optional. Whether to
+      cnclude the deployment configs from the equivalent Model Garden model if
+      the requested model is a Hugging Face model.
     isHuggingFaceModel: Optional. Boolean indicates whether the requested
       model is a Hugging Face model.
     languageCode: Optional. The IETF BCP-47 language code representing the
@@ -11115,10 +16609,11 @@ class AiplatformPublishersModelsGetRequest(_messages.Message):
     PUBLISHER_MODEL_VERSION_VIEW_BASIC = 3
 
   huggingFaceToken = _messages.StringField(1)
-  isHuggingFaceModel = _messages.BooleanField(2)
-  languageCode = _messages.StringField(3)
-  name = _messages.StringField(4, required=True)
-  view = _messages.EnumField('ViewValueValuesEnum', 5)
+  includeEquivalentModelGardenModelDeploymentConfigs = _messages.BooleanField(2)
+  isHuggingFaceModel = _messages.BooleanField(3)
+  languageCode = _messages.StringField(4)
+  name = _messages.StringField(5, required=True)
+  view = _messages.EnumField('ViewValueValuesEnum', 6)
 
 
 class AiplatformPublishersModelsListRequest(_messages.Message):
@@ -11173,6 +16668,40 @@ class AiplatformPublishersModelsListRequest(_messages.Message):
   view = _messages.EnumField('ViewValueValuesEnum', 8)
 
 
+class AiplatformPublishersModelsPredictLongRunningRequest(_messages.Message):
+  r"""A AiplatformPublishersModelsPredictLongRunningRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}` or `proje
+      cts/{project}/locations/{location}/publishers/{publisher}/models/{model}
+      `
+    googleCloudAiplatformV1beta1PredictLongRunningRequest: A
+      GoogleCloudAiplatformV1beta1PredictLongRunningRequest resource to be
+      passed as the request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1PredictLongRunningRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictLongRunningRequest', 2)
+
+
+class AiplatformPublishersModelsPredictRequest(_messages.Message):
+  r"""A AiplatformPublishersModelsPredictRequest object.
+
+  Fields:
+    endpoint: Required. The name of the Endpoint requested to serve the
+      prediction. Format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    googleCloudAiplatformV1beta1PredictRequest: A
+      GoogleCloudAiplatformV1beta1PredictRequest resource to be passed as the
+      request body.
+  """
+
+  endpoint = _messages.StringField(1, required=True)
+  googleCloudAiplatformV1beta1PredictRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictRequest', 2)
+
+
 class AiplatformPublishersModelsStreamGenerateContentRequest(_messages.Message):
   r"""A AiplatformPublishersModelsStreamGenerateContentRequest object.
 
@@ -11191,6 +16720,1605 @@ class AiplatformPublishersModelsStreamGenerateContentRequest(_messages.Message):
   model = _messages.StringField(2, required=True)
 
 
+class AiplatformRagCorporaOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformRagCorporaOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformRagCorporaOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaOperationsGetRequest(_messages.Message):
+  r"""A AiplatformRagCorporaOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaOperationsListRequest(_messages.Message):
+  r"""A AiplatformRagCorporaOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformRagCorporaOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformRagCorporaOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformRagCorporaRagFilesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformRagCorporaRagFilesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaRagFilesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformRagCorporaRagFilesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaRagFilesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformRagCorporaRagFilesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagCorporaRagFilesOperationsListRequest(_messages.Message):
+  r"""A AiplatformRagCorporaRagFilesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformRagCorporaRagFilesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformRagCorporaRagFilesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformRagEngineConfigOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformRagEngineConfigOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagEngineConfigOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformRagEngineConfigOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagEngineConfigOperationsGetRequest(_messages.Message):
+  r"""A AiplatformRagEngineConfigOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformRagEngineConfigOperationsListRequest(_messages.Message):
+  r"""A AiplatformRagEngineConfigOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformRagEngineConfigOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformRagEngineConfigOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesCreateRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ReasoningEngine: A
+      GoogleCloudAiplatformV1beta1ReasoningEngine resource to be passed as the
+      request body.
+    parent: Required. The resource name of the Location to create the
+      ReasoningEngine in. Format: `projects/{project}/locations/{location}`
+  """
+
+  googleCloudAiplatformV1beta1ReasoningEngine = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngine', 1)
+  parent = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesDeleteRequest object.
+
+  Fields:
+    force: Optional. If set to true, child resources of this reasoning engine
+      will also be deleted. Otherwise, the request will fail with
+      FAILED_PRECONDITION error when the reasoning engine has undeleted child
+      resources.
+    name: Required. The name of the ReasoningEngine resource to be deleted.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}`
+  """
+
+  force = _messages.BooleanField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesExamplesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesExamplesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesExamplesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesExamplesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesExamplesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesExamplesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesExamplesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesExamplesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesGetRequest object.
+
+  Fields:
+    name: Required. The name of the ReasoningEngine resource. Format: `project
+      s/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160).
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the Location to list the
+      ReasoningEngines from. Format: `projects/{project}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4)
+
+
+class AiplatformReasoningEnginesMemoriesCreateRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Memory: A GoogleCloudAiplatformV1beta1Memory
+      resource to be passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to create the
+      Memory under. Format: `projects/{project}/locations/{location}/reasoning
+      Engines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1Memory = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesDeleteRequest object.
+
+  Fields:
+    name: Required. The resource name of the Memory to delete. Format: `projec
+      ts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/me
+      mories/{memory}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesGenerateRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesGenerateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1GenerateMemoriesRequest: A
+      GoogleCloudAiplatformV1beta1GenerateMemoriesRequest resource to be
+      passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to generate
+      memories for. Format: `projects/{project}/locations/{location}/reasoning
+      Engines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1GenerateMemoriesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the Memory. Format: `projects/{projec
+      t}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{me
+      mory}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160). Supported fields (equality match
+      only): * `scope` (as a JSON string)
+    orderBy: Optional. The standard list order by string. If not specified,
+      the default order is `create_time desc`. If specified, the default
+      sorting order of provided fields is ascending. More detail in
+      [AIP-132](https://google.aip.dev/132). Supported fields: * `create_time`
+      * `update_time`
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the ReasoningEngine to list the
+      Memories under. Format: `projects/{project}/locations/{location}/reasoni
+      ngEngines/{reasoning_engine}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesOperationsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformReasoningEnginesMemoriesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesMemoriesPatchRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesPatchRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Memory: A GoogleCloudAiplatformV1beta1Memory
+      resource to be passed as the request body.
+    name: Identifier. The resource name of the Memory. Format: `projects/{proj
+      ect}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{
+      memory}`
+    updateMask: Optional. Mask specifying which fields to update. Supported
+      fields: * `display_name` * `description` * `fact`
+  """
+
+  googleCloudAiplatformV1beta1Memory = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class AiplatformReasoningEnginesMemoriesRetrieveRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesRetrieveRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1RetrieveMemoriesRequest: A
+      GoogleCloudAiplatformV1beta1RetrieveMemoriesRequest resource to be
+      passed as the request body.
+    parent: Required. The resource name of the ReasoningEngine to retrieve
+      memories from. Format: `projects/{project}/locations/{location}/reasonin
+      gEngines/{reasoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1RetrieveMemoriesRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrieveMemoriesRequest', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesRevisionsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesRevisionsGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the Memory Revision to retrieve.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/memories/{memory}/revisions/{revision}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesRevisionsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesRevisionsListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. More detail in
+      [AIP-160](https://google.aip.dev/160). Supported fields (equality match
+      only): * `labels`
+    pageSize: Optional. The standard list page size.
+    pageToken: Optional. The standard list page token.
+    parent: Required. The resource name of the Memory to list revisions for.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/memories/{memory}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
+class AiplatformReasoningEnginesMemoriesRollbackRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesMemoriesRollbackRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1RollbackMemoryRequest: A
+      GoogleCloudAiplatformV1beta1RollbackMemoryRequest resource to be passed
+      as the request body.
+    name: Required. The resource name of the Memory to rollback. Format: `proj
+      ects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/
+      memories/{memory}`
+  """
+
+  googleCloudAiplatformV1beta1RollbackMemoryRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1RollbackMemoryRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesOperationsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformReasoningEnginesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesPatchRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesPatchRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1ReasoningEngine: A
+      GoogleCloudAiplatformV1beta1ReasoningEngine resource to be passed as the
+      request body.
+    name: Identifier. The resource name of the ReasoningEngine. Format: `proje
+      cts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`
+    updateMask: Optional. Mask specifying which fields to update.
+  """
+
+  googleCloudAiplatformV1beta1ReasoningEngine = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngine', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class AiplatformReasoningEnginesQueryRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesQueryRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1QueryReasoningEngineRequest: A
+      GoogleCloudAiplatformV1beta1QueryReasoningEngineRequest resource to be
+      passed as the request body.
+    name: Required. The name of the ReasoningEngine resource to use. Format: `
+      projects/{project}/locations/{location}/reasoningEngines/{reasoning_engi
+      ne}`
+  """
+
+  googleCloudAiplatformV1beta1QueryReasoningEngineRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1QueryReasoningEngineRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesSandboxEnvironmentsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSandboxEnvironmentsOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSandboxEnvironmentsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSandboxEnvironmentsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSandboxEnvironmentsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSandboxEnvironmentsOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSandboxEnvironmentsOperationsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSandboxEnvironmentsOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformReasoningEnginesSandboxEnvironmentsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSandboxEnvironmentsOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesSessionsCreateRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsCreateRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Session: A GoogleCloudAiplatformV1beta1Session
+      resource to be passed as the request body.
+    parent: Required. The resource name of the location to create the session
+      in. Format: `projects/{project}/locations/{location}/reasoningEngines/{r
+      easoning_engine}`
+  """
+
+  googleCloudAiplatformV1beta1Session = _messages.MessageField('GoogleCloudAiplatformV1beta1Session', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class AiplatformReasoningEnginesSessionsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsDeleteRequest object.
+
+  Fields:
+    name: Required. The resource name of the session. Format: `projects/{proje
+      ct}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{s
+      ession}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSessionsEventsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsEventsListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. Supported fields: *
+      `timestamp` range (i.e. `timestamp>="2025-01-31T11:30:00-04:00"` where
+      the timestamp is in RFC 3339 format) More detail in
+      [AIP-160](https://google.aip.dev/160).
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order. Use "desc" after a field name for descending. Supported
+      fields: * `timestamp` Example: `timestamp desc`.
+    pageSize: Optional. The maximum number of events to return. The service
+      may return fewer than this value. If unspecified, at most 100 events
+      will be returned. These events are ordered by timestamp in ascending
+      order.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list SessionService.ListEvents call.
+    parent: Required. The resource name of the session to list events from.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}/sessions/{session}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformReasoningEnginesSessionsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the session. Format: `projects/{proje
+      ct}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{s
+      ession}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSessionsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsListRequest object.
+
+  Fields:
+    filter: Optional. The standard list filter. Supported fields: *
+      `display_name` * `user_id` Example: `display_name="abc"`,
+      `user_id="123"`.
+    orderBy: Optional. A comma-separated list of fields to order by, sorted in
+      ascending order. Use "desc" after a field name for descending. Supported
+      fields: * `create_time` * `update_time` Example: `create_time desc`.
+    pageSize: Optional. The maximum number of sessions to return. The service
+      may return fewer than this value. If unspecified, at most 100 sessions
+      will be returned.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list SessionService.ListSessions call.
+    parent: Required. The resource name of the location to list sessions from.
+      Format: `projects/{project}/locations/{location}/reasoningEngines/{reaso
+      ning_engine}`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class AiplatformReasoningEnginesSessionsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSessionsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSessionsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformReasoningEnginesSessionsOperationsListRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformReasoningEnginesSessionsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformReasoningEnginesSessionsPatchRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesSessionsPatchRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1Session: A GoogleCloudAiplatformV1beta1Session
+      resource to be passed as the request body.
+    name: Identifier. The resource name of the session. Format: 'projects/{pro
+      ject}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/
+      {session}'.
+    updateMask: Optional. Field mask is used to control which fields get
+      updated. If the mask is not present, all fields will be updated.
+  """
+
+  googleCloudAiplatformV1beta1Session = _messages.MessageField('GoogleCloudAiplatformV1beta1Session', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class AiplatformReasoningEnginesStreamQueryRequest(_messages.Message):
+  r"""A AiplatformReasoningEnginesStreamQueryRequest object.
+
+  Fields:
+    googleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest: A
+      GoogleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest resource
+      to be passed as the request body.
+    name: Required. The name of the ReasoningEngine resource to use. Format: `
+      projects/{project}/locations/{location}/reasoningEngines/{reasoning_engi
+      ne}`
+  """
+
+  googleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1StreamQueryReasoningEngineRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class AiplatformSchedulesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformSchedulesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSchedulesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformSchedulesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSchedulesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformSchedulesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSchedulesOperationsListRequest(_messages.Message):
+  r"""A AiplatformSchedulesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformSchedulesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformSchedulesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformSolversOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformSolversOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSolversOperationsGetRequest(_messages.Message):
+  r"""A AiplatformSolversOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSolversOperationsListRequest(_messages.Message):
+  r"""A AiplatformSolversOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformSpecialistPoolsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformSpecialistPoolsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSpecialistPoolsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformSpecialistPoolsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSpecialistPoolsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformSpecialistPoolsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformSpecialistPoolsOperationsListRequest(_messages.Message):
+  r"""A AiplatformSpecialistPoolsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformSpecialistPoolsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformSpecialistPoolsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformStudiesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformStudiesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformStudiesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformStudiesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesOperationsListRequest(_messages.Message):
+  r"""A AiplatformStudiesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformStudiesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformStudiesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformStudiesTrialsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformStudiesTrialsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesTrialsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformStudiesTrialsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesTrialsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformStudiesTrialsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformStudiesTrialsOperationsListRequest(_messages.Message):
+  r"""A AiplatformStudiesTrialsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformStudiesTrialsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformStudiesTrialsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTensorboardsExperimentsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsOperationsListRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformTensorboardsExperimentsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTensorboardsExperimentsRunsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsOperationsListRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformTensorboardsExperimentsRunsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsCancelRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsListRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformTensorboardsExperimentsRunsTimeSeriesOperationsWaitRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTensorboardsOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformTensorboardsOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTensorboardsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsOperationsGetRequest(_messages.Message):
+  r"""A AiplatformTensorboardsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTensorboardsOperationsListRequest(_messages.Message):
+  r"""A AiplatformTensorboardsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformTensorboardsOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformTensorboardsOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTrainingPipelinesOperationsCancelRequest(_messages.Message):
+  r"""A AiplatformTrainingPipelinesOperationsCancelRequest object.
+
+  Fields:
+    name: The name of the operation resource to be cancelled.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTrainingPipelinesOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTrainingPipelinesOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTrainingPipelinesOperationsGetRequest(_messages.Message):
+  r"""A AiplatformTrainingPipelinesOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class AiplatformTrainingPipelinesOperationsListRequest(_messages.Message):
+  r"""A AiplatformTrainingPipelinesOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class AiplatformTrainingPipelinesOperationsWaitRequest(_messages.Message):
+  r"""A AiplatformTrainingPipelinesOperationsWaitRequest object.
+
+  Fields:
+    name: The name of the operation resource to wait on.
+    timeout: The maximum duration to wait before timing out. If left blank,
+      the wait will be at most the time permitted by the underlying HTTP/RPC
+      protocol. If RPC context deadline is also specified, the shorter one
+      will be used.
+  """
+
+  name = _messages.StringField(1, required=True)
+  timeout = _messages.StringField(2)
+
+
+class AiplatformTuningJobsOperationsDeleteRequest(_messages.Message):
+  r"""A AiplatformTuningJobsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
 class CloudAiLargeModelsVisionGenerateVideoResponse(_messages.Message):
   r"""Generate video response.
 
@@ -11199,11 +18327,27 @@ class CloudAiLargeModelsVisionGenerateVideoResponse(_messages.Message):
     raiMediaFilteredCount: Returns if any videos were filtered due to RAI
       policies.
     raiMediaFilteredReasons: Returns rai failure reasons if any.
+    videos: List of videos, used to align naming with the external response.
   """
 
   generatedSamples = _messages.MessageField('CloudAiLargeModelsVisionMedia', 1, repeated=True)
   raiMediaFilteredCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   raiMediaFilteredReasons = _messages.StringField(3, repeated=True)
+  videos = _messages.MessageField('CloudAiLargeModelsVisionGenerateVideoResponseVideo', 4, repeated=True)
+
+
+class CloudAiLargeModelsVisionGenerateVideoResponseVideo(_messages.Message):
+  r"""A CloudAiLargeModelsVisionGenerateVideoResponseVideo object.
+
+  Fields:
+    bytesBase64Encoded: Base64 encoded bytes string representing the video.
+    gcsUri: Cloud Storage URI where the generated video is written.
+    mimeType: The MIME type of the content of the video. - video/mp4
+  """
+
+  bytesBase64Encoded = _messages.StringField(1)
+  gcsUri = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
 
 
 class CloudAiLargeModelsVisionImage(_messages.Message):
@@ -11388,18 +18532,20 @@ class CloudAiLargeModelsVisionVideo(_messages.Message):
   Fields:
     encodedVideo: Base 64 encoded video bytes.
     encoding: Video encoding, for example "video/mp4".
+    text: Text/Expanded text input for Help Me Write.
     uri: Path to another storage (typically Google Cloud Storage).
     video: Raw bytes.
   """
 
   encodedVideo = _messages.StringField(1)
   encoding = _messages.StringField(2)
-  uri = _messages.StringField(3)
-  video = _messages.BytesField(4)
+  text = _messages.StringField(3)
+  uri = _messages.StringField(4)
+  video = _messages.BytesField(5)
 
 
 class CloudAiPlatformCommonCreatePipelineJobApiErrorDetail(_messages.Message):
-  r"""Create API error message for Vertex Pipeline. Next Id: 3.
+  r"""Create API error message for Vertex Pipeline.
 
   Enums:
     ErrorCauseValueValuesEnum: The error root cause returned by
@@ -11434,8 +18580,8 @@ class CloudAiPlatformCommonCreatePipelineJobApiErrorDetail(_messages.Message):
       INVALID_RESOLVER_SPEC: Resolver spec is invalid.
       INVALID_RUNTIME_PARAMETERS: Runtime Parameters are invalid.
       CLOUD_API_NOT_ENABLED: Cloud API not enabled.
-      INVALID_GCS_INPUT_URI: Invalid GCS input uri
-      INVALID_GCS_OUTPUT_URI: Invalid GCS output uri
+      INVALID_GCS_INPUT_URI: Invalid Cloud Storage input uri
+      INVALID_GCS_OUTPUT_URI: Invalid Cloud Storage output uri
       INVALID_COMPONENT_SPEC: Component spec of pipeline is invalid.
       INVALID_DAG_OUTPUTS_SPEC: DagOutputsSpec is invalid.
       INVALID_DAG_SPEC: DagSpec is invalid.
@@ -11533,6 +18679,18 @@ class GoogleApiHttpBody(_messages.Message):
   extensions = _messages.MessageField('ExtensionsValueListEntry', 3, repeated=True)
 
 
+class GoogleCloudAiplatformV1beta1AcceptPublisherModelEulaRequest(_messages.Message):
+  r"""Request message for ModelGardenService.AcceptPublisherModelEula.
+
+  Fields:
+    publisherModel: Required. The name of the PublisherModel resource. Format:
+      `publishers/{publisher}/models/{publisher_model}`, or
+      `publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}`
+  """
+
+  publisherModel = _messages.StringField(1)
+
+
 class GoogleCloudAiplatformV1beta1ActiveLearningConfig(_messages.Message):
   r"""Parameters that configure the active learning pipeline. Active learning
   will label the data incrementally by several iterations. For every
@@ -11614,6 +18772,76 @@ class GoogleCloudAiplatformV1beta1AddTrialMeasurementRequest(_messages.Message):
   """
 
   measurement = _messages.MessageField('GoogleCloudAiplatformV1beta1Measurement', 1)
+
+
+class GoogleCloudAiplatformV1beta1AggregationOutput(_messages.Message):
+  r"""The aggregation result for the entire dataset and all metrics.
+
+  Fields:
+    aggregationResults: One AggregationResult per metric.
+    dataset: The dataset used for evaluation & aggregation.
+  """
+
+  aggregationResults = _messages.MessageField('GoogleCloudAiplatformV1beta1AggregationResult', 1, repeated=True)
+  dataset = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationDataset', 2)
+
+
+class GoogleCloudAiplatformV1beta1AggregationResult(_messages.Message):
+  r"""The aggregation result for a single metric.
+
+  Enums:
+    AggregationMetricValueValuesEnum: Aggregation metric.
+
+  Fields:
+    aggregationMetric: Aggregation metric.
+    bleuMetricValue: Results for bleu metric.
+    customCodeExecutionResult: Result for code execution metric.
+    exactMatchMetricValue: Results for exact match metric.
+    pairwiseMetricResult: Result for pairwise metric.
+    pointwiseMetricResult: Result for pointwise metric.
+    rougeMetricValue: Results for rouge metric.
+  """
+
+  class AggregationMetricValueValuesEnum(_messages.Enum):
+    r"""Aggregation metric.
+
+    Values:
+      AGGREGATION_METRIC_UNSPECIFIED: Unspecified aggregation metric.
+      AVERAGE: Average aggregation metric. Not supported for Pairwise metric.
+      MODE: Mode aggregation metric.
+      STANDARD_DEVIATION: Standard deviation aggregation metric. Not supported
+        for pairwise metric.
+      VARIANCE: Variance aggregation metric. Not supported for pairwise
+        metric.
+      MINIMUM: Minimum aggregation metric. Not supported for pairwise metric.
+      MAXIMUM: Maximum aggregation metric. Not supported for pairwise metric.
+      MEDIAN: Median aggregation metric. Not supported for pairwise metric.
+      PERCENTILE_P90: 90th percentile aggregation metric. Not supported for
+        pairwise metric.
+      PERCENTILE_P95: 95th percentile aggregation metric. Not supported for
+        pairwise metric.
+      PERCENTILE_P99: 99th percentile aggregation metric. Not supported for
+        pairwise metric.
+    """
+    AGGREGATION_METRIC_UNSPECIFIED = 0
+    AVERAGE = 1
+    MODE = 2
+    STANDARD_DEVIATION = 3
+    VARIANCE = 4
+    MINIMUM = 5
+    MAXIMUM = 6
+    MEDIAN = 7
+    PERCENTILE_P90 = 8
+    PERCENTILE_P95 = 9
+    PERCENTILE_P99 = 10
+
+  aggregationMetric = _messages.EnumField('AggregationMetricValueValuesEnum', 1)
+  bleuMetricValue = _messages.MessageField('GoogleCloudAiplatformV1beta1BleuMetricValue', 2)
+  customCodeExecutionResult = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomCodeExecutionResult', 3)
+  exactMatchMetricValue = _messages.MessageField('GoogleCloudAiplatformV1beta1ExactMatchMetricValue', 4)
+  pairwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricResult', 5)
+  pointwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricResult', 6)
+  rougeMetricValue = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeMetricValue', 7)
 
 
 class GoogleCloudAiplatformV1beta1Annotation(_messages.Message):
@@ -11736,7 +18964,8 @@ class GoogleCloudAiplatformV1beta1AnnotationSpec(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1ApiAuth(_messages.Message):
-  r"""The generic reusable api auth config.
+  r"""The generic reusable api auth config. Deprecated. Please use AuthConfig
+  (google/cloud/aiplatform/master/auth.proto) instead.
 
   Fields:
     apiKeyConfig: The API secret.
@@ -11752,9 +18981,16 @@ class GoogleCloudAiplatformV1beta1ApiAuthApiKeyConfig(_messages.Message):
     apiKeySecretVersion: Required. The SecretManager secret version resource
       name storing API key. e.g.
       projects/{project}/secrets/{secret}/versions/{version}
+    apiKeyString: The API key string. Either this or `api_key_secret_version`
+      must be set.
   """
 
   apiKeySecretVersion = _messages.StringField(1)
+  apiKeyString = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1AppendEventResponse(_messages.Message):
+  r"""Response message for SessionService.AppendEvent."""
 
 
 class GoogleCloudAiplatformV1beta1Artifact(_messages.Message):
@@ -11918,6 +19154,99 @@ class GoogleCloudAiplatformV1beta1ArtifactTypeSchema(_messages.Message):
   schemaTitle = _messages.StringField(2)
   schemaUri = _messages.StringField(3)
   schemaVersion = _messages.StringField(4)
+
+
+class GoogleCloudAiplatformV1beta1AssembleDataRequest(_messages.Message):
+  r"""Request message for DatasetService.AssembleData. Used only for
+  MULTIMODAL datasets.
+
+  Fields:
+    geminiRequestReadConfig: Optional. The read config for the dataset.
+  """
+
+  geminiRequestReadConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiRequestReadConfig', 1)
+
+
+class GoogleCloudAiplatformV1beta1AssessDataRequest(_messages.Message):
+  r"""Request message for DatasetService.AssessData. Used only for MULTIMODAL
+  datasets.
+
+  Fields:
+    batchPredictionResourceUsageAssessmentConfig: Optional. Configuration for
+      the batch prediction resource usage assessment.
+    batchPredictionValidationAssessmentConfig: Optional. Configuration for the
+      batch prediction validation assessment.
+    geminiRequestReadConfig: Optional. The Gemini request read config for the
+      dataset.
+    tuningResourceUsageAssessmentConfig: Optional. Configuration for the
+      tuning resource usage assessment.
+    tuningValidationAssessmentConfig: Optional. Configuration for the tuning
+      validation assessment.
+  """
+
+  batchPredictionResourceUsageAssessmentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AssessDataRequestBatchPredictionResourceUsageAssessmentConfig', 1)
+  batchPredictionValidationAssessmentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AssessDataRequestBatchPredictionValidationAssessmentConfig', 2)
+  geminiRequestReadConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiRequestReadConfig', 3)
+  tuningResourceUsageAssessmentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AssessDataRequestTuningResourceUsageAssessmentConfig', 4)
+  tuningValidationAssessmentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AssessDataRequestTuningValidationAssessmentConfig', 5)
+
+
+class GoogleCloudAiplatformV1beta1AssessDataRequestBatchPredictionResourceUsageAssessmentConfig(_messages.Message):
+  r"""Configuration for the batch prediction resource usage assessment.
+
+  Fields:
+    modelName: Required. The name of the model used for batch prediction.
+  """
+
+  modelName = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1AssessDataRequestBatchPredictionValidationAssessmentConfig(_messages.Message):
+  r"""Configuration for the batch prediction validation assessment.
+
+  Fields:
+    modelName: Required. The name of the model used for batch prediction.
+  """
+
+  modelName = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1AssessDataRequestTuningResourceUsageAssessmentConfig(_messages.Message):
+  r"""Configuration for the tuning resource usage assessment.
+
+  Fields:
+    modelName: Required. The name of the model used for tuning.
+  """
+
+  modelName = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1AssessDataRequestTuningValidationAssessmentConfig(_messages.Message):
+  r"""Configuration for the tuning validation assessment.
+
+  Enums:
+    DatasetUsageValueValuesEnum: Required. The dataset usage (e.g.
+      training/validation).
+
+  Fields:
+    datasetUsage: Required. The dataset usage (e.g. training/validation).
+    modelName: Required. The name of the model used for tuning.
+  """
+
+  class DatasetUsageValueValuesEnum(_messages.Enum):
+    r"""Required. The dataset usage (e.g. training/validation).
+
+    Values:
+      DATASET_USAGE_UNSPECIFIED: Default value. Should not be used.
+      SFT_TRAINING: Supervised fine-tuning training dataset.
+      SFT_VALIDATION: Supervised fine-tuning validation dataset.
+    """
+    DATASET_USAGE_UNSPECIFIED = 0
+    SFT_TRAINING = 1
+    SFT_VALIDATION = 2
+
+  datasetUsage = _messages.EnumField('DatasetUsageValueValuesEnum', 1)
+  modelName = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1AssignNotebookRuntimeOperationMetadata(_messages.Message):
@@ -12102,24 +19431,27 @@ class GoogleCloudAiplatformV1beta1AuthConfigApiKeyConfig(_messages.Message):
   r"""Config for authentication with API key.
 
   Enums:
-    HttpElementLocationValueValuesEnum: Required. The location of the API key.
+    HttpElementLocationValueValuesEnum: Optional. The location of the API key.
 
   Fields:
-    apiKeySecret: Required. The name of the SecretManager secret version
+    apiKeySecret: Optional. The name of the SecretManager secret version
       resource storing the API key. Format:
-      `projects/{project}/secrets/{secrete}/versions/{version}` - If
-      specified, the `secretmanager.versions.access` permission should be
-      granted to Vertex AI Extension Service Agent
-      (https://cloud.google.com/vertex-ai/docs/general/access-control#service-
-      agents) on the specified resource.
-    httpElementLocation: Required. The location of the API key.
-    name: Required. The parameter name of the API key. E.g. If the API request
+      `projects/{project}/secrets/{secrete}/versions/{version}` - If both
+      `api_key_secret` and `api_key_string` are specified, this field takes
+      precedence over `api_key_string`. - If specified, the
+      `secretmanager.versions.access` permission should be granted to Vertex
+      AI Extension Service Agent (https://cloud.google.com/vertex-
+      ai/docs/general/access-control#service-agents) on the specified
+      resource.
+    apiKeyString: Optional. The API key to be used in the request directly.
+    httpElementLocation: Optional. The location of the API key.
+    name: Optional. The parameter name of the API key. E.g. If the API request
       is "https://example.com/act?api_key=", "api_key" would be the parameter
       name.
   """
 
   class HttpElementLocationValueValuesEnum(_messages.Enum):
-    r"""Required. The location of the API key.
+    r"""Optional. The location of the API key.
 
     Values:
       HTTP_IN_UNSPECIFIED: <no description>
@@ -12137,8 +19469,9 @@ class GoogleCloudAiplatformV1beta1AuthConfigApiKeyConfig(_messages.Message):
     HTTP_IN_COOKIE = 5
 
   apiKeySecret = _messages.StringField(1)
-  httpElementLocation = _messages.EnumField('HttpElementLocationValueValuesEnum', 2)
-  name = _messages.StringField(3)
+  apiKeyString = _messages.StringField(2)
+  httpElementLocation = _messages.EnumField('HttpElementLocationValueValuesEnum', 3)
+  name = _messages.StringField(4)
 
 
 class GoogleCloudAiplatformV1beta1AuthConfigGoogleServiceAccountConfig(_messages.Message):
@@ -12221,25 +19554,53 @@ class GoogleCloudAiplatformV1beta1AutomaticResources(_messages.Message):
   supporting these resources documents its specific guidelines.
 
   Fields:
-    maxReplicaCount: Immutable. The maximum number of replicas this
-      DeployedModel may be deployed on when the traffic against it increases.
-      If the requested value is too large, the deployment will error, but if
-      deployment succeeds then the ability to scale the model to that many
-      replicas is guaranteed (barring service outages). If traffic against the
-      DeployedModel increases beyond what its replicas at maximum may handle,
-      a portion of the traffic will be dropped. If this value is not provided,
-      a no upper bound for scaling under heavy traffic will be assume, though
-      Vertex AI may be unable to scale beyond certain replica number.
-    minReplicaCount: Immutable. The minimum number of replicas this
-      DeployedModel will be always deployed on. If traffic against it
-      increases, it may dynamically be deployed onto more replicas up to
-      max_replica_count, and as traffic decreases, some of these extra
-      replicas may be freed. If the requested value is too large, the
-      deployment will error.
+    maxReplicaCount: Immutable. The maximum number of replicas that may be
+      deployed on when the traffic against it increases. If the requested
+      value is too large, the deployment will error, but if deployment
+      succeeds then the ability to scale to that many replicas is guaranteed
+      (barring service outages). If traffic increases beyond what its replicas
+      at maximum may handle, a portion of the traffic will be dropped. If this
+      value is not provided, a no upper bound for scaling under heavy traffic
+      will be assume, though Vertex AI may be unable to scale beyond certain
+      replica number.
+    minReplicaCount: Immutable. The minimum number of replicas that will be
+      always deployed on. If traffic against it increases, it may dynamically
+      be deployed onto more replicas up to max_replica_count, and as traffic
+      decreases, some of these extra replicas may be freed. If the requested
+      value is too large, the deployment will error.
   """
 
   maxReplicaCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   minReplicaCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1AutoraterConfig(_messages.Message):
+  r"""The configs for autorater. This is applicable to both EvaluateInstances
+  and EvaluateDataset.
+
+  Fields:
+    autoraterModel: Optional. The fully qualified name of the publisher model
+      or tuned autorater endpoint to use. Publisher model format:
+      `projects/{project}/locations/{location}/publishers/*/models/*` Tuned
+      model endpoint format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    flipEnabled: Optional. Default is true. Whether to flip the candidate and
+      baseline responses. This is only applicable to the pairwise metric. If
+      enabled, also provide PairwiseMetricSpec.candidate_response_field_name
+      and PairwiseMetricSpec.baseline_response_field_name. When rendering
+      PairwiseMetricSpec.metric_prompt_template, the candidate and baseline
+      fields will be flipped for half of the samples to reduce bias.
+    generationConfig: Optional. Configuration options for model generation and
+      outputs.
+    samplingCount: Optional. Number of samples for each instance in the
+      dataset. If not specified, the default is 4. Minimum value is 1, maximum
+      value is 32.
+  """
+
+  autoraterModel = _messages.StringField(1)
+  flipEnabled = _messages.BooleanField(2)
+  generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfig', 3)
+  samplingCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1AutoscalingMetricSpec(_messages.Message):
@@ -12247,19 +19608,59 @@ class GoogleCloudAiplatformV1beta1AutoscalingMetricSpec(_messages.Message):
   (CPU utilization, accelerator's duty cycle, and so on) for calculating the
   desired replica count.
 
+  Messages:
+    MonitoredResourceLabelsValue: Optional. The Cloud Monitoring monitored
+      resource labels as key value pairs used for metrics filtering. See Cloud
+      Monitoring Labels https://cloud.google.com/monitoring/api/v3/metric-
+      model#generic-label-info
+
   Fields:
     metricName: Required. The resource metric name. Supported metrics: * For
       Online Prediction: *
       `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` *
-      `aiplatform.googleapis.com/prediction/online/cpu/utilization`
+      `aiplatform.googleapis.com/prediction/online/cpu/utilization` *
+      `aiplatform.googleapis.com/prediction/online/request_count`
+    monitoredResourceLabels: Optional. The Cloud Monitoring monitored resource
+      labels as key value pairs used for metrics filtering. See Cloud
+      Monitoring Labels https://cloud.google.com/monitoring/api/v3/metric-
+      model#generic-label-info
     target: The target resource utilization in percentage (1% - 100%) for the
       given metric; once the real usage deviates from the target by a certain
       percentage, the machine replicas change. The default value is 60
       (representing 60%) if not provided.
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MonitoredResourceLabelsValue(_messages.Message):
+    r"""Optional. The Cloud Monitoring monitored resource labels as key value
+    pairs used for metrics filtering. See Cloud Monitoring Labels
+    https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        MonitoredResourceLabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        MonitoredResourceLabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MonitoredResourceLabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   metricName = _messages.StringField(1)
-  target = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  monitoredResourceLabels = _messages.MessageField('MonitoredResourceLabelsValue', 2)
+  target = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1AvroSource(_messages.Message):
@@ -12378,17 +19779,25 @@ class GoogleCloudAiplatformV1beta1BatchDedicatedResources(_messages.Message):
   operations, are dedicated to a Model, and need manual configuration.
 
   Fields:
+    flexStart: Optional. Immutable. If set, use DWS resource to schedule the
+      deployment workload. reference:
+      (https://cloud.google.com/blog/products/compute/introducing-dynamic-
+      workload-scheduler)
     machineSpec: Required. Immutable. The specification of a single machine.
     maxReplicaCount: Immutable. The maximum number of machine replicas the
       batch operation may be scaled to. The default value is 10.
+    spot: Optional. If true, schedule the deployment workload on [spot
+      VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms).
     startingReplicaCount: Immutable. The number of machine replicas used at
       the start of the batch operation. If not set, Vertex AI decides starting
       number, not greater than max_replica_count
   """
 
-  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 1)
-  maxReplicaCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  startingReplicaCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  flexStart = _messages.MessageField('GoogleCloudAiplatformV1beta1FlexStart', 1)
+  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 2)
+  maxReplicaCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  spot = _messages.BooleanField(4)
+  startingReplicaCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1BatchDeletePipelineJobsRequest(_messages.Message):
@@ -12990,6 +20399,91 @@ class GoogleCloudAiplatformV1beta1BigQueryDestination(_messages.Message):
   outputUri = _messages.StringField(1)
 
 
+class GoogleCloudAiplatformV1beta1BigQueryRequestSet(_messages.Message):
+  r"""The request set for the evaluation run.
+
+  Messages:
+    CandidateResponseColumnsValue: Optional. Map of candidate name to
+      candidate response column name. The column will be in
+      evaluation_item.CandidateResponse format.
+
+  Fields:
+    candidateResponseColumns: Optional. Map of candidate name to candidate
+      response column name. The column will be in
+      evaluation_item.CandidateResponse format.
+    promptColumn: Optional. The name of the column that contains the requests
+      to evaluate. This will be in evaluation_item.EvalPrompt format.
+    rubricsColumn: Optional. The name of the column that contains the rubrics.
+      This is in evaluation_rubric.RubricGroup format.
+    samplingConfig: Optional. The sampling config for the bigquery resource.
+    uri: Required. The URI of a BigQuery table. e.g.
+      bq://projectId.bqDatasetId.bqTableId
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class CandidateResponseColumnsValue(_messages.Message):
+    r"""Optional. Map of candidate name to candidate response column name. The
+    column will be in evaluation_item.CandidateResponse format.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        CandidateResponseColumnsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        CandidateResponseColumnsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a CandidateResponseColumnsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  candidateResponseColumns = _messages.MessageField('CandidateResponseColumnsValue', 1)
+  promptColumn = _messages.StringField(2)
+  rubricsColumn = _messages.StringField(3)
+  samplingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryRequestSetSamplingConfig', 4)
+  uri = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1BigQueryRequestSetSamplingConfig(_messages.Message):
+  r"""The sampling config.
+
+  Enums:
+    SamplingMethodValueValuesEnum: Optional. The sampling method to use.
+
+  Fields:
+    samplingCount: Optional. The total number of logged data to import. If
+      available data is less than the sampling count, all data will be
+      imported. Default is 100.
+    samplingDuration: Optional. How long to wait before sampling data from the
+      BigQuery table. If not specified, defaults to 0.
+    samplingMethod: Optional. The sampling method to use.
+  """
+
+  class SamplingMethodValueValuesEnum(_messages.Enum):
+    r"""Optional. The sampling method to use.
+
+    Values:
+      SAMPLING_METHOD_UNSPECIFIED: Unspecified sampling method.
+      RANDOM: Random sampling.
+    """
+    SAMPLING_METHOD_UNSPECIFIED = 0
+    RANDOM = 1
+
+  samplingCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  samplingDuration = _messages.StringField(2)
+  samplingMethod = _messages.EnumField('SamplingMethodValueValuesEnum', 3)
+
+
 class GoogleCloudAiplatformV1beta1BigQuerySource(_messages.Message):
   r"""The BigQuery location for the input content.
 
@@ -13060,16 +20554,22 @@ class GoogleCloudAiplatformV1beta1BleuSpec(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1Blob(_messages.Message):
-  r"""Content blob. It's preferred to send as text directly rather than raw
-  bytes.
+  r"""A content blob. A Blob contains data of a specific media type. It is
+  used to represent images, audio, and video.
 
   Fields:
-    data: Required. Raw bytes.
+    data: Required. The raw bytes of the data.
+    displayName: Optional. The display name of the blob. Used to provide a
+      label or filename to distinguish blobs. This field is only returned in
+      `PromptMessage` for prompt management. It is used in the Gemini calls
+      only when server-side tools (`code_execution`, `google_search`, and
+      `url_context`) are enabled.
     mimeType: Required. The IANA standard MIME type of the source data.
   """
 
   data = _messages.BytesField(1)
-  mimeType = _messages.StringField(2)
+  displayName = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1BlurBaselineConfig(_messages.Message):
@@ -13118,14 +20618,18 @@ class GoogleCloudAiplatformV1beta1CachedContent(_messages.Message):
 
   Fields:
     contents: Optional. Input only. Immutable. The content to cache
-    createTime: Output only. Creatation time of the cache entry.
+    createTime: Output only. Creation time of the cache entry.
     displayName: Optional. Immutable. The user-generated meaningful display
       name of the cached content.
+    encryptionSpec: Input only. Immutable. Customer-managed encryption key
+      spec for a `CachedContent`. If set, this `CachedContent` and all its
+      sub-resources will be secured by this key.
     expireTime: Timestamp of when this resource is considered expired. This is
       *always* provided on output, regardless of what was sent on input.
-    model: Immutable. The name of the publisher model to use for cached
-      content. Format: projects/{project}/locations/{location}/publishers/{pub
-      lisher}/models/{model}
+    model: Immutable. The name of the `Model` to use for cached content.
+      Currently, only the published Gemini base models are supported, in form
+      of
+      projects/{PROJECT}/locations/{LOCATION}/publishers/google/models/{MODEL}
     name: Immutable. Identifier. The server-generated resource name of the
       cached content Format:
       projects/{project}/locations/{location}/cachedContents/{cached_content}
@@ -13145,15 +20649,16 @@ class GoogleCloudAiplatformV1beta1CachedContent(_messages.Message):
   contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
   createTime = _messages.StringField(2)
   displayName = _messages.StringField(3)
-  expireTime = _messages.StringField(4)
-  model = _messages.StringField(5)
-  name = _messages.StringField(6)
-  systemInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 7)
-  toolConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolConfig', 8)
-  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 9, repeated=True)
-  ttl = _messages.StringField(10)
-  updateTime = _messages.StringField(11)
-  usageMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1CachedContentUsageMetadata', 12)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 4)
+  expireTime = _messages.StringField(5)
+  model = _messages.StringField(6)
+  name = _messages.StringField(7)
+  systemInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 8)
+  toolConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolConfig', 9)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 10, repeated=True)
+  ttl = _messages.StringField(11)
+  updateTime = _messages.StringField(12)
+  usageMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1CachedContentUsageMetadata', 13)
 
 
 class GoogleCloudAiplatformV1beta1CachedContentUsageMetadata(_messages.Message):
@@ -13186,6 +20691,10 @@ class GoogleCloudAiplatformV1beta1CancelDataLabelingJobRequest(_messages.Message
   r"""Request message for JobService.CancelDataLabelingJob."""
 
 
+class GoogleCloudAiplatformV1beta1CancelEvaluationRunRequest(_messages.Message):
+  r"""Request message for EvaluationManagementService.CancelEvaluationRun."""
+
+
 class GoogleCloudAiplatformV1beta1CancelHyperparameterTuningJobRequest(_messages.Message):
   r"""Request message for JobService.CancelHyperparameterTuningJob."""
 
@@ -13196,6 +20705,14 @@ class GoogleCloudAiplatformV1beta1CancelNasJobRequest(_messages.Message):
 
 class GoogleCloudAiplatformV1beta1CancelPipelineJobRequest(_messages.Message):
   r"""Request message for PipelineService.CancelPipelineJob."""
+
+
+class GoogleCloudAiplatformV1beta1CancelServerlessRayJobRequest(_messages.Message):
+  r"""Request message for JobService.CancelServerlessRayJob."""
+
+
+class GoogleCloudAiplatformV1beta1CancelServerlessRayJobResponse(_messages.Message):
+  r"""Message for JobService.CancelServerlessRayJob response."""
 
 
 class GoogleCloudAiplatformV1beta1CancelTrainingPipelineRequest(_messages.Message):
@@ -13211,52 +20728,73 @@ class GoogleCloudAiplatformV1beta1Candidate(_messages.Message):
 
   Enums:
     FinishReasonValueValuesEnum: Output only. The reason why the model stopped
-      generating tokens. If empty, the model has not stopped generating the
-      tokens.
+      generating tokens. If empty, the model has not stopped generating.
 
   Fields:
-    avgLogprobs: Output only. Average log probability score of the candidate.
-    citationMetadata: Output only. Source attribution of the generated
-      content.
-    content: Output only. Content parts of the candidate.
-    finishMessage: Output only. Describes the reason the mode stopped
-      generating tokens in more detail. This is only filled when
+    avgLogprobs: Output only. The average log probability of the tokens in
+      this candidate. This is a length-normalized score that can be used to
+      compare the quality of candidates of different lengths. A higher average
+      log probability suggests a more confident and coherent response.
+    citationMetadata: Output only. A collection of citations that apply to the
+      generated content.
+    content: Output only. The content of the candidate.
+    finishMessage: Output only. Describes the reason the model stopped
+      generating tokens in more detail. This field is returned only when
       `finish_reason` is set.
     finishReason: Output only. The reason why the model stopped generating
-      tokens. If empty, the model has not stopped generating the tokens.
-    groundingMetadata: Output only. Metadata specifies sources used to ground
-      generated content.
-    index: Output only. Index of the candidate.
-    logprobsResult: Output only. Log-likelihood scores for the response tokens
-      and top tokens
-    safetyRatings: Output only. List of ratings for the safety of a response
+      tokens. If empty, the model has not stopped generating.
+    groundingMetadata: Output only. Metadata returned when grounding is
+      enabled. It contains the sources used to ground the generated content.
+    index: Output only. The 0-based index of this candidate in the list of
+      generated responses. This is useful for distinguishing between multiple
+      candidates when `candidate_count` > 1.
+    logprobsResult: Output only. The detailed log probability information for
+      the tokens in this candidate. This is useful for debugging,
+      understanding model uncertainty, and identifying potential
+      "hallucinations".
+    safetyRatings: Output only. A list of ratings for the safety of a response
       candidate. There is at most one rating per category.
+    urlContextMetadata: Output only. Metadata returned when the model uses the
+      `url_context` tool to get information from a user-provided URL.
   """
 
   class FinishReasonValueValuesEnum(_messages.Enum):
     r"""Output only. The reason why the model stopped generating tokens. If
-    empty, the model has not stopped generating the tokens.
+    empty, the model has not stopped generating.
 
     Values:
       FINISH_REASON_UNSPECIFIED: The finish reason is unspecified.
-      STOP: Token generation reached a natural stopping point or a configured
-        stop sequence.
-      MAX_TOKENS: Token generation reached the configured maximum output
-        tokens.
-      SAFETY: Token generation stopped because the content potentially
-        contains safety violations. NOTE: When streaming, content is empty if
-        content filters blocks the output.
-      RECITATION: The token generation stopped because of potential
-        recitation.
-      OTHER: All other reasons that stopped the token generation.
-      BLOCKLIST: Token generation stopped because the content contains
-        forbidden terms.
-      PROHIBITED_CONTENT: Token generation stopped for potentially containing
-        prohibited content.
-      SPII: Token generation stopped because the content potentially contains
-        Sensitive Personally Identifiable Information (SPII).
-      MALFORMED_FUNCTION_CALL: The function call generated by the model is
-        invalid.
+      STOP: The model reached a natural stopping point or a configured stop
+        sequence.
+      MAX_TOKENS: The model generated the maximum number of tokens allowed by
+        the `max_output_tokens` parameter.
+      SAFETY: The model stopped generating because the content potentially
+        violates safety policies. NOTE: When streaming, the `content` field is
+        empty if content filters block the output.
+      RECITATION: The model stopped generating because the content may be a
+        recitation from a source.
+      OTHER: The model stopped generating for a reason not otherwise
+        specified.
+      BLOCKLIST: The model stopped generating because the content contains a
+        term from a configured blocklist.
+      PROHIBITED_CONTENT: The model stopped generating because the content may
+        be prohibited.
+      SPII: The model stopped generating because the content may contain
+        sensitive personally identifiable information (SPII).
+      MALFORMED_FUNCTION_CALL: The model generated a function call that is
+        syntactically invalid and can't be parsed.
+      MODEL_ARMOR: The model response was blocked by Model Armor.
+      IMAGE_SAFETY: The generated image potentially violates safety policies.
+      IMAGE_PROHIBITED_CONTENT: The generated image may contain prohibited
+        content.
+      IMAGE_RECITATION: The generated image may be a recitation from a source.
+      IMAGE_OTHER: The image generation stopped for a reason not otherwise
+        specified.
+      UNEXPECTED_TOOL_CALL: The model generated a function call that is
+        semantically invalid. This can happen, for example, if function
+        calling is not enabled or the generated function is not in the
+        function declaration.
+      NO_IMAGE: The model was expected to generate an image, but didn't.
     """
     FINISH_REASON_UNSPECIFIED = 0
     STOP = 1
@@ -13268,6 +20806,13 @@ class GoogleCloudAiplatformV1beta1Candidate(_messages.Message):
     PROHIBITED_CONTENT = 7
     SPII = 8
     MALFORMED_FUNCTION_CALL = 9
+    MODEL_ARMOR = 10
+    IMAGE_SAFETY = 11
+    IMAGE_PROHIBITED_CONTENT = 12
+    IMAGE_RECITATION = 13
+    IMAGE_OTHER = 14
+    UNEXPECTED_TOOL_CALL = 15
+    NO_IMAGE = 16
 
   avgLogprobs = _messages.FloatField(1)
   citationMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1CitationMetadata', 2)
@@ -13278,6 +20823,58 @@ class GoogleCloudAiplatformV1beta1Candidate(_messages.Message):
   index = _messages.IntegerField(7, variant=_messages.Variant.INT32)
   logprobsResult = _messages.MessageField('GoogleCloudAiplatformV1beta1LogprobsResult', 8)
   safetyRatings = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetyRating', 9, repeated=True)
+  urlContextMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1UrlContextMetadata', 10)
+
+
+class GoogleCloudAiplatformV1beta1CandidateResponse(_messages.Message):
+  r"""Responses from model or agent.
+
+  Fields:
+    candidate: Required. The name of the candidate that produced the response.
+    events: Optional. Intermediate events (such as tool calls and responses)
+      that led to the final response.
+    text: Text response.
+    value: Fields and values that can be used to populate the response
+      template.
+  """
+
+  candidate = _messages.StringField(1)
+  events = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2, repeated=True)
+  text = _messages.StringField(3)
+  value = _messages.MessageField('extra_types.JsonValue', 4)
+
+
+class GoogleCloudAiplatformV1beta1CandidateResult(_messages.Message):
+  r"""Result for a single candidate.
+
+  Fields:
+    additionalResults: Optional. Additional results for the metric.
+    candidate: Required. The candidate that is being evaluated. The value is
+      the same as the candidate name in the EvaluationRequest.
+    explanation: Optional. The explanation for the metric.
+    metric: Required. The metric that was evaluated.
+    rubricVerdicts: Optional. The rubric verdicts for the metric.
+    score: Optional. The score for the metric.
+  """
+
+  additionalResults = _messages.MessageField('extra_types.JsonValue', 1)
+  candidate = _messages.StringField(2)
+  explanation = _messages.StringField(3)
+  metric = _messages.StringField(4)
+  rubricVerdicts = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricVerdict', 5, repeated=True)
+  score = _messages.FloatField(6, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1CheckPublisherModelEulaAcceptanceRequest(_messages.Message):
+  r"""Request message for ModelGardenService.CheckPublisherModelEula.
+
+  Fields:
+    publisherModel: Required. The name of the PublisherModel resource. Format:
+      `publishers/{publisher}/models/{publisher_model}`, or
+      `publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}`
+  """
+
+  publisherModel = _messages.StringField(1)
 
 
 class GoogleCloudAiplatformV1beta1CheckTrialEarlyStoppingStateMetatdata(_messages.Message):
@@ -13310,16 +20907,49 @@ class GoogleCloudAiplatformV1beta1CheckTrialEarlyStoppingStateResponse(_messages
   shouldStop = _messages.BooleanField(1)
 
 
-class GoogleCloudAiplatformV1beta1Citation(_messages.Message):
-  r"""Source attributions for content.
+class GoogleCloudAiplatformV1beta1Checkpoint(_messages.Message):
+  r"""Describes the machine learning model version checkpoint.
 
   Fields:
-    endIndex: Output only. End index into the content.
-    license: Output only. License of the attribution.
-    publicationDate: Output only. Publication date of the attribution.
-    startIndex: Output only. Start index into the content.
-    title: Output only. Title of the attribution.
-    uri: Output only. Url reference of the attribution.
+    checkpointId: The ID of the checkpoint.
+    epoch: The epoch of the checkpoint.
+    step: The step of the checkpoint.
+  """
+
+  checkpointId = _messages.StringField(1)
+  epoch = _messages.IntegerField(2)
+  step = _messages.IntegerField(3)
+
+
+class GoogleCloudAiplatformV1beta1Chunk(_messages.Message):
+  r"""Container for bytes-encoded data such as video frame, audio sample, or a
+  complete binary/text data.
+
+  Fields:
+    data: Required. The data in the chunk.
+    metadata: Optional. Metadata that is associated with the data in the
+      payload.
+    mimeType: Required. Mime type of the chunk data. See
+      https://www.iana.org/assignments/media-types/media-types.xhtml for the
+      full list.
+  """
+
+  data = _messages.BytesField(1)
+  metadata = _messages.MessageField('GoogleCloudAiplatformV1beta1Metadata', 2)
+  mimeType = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1Citation(_messages.Message):
+  r"""A citation for a piece of generatedcontent.
+
+  Fields:
+    endIndex: Output only. The end index of the citation in the content.
+    license: Output only. The license of the source of the citation.
+    publicationDate: Output only. The publication date of the source of the
+      citation.
+    startIndex: Output only. The start index of the citation in the content.
+    title: Output only. The title of the source of the citation.
+    uri: Output only. The URI of the source of the citation.
   """
 
   endIndex = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -13331,10 +20961,10 @@ class GoogleCloudAiplatformV1beta1Citation(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1CitationMetadata(_messages.Message):
-  r"""A collection of source attributions for a piece of content.
+  r"""A collection of citations that apply to a piece of generated content.
 
   Fields:
-    citations: Output only. List of citations.
+    citations: Output only. A list of citations for the content.
   """
 
   citations = _messages.MessageField('GoogleCloudAiplatformV1beta1Citation', 1, repeated=True)
@@ -13368,8 +20998,9 @@ class GoogleCloudAiplatformV1beta1ClientConnectionConfig(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1CodeExecutionResult(_messages.Message):
-  r"""Result of executing the [ExecutableCode]. Always follows a `part`
-  containing the [ExecutableCode].
+  r"""Result of executing the [ExecutableCode]. Only generated when using the
+  [CodeExecution] tool, and always follows a `part` containing the
+  [ExecutableCode].
 
   Enums:
     OutcomeValueValuesEnum: Required. Outcome of the code execution.
@@ -13444,6 +21075,21 @@ class GoogleCloudAiplatformV1beta1CoherenceSpec(_messages.Message):
   """
 
   version = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1ColabImage(_messages.Message):
+  r"""Colab image of the runtime.
+
+  Fields:
+    description: Output only. A human-readable description of the specified
+      colab image release, populated by the system. Example: "Python 3.10",
+      "Latest - current Python 3.11"
+    releaseName: Optional. The release name of the NotebookRuntime Colab
+      image, e.g. "py310". If not specified, detault to the latest release.
+  """
+
+  description = _messages.StringField(1)
+  releaseName = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1CometInput(_messages.Message):
@@ -13623,21 +21269,92 @@ class GoogleCloudAiplatformV1beta1ContainerSpec(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1Content(_messages.Message):
-  r"""The base structured datatype containing multi-part content of a message.
-  A `Content` includes a `role` field designating the producer of the
-  `Content` and a `parts` field containing multi-part data that contains the
-  content of the message turn.
+  r"""The structured data content of a message. A Content message contains a
+  `role` field, which indicates the producer of the content, and a `parts`
+  field, which contains the multi-part data of the message.
 
   Fields:
-    parts: Required. Ordered `Parts` that constitute a single message. Parts
-      may have different IANA MIME types.
+    parts: Required. A list of Part objects that make up a single message.
+      Parts of a message can have different MIME types. A Content message must
+      have at least one Part.
     role: Optional. The producer of the content. Must be either 'user' or
-      'model'. Useful to set for multi-turn conversations, otherwise can be
-      left blank or unset.
+      'model'. If not set, the service will default to 'user'.
   """
 
   parts = _messages.MessageField('GoogleCloudAiplatformV1beta1Part', 1, repeated=True)
   role = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ContentMap(_messages.Message):
+  r"""Map of placeholder in metric prompt template to contents of model input.
+
+  Messages:
+    ValuesValue: Optional. Map of placeholder to contents.
+
+  Fields:
+    values: Optional. Map of placeholder to contents.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ValuesValue(_messages.Message):
+    r"""Optional. Map of placeholder to contents.
+
+    Messages:
+      AdditionalProperty: An additional property for a ValuesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ValuesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ValuesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1ContentMapContents attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1ContentMapContents', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  values = _messages.MessageField('ValuesValue', 1)
+
+
+class GoogleCloudAiplatformV1beta1ContentMapContents(_messages.Message):
+  r"""Repeated Content type.
+
+  Fields:
+    contents: Optional. Repeated contents.
+  """
+
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ContentsExample(_messages.Message):
+  r"""A single example of a conversation with the model.
+
+  Fields:
+    contents: Required. The content of the conversation with the model that
+      resulted in the expected output.
+    expectedContents: Required. The expected output for the given `contents`.
+      To represent multi-step reasoning, this is a repeated field that
+      contains the iterative steps of the expected output.
+  """
+
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
+  expectedContents = _messages.MessageField('GoogleCloudAiplatformV1beta1ContentsExampleExpectedContent', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ContentsExampleExpectedContent(_messages.Message):
+  r"""A single step of the expected output.
+
+  Fields:
+    content: Required. A single step's content.
+  """
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
 
 
 class GoogleCloudAiplatformV1beta1Context(_messages.Message):
@@ -13905,14 +21622,17 @@ class GoogleCloudAiplatformV1beta1CountTokensResponse(_messages.Message):
   r"""Response message for PredictionService.CountTokens.
 
   Fields:
+    promptTokensDetails: Output only. List of modalities that were processed
+      in the request input.
     totalBillableCharacters: The total number of billable characters counted
       across all instances from the request.
     totalTokens: The total number of tokens counted across all instances from
       the request.
   """
 
-  totalBillableCharacters = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  totalTokens = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  promptTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 1, repeated=True)
+  totalBillableCharacters = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  totalTokens = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1CreateDatasetOperationMetadata(_messages.Message):
@@ -13964,11 +21684,53 @@ class GoogleCloudAiplatformV1beta1CreateDeploymentResourcePoolRequest(_messages.
 class GoogleCloudAiplatformV1beta1CreateEndpointOperationMetadata(_messages.Message):
   r"""Runtime operation information for EndpointService.CreateEndpoint.
 
+  Enums:
+    DeploymentStageValueValuesEnum: Output only. The deployment stage of the
+      model. Only populated if this CreateEndpoint request deploys a model at
+      the same time.
+
   Fields:
+    deploymentStage: Output only. The deployment stage of the model. Only
+      populated if this CreateEndpoint request deploys a model at the same
+      time.
     genericMetadata: The operation generic information.
   """
 
-  genericMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenericOperationMetadata', 1)
+  class DeploymentStageValueValuesEnum(_messages.Enum):
+    r"""Output only. The deployment stage of the model. Only populated if this
+    CreateEndpoint request deploys a model at the same time.
+
+    Values:
+      DEPLOYMENT_STAGE_UNSPECIFIED: Default value. This value is unused.
+      STARTING_DEPLOYMENT: The deployment is initializing and setting up the
+        environment.
+      PREPARING_MODEL: The deployment is preparing the model assets.
+      CREATING_SERVING_CLUSTER: The deployment is creating the underlying
+        serving cluster.
+      ADDING_NODES_TO_CLUSTER: The deployment is adding nodes to the serving
+        cluster.
+      GETTING_CONTAINER_IMAGE: The deployment is getting the container image
+        for the model server.
+      STARTING_MODEL_SERVER: The deployment is starting the model server.
+      FINISHING_UP: The deployment is performing finalization steps.
+      DEPLOYMENT_TERMINATED: The deployment has terminated.
+      SUCCESSFULLY_DEPLOYED: The deployment has succeeded.
+      FAILED_TO_DEPLOY: The deployment has failed.
+    """
+    DEPLOYMENT_STAGE_UNSPECIFIED = 0
+    STARTING_DEPLOYMENT = 1
+    PREPARING_MODEL = 2
+    CREATING_SERVING_CLUSTER = 3
+    ADDING_NODES_TO_CLUSTER = 4
+    GETTING_CONTAINER_IMAGE = 5
+    STARTING_MODEL_SERVER = 6
+    FINISHING_UP = 7
+    DEPLOYMENT_TERMINATED = 8
+    SUCCESSFULLY_DEPLOYED = 9
+    FAILED_TO_DEPLOY = 10
+
+  deploymentStage = _messages.EnumField('DeploymentStageValueValuesEnum', 1)
+  genericMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenericOperationMetadata', 2)
 
 
 class GoogleCloudAiplatformV1beta1CreateEntityTypeOperationMetadata(_messages.Message):
@@ -14295,6 +22057,38 @@ class GoogleCloudAiplatformV1beta1CsvSource(_messages.Message):
   gcsSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsSource', 1)
 
 
+class GoogleCloudAiplatformV1beta1CustomCodeExecutionResult(_messages.Message):
+  r"""Result for custom code execution metric.
+
+  Fields:
+    score: Output only. Custom code execution score.
+  """
+
+  score = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1CustomCodeExecutionSpec(_messages.Message):
+  r"""Specificies a metric that is populated by evaluating user-defined Python
+  code.
+
+  Fields:
+    evaluationFunction: Required. Python function. Expected user to define the
+      following function, e.g.: def evaluate(instance: dict[str, Any]) ->
+      float: Please include this function signature in the code snippet.
+      Instance is the evaluation instance, any fields populated in the
+      instance are available to the function as instance[field_name]. Example:
+      Example input: ``` instance= EvaluationInstance(
+      response=EvaluationInstance.InstanceData(text="The answer is 4."),
+      reference=EvaluationInstance.InstanceData(text="4") ) ``` Example
+      converted input: ``` { 'response': {'text': 'The answer is 4.'},
+      'reference': {'text': '4'} } ``` Example python function: ``` def
+      evaluate(instance: dict[str, Any]) -> float: if instance'response' ==
+      instance'reference': return 1.0 return 0.0 ```
+  """
+
+  evaluationFunction = _messages.StringField(1)
+
+
 class GoogleCloudAiplatformV1beta1CustomJob(_messages.Message):
   r"""Represents a job that runs custom workloads such as a Docker container
   or a Python package. A CustomJob can have multiple worker pools and each
@@ -14582,6 +22376,26 @@ class GoogleCloudAiplatformV1beta1CustomJobSpec(_messages.Message):
   serviceAccount = _messages.StringField(13)
   tensorboard = _messages.StringField(14)
   workerPoolSpecs = _messages.MessageField('GoogleCloudAiplatformV1beta1WorkerPoolSpec', 15, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1CustomOutput(_messages.Message):
+  r"""Spec for custom output.
+
+  Fields:
+    rawOutputs: Output only. List of raw output strings.
+  """
+
+  rawOutputs = _messages.MessageField('GoogleCloudAiplatformV1beta1RawOutput', 1)
+
+
+class GoogleCloudAiplatformV1beta1CustomOutputFormatConfig(_messages.Message):
+  r"""Spec for custom output format configuration.
+
+  Fields:
+    returnRawOutput: Optional. Whether to return raw output.
+  """
+
+  returnRawOutput = _messages.BooleanField(1)
 
 
 class GoogleCloudAiplatformV1beta1DataItem(_messages.Message):
@@ -14935,7 +22749,8 @@ class GoogleCloudAiplatformV1beta1Dataset(_messages.Message):
       aiplatform/schema/dataset/metadata/.
     modelReference: Optional. Reference to the public base model last used by
       the dataset. Only set for prompt datasets.
-    name: Output only. Identifier. The resource name of the Dataset.
+    name: Output only. Identifier. The resource name of the Dataset. Format:
+      `projects/{project}/locations/{location}/datasets/{dataset}`
     satisfiesPzi: Output only. Reserved for future use.
     satisfiesPzs: Output only. Reserved for future use.
     savedQueries: All SavedQueries belong to the Dataset will be returned in
@@ -15041,6 +22856,11 @@ class GoogleCloudAiplatformV1beta1DatasetStats(_messages.Message):
   r"""Statistics computed over a tuning dataset.
 
   Fields:
+    droppedExampleIndices: Output only. A partial sample of the indices
+      (starting from 1) of the dropped examples.
+    droppedExampleReasons: Output only. For each index in
+      `dropped_example_indices`, the user-facing reason why the example was
+      dropped.
     totalBillableCharacterCount: Output only. Number of billable characters in
       the tuning dataset.
     totalTuningCharacterCount: Output only. Number of tuning characters in the
@@ -15058,14 +22878,16 @@ class GoogleCloudAiplatformV1beta1DatasetStats(_messages.Message):
       user output tokens.
   """
 
-  totalBillableCharacterCount = _messages.IntegerField(1)
-  totalTuningCharacterCount = _messages.IntegerField(2)
-  tuningDatasetExampleCount = _messages.IntegerField(3)
-  tuningStepCount = _messages.IntegerField(4)
-  userDatasetExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 5, repeated=True)
-  userInputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 6)
-  userMessagePerExampleDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 7)
-  userOutputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 8)
+  droppedExampleIndices = _messages.IntegerField(1, repeated=True)
+  droppedExampleReasons = _messages.StringField(2, repeated=True)
+  totalBillableCharacterCount = _messages.IntegerField(3)
+  totalTuningCharacterCount = _messages.IntegerField(4)
+  tuningDatasetExampleCount = _messages.IntegerField(5)
+  tuningStepCount = _messages.IntegerField(6)
+  userDatasetExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 7, repeated=True)
+  userInputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 8)
+  userMessagePerExampleDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 9)
+  userOutputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 10)
 
 
 class GoogleCloudAiplatformV1beta1DatasetVersion(_messages.Message):
@@ -15083,6 +22905,8 @@ class GoogleCloudAiplatformV1beta1DatasetVersion(_messages.Message):
     modelReference: Output only. Reference to the public base model last used
       by the dataset version. Only set for prompt dataset versions.
     name: Output only. Identifier. The resource name of the DatasetVersion.
+      Format: `projects/{project}/locations/{location}/datasets/{dataset}/data
+      setVersions/{dataset_version}`
     satisfiesPzi: Output only. Reserved for future use.
     satisfiesPzs: Output only. Reserved for future use.
     updateTime: Output only. Timestamp when this DatasetVersion was last
@@ -15102,8 +22926,8 @@ class GoogleCloudAiplatformV1beta1DatasetVersion(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1DedicatedResources(_messages.Message):
-  r"""A description of resources that are dedicated to a DeployedModel, and
-  that need a higher degree of manual configuration.
+  r"""A description of resources that are dedicated to a DeployedModel or
+  DeployedIndex, and that need a higher degree of manual configuration.
 
   Fields:
     autoscalingMetricSpecs: Immutable. The metric specifications that
@@ -15121,41 +22945,77 @@ class GoogleCloudAiplatformV1beta1DedicatedResources(_messages.Message):
       autoscaling_metric_specs.metric_name to
       `aiplatform.googleapis.com/prediction/online/cpu/utilization` and
       autoscaling_metric_specs.target to `80`.
+    deploymentResourcePoolId: Optional. Immutable. Specifies the deployment
+      resource pool to use for this deployment. This must refer to a
+      deployment resource pool with a pool type of
+      `RESOURCE_POOL_TYPE_RESERVED_CAPACITY`. If not specified, an internal
+      deployment resource pool will be used. Format: `projects/{project}/locat
+      ions/{location}/deploymentResourcePools/{deployment_resource_pool}`
+    flexStart: Optional. Immutable. If set, use DWS resource to schedule the
+      deployment workload. reference:
+      (https://cloud.google.com/blog/products/compute/introducing-dynamic-
+      workload-scheduler)
+    initialReplicaCount: Immutable. Number of initial replicas being deployed
+      on when scaling the workload up from zero or when creating the workload
+      in case min_replica_count = 0. When min_replica_count > 0 (meaning that
+      the scale-to-zero feature is not enabled), initial_replica_count should
+      not be set. When min_replica_count = 0 (meaning that the scale-to-zero
+      feature is enabled), initial_replica_count should be larger than zero,
+      but no greater than max_replica_count.
     machineSpec: Required. Immutable. The specification of a single machine
-      used by the prediction.
-    maxReplicaCount: Immutable. The maximum number of replicas this
-      DeployedModel may be deployed on when the traffic against it increases.
-      If the requested value is too large, the deployment will error, but if
-      deployment succeeds then the ability to scale the model to that many
-      replicas is guaranteed (barring service outages). If traffic against the
-      DeployedModel increases beyond what its replicas at maximum may handle,
-      a portion of the traffic will be dropped. If this value is not provided,
-      will use min_replica_count as the default value. The value of this field
-      impacts the charge against Vertex CPU and GPU quotas. Specifically, you
-      will be charged for (max_replica_count * number of cores in the selected
-      machine type) and (max_replica_count * number of GPUs per replica in the
-      selected machine type).
+      being used.
+    maxReplicaCount: Immutable. The maximum number of replicas that may be
+      deployed on when the traffic against it increases. If the requested
+      value is too large, the deployment will error, but if deployment
+      succeeds then the ability to scale to that many replicas is guaranteed
+      (barring service outages). If traffic increases beyond what its replicas
+      at maximum may handle, a portion of the traffic will be dropped. If this
+      value is not provided, will use min_replica_count as the default value.
+      The value of this field impacts the charge against Vertex CPU and GPU
+      quotas. Specifically, you will be charged for (max_replica_count *
+      number of cores in the selected machine type) and (max_replica_count *
+      number of GPUs per replica in the selected machine type).
     minReplicaCount: Required. Immutable. The minimum number of machine
-      replicas this DeployedModel will be always deployed on. This value must
-      be greater than or equal to 1. If traffic against the DeployedModel
-      increases, it may dynamically be deployed onto more replicas, and as
-      traffic decreases, some of these extra replicas may be freed.
+      replicas that will be always deployed on. This value must be greater
+      than or equal to 1. If traffic increases, it may dynamically be deployed
+      onto more replicas, and as traffic decreases, some of these extra
+      replicas may be freed.
     requiredReplicaCount: Optional. Number of required available replicas for
-      the deployment to succeed. This field is only needed when partial model
-      deployment/mutation is desired. If set, the model deploy/mutate
-      operation will succeed once available_replica_count reaches
-      required_replica_count, and the rest of the replicas will be retried. If
-      not set, the default required_replica_count will be min_replica_count.
+      the deployment to succeed. This field is only needed when partial
+      deployment/mutation is desired. If set, the deploy/mutate operation will
+      succeed once available_replica_count reaches required_replica_count, and
+      the rest of the replicas will be retried. If not set, the default
+      required_replica_count will be min_replica_count.
+    scaleToZeroSpec: Optional. Specification for scale-to-zero feature.
     spot: Optional. If true, schedule the deployment workload on [spot
       VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms).
   """
 
   autoscalingMetricSpecs = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoscalingMetricSpec', 1, repeated=True)
-  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 2)
-  maxReplicaCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  minReplicaCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  requiredReplicaCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
-  spot = _messages.BooleanField(6)
+  deploymentResourcePoolId = _messages.StringField(2)
+  flexStart = _messages.MessageField('GoogleCloudAiplatformV1beta1FlexStart', 3)
+  initialReplicaCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 5)
+  maxReplicaCount = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  minReplicaCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  requiredReplicaCount = _messages.IntegerField(8, variant=_messages.Variant.INT32)
+  scaleToZeroSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResourcesScaleToZeroSpec', 9)
+  spot = _messages.BooleanField(10)
+
+
+class GoogleCloudAiplatformV1beta1DedicatedResourcesScaleToZeroSpec(_messages.Message):
+  r"""Specification for scale-to-zero feature.
+
+  Fields:
+    idleScaledownPeriod: Optional. Duration of no traffic before scaling to
+      zero. [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
+    minScaleupPeriod: Optional. Minimum duration that a deployment will be
+      scaled up before traffic is evaluated for potential scale-down.
+      [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
+  """
+
+  idleScaledownPeriod = _messages.StringField(1)
+  minScaleupPeriod = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1DeleteFeatureValuesOperationMetadata(_messages.Message):
@@ -15327,11 +23187,49 @@ class GoogleCloudAiplatformV1beta1DeployIndexResponse(_messages.Message):
 class GoogleCloudAiplatformV1beta1DeployModelOperationMetadata(_messages.Message):
   r"""Runtime operation information for EndpointService.DeployModel.
 
+  Enums:
+    DeploymentStageValueValuesEnum: Output only. The deployment stage of the
+      model.
+
   Fields:
+    deploymentStage: Output only. The deployment stage of the model.
     genericMetadata: The operation generic information.
   """
 
-  genericMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenericOperationMetadata', 1)
+  class DeploymentStageValueValuesEnum(_messages.Enum):
+    r"""Output only. The deployment stage of the model.
+
+    Values:
+      DEPLOYMENT_STAGE_UNSPECIFIED: Default value. This value is unused.
+      STARTING_DEPLOYMENT: The deployment is initializing and setting up the
+        environment.
+      PREPARING_MODEL: The deployment is preparing the model assets.
+      CREATING_SERVING_CLUSTER: The deployment is creating the underlying
+        serving cluster.
+      ADDING_NODES_TO_CLUSTER: The deployment is adding nodes to the serving
+        cluster.
+      GETTING_CONTAINER_IMAGE: The deployment is getting the container image
+        for the model server.
+      STARTING_MODEL_SERVER: The deployment is starting the model server.
+      FINISHING_UP: The deployment is performing finalization steps.
+      DEPLOYMENT_TERMINATED: The deployment has terminated.
+      SUCCESSFULLY_DEPLOYED: The deployment has succeeded.
+      FAILED_TO_DEPLOY: The deployment has failed.
+    """
+    DEPLOYMENT_STAGE_UNSPECIFIED = 0
+    STARTING_DEPLOYMENT = 1
+    PREPARING_MODEL = 2
+    CREATING_SERVING_CLUSTER = 3
+    ADDING_NODES_TO_CLUSTER = 4
+    GETTING_CONTAINER_IMAGE = 5
+    STARTING_MODEL_SERVER = 6
+    FINISHING_UP = 7
+    DEPLOYMENT_TERMINATED = 8
+    SUCCESSFULLY_DEPLOYED = 9
+    FAILED_TO_DEPLOY = 10
+
+  deploymentStage = _messages.EnumField('DeploymentStageValueValuesEnum', 1)
+  genericMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenericOperationMetadata', 2)
 
 
 class GoogleCloudAiplatformV1beta1DeployModelRequest(_messages.Message):
@@ -15419,10 +23317,12 @@ class GoogleCloudAiplatformV1beta1DeployPublisherModelRequest(_messages.Message)
       endpoint. If not set, a default name will be used.
     huggingFaceAccessToken: Optional. The Hugging Face read access token used
       to access the model artifacts of gated models.
-    model: Required. The name of the PublisherModel resource. Format:
+    model: Required. The model to deploy. Format: 1.
       `publishers/{publisher}/models/{publisher_model}@{version_id}`, or
       `publishers/hf-{hugging-face-author}/models/{hugging-face-model-
-      name}@001`
+      name}@001`. 2. Hugging Face model ID like `google/gemma-2-2b-it`. 3.
+      Custom model Google Cloud Storage URI like `gs://bucket`. 4. Custom
+      model zip file like `https://example.com/a.zip`.
     modelDisplayName: Optional. The user-specified display name of the
       uploaded model. If not set, a default name will be used.
   """
@@ -15433,6 +23333,219 @@ class GoogleCloudAiplatformV1beta1DeployPublisherModelRequest(_messages.Message)
   huggingFaceAccessToken = _messages.StringField(4)
   model = _messages.StringField(5)
   modelDisplayName = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1DeployRequest(_messages.Message):
+  r"""Request message for ModelGardenService.Deploy.
+
+  Fields:
+    customModel: The custom model to deploy from a Google Cloud Storage URI.
+    deployConfig: Optional. The deploy config to use for the deployment. If
+      not specified, the default deploy config will be used.
+    endpointConfig: Optional. The endpoint config to use for the deployment.
+      If not specified, the default endpoint config will be used.
+    huggingFaceModelId: The Hugging Face model to deploy. Format: Hugging Face
+      model ID like `google/gemma-2-2b-it`.
+    modelConfig: Optional. The model config to use for the deployment. If not
+      specified, the default model config will be used.
+    publisherModelName: The Model Garden model to deploy. Format:
+      `publishers/{publisher}/models/{publisher_model}@{version_id}`, or
+      `publishers/hf-{hugging-face-author}/models/{hugging-face-model-
+      name}@001`.
+  """
+
+  customModel = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployRequestCustomModel', 1)
+  deployConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployRequestDeployConfig', 2)
+  endpointConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployRequestEndpointConfig', 3)
+  huggingFaceModelId = _messages.StringField(4)
+  modelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployRequestModelConfig', 5)
+  publisherModelName = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1DeployRequestCustomModel(_messages.Message):
+  r"""The custom model to deploy from model weights in a Google Cloud Storage
+  URI or Model Registry model.
+
+  Fields:
+    gcsUri: Immutable. The Google Cloud Storage URI of the custom model,
+      storing weights and config files (which can be used to infer the base
+      model).
+    modelId: Optional. Deprecated. Use ModelConfig.model_user_id instead.
+  """
+
+  gcsUri = _messages.StringField(1)
+  modelId = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1DeployRequestDeployConfig(_messages.Message):
+  r"""The deploy config to use for the deployment.
+
+  Messages:
+    SystemLabelsValue: Optional. System labels for Model Garden deployments.
+      These labels are managed by Google and for tracking purposes only.
+
+  Fields:
+    dedicatedResources: Optional. The dedicated resources to use for the
+      endpoint. If not set, the default resources will be used.
+    fastTryoutEnabled: Optional. If true, enable the QMT fast tryout feature
+      for this model if possible.
+    systemLabels: Optional. System labels for Model Garden deployments. These
+      labels are managed by Google and for tracking purposes only.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class SystemLabelsValue(_messages.Message):
+    r"""Optional. System labels for Model Garden deployments. These labels are
+    managed by Google and for tracking purposes only.
+
+    Messages:
+      AdditionalProperty: An additional property for a SystemLabelsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type SystemLabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a SystemLabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  dedicatedResources = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResources', 1)
+  fastTryoutEnabled = _messages.BooleanField(2)
+  systemLabels = _messages.MessageField('SystemLabelsValue', 3)
+
+
+class GoogleCloudAiplatformV1beta1DeployRequestEndpointConfig(_messages.Message):
+  r"""The endpoint config to use for the deployment.
+
+  Messages:
+    LabelsValue: Optional. The labels with user-defined metadata to organize
+      your Endpoints. Label keys and values can be no longer than 64
+      characters (Unicode codepoints), can only contain lowercase letters,
+      numeric characters, underscores and dashes. International characters are
+      allowed. See https://goo.gl/xmQnxf for more information and examples of
+      labels.
+
+  Fields:
+    dedicatedEndpointDisabled: Optional. By default, if dedicated endpoint is
+      enabled and private service connect config is not set, the endpoint will
+      be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. If
+      private service connect config is set, the endpoint will be exposed
+      through private service connect. Your request to the dedicated DNS will
+      be isolated from other users' traffic and will have better performance
+      and reliability. Note: Once you enabled dedicated endpoint, you won't be
+      able to send request to the shared DNS
+      {region}-aiplatform.googleapis.com. The limitations will be removed
+      soon. If this field is set to true, the dedicated endpoint will be
+      disabled and the deployed model will be exposed through the shared DNS
+      {region}-aiplatform.googleapis.com.
+    dedicatedEndpointEnabled: Optional. Deprecated. Use
+      dedicated_endpoint_disabled instead. If true, the endpoint will be
+      exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your
+      request to the dedicated DNS will be isolated from other users' traffic
+      and will have better performance and reliability. Note: Once you enabled
+      dedicated endpoint, you won't be able to send request to the shared DNS
+      {region}-aiplatform.googleapis.com. The limitations will be removed
+      soon.
+    endpointDisplayName: Optional. The user-specified display name of the
+      endpoint. If not set, a default name will be used.
+    endpointUserId: Optional. Immutable. The ID to use for endpoint, which
+      will become the final component of the endpoint resource name. If not
+      provided, Vertex AI will generate a value for this ID. If the first
+      character is a letter, this value may be up to 63 characters, and valid
+      characters are `[a-z0-9-]`. The last character must be a letter or
+      number. If the first character is a number, this value may be up to 9
+      characters, and valid characters are `[0-9]` with no leading zeros. When
+      using HTTP/JSON, this field is populated based on a query string
+      argument, such as `?endpoint_id=12345`. This is the fallback for fields
+      that are not included in either the URI or the body.
+    labels: Optional. The labels with user-defined metadata to organize your
+      Endpoints. Label keys and values can be no longer than 64 characters
+      (Unicode codepoints), can only contain lowercase letters, numeric
+      characters, underscores and dashes. International characters are
+      allowed. See https://goo.gl/xmQnxf for more information and examples of
+      labels.
+    privateServiceConnectConfig: Optional. Configuration for private service
+      connect. If set, the endpoint will be exposed through private service
+      connect.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. The labels with user-defined metadata to organize your
+    Endpoints. Label keys and values can be no longer than 64 characters
+    (Unicode codepoints), can only contain lowercase letters, numeric
+    characters, underscores and dashes. International characters are allowed.
+    See https://goo.gl/xmQnxf for more information and examples of labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  dedicatedEndpointDisabled = _messages.BooleanField(1)
+  dedicatedEndpointEnabled = _messages.BooleanField(2)
+  endpointDisplayName = _messages.StringField(3)
+  endpointUserId = _messages.StringField(4)
+  labels = _messages.MessageField('LabelsValue', 5)
+  privateServiceConnectConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PrivateServiceConnectConfig', 6)
+
+
+class GoogleCloudAiplatformV1beta1DeployRequestModelConfig(_messages.Message):
+  r"""The model config to use for the deployment.
+
+  Fields:
+    acceptEula: Optional. Whether the user accepts the End User License
+      Agreement (EULA) for the model.
+    containerSpec: Optional. The specification of the container that is to be
+      used when deploying. If not set, the default container spec will be
+      used.
+    huggingFaceAccessToken: Optional. The Hugging Face read access token used
+      to access the model artifacts of gated models.
+    huggingFaceCacheEnabled: Optional. If true, the model will deploy with a
+      cached version instead of directly downloading the model artifacts from
+      Hugging Face. This is suitable for VPC-SC users with limited internet
+      access.
+    modelDisplayName: Optional. The user-specified display name of the
+      uploaded model. If not set, a default name will be used.
+    modelUserId: Optional. The ID to use for the uploaded Model, which will
+      become the final component of the model resource name. When not
+      provided, Vertex AI will generate a value for this ID. When Model
+      Registry model is provided, this field will be ignored. This value may
+      be up to 63 characters, and valid characters are `[a-z0-9_-]`. The first
+      character cannot be a number or hyphen.
+  """
+
+  acceptEula = _messages.BooleanField(1)
+  containerSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelContainerSpec', 2)
+  huggingFaceAccessToken = _messages.StringField(3)
+  huggingFaceCacheEnabled = _messages.BooleanField(4)
+  modelDisplayName = _messages.StringField(5)
+  modelUserId = _messages.StringField(6)
 
 
 class GoogleCloudAiplatformV1beta1DeploySolverOperationMetadata(_messages.Message):
@@ -15448,6 +23561,11 @@ class GoogleCloudAiplatformV1beta1DeploySolverOperationMetadata(_messages.Messag
 class GoogleCloudAiplatformV1beta1DeployedIndex(_messages.Message):
   r"""A deployment of an Index. IndexEndpoints contain one or more
   DeployedIndexes.
+
+  Enums:
+    DeploymentTierValueValuesEnum: Optional. The deployment tier that the
+      index is deployed to. DEPLOYMENT_TIER_UNSPECIFIED will use a system-
+      chosen default tier.
 
   Fields:
     automaticResources: Optional. A description of resources that the
@@ -15482,6 +23600,8 @@ class GoogleCloudAiplatformV1beta1DeployedIndex(_messages.Message):
       if the deployment_group has been used with reserved_ip_ranges: [a, b,
       c], using it with [a, b] or [d, e] is disallowed. Note: we only support
       up to 5 deployment groups(not including 'default').
+    deploymentTier: Optional. The deployment tier that the index is deployed
+      to. DEPLOYMENT_TIER_UNSPECIFIED will use a system-chosen default tier.
     displayName: The display name of the DeployedIndex. If not provided upon
       creation, the Index's display_name is used.
     enableAccessLogging: Optional. If true, private endpoint's access logs are
@@ -15490,6 +23610,13 @@ class GoogleCloudAiplatformV1beta1DeployedIndex(_messages.Message):
       Note that logs may incur a cost, especially if the deployed index
       receives a high queries per second rate (QPS). Estimate your costs
       before enabling this option.
+    enableDatapointUpsertLogging: Optional. If true, logs to Cloud Logging
+      errors relating to datapoint upserts. Under normal operation conditions,
+      these log entries should be very rare. However, if incompatible
+      datapoint updates are being uploaded to an index, a high volume of log
+      entries may be generated in a short period of time. Note that logs may
+      incur a cost, especially if the deployed index receives a high volume of
+      datapoint upserts. Estimate your costs before enabling this option.
     id: Required. The user specified ID of the DeployedIndex. The ID can be up
       to 128 characters long and must start with a letter and only contain
       letters, numbers, and underscores. The ID must be unique within the
@@ -15526,19 +23653,32 @@ class GoogleCloudAiplatformV1beta1DeployedIndex(_messages.Message):
       manually_created_subnet_ip_ranges.
   """
 
+  class DeploymentTierValueValuesEnum(_messages.Enum):
+    r"""Optional. The deployment tier that the index is deployed to.
+    DEPLOYMENT_TIER_UNSPECIFIED will use a system-chosen default tier.
+
+    Values:
+      DEPLOYMENT_TIER_UNSPECIFIED: Default deployment tier.
+      STORAGE: Optimized for costs.
+    """
+    DEPLOYMENT_TIER_UNSPECIFIED = 0
+    STORAGE = 1
+
   automaticResources = _messages.MessageField('GoogleCloudAiplatformV1beta1AutomaticResources', 1)
   createTime = _messages.StringField(2)
   dedicatedResources = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResources', 3)
   deployedIndexAuthConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployedIndexAuthConfig', 4)
   deploymentGroup = _messages.StringField(5)
-  displayName = _messages.StringField(6)
-  enableAccessLogging = _messages.BooleanField(7)
-  id = _messages.StringField(8)
-  index = _messages.StringField(9)
-  indexSyncTime = _messages.StringField(10)
-  privateEndpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexPrivateEndpoints', 11)
-  pscAutomationConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1PSCAutomationConfig', 12, repeated=True)
-  reservedIpRanges = _messages.StringField(13, repeated=True)
+  deploymentTier = _messages.EnumField('DeploymentTierValueValuesEnum', 6)
+  displayName = _messages.StringField(7)
+  enableAccessLogging = _messages.BooleanField(8)
+  enableDatapointUpsertLogging = _messages.BooleanField(9)
+  id = _messages.StringField(10)
+  index = _messages.StringField(11)
+  indexSyncTime = _messages.StringField(12)
+  privateEndpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexPrivateEndpoints', 13)
+  pscAutomationConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1PSCAutomationConfig', 14, repeated=True)
+  reservedIpRanges = _messages.StringField(15, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1DeployedIndexAuthConfig(_messages.Message):
@@ -15596,9 +23736,16 @@ class GoogleCloudAiplatformV1beta1DeployedModel(_messages.Message):
     automaticResources: A description of resources that to large degree are
       decided by Vertex AI, and require only a modest additional
       configuration.
+    checkpointId: The checkpoint id of the model.
     createTime: Output only. Timestamp when the DeployedModel was created.
     dedicatedResources: A description of resources that are dedicated to the
       DeployedModel, and that need a higher degree of manual configuration.
+    disableContainerLogging: For custom-trained Models and AutoML Tabular
+      Models, the container of the DeployedModel instances will send `stderr`
+      and `stdout` streams to Cloud Logging by default. Please note that the
+      logs incur cost, which are subject to [Cloud Logging
+      pricing](https://cloud.google.com/logging/pricing). User can disable
+      container logging by setting this flag to true.
     disableExplanations: If true, deploy the model without explainable
       feature, regardless the existence of Model.explanation_spec or
       explanation_spec.
@@ -15622,13 +23769,16 @@ class GoogleCloudAiplatformV1beta1DeployedModel(_messages.Message):
       Model.explanation_spec is not populated, all fields of the
       explanation_spec will be used for the explanation configuration.
     fasterDeploymentConfig: Configuration for faster model deployment.
+    gdcConnectedModel: GDC pretrained / Gemini model name. The model name is a
+      plain model name, e.g. gemini-1.5-flash-002.
+    gdcGgsModel: Reserved for future use.
     id: Immutable. The ID of the DeployedModel. If not provided upon
       deployment, Vertex AI will generate a value for this ID. This value
       should be 1-10 characters, and valid characters are `/[0-9]/`.
-    model: Required. The resource name of the Model that this is the
-      deployment of. Note that the Model may be in a different location than
-      the DeployedModel's Endpoint. The resource name may contain version id
-      or version alias to specify the version. Example:
+    model: The resource name of the Model that this is the deployment of. Note
+      that the Model may be in a different location than the DeployedModel's
+      Endpoint. The resource name may contain version id or version alias to
+      specify the version. Example:
       `projects/{project}/locations/{location}/models/{model}@2` or
       `projects/{project}/locations/{location}/models/{model}@golden` if no
       version is specified, the default version will be deployed.
@@ -15637,6 +23787,7 @@ class GoogleCloudAiplatformV1beta1DeployedModel(_messages.Message):
       predict/explain/health requests directly to the deployed model services
       running on Cloud via private services access. This field is populated if
       network is configured.
+    rolloutOptions: Options for configuring rolling deployments.
     serviceAccount: The service account that the DeployedModel's container
       runs as. Specify the email address of the service account. If this
       service account is not specified, the container runs as a service
@@ -15646,6 +23797,8 @@ class GoogleCloudAiplatformV1beta1DeployedModel(_messages.Message):
     sharedResources: The resource name of the shared DeploymentResourcePool to
       deploy on. Format: `projects/{project}/locations/{location}/deploymentRe
       sourcePools/{deployment_resource_pool}`
+    speculativeDecodingSpec: Optional. Spec for configuring speculative
+      decoding.
     status: Output only. Runtime status of the deployed model.
     systemLabels: System labels to apply to Model Garden deployments. System
       labels are managed by Google for internal use only.
@@ -15678,35 +23831,44 @@ class GoogleCloudAiplatformV1beta1DeployedModel(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   automaticResources = _messages.MessageField('GoogleCloudAiplatformV1beta1AutomaticResources', 1)
-  createTime = _messages.StringField(2)
-  dedicatedResources = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResources', 3)
-  disableExplanations = _messages.BooleanField(4)
-  displayName = _messages.StringField(5)
-  enableAccessLogging = _messages.BooleanField(6)
-  enableContainerLogging = _messages.BooleanField(7)
-  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 8)
-  fasterDeploymentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FasterDeploymentConfig', 9)
-  id = _messages.StringField(10)
-  model = _messages.StringField(11)
-  modelVersionId = _messages.StringField(12)
-  privateEndpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1PrivateEndpoints', 13)
-  serviceAccount = _messages.StringField(14)
-  sharedResources = _messages.StringField(15)
-  status = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployedModelStatus', 16)
-  systemLabels = _messages.MessageField('SystemLabelsValue', 17)
+  checkpointId = _messages.StringField(2)
+  createTime = _messages.StringField(3)
+  dedicatedResources = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResources', 4)
+  disableContainerLogging = _messages.BooleanField(5)
+  disableExplanations = _messages.BooleanField(6)
+  displayName = _messages.StringField(7)
+  enableAccessLogging = _messages.BooleanField(8)
+  enableContainerLogging = _messages.BooleanField(9)
+  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 10)
+  fasterDeploymentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FasterDeploymentConfig', 11)
+  gdcConnectedModel = _messages.StringField(12)
+  gdcGgsModel = _messages.StringField(13)
+  id = _messages.StringField(14)
+  model = _messages.StringField(15)
+  modelVersionId = _messages.StringField(16)
+  privateEndpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1PrivateEndpoints', 17)
+  rolloutOptions = _messages.MessageField('GoogleCloudAiplatformV1beta1RolloutOptions', 18)
+  serviceAccount = _messages.StringField(19)
+  sharedResources = _messages.StringField(20)
+  speculativeDecodingSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1SpeculativeDecodingSpec', 21)
+  status = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployedModelStatus', 22)
+  systemLabels = _messages.MessageField('SystemLabelsValue', 23)
 
 
 class GoogleCloudAiplatformV1beta1DeployedModelRef(_messages.Message):
   r"""Points to a DeployedModel.
 
   Fields:
+    checkpointId: Immutable. The ID of the Checkpoint deployed in the
+      DeployedModel.
     deployedModelId: Immutable. An ID of a DeployedModel in the above
       Endpoint.
     endpoint: Immutable. A resource name of an Endpoint.
   """
 
-  deployedModelId = _messages.StringField(1)
-  endpoint = _messages.StringField(2)
+  checkpointId = _messages.StringField(1)
+  deployedModelId = _messages.StringField(2)
+  endpoint = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1DeployedModelStatus(_messages.Message):
@@ -15730,6 +23892,10 @@ class GoogleCloudAiplatformV1beta1DeploymentResourcePool(_messages.Message):
   DeployedModels, whose underlying specification consists of a
   DedicatedResources.
 
+  Enums:
+    ResourcePoolTypeValueValuesEnum: Immutable. The intended use case of the
+      DeploymentResourcePool.
+
   Fields:
     createTime: Output only. Timestamp when this DeploymentResourcePool was
       created.
@@ -15749,6 +23915,8 @@ class GoogleCloudAiplatformV1beta1DeploymentResourcePool(_messages.Message):
     name: Immutable. The resource name of the DeploymentResourcePool. Format:
       `projects/{project}/locations/{location}/deploymentResourcePools/{deploy
       ment_resource_pool}`
+    resourcePoolType: Immutable. The intended use case of the
+      DeploymentResourcePool.
     satisfiesPzi: Output only. Reserved for future use.
     satisfiesPzs: Output only. Reserved for future use.
     serviceAccount: The service account that the DeploymentResourcePool's
@@ -15759,14 +23927,30 @@ class GoogleCloudAiplatformV1beta1DeploymentResourcePool(_messages.Message):
       `iam.serviceAccounts.actAs` permission on this service account.
   """
 
+  class ResourcePoolTypeValueValuesEnum(_messages.Enum):
+    r"""Immutable. The intended use case of the DeploymentResourcePool.
+
+    Values:
+      RESOURCE_POOL_TYPE_UNSPECIFIED: The default value. This value is unused.
+      RESOURCE_POOL_TYPE_MODEL_COHOSTING: The resource pool is used for [model
+        cohosting] (https://cloud.google.com/vertex-ai/docs/model-
+        cohosting/overview).
+      RESOURCE_POOL_TYPE_RESERVED_CAPACITY: The resource pool is used for
+        reserving capacity.
+    """
+    RESOURCE_POOL_TYPE_UNSPECIFIED = 0
+    RESOURCE_POOL_TYPE_MODEL_COHOSTING = 1
+    RESOURCE_POOL_TYPE_RESERVED_CAPACITY = 2
+
   createTime = _messages.StringField(1)
   dedicatedResources = _messages.MessageField('GoogleCloudAiplatformV1beta1DedicatedResources', 2)
   disableContainerLogging = _messages.BooleanField(3)
   encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 4)
   name = _messages.StringField(5)
-  satisfiesPzi = _messages.BooleanField(6)
-  satisfiesPzs = _messages.BooleanField(7)
-  serviceAccount = _messages.StringField(8)
+  resourcePoolType = _messages.EnumField('ResourcePoolTypeValueValuesEnum', 6)
+  satisfiesPzi = _messages.BooleanField(7)
+  satisfiesPzs = _messages.BooleanField(8)
+  serviceAccount = _messages.StringField(9)
 
 
 class GoogleCloudAiplatformV1beta1DestinationFeatureSetting(_messages.Message):
@@ -15839,9 +24023,10 @@ class GoogleCloudAiplatformV1beta1DiskSpec(_messages.Message):
 
   Fields:
     bootDiskSizeGb: Size in GB of the boot disk (default is 100GB).
-    bootDiskType: Type of the boot disk (default is "pd-ssd"). Valid values:
-      "pd-ssd" (Persistent Disk Solid State Drive) or "pd-standard"
-      (Persistent Disk Hard Disk Drive).
+    bootDiskType: Type of the boot disk. For non-A3U machines, the default
+      value is "pd-ssd", for A3U machines, the default value is "hyperdisk-
+      balanced". Valid values: "pd-ssd" (Persistent Disk Solid State Drive),
+      "pd-standard" (Persistent Disk Hard Disk Drive) or "hyperdisk-balanced".
   """
 
   bootDiskSizeGb = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -15879,6 +24064,7 @@ class GoogleCloudAiplatformV1beta1DistillationHyperParameters(_messages.Message)
     Values:
       ADAPTER_SIZE_UNSPECIFIED: Adapter size is unspecified.
       ADAPTER_SIZE_ONE: Adapter size 1.
+      ADAPTER_SIZE_TWO: Adapter size 2.
       ADAPTER_SIZE_FOUR: Adapter size 4.
       ADAPTER_SIZE_EIGHT: Adapter size 8.
       ADAPTER_SIZE_SIXTEEN: Adapter size 16.
@@ -15886,10 +24072,11 @@ class GoogleCloudAiplatformV1beta1DistillationHyperParameters(_messages.Message)
     """
     ADAPTER_SIZE_UNSPECIFIED = 0
     ADAPTER_SIZE_ONE = 1
-    ADAPTER_SIZE_FOUR = 2
-    ADAPTER_SIZE_EIGHT = 3
-    ADAPTER_SIZE_SIXTEEN = 4
-    ADAPTER_SIZE_THIRTY_TWO = 5
+    ADAPTER_SIZE_TWO = 2
+    ADAPTER_SIZE_FOUR = 3
+    ADAPTER_SIZE_EIGHT = 4
+    ADAPTER_SIZE_SIXTEEN = 5
+    ADAPTER_SIZE_THIRTY_TWO = 6
 
   adapterSize = _messages.EnumField('AdapterSizeValueValuesEnum', 1)
   epochCount = _messages.IntegerField(2)
@@ -15900,16 +24087,17 @@ class GoogleCloudAiplatformV1beta1DistillationSpec(_messages.Message):
   r"""Tuning Spec for Distillation.
 
   Fields:
-    baseTeacherModel: The base teacher model that is being distilled, e.g.,
-      "gemini-1.0-pro-002".
+    baseTeacherModel: The base teacher model that is being distilled. See
+      [Supported models](https://cloud.google.com/vertex-ai/generative-
+      ai/docs/model-reference/tuning#supported_models).
     hyperParameters: Optional. Hyperparameters for Distillation.
-    pipelineRootDirectory: Required. Deprecated. A path in a Cloud Storage
-      bucket, which will be treated as the root output directory of the
-      distillation pipeline. It is used by the system to generate the paths of
-      output artifacts.
+    pipelineRootDirectory: Deprecated. A path in a Cloud Storage bucket, which
+      will be treated as the root output directory of the distillation
+      pipeline. It is used by the system to generate the paths of output
+      artifacts.
     studentModel: The student model that is being tuned, e.g.,
       "google/gemma-2b-1.1-it". Deprecated. Use base_model instead.
-    trainingDatasetUri: Required. Cloud Storage path to file containing
+    trainingDatasetUri: Deprecated. Cloud Storage path to file containing
       training dataset for tuning. The dataset must be formatted as a JSONL
       file.
     tunedTeacherModelSource: The resource name of the Tuned teacher model.
@@ -15926,6 +24114,27 @@ class GoogleCloudAiplatformV1beta1DistillationSpec(_messages.Message):
   trainingDatasetUri = _messages.StringField(5)
   tunedTeacherModelSource = _messages.StringField(6)
   validationDatasetUri = _messages.StringField(7)
+
+
+class GoogleCloudAiplatformV1beta1DnsPeeringConfig(_messages.Message):
+  r"""DNS peering configuration. These configurations are used to create DNS
+  peering zones in the Vertex tenant project VPC, enabling resolution of
+  records within the specified domain hosted in the target network's Cloud
+  DNS.
+
+  Fields:
+    domain: Required. The DNS name suffix of the zone being peered to, e.g.,
+      "my-internal-domain.corp.". Must end with a dot.
+    targetNetwork: Required. The VPC network name in the target_project where
+      the DNS zone specified by 'domain' is visible.
+    targetProject: Required. The project ID hosting the Cloud DNS managed zone
+      that contains the 'domain'. The Vertex AI Service Agent requires the
+      dns.peer role on this project.
+  """
+
+  domain = _messages.StringField(1)
+  targetNetwork = _messages.StringField(2)
+  targetProject = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1DoubleArray(_messages.Message):
@@ -15965,6 +24174,128 @@ class GoogleCloudAiplatformV1beta1DynamicRetrievalConfig(_messages.Message):
   mode = _messages.EnumField('ModeValueValuesEnum', 2)
 
 
+class GoogleCloudAiplatformV1beta1EmbedContentRequest(_messages.Message):
+  r"""Request message for PredictionService.EmbedContent.
+
+  Enums:
+    TaskTypeValueValuesEnum: Optional. The task type of the embedding.
+
+  Fields:
+    autoTruncate: Optional. Whether to silently truncate the input content if
+      it's longer than the maximum sequence length.
+    content: Required. Input content to be embedded. Required.
+    outputDimensionality: Optional. Optional reduced dimension for the output
+      embedding. If set, excessive values in the output embedding are
+      truncated from the end.
+    taskType: Optional. The task type of the embedding.
+    title: Optional. An optional title for the text.
+  """
+
+  class TaskTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The task type of the embedding.
+
+    Values:
+      UNSPECIFIED: Unset value, which will default to one of the other enum
+        values.
+      RETRIEVAL_QUERY: Specifies the given text is a query in a
+        search/retrieval setting.
+      RETRIEVAL_DOCUMENT: Specifies the given text is a document from the
+        corpus being searched.
+      SEMANTIC_SIMILARITY: Specifies the given text will be used for STS.
+      CLASSIFICATION: Specifies that the given text will be classified.
+      CLUSTERING: Specifies that the embeddings will be used for clustering.
+      QUESTION_ANSWERING: Specifies that the embeddings will be used for
+        question answering.
+      FACT_VERIFICATION: Specifies that the embeddings will be used for fact
+        verification.
+      CODE_RETRIEVAL_QUERY: Specifies that the embeddings will be used for
+        code retrieval.
+    """
+    UNSPECIFIED = 0
+    RETRIEVAL_QUERY = 1
+    RETRIEVAL_DOCUMENT = 2
+    SEMANTIC_SIMILARITY = 3
+    CLASSIFICATION = 4
+    CLUSTERING = 5
+    QUESTION_ANSWERING = 6
+    FACT_VERIFICATION = 7
+    CODE_RETRIEVAL_QUERY = 8
+
+  autoTruncate = _messages.BooleanField(1)
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2)
+  outputDimensionality = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  taskType = _messages.EnumField('TaskTypeValueValuesEnum', 4)
+  title = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1EmbedContentResponse(_messages.Message):
+  r"""Response message for PredictionService.EmbedContent.
+
+  Fields:
+    embedding: The embedding generated from the input content.
+    truncated: Whether the input content was truncated before generating the
+      embedding.
+    usageMetadata: Metadata about the response(s).
+  """
+
+  embedding = _messages.MessageField('GoogleCloudAiplatformV1beta1EmbedContentResponseEmbedding', 1)
+  truncated = _messages.BooleanField(2)
+  usageMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1UsageMetadata', 3)
+
+
+class GoogleCloudAiplatformV1beta1EmbedContentResponseEmbedding(_messages.Message):
+  r"""A list of floats representing an embedding.
+
+  Fields:
+    values: Embedding vector values.
+  """
+
+  values = _messages.FloatField(1, repeated=True, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1EnableModelRequest(_messages.Message):
+  r"""Request message for ModelGardenService.EnableModel.
+
+  Fields:
+    service: Optional. The ID links the Marketplace listing to the underlying
+      Vertex AI model endpoint. Format: `services/{service_id}` Format:
+      `services/{service_id}`
+  """
+
+  service = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1EnableModelResponse(_messages.Message):
+  r"""Response message for ModelGardenService.EnableModel.
+
+  Enums:
+    EnablementStateValueValuesEnum: Output only. The result of the model
+      enablement.
+
+  Fields:
+    enablementState: Output only. The result of the model enablement.
+    publisherEndpoint: Output only. The publisher endpoint that the project is
+      enabled for. Format: `projects/{project}/locations/{location}/publishers
+      /{publisher}/models/{publisher_model}`
+  """
+
+  class EnablementStateValueValuesEnum(_messages.Enum):
+    r"""Output only. The result of the model enablement.
+
+    Values:
+      ENABLEMENT_STATE_UNSPECIFIED: The PublisherModel enable status is
+        unclear. The API will default to this value.
+      ENABLEMENT_STATE_SUCCEEDED: The PublisherModel is enabled successfully.
+      ENABLEMENT_STATE_FAILED: The PublisherModel is failed to enable
+    """
+    ENABLEMENT_STATE_UNSPECIFIED = 0
+    ENABLEMENT_STATE_SUCCEEDED = 1
+    ENABLEMENT_STATE_FAILED = 2
+
+  enablementState = _messages.EnumField('EnablementStateValueValuesEnum', 1)
+  publisherEndpoint = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1EncryptionSpec(_messages.Message):
   r"""Represents a customer-managed encryption key spec that can be applied to
   a top-level resource.
@@ -16002,8 +24333,10 @@ class GoogleCloudAiplatformV1beta1Endpoint(_messages.Message):
       for online prediction.
     createTime: Output only. Timestamp when this Endpoint was created.
     dedicatedEndpointDns: Output only. DNS of the dedicated endpoint. Will
-      only be populated if dedicated_endpoint_enabled is true. Format: `https:
-      //{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog`.
+      only be populated if dedicated_endpoint_enabled is true. Depending on
+      the features enabled, uid might be a random number or a string. For
+      example, if fast_tryout is enabled, uid will be fasttryout. Format:
+      `https://{endpoint_id}.{region}-{uid}.prediction.vertexai.goog`.
     dedicatedEndpointEnabled: If true, the endpoint will be exposed through a
       dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the
       dedicated DNS will be isolated from other users' traffic and will have
@@ -16024,9 +24357,16 @@ class GoogleCloudAiplatformV1beta1Endpoint(_messages.Message):
       secured by this key.
     etag: Used to perform consistent read-modify-write updates. If not set, a
       blind "overwrite" update happens.
+    gdcConfig: Configures the Google Distributed Cloud (GDC) environment for
+      online prediction. Only set this field when the Endpoint is to be
+      deployed in a GDC environment.
     gdceConfig: Configures the Google Distributed Cloud Edge (GDCE)
       environment for online prediction. Only set this field when the Endpoint
       is to be deployed in a GDCE environment.
+    genAiAdvancedFeaturesConfig: Optional. Configuration for
+      GenAiAdvancedFeatures. If the endpoint is serving GenAI models, advanced
+      features like native RAG integration can be configured. Currently, only
+      Model Garden models are supported.
     labels: The labels with user-defined metadata to organize your Endpoints.
       Label keys and values can be no longer than 64 characters (Unicode
       codepoints), can only contain lowercase letters, numeric characters,
@@ -16129,17 +24469,64 @@ class GoogleCloudAiplatformV1beta1Endpoint(_messages.Message):
   enablePrivateServiceConnect = _messages.BooleanField(8)
   encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 9)
   etag = _messages.StringField(10)
-  gdceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GdceConfig', 11)
-  labels = _messages.MessageField('LabelsValue', 12)
-  modelDeploymentMonitoringJob = _messages.StringField(13)
-  name = _messages.StringField(14)
-  network = _messages.StringField(15)
-  predictRequestResponseLoggingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictRequestResponseLoggingConfig', 16)
-  privateServiceConnectConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PrivateServiceConnectConfig', 17)
-  satisfiesPzi = _messages.BooleanField(18)
-  satisfiesPzs = _messages.BooleanField(19)
-  trafficSplit = _messages.MessageField('TrafficSplitValue', 20)
-  updateTime = _messages.StringField(21)
+  gdcConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GdcConfig', 11)
+  gdceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GdceConfig', 12)
+  genAiAdvancedFeaturesConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenAiAdvancedFeaturesConfig', 13)
+  labels = _messages.MessageField('LabelsValue', 14)
+  modelDeploymentMonitoringJob = _messages.StringField(15)
+  name = _messages.StringField(16)
+  network = _messages.StringField(17)
+  predictRequestResponseLoggingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictRequestResponseLoggingConfig', 18)
+  privateServiceConnectConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PrivateServiceConnectConfig', 19)
+  satisfiesPzi = _messages.BooleanField(20)
+  satisfiesPzs = _messages.BooleanField(21)
+  trafficSplit = _messages.MessageField('TrafficSplitValue', 22)
+  updateTime = _messages.StringField(23)
+
+
+class GoogleCloudAiplatformV1beta1EnterpriseWebSearch(_messages.Message):
+  r"""Tool to search public web data, powered by Vertex AI Search and Sec4
+  compliance.
+
+  Enums:
+    BlockingConfidenceValueValuesEnum: Optional. Sites with confidence level
+      chosen & above this value will be blocked from the search results.
+
+  Fields:
+    blockingConfidence: Optional. Sites with confidence level chosen & above
+      this value will be blocked from the search results.
+    excludeDomains: Optional. List of domains to be excluded from the search
+      results. The default limit is 2000 domains.
+  """
+
+  class BlockingConfidenceValueValuesEnum(_messages.Enum):
+    r"""Optional. Sites with confidence level chosen & above this value will
+    be blocked from the search results.
+
+    Values:
+      PHISH_BLOCK_THRESHOLD_UNSPECIFIED: Defaults to unspecified.
+      BLOCK_LOW_AND_ABOVE: Blocks Low and above confidence URL that is risky.
+      BLOCK_MEDIUM_AND_ABOVE: Blocks Medium and above confidence URL that is
+        risky.
+      BLOCK_HIGH_AND_ABOVE: Blocks High and above confidence URL that is
+        risky.
+      BLOCK_HIGHER_AND_ABOVE: Blocks Higher and above confidence URL that is
+        risky.
+      BLOCK_VERY_HIGH_AND_ABOVE: Blocks Very high and above confidence URL
+        that is risky.
+      BLOCK_ONLY_EXTREMELY_HIGH: Blocks Extremely high confidence URL that is
+        risky.
+    """
+    PHISH_BLOCK_THRESHOLD_UNSPECIFIED = 0
+    BLOCK_LOW_AND_ABOVE = 1
+    BLOCK_MEDIUM_AND_ABOVE = 2
+    BLOCK_HIGH_AND_ABOVE = 3
+    BLOCK_HIGHER_AND_ABOVE = 4
+    BLOCK_VERY_HIGH_AND_ABOVE = 5
+    BLOCK_ONLY_EXTREMELY_HIGH = 6
+
+  blockingConfidence = _messages.EnumField('BlockingConfidenceValueValuesEnum', 1)
+  excludeDomains = _messages.StringField(2, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1EntityIdSelector(_messages.Message):
@@ -16324,10 +24711,63 @@ class GoogleCloudAiplatformV1beta1ErrorAnalysisAnnotationAttributedItem(_message
   distance = _messages.FloatField(2)
 
 
+class GoogleCloudAiplatformV1beta1EvaluateDatasetRequest(_messages.Message):
+  r"""Request message for EvaluationService.EvaluateDataset.
+
+  Fields:
+    autoraterConfig: Optional. Autorater config used for evaluation. Currently
+      only publisher Gemini models are supported. Format: `projects/{PROJECT}/
+      locations/{LOCATION}/publishers/google/models/{MODEL}.`
+    dataset: Required. The dataset used for evaluation.
+    metrics: Required. The metrics used for evaluation.
+    outputConfig: Required. Config for evaluation output.
+  """
+
+  autoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoraterConfig', 1)
+  dataset = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationDataset', 2)
+  metrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Metric', 3, repeated=True)
+  outputConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1OutputConfig', 4)
+
+
+class GoogleCloudAiplatformV1beta1EvaluateDatasetResponse(_messages.Message):
+  r"""Response in LRO for EvaluationService.EvaluateDataset.
+
+  Fields:
+    aggregationOutput: Output only. Aggregation statistics derived from
+      results of EvaluationService.EvaluateDataset.
+    outputInfo: Output only. Output info for
+      EvaluationService.EvaluateDataset.
+  """
+
+  aggregationOutput = _messages.MessageField('GoogleCloudAiplatformV1beta1AggregationOutput', 1)
+  outputInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1OutputInfo', 2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluateDatasetRun(_messages.Message):
+  r"""Evaluate Dataset Run Result for Tuning Job.
+
+  Fields:
+    checkpointId: Output only. The checkpoint id used in the evaluation run.
+      Only populated when evaluating checkpoints.
+    error: Output only. The error of the evaluation run if any.
+    evaluateDatasetResponse: Output only. Results for
+      EvaluationService.EvaluateDataset.
+    operationName: Output only. The operation ID of the evaluation run.
+      Format:
+      `projects/{project}/locations/{location}/operations/{operation_id}`.
+  """
+
+  checkpointId = _messages.StringField(1)
+  error = _messages.MessageField('GoogleRpcStatus', 2)
+  evaluateDatasetResponse = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluateDatasetResponse', 3)
+  operationName = _messages.StringField(4)
+
+
 class GoogleCloudAiplatformV1beta1EvaluateInstancesRequest(_messages.Message):
   r"""Request message for EvaluationService.EvaluateInstances.
 
   Fields:
+    autoraterConfig: Optional. Autorater config used for evaluation.
     bleuInput: Instances and metric spec for bleu metric.
     coherenceInput: Input for coherence metric.
     cometInput: Translation metrics. Input for Comet metric.
@@ -16337,6 +24777,10 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesRequest(_messages.Message):
       applicable to other categories. Input for fluency metric.
     fulfillmentInput: Input for fulfillment metric.
     groundednessInput: Input for groundedness metric.
+    instance: The instance to be evaluated.
+    metrics: The metrics used for evaluation. Currently, we only support
+      evaluating a single metric. If multiple metrics are provided, only the
+      first one will be evaluated.
     metricxInput: Input for Metricx metric.
     pairwiseMetricInput: Input for pairwise metric.
     pairwiseQuestionAnsweringQualityInput: Input for pairwise question
@@ -16353,6 +24797,8 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesRequest(_messages.Message):
     questionAnsweringRelevanceInput: Input for question answering relevance
       metric.
     rougeInput: Instances and metric spec for rouge metric.
+    rubricBasedInstructionFollowingInput: Rubric Based Instruction Following
+      metric.
     safetyInput: Input for safety metric.
     summarizationHelpfulnessInput: Input for summarization helpfulness metric.
     summarizationQualityInput: Input for summarization quality metric.
@@ -16371,37 +24817,41 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesRequest(_messages.Message):
     trajectorySingleToolUseInput: Input for trajectory single tool use metric.
   """
 
-  bleuInput = _messages.MessageField('GoogleCloudAiplatformV1beta1BleuInput', 1)
-  coherenceInput = _messages.MessageField('GoogleCloudAiplatformV1beta1CoherenceInput', 2)
-  cometInput = _messages.MessageField('GoogleCloudAiplatformV1beta1CometInput', 3)
-  exactMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ExactMatchInput', 4)
-  fluencyInput = _messages.MessageField('GoogleCloudAiplatformV1beta1FluencyInput', 5)
-  fulfillmentInput = _messages.MessageField('GoogleCloudAiplatformV1beta1FulfillmentInput', 6)
-  groundednessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundednessInput', 7)
-  metricxInput = _messages.MessageField('GoogleCloudAiplatformV1beta1MetricxInput', 8)
-  pairwiseMetricInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricInput', 9)
-  pairwiseQuestionAnsweringQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseQuestionAnsweringQualityInput', 10)
-  pairwiseSummarizationQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseSummarizationQualityInput', 11)
-  pointwiseMetricInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricInput', 12)
-  questionAnsweringCorrectnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringCorrectnessInput', 13)
-  questionAnsweringHelpfulnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringHelpfulnessInput', 14)
-  questionAnsweringQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringQualityInput', 15)
-  questionAnsweringRelevanceInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringRelevanceInput', 16)
-  rougeInput = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeInput', 17)
-  safetyInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetyInput', 18)
-  summarizationHelpfulnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationHelpfulnessInput', 19)
-  summarizationQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationQualityInput', 20)
-  summarizationVerbosityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationVerbosityInput', 21)
-  toolCallValidInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolCallValidInput', 22)
-  toolNameMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolNameMatchInput', 23)
-  toolParameterKeyMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKeyMatchInput', 24)
-  toolParameterKvMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKVMatchInput', 25)
-  trajectoryAnyOrderMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryAnyOrderMatchInput', 26)
-  trajectoryExactMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryExactMatchInput', 27)
-  trajectoryInOrderMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryInOrderMatchInput', 28)
-  trajectoryPrecisionInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryPrecisionInput', 29)
-  trajectoryRecallInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryRecallInput', 30)
-  trajectorySingleToolUseInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectorySingleToolUseInput', 31)
+  autoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoraterConfig', 1)
+  bleuInput = _messages.MessageField('GoogleCloudAiplatformV1beta1BleuInput', 2)
+  coherenceInput = _messages.MessageField('GoogleCloudAiplatformV1beta1CoherenceInput', 3)
+  cometInput = _messages.MessageField('GoogleCloudAiplatformV1beta1CometInput', 4)
+  exactMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ExactMatchInput', 5)
+  fluencyInput = _messages.MessageField('GoogleCloudAiplatformV1beta1FluencyInput', 6)
+  fulfillmentInput = _messages.MessageField('GoogleCloudAiplatformV1beta1FulfillmentInput', 7)
+  groundednessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundednessInput', 8)
+  instance = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstance', 9)
+  metrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Metric', 10, repeated=True)
+  metricxInput = _messages.MessageField('GoogleCloudAiplatformV1beta1MetricxInput', 11)
+  pairwiseMetricInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricInput', 12)
+  pairwiseQuestionAnsweringQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseQuestionAnsweringQualityInput', 13)
+  pairwiseSummarizationQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseSummarizationQualityInput', 14)
+  pointwiseMetricInput = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricInput', 15)
+  questionAnsweringCorrectnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringCorrectnessInput', 16)
+  questionAnsweringHelpfulnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringHelpfulnessInput', 17)
+  questionAnsweringQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringQualityInput', 18)
+  questionAnsweringRelevanceInput = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringRelevanceInput', 19)
+  rougeInput = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeInput', 20)
+  rubricBasedInstructionFollowingInput = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingInput', 21)
+  safetyInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetyInput', 22)
+  summarizationHelpfulnessInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationHelpfulnessInput', 23)
+  summarizationQualityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationQualityInput', 24)
+  summarizationVerbosityInput = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationVerbosityInput', 25)
+  toolCallValidInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolCallValidInput', 26)
+  toolNameMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolNameMatchInput', 27)
+  toolParameterKeyMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKeyMatchInput', 28)
+  toolParameterKvMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKVMatchInput', 29)
+  trajectoryAnyOrderMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryAnyOrderMatchInput', 30)
+  trajectoryExactMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryExactMatchInput', 31)
+  trajectoryInOrderMatchInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryInOrderMatchInput', 32)
+  trajectoryPrecisionInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryPrecisionInput', 33)
+  trajectoryRecallInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryRecallInput', 34)
+  trajectorySingleToolUseInput = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectorySingleToolUseInput', 35)
 
 
 class GoogleCloudAiplatformV1beta1EvaluateInstancesResponse(_messages.Message):
@@ -16417,6 +24867,9 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesResponse(_messages.Message):
       metrics, applicable to other categories. Result for fluency metric.
     fulfillmentResult: Result for fulfillment metric.
     groundednessResult: Result for groundedness metric.
+    metricResults: Metric results for each instance. The order of the metric
+      results is guaranteed to be the same as the order of the instances in
+      the request.
     metricxResult: Result for Metricx metric.
     pairwiseMetricResult: Result for pairwise metric.
     pairwiseQuestionAnsweringQualityResult: Result for pairwise question
@@ -16433,6 +24886,8 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesResponse(_messages.Message):
     questionAnsweringRelevanceResult: Result for question answering relevance
       metric.
     rougeResults: Results for rouge metric.
+    rubricBasedInstructionFollowingResult: Result for rubric based instruction
+      following metric.
     safetyResult: Result for safety metric.
     summarizationHelpfulnessResult: Result for summarization helpfulness
       metric.
@@ -16463,30 +24918,32 @@ class GoogleCloudAiplatformV1beta1EvaluateInstancesResponse(_messages.Message):
   fluencyResult = _messages.MessageField('GoogleCloudAiplatformV1beta1FluencyResult', 5)
   fulfillmentResult = _messages.MessageField('GoogleCloudAiplatformV1beta1FulfillmentResult', 6)
   groundednessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundednessResult', 7)
-  metricxResult = _messages.MessageField('GoogleCloudAiplatformV1beta1MetricxResult', 8)
-  pairwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricResult', 9)
-  pairwiseQuestionAnsweringQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseQuestionAnsweringQualityResult', 10)
-  pairwiseSummarizationQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseSummarizationQualityResult', 11)
-  pointwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricResult', 12)
-  questionAnsweringCorrectnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringCorrectnessResult', 13)
-  questionAnsweringHelpfulnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringHelpfulnessResult', 14)
-  questionAnsweringQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringQualityResult', 15)
-  questionAnsweringRelevanceResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringRelevanceResult', 16)
-  rougeResults = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeResults', 17)
-  safetyResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetyResult', 18)
-  summarizationHelpfulnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationHelpfulnessResult', 19)
-  summarizationQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationQualityResult', 20)
-  summarizationVerbosityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationVerbosityResult', 21)
-  toolCallValidResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolCallValidResults', 22)
-  toolNameMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolNameMatchResults', 23)
-  toolParameterKeyMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKeyMatchResults', 24)
-  toolParameterKvMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKVMatchResults', 25)
-  trajectoryAnyOrderMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryAnyOrderMatchResults', 26)
-  trajectoryExactMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryExactMatchResults', 27)
-  trajectoryInOrderMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryInOrderMatchResults', 28)
-  trajectoryPrecisionResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryPrecisionResults', 29)
-  trajectoryRecallResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryRecallResults', 30)
-  trajectorySingleToolUseResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectorySingleToolUseResults', 31)
+  metricResults = _messages.MessageField('GoogleCloudAiplatformV1beta1MetricResult', 8, repeated=True)
+  metricxResult = _messages.MessageField('GoogleCloudAiplatformV1beta1MetricxResult', 9)
+  pairwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricResult', 10)
+  pairwiseQuestionAnsweringQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseQuestionAnsweringQualityResult', 11)
+  pairwiseSummarizationQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseSummarizationQualityResult', 12)
+  pointwiseMetricResult = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricResult', 13)
+  questionAnsweringCorrectnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringCorrectnessResult', 14)
+  questionAnsweringHelpfulnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringHelpfulnessResult', 15)
+  questionAnsweringQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringQualityResult', 16)
+  questionAnsweringRelevanceResult = _messages.MessageField('GoogleCloudAiplatformV1beta1QuestionAnsweringRelevanceResult', 17)
+  rougeResults = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeResults', 18)
+  rubricBasedInstructionFollowingResult = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingResult', 19)
+  safetyResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetyResult', 20)
+  summarizationHelpfulnessResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationHelpfulnessResult', 21)
+  summarizationQualityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationQualityResult', 22)
+  summarizationVerbosityResult = _messages.MessageField('GoogleCloudAiplatformV1beta1SummarizationVerbosityResult', 23)
+  toolCallValidResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolCallValidResults', 24)
+  toolNameMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolNameMatchResults', 25)
+  toolParameterKeyMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKeyMatchResults', 26)
+  toolParameterKvMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolParameterKVMatchResults', 27)
+  trajectoryAnyOrderMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryAnyOrderMatchResults', 28)
+  trajectoryExactMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryExactMatchResults', 29)
+  trajectoryInOrderMatchResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryInOrderMatchResults', 30)
+  trajectoryPrecisionResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryPrecisionResults', 31)
+  trajectoryRecallResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectoryRecallResults', 32)
+  trajectorySingleToolUseResults = _messages.MessageField('GoogleCloudAiplatformV1beta1TrajectorySingleToolUseResults', 33)
 
 
 class GoogleCloudAiplatformV1beta1EvaluatedAnnotation(_messages.Message):
@@ -16570,6 +25027,928 @@ class GoogleCloudAiplatformV1beta1EvaluatedAnnotationExplanation(_messages.Messa
 
   explanation = _messages.MessageField('GoogleCloudAiplatformV1beta1Explanation', 1)
   explanationType = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationConfig(_messages.Message):
+  r"""Evaluation Config for Tuning Job.
+
+  Fields:
+    autoraterConfig: Optional. Autorater config for evaluation.
+    metrics: Required. The metrics used for evaluation.
+    outputConfig: Required. Config for evaluation output.
+  """
+
+  autoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoraterConfig', 1)
+  metrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Metric', 2, repeated=True)
+  outputConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1OutputConfig', 3)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationDataset(_messages.Message):
+  r"""The dataset used for evaluation.
+
+  Fields:
+    bigquerySource: BigQuery source holds the dataset.
+    gcsSource: Cloud storage source holds the dataset. Currently only one
+      Cloud Storage file path is supported.
+  """
+
+  bigquerySource = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQuerySource', 1)
+  gcsSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsSource', 2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstance(_messages.Message):
+  r"""A single instance to be evaluated. Instances are used to specify the
+  input data for evaluation, from simple string comparisons to complex, multi-
+  turn model evaluations
+
+  Messages:
+    RubricGroupsValue: Optional. Named groups of rubrics associated with the
+      prompt. This is used for rubric-based evaluations where rubrics can be
+      referenced by a key. The key could represent versions, associated
+      metrics, etc.
+
+  Fields:
+    agentData: Optional. Data used for agent evaluation.
+    otherData: Optional. Other data used to populate placeholders based on
+      their key.
+    prompt: Optional. Data used to populate placeholder `prompt` in a metric
+      prompt template.
+    reference: Optional. Data used to populate placeholder `reference` in a
+      metric prompt template.
+    response: Required. Data used to populate placeholder `response` in a
+      metric prompt template.
+    rubricGroups: Optional. Named groups of rubrics associated with the
+      prompt. This is used for rubric-based evaluations where rubrics can be
+      referenced by a key. The key could represent versions, associated
+      metrics, etc.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RubricGroupsValue(_messages.Message):
+    r"""Optional. Named groups of rubrics associated with the prompt. This is
+    used for rubric-based evaluations where rubrics can be referenced by a
+    key. The key could represent versions, associated metrics, etc.
+
+    Messages:
+      AdditionalProperty: An additional property for a RubricGroupsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type RubricGroupsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RubricGroupsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1RubricGroup attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricGroup', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  agentData = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentData', 1)
+  otherData = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceMapInstance', 2)
+  prompt = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 3)
+  reference = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 4)
+  response = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 5)
+  rubricGroups = _messages.MessageField('RubricGroupsValue', 6)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceAgentConfig(_messages.Message):
+  r"""Configuration for an Agent.
+
+  Fields:
+    developerInstruction: Optional. A field containing instructions from the
+      developer for the agent.
+    tools: List of tools.
+    toolsText: A JSON string containing a list of tools available to an agent
+      with info such as name, description, parameters and required parameters.
+  """
+
+  developerInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 1)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentConfigTools', 2)
+  toolsText = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceAgentConfigTools(_messages.Message):
+  r"""Represents a list of tools for an agent.
+
+  Fields:
+    tool: Optional. List of tools: each tool can have multiple function
+      declarations.
+  """
+
+  tool = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceAgentData(_messages.Message):
+  r"""Contains data specific to agent evaluations.
+
+  Fields:
+    agentConfig: Optional. Agent configuration.
+    developerInstruction: Optional. A field containing instructions from the
+      developer for the agent.
+    events: A list of events.
+    eventsText: A JSON string containing a sequence of events.
+    tools: List of tools.
+    toolsText: A JSON string containing a list of tools available to an agent
+      with info such as name, description, parameters and required parameters.
+      Example: [ { "name": "search_actors", "description": "Search for actors
+      in a movie. Returns a list of actors, their roles, their birthdate, and
+      their place of birth.", "parameters": [ { "name": "movie_name",
+      "description": "The name of the movie." }, { "name": "character_name",
+      "description": "The name of the character." } ], "required":
+      ["movie_name", "character_name"] } ]
+  """
+
+  agentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentConfig', 1)
+  developerInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 2)
+  events = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentDataEvents', 3)
+  eventsText = _messages.StringField(4)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentDataTools', 5)
+  toolsText = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceAgentDataEvents(_messages.Message):
+  r"""Represents a list of events for an agent.
+
+  Fields:
+    event: Optional. A list of events.
+  """
+
+  event = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceAgentDataTools(_messages.Message):
+  r"""Represents a list of tools for an agent.
+
+  Fields:
+    tool: Optional. List of tools: each tool can have multiple function
+      declarations.
+  """
+
+  tool = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData(_messages.Message):
+  r"""Instance data used to populate placeholders in a metric prompt template.
+
+  Fields:
+    contents: List of Gemini content data.
+    text: Text data.
+  """
+
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceDataContents', 1)
+  text = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceDataContents(_messages.Message):
+  r"""List of standard Content messages from Gemini API.
+
+  Fields:
+    contents: Optional. Repeated contents.
+  """
+
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationInstanceMapInstance(_messages.Message):
+  r"""Instance data specified as a map.
+
+  Messages:
+    MapInstanceValue: Optional. Map of instance data.
+
+  Fields:
+    mapInstance: Optional. Map of instance data.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MapInstanceValue(_messages.Message):
+    r"""Optional. Map of instance data.
+
+    Messages:
+      AdditionalProperty: An additional property for a MapInstanceValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type MapInstanceValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MapInstanceValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceInstanceData', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  mapInstance = _messages.MessageField('MapInstanceValue', 1)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationItem(_messages.Message):
+  r"""EvaluationItem is a single evaluation request or result. The content of
+  an EvaluationItem is immutable - it cannot be updated once created.
+  EvaluationItems can be deleted when no longer needed.
+
+  Enums:
+    EvaluationItemTypeValueValuesEnum: Required. The type of the
+      EvaluationItem.
+
+  Messages:
+    LabelsValue: Optional. Labels for the EvaluationItem.
+
+  Fields:
+    createTime: Output only. Timestamp when this item was created.
+    displayName: Required. The display name of the EvaluationItem.
+    error: Output only. Error for the evaluation item.
+    evaluationItemType: Required. The type of the EvaluationItem.
+    evaluationRequest: The request to evaluate.
+    evaluationResponse: Output only. The response from evaluation.
+    gcsUri: The Cloud Storage object where the request or response is stored.
+    labels: Optional. Labels for the EvaluationItem.
+    metadata: Optional. Metadata for the EvaluationItem.
+    name: Identifier. The resource name of the EvaluationItem. Format: `projec
+      ts/{project}/locations/{location}/evaluationItems/{evaluation_item}`
+  """
+
+  class EvaluationItemTypeValueValuesEnum(_messages.Enum):
+    r"""Required. The type of the EvaluationItem.
+
+    Values:
+      EVALUATION_ITEM_TYPE_UNSPECIFIED: The default value. This value is
+        unused.
+      REQUEST: The EvaluationItem is a request to evaluate.
+      RESULT: The EvaluationItem is the result of evaluation.
+    """
+    EVALUATION_ITEM_TYPE_UNSPECIFIED = 0
+    REQUEST = 1
+    RESULT = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels for the EvaluationItem.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  error = _messages.MessageField('GoogleRpcStatus', 3)
+  evaluationItemType = _messages.EnumField('EvaluationItemTypeValueValuesEnum', 4)
+  evaluationRequest = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRequest', 5)
+  evaluationResponse = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationResult', 6)
+  gcsUri = _messages.StringField(7)
+  labels = _messages.MessageField('LabelsValue', 8)
+  metadata = _messages.MessageField('extra_types.JsonValue', 9)
+  name = _messages.StringField(10)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationPrompt(_messages.Message):
+  r"""Prompt to be evaluated.
+
+  Fields:
+    promptTemplateData: Prompt template data.
+    text: Text prompt.
+    value: Fields and values that can be used to populate the prompt template.
+  """
+
+  promptTemplateData = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationPromptPromptTemplateData', 1)
+  text = _messages.StringField(2)
+  value = _messages.MessageField('extra_types.JsonValue', 3)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationPromptPromptTemplateData(_messages.Message):
+  r"""Message to hold a prompt template and the values to populate the
+  template.
+
+  Messages:
+    ValuesValue: The values for fields in the prompt template.
+
+  Fields:
+    values: The values for fields in the prompt template.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ValuesValue(_messages.Message):
+    r"""The values for fields in the prompt template.
+
+    Messages:
+      AdditionalProperty: An additional property for a ValuesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ValuesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ValuesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1Content attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  values = _messages.MessageField('ValuesValue', 1)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRequest(_messages.Message):
+  r"""Single evaluation request.
+
+  Messages:
+    RubricsValue: Optional. Named groups of rubrics associated with this
+      prompt. The key is a user-defined name for the rubric group.
+
+  Fields:
+    candidateResponses: Optional. Responses from model under test and other
+      baseline models for comparison.
+    goldenResponse: Optional. The Ideal response or ground truth.
+    prompt: Required. The request/prompt to evaluate.
+    rubrics: Optional. Named groups of rubrics associated with this prompt.
+      The key is a user-defined name for the rubric group.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RubricsValue(_messages.Message):
+    r"""Optional. Named groups of rubrics associated with this prompt. The key
+    is a user-defined name for the rubric group.
+
+    Messages:
+      AdditionalProperty: An additional property for a RubricsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type RubricsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RubricsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1RubricGroup attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricGroup', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  candidateResponses = _messages.MessageField('GoogleCloudAiplatformV1beta1CandidateResponse', 1, repeated=True)
+  goldenResponse = _messages.MessageField('GoogleCloudAiplatformV1beta1CandidateResponse', 2)
+  prompt = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationPrompt', 3)
+  rubrics = _messages.MessageField('RubricsValue', 4)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationResult(_messages.Message):
+  r"""Evaluation result.
+
+  Fields:
+    candidateResults: Optional. The results for the metric.
+    evaluationRequest: Required. The request item that was evaluated. Format:
+      projects/{project}/locations/{location}/evaluationItems/{evaluation_item
+      }
+    evaluationRun: Required. The evaluation run that was used to generate the
+      result. Format:
+      projects/{project}/locations/{location}/evaluationRuns/{evaluation_run}
+    metadata: Optional. Metadata about the evaluation result.
+    metric: Required. The metric that was evaluated.
+    request: Required. The request that was evaluated.
+  """
+
+  candidateResults = _messages.MessageField('GoogleCloudAiplatformV1beta1CandidateResult', 1, repeated=True)
+  evaluationRequest = _messages.StringField(2)
+  evaluationRun = _messages.StringField(3)
+  metadata = _messages.MessageField('extra_types.JsonValue', 4)
+  metric = _messages.StringField(5)
+  request = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRequest', 6)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationResults(_messages.Message):
+  r"""The results of the evaluation run.
+
+  Fields:
+    evaluationSet: The evaluation set where item level results are stored.
+    summaryMetrics: Optional. The summary metrics for the evaluation run.
+  """
+
+  evaluationSet = _messages.StringField(1)
+  summaryMetrics = _messages.MessageField('GoogleCloudAiplatformV1beta1SummaryMetrics', 2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRubricConfig(_messages.Message):
+  r"""Configuration for a rubric group to be generated/saved for evaluation.
+
+  Fields:
+    predefinedRubricGenerationSpec: Dynamically generate rubrics using a
+      predefined spec.
+    rubricGenerationSpec: Dynamically generate rubrics using this
+      specification.
+    rubricGroupKey: Required. The key used to save the generated rubrics. If a
+      generation spec is provided, this key will be used for the name of the
+      generated rubric group. Otherwise, this key will be used to look up the
+      existing rubric group on the evaluation item. Note that if a rubric
+      group key is specified on both a rubric config and an evaluation metric,
+      the key from the metric will be used to select the rubrics for
+      evaluation.
+  """
+
+  predefinedRubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricPredefinedMetricSpec', 1)
+  rubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricGenerationSpec', 2)
+  rubricGroupKey = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRun(_messages.Message):
+  r"""EvaluationRun is a resource that represents a single evaluation run,
+  which includes a set of prompts, model responses, evaluation configuration
+  and the resulting metrics.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the evaluation run.
+
+  Messages:
+    InferenceConfigsValue: Optional. The candidate to inference config map for
+      the evaluation run. The candidate can be up to 128 characters long and
+      can consist of any UTF-8 characters.
+    LabelsValue: Optional. Labels for the evaluation run.
+
+  Fields:
+    completionTime: Output only. Time when the evaluation run was completed.
+    createTime: Output only. Time when the evaluation run was created.
+    dataSource: Required. The data source for the evaluation run.
+    displayName: Required. The display name of the Evaluation Run.
+    error: Output only. Only populated when the evaluation run's state is
+      FAILED or CANCELLED.
+    evaluationConfig: Required. The configuration used for the evaluation.
+    evaluationResults: Output only. The results of the evaluation run. Only
+      populated when the evaluation run's state is SUCCEEDED.
+    evaluationSetSnapshot: Output only. The specific evaluation set of the
+      evaluation run. For runs with an evaluation set input, this will be that
+      same set. For runs with BigQuery input, it's the sampled BigQuery
+      dataset.
+    inferenceConfigs: Optional. The candidate to inference config map for the
+      evaluation run. The candidate can be up to 128 characters long and can
+      consist of any UTF-8 characters.
+    labels: Optional. Labels for the evaluation run.
+    metadata: Optional. Metadata about the evaluation run, can be used by the
+      caller to store additional tracking information about the evaluation
+      run.
+    name: Identifier. The resource name of the EvaluationRun. This is a unique
+      identifier. Format: `projects/{project}/locations/{location}/evaluationR
+      uns/{evaluation_run}`
+    state: Output only. The state of the evaluation run.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the evaluation run.
+
+    Values:
+      STATE_UNSPECIFIED: Unspecified state.
+      PENDING: The evaluation run is pending.
+      RUNNING: The evaluation run is running.
+      SUCCEEDED: The evaluation run has succeeded.
+      FAILED: The evaluation run has failed.
+      CANCELLED: The evaluation run has been cancelled.
+      INFERENCE: The evaluation run is performing inference.
+      GENERATING_RUBRICS: The evaluation run is performing rubric generation.
+    """
+    STATE_UNSPECIFIED = 0
+    PENDING = 1
+    RUNNING = 2
+    SUCCEEDED = 3
+    FAILED = 4
+    CANCELLED = 5
+    INFERENCE = 6
+    GENERATING_RUBRICS = 7
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InferenceConfigsValue(_messages.Message):
+    r"""Optional. The candidate to inference config map for the evaluation
+    run. The candidate can be up to 128 characters long and can consist of any
+    UTF-8 characters.
+
+    Messages:
+      AdditionalProperty: An additional property for a InferenceConfigsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        InferenceConfigsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InferenceConfigsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1EvaluationRunInferenceConfig
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunInferenceConfig', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels for the evaluation run.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  completionTime = _messages.StringField(1)
+  createTime = _messages.StringField(2)
+  dataSource = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunDataSource', 3)
+  displayName = _messages.StringField(4)
+  error = _messages.MessageField('GoogleRpcStatus', 5)
+  evaluationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfig', 6)
+  evaluationResults = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationResults', 7)
+  evaluationSetSnapshot = _messages.StringField(8)
+  inferenceConfigs = _messages.MessageField('InferenceConfigsValue', 9)
+  labels = _messages.MessageField('LabelsValue', 10)
+  metadata = _messages.MessageField('extra_types.JsonValue', 11)
+  name = _messages.StringField(12)
+  state = _messages.EnumField('StateValueValuesEnum', 13)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunDataSource(_messages.Message):
+  r"""The data source for the evaluation run.
+
+  Fields:
+    bigqueryRequestSet: Evaluation data in bigquery.
+    evaluationSet: The EvaluationSet resource name. Format:
+      `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}
+      `
+  """
+
+  bigqueryRequestSet = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryRequestSet', 1)
+  evaluationSet = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfig(_messages.Message):
+  r"""The Evalution configuration used for the evaluation run.
+
+  Fields:
+    autoraterConfig: Optional. The autorater config for the evaluation run.
+    metrics: Required. The metrics to be calculated in the evaluation run.
+    outputConfig: Optional. The output config for the evaluation run.
+    promptTemplate: The prompt template used for inference. The values for
+      variables in the prompt template are defined in
+      EvaluationItem.EvaluationPrompt.PromptTemplateData.values.
+    rubricConfigs: Optional. The rubric configs for the evaluation run. They
+      are used to generate rubrics which can be used by rubric-based metrics.
+      Multiple rubric configs can be specified for rubric generation but only
+      one rubric config can be used for a rubric-based metric. If more than
+      one rubric config is provided, the evaluation metric must specify a
+      rubric group key. Note that if a generation spec is specified on both a
+      rubric config and an evaluation metric, the rubrics generated for the
+      metric will be used for evaluation.
+  """
+
+  autoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigAutoraterConfig', 1)
+  metrics = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetric', 2, repeated=True)
+  outputConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigOutputConfig', 3)
+  promptTemplate = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigPromptTemplate', 4)
+  rubricConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRubricConfig', 5, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigAutoraterConfig(_messages.Message):
+  r"""The autorater config used for the evaluation run.
+
+  Fields:
+    autoraterModel: Optional. The fully qualified name of the publisher model
+      or tuned autorater endpoint to use. Publisher model format:
+      `projects/{project}/locations/{location}/publishers/*/models/*` Tuned
+      model endpoint format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    generationConfig: Optional. Configuration options for model generation and
+      outputs.
+    sampleCount: Optional. Number of samples for each instance in the dataset.
+      If not specified, the default is 4. Minimum value is 1, maximum value is
+      32.
+  """
+
+  autoraterModel = _messages.StringField(1)
+  generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfig', 2)
+  sampleCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigOutputConfig(_messages.Message):
+  r"""The output config for the evaluation run.
+
+  Fields:
+    bigqueryDestination: BigQuery destination for evaluation output.
+    gcsDestination: Cloud Storage destination for evaluation output.
+  """
+
+  bigqueryDestination = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryDestination', 1)
+  gcsDestination = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigPromptTemplate(_messages.Message):
+  r"""Prompt template used for inference.
+
+  Fields:
+    gcsUri: Prompt template stored in Cloud Storage. Format: "gs://my-
+      bucket/file-name.txt".
+    promptTemplate: Inline prompt template. Template variables should be in
+      the format "{var_name}". Example: "Translate the following from
+      {source_lang} to {target_lang}: {text}"
+  """
+
+  gcsUri = _messages.StringField(1)
+  promptTemplate = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunInferenceConfig(_messages.Message):
+  r"""An inference config used for model inference during the evaluation run.
+
+  Fields:
+    agentConfig: Optional. Agent config used to generate responses.
+    generationConfig: Optional. Generation config.
+    model: Optional. The fully qualified name of the publisher model or
+      endpoint to use. Publisher model format:
+      `projects/{project}/locations/{location}/publishers/*/models/*` Endpoint
+      format: `projects/{project}/locations/{location}/endpoints/{endpoint}`
+  """
+
+  agentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunInferenceConfigAgentConfig', 1)
+  generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfig', 2)
+  model = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunInferenceConfigAgentConfig(_messages.Message):
+  r"""Configuration that describes an agent.
+
+  Fields:
+    developerInstruction: Optional. The developer instruction for the agent.
+    tools: Optional. The tools available to the agent.
+  """
+
+  developerInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetric(_messages.Message):
+  r"""The metric used for evaluation runs.
+
+  Fields:
+    llmBasedMetricSpec: Spec for an LLM based metric.
+    metric: Required. The name of the metric.
+    metricConfig: The metric config.
+    predefinedMetricSpec: Spec for a pre-defined metric.
+    rubricBasedMetricSpec: Spec for rubric based metric.
+  """
+
+  llmBasedMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricLLMBasedMetricSpec', 1)
+  metric = _messages.StringField(2)
+  metricConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1Metric', 3)
+  predefinedMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricPredefinedMetricSpec', 4)
+  rubricBasedMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricBasedMetricSpec', 5)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetricLLMBasedMetricSpec(_messages.Message):
+  r"""Specification for an LLM based metric.
+
+  Messages:
+    AdditionalConfigValue: Optional. Optional additional configuration for the
+      metric.
+
+  Fields:
+    additionalConfig: Optional. Optional additional configuration for the
+      metric.
+    judgeAutoraterConfig: Optional. Optional configuration for the judge LLM
+      (Autorater).
+    metricPromptTemplate: Required. Template for the prompt sent to the judge
+      model.
+    predefinedRubricGenerationSpec: Dynamically generate rubrics using a
+      predefined spec.
+    rubricGenerationSpec: Dynamically generate rubrics using this
+      specification.
+    rubricGroupKey: Use a pre-defined group of rubrics associated with the
+      input. Refers to a key in the rubric_groups map of EvaluationInstance.
+    systemInstruction: Optional. System instructions for the judge model.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AdditionalConfigValue(_messages.Message):
+    r"""Optional. Optional additional configuration for the metric.
+
+    Messages:
+      AdditionalProperty: An additional property for a AdditionalConfigValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AdditionalConfigValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  additionalConfig = _messages.MessageField('AdditionalConfigValue', 1)
+  judgeAutoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigAutoraterConfig', 2)
+  metricPromptTemplate = _messages.StringField(3)
+  predefinedRubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricPredefinedMetricSpec', 4)
+  rubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricGenerationSpec', 5)
+  rubricGroupKey = _messages.StringField(6)
+  systemInstruction = _messages.StringField(7)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetricPredefinedMetricSpec(_messages.Message):
+  r"""Specification for a pre-defined metric.
+
+  Messages:
+    ParametersValue: Optional. The parameters needed to run the pre-defined
+      metric.
+
+  Fields:
+    metricSpecName: Required. The name of a pre-defined metric, such as
+      "instruction_following_v1" or "text_quality_v1".
+    parameters: Optional. The parameters needed to run the pre-defined metric.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ParametersValue(_messages.Message):
+    r"""Optional. The parameters needed to run the pre-defined metric.
+
+    Messages:
+      AdditionalProperty: An additional property for a ParametersValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  metricSpecName = _messages.StringField(1)
+  parameters = _messages.MessageField('ParametersValue', 2)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricBasedMetricSpec(_messages.Message):
+  r"""Specification for a metric that is based on rubrics.
+
+  Fields:
+    inlineRubrics: Use rubrics provided directly in the spec.
+    judgeAutoraterConfig: Optional. Optional configuration for the judge LLM
+      (Autorater). The definition of AutoraterConfig needs to be provided.
+    metricPromptTemplate: Optional. Template for the prompt used by the judge
+      model to evaluate against rubrics.
+    rubricGenerationSpec: Dynamically generate rubrics for evaluation using
+      this specification.
+    rubricGroupKey: Use a pre-defined group of rubrics associated with the
+      input content. This refers to a key in the `rubric_groups` map of
+      `RubricEnhancedContents`.
+  """
+
+  inlineRubrics = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricBasedMetricSpecRepeatedRubrics', 1)
+  judgeAutoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigAutoraterConfig', 2)
+  metricPromptTemplate = _messages.StringField(3)
+  rubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricGenerationSpec', 4)
+  rubricGroupKey = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricBasedMetricSpecRepeatedRubrics(_messages.Message):
+  r"""Defines a list of rubrics, used when providing rubrics inline.
+
+  Fields:
+    rubrics: The list of rubrics.
+  """
+
+  rubrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Rubric', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationRunMetricRubricGenerationSpec(_messages.Message):
+  r"""Specification for how rubrics should be generated.
+
+  Enums:
+    RubricContentTypeValueValuesEnum: Optional. The type of rubric content to
+      be generated.
+
+  Fields:
+    modelConfig: Optional. Configuration for the model used in rubric
+      generation. Configs including sampling count and base model can be
+      specified here. Flipping is not supported for rubric generation.
+    promptTemplate: Optional. Template for the prompt used to generate
+      rubrics. The details should be updated based on the most-recent recipe
+      requirements.
+    rubricContentType: Optional. The type of rubric content to be generated.
+    rubricTypeOntology: Optional. An optional, pre-defined list of allowed
+      types for generated rubrics. If this field is provided, it implies
+      `include_rubric_type` should be true, and the generated rubric types
+      should be chosen from this ontology.
+  """
+
+  class RubricContentTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The type of rubric content to be generated.
+
+    Values:
+      RUBRIC_CONTENT_TYPE_UNSPECIFIED: The content type to generate is not
+        specified.
+      PROPERTY: Generate rubrics based on properties.
+      NL_QUESTION_ANSWER: Generate rubrics in an NL question answer format.
+      PYTHON_CODE_ASSERTION: Generate rubrics in a unit test format.
+    """
+    RUBRIC_CONTENT_TYPE_UNSPECIFIED = 0
+    PROPERTY = 1
+    NL_QUESTION_ANSWER = 2
+    PYTHON_CODE_ASSERTION = 3
+
+  modelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRunEvaluationConfigAutoraterConfig', 1)
+  promptTemplate = _messages.StringField(2)
+  rubricContentType = _messages.EnumField('RubricContentTypeValueValuesEnum', 3)
+  rubricTypeOntology = _messages.StringField(4, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1EvaluationSet(_messages.Message):
+  r"""EvaluationSet is a collection of related EvaluationItems that are
+  evaluated together.
+
+  Fields:
+    createTime: Output only. Timestamp when this item was created.
+    displayName: Required. The display name of the EvaluationSet.
+    evaluationItems: Required. The EvaluationItems that are part of this
+      dataset.
+    metadata: Optional. Metadata for the EvaluationSet.
+    name: Identifier. The resource name of the EvaluationSet. Format:
+      `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}
+      `
+    updateTime: Output only. Timestamp when this item was last updated.
+  """
+
+  createTime = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  evaluationItems = _messages.StringField(3, repeated=True)
+  metadata = _messages.MessageField('extra_types.JsonValue', 4)
+  name = _messages.StringField(5)
+  updateTime = _messages.StringField(6)
 
 
 class GoogleCloudAiplatformV1beta1Event(_messages.Message):
@@ -16656,6 +26035,185 @@ class GoogleCloudAiplatformV1beta1Event(_messages.Message):
   type = _messages.EnumField('TypeValueValuesEnum', 5)
 
 
+class GoogleCloudAiplatformV1beta1EventActions(_messages.Message):
+  r"""Actions are parts of events that are executed by the agent.
+
+  Messages:
+    ArtifactDeltaValue: Optional. Indicates that the event is updating an
+      artifact. key is the filename, value is the version.
+    RequestedAuthConfigsValue: Optional. Will only be set by a tool response
+      indicating tool request euc. Struct key is the function call id since
+      one function call response (from model) could correspond to multiple
+      function calls. Struct value is the required auth config, which can be
+      another struct.
+    StateDeltaValue: Optional. Indicates that the event is updating the state
+      with the given delta.
+
+  Fields:
+    artifactDelta: Optional. Indicates that the event is updating an artifact.
+      key is the filename, value is the version.
+    escalate: Optional. The agent is escalating to a higher level agent.
+    requestedAuthConfigs: Optional. Will only be set by a tool response
+      indicating tool request euc. Struct key is the function call id since
+      one function call response (from model) could correspond to multiple
+      function calls. Struct value is the required auth config, which can be
+      another struct.
+    skipSummarization: Optional. If true, it won't call model to summarize
+      function response. Only used for function_response event.
+    stateDelta: Optional. Indicates that the event is updating the state with
+      the given delta.
+    transferAgent: Optional. If set, the event transfers to the specified
+      agent.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ArtifactDeltaValue(_messages.Message):
+    r"""Optional. Indicates that the event is updating an artifact. key is the
+    filename, value is the version.
+
+    Messages:
+      AdditionalProperty: An additional property for a ArtifactDeltaValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type ArtifactDeltaValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ArtifactDeltaValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A integer attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RequestedAuthConfigsValue(_messages.Message):
+    r"""Optional. Will only be set by a tool response indicating tool request
+    euc. Struct key is the function call id since one function call response
+    (from model) could correspond to multiple function calls. Struct value is
+    the required auth config, which can be another struct.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        RequestedAuthConfigsValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RequestedAuthConfigsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class StateDeltaValue(_messages.Message):
+    r"""Optional. Indicates that the event is updating the state with the
+    given delta.
+
+    Messages:
+      AdditionalProperty: An additional property for a StateDeltaValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a StateDeltaValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  artifactDelta = _messages.MessageField('ArtifactDeltaValue', 1)
+  escalate = _messages.BooleanField(2)
+  requestedAuthConfigs = _messages.MessageField('RequestedAuthConfigsValue', 3)
+  skipSummarization = _messages.BooleanField(4)
+  stateDelta = _messages.MessageField('StateDeltaValue', 5)
+  transferAgent = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1EventMetadata(_messages.Message):
+  r"""Metadata relating to a LLM response event.
+
+  Messages:
+    CustomMetadataValue: The custom metadata of the LlmResponse.
+
+  Fields:
+    branch: Optional. The branch of the event. The format is like
+      agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and
+      agent_2 is the parent of agent_3. Branch is used when multiple child
+      agents shouldn't see their siblings' conversation history.
+    customMetadata: The custom metadata of the LlmResponse.
+    groundingMetadata: Optional. Metadata returned to client when grounding is
+      enabled.
+    interrupted: Optional. Flag indicating that LLM was interrupted when
+      generating the content. Usually it's due to user interruption during a
+      bidi streaming.
+    longRunningToolIds: Optional. Set of ids of the long running function
+      calls. Agent client will know from this field about which function call
+      is long running. Only valid for function call event.
+    partial: Optional. Indicates whether the text content is part of a
+      unfinished text stream. Only used for streaming mode and when the
+      content is plain text.
+    turnComplete: Optional. Indicates whether the response from the model is
+      complete. Only used for streaming mode.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class CustomMetadataValue(_messages.Message):
+    r"""The custom metadata of the LlmResponse.
+
+    Messages:
+      AdditionalProperty: An additional property for a CustomMetadataValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a CustomMetadataValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  branch = _messages.StringField(1)
+  customMetadata = _messages.MessageField('CustomMetadataValue', 2)
+  groundingMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingMetadata', 3)
+  interrupted = _messages.BooleanField(4)
+  longRunningToolIds = _messages.StringField(5, repeated=True)
+  partial = _messages.BooleanField(6)
+  turnComplete = _messages.BooleanField(7)
+
+
 class GoogleCloudAiplatformV1beta1ExactMatchInput(_messages.Message):
   r"""Input for exact match metric.
 
@@ -16707,6 +26265,59 @@ class GoogleCloudAiplatformV1beta1ExactMatchSpec(_messages.Message):
 
 
 
+class GoogleCloudAiplatformV1beta1Example(_messages.Message):
+  r"""A GoogleCloudAiplatformV1beta1Example object.
+
+  Fields:
+    createTime: Output only. Timestamp when this Example was created.
+    displayName: Optional. The display name for Example.
+    exampleId: Optional. Immutable. Unique identifier of an example. If not
+      specified when upserting new examples, the example_id will be generated.
+    storedContentsExample: An example of chat history and its expected outcome
+      to be used with GenerateContent.
+  """
+
+  createTime = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  exampleId = _messages.StringField(3)
+  storedContentsExample = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExample', 4)
+
+
+class GoogleCloudAiplatformV1beta1ExampleStore(_messages.Message):
+  r"""Represents an executable service to manage and retrieve examples.
+
+  Fields:
+    createTime: Output only. Timestamp when this ExampleStore was created.
+    description: Optional. Description of the ExampleStore.
+    displayName: Required. Display name of the ExampleStore.
+    exampleStoreConfig: Required. Example Store config.
+    name: Identifier. The resource name of the ExampleStore. This is a unique
+      identifier. Format:
+      projects/{project}/locations/{location}/exampleStores/{example_store}
+    updateTime: Output only. Timestamp when this ExampleStore was most
+      recently updated.
+  """
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  displayName = _messages.StringField(3)
+  exampleStoreConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ExampleStoreConfig', 4)
+  name = _messages.StringField(5)
+  updateTime = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1ExampleStoreConfig(_messages.Message):
+  r"""Configuration for the Example Store.
+
+  Fields:
+    vertexEmbeddingModel: Required. The embedding model to be used for vector
+      embedding. Immutable. Supported models: * "text-embedding-005" * "text-
+      multilingual-embedding-002"
+  """
+
+  vertexEmbeddingModel = _messages.StringField(1)
+
+
 class GoogleCloudAiplatformV1beta1Examples(_messages.Message):
   r"""Example-based explainability that returns the nearest neighbors from the
   provided dataset.
@@ -16732,6 +26343,38 @@ class GoogleCloudAiplatformV1beta1Examples(_messages.Message):
   nearestNeighborSearchConfig = _messages.MessageField('extra_types.JsonValue', 3)
   neighborCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
   presets = _messages.MessageField('GoogleCloudAiplatformV1beta1Presets', 5)
+
+
+class GoogleCloudAiplatformV1beta1ExamplesArrayFilter(_messages.Message):
+  r"""Filters for examples' array metadata fields. An array field is example
+  metadata where multiple values are attributed to a single example.
+
+  Enums:
+    ArrayOperatorValueValuesEnum: Required. The operator logic to use for
+      filtering.
+
+  Fields:
+    arrayOperator: Required. The operator logic to use for filtering.
+    values: Required. The values by which to filter examples.
+  """
+
+  class ArrayOperatorValueValuesEnum(_messages.Enum):
+    r"""Required. The operator logic to use for filtering.
+
+    Values:
+      ARRAY_OPERATOR_UNSPECIFIED: Not specified. This value should not be
+        used.
+      CONTAINS_ANY: The metadata array field in the example must contain at
+        least one of the values.
+      CONTAINS_ALL: The metadata array field in the example must contain all
+        of the values.
+    """
+    ARRAY_OPERATOR_UNSPECIFIED = 0
+    CONTAINS_ANY = 1
+    CONTAINS_ALL = 2
+
+  arrayOperator = _messages.EnumField('ArrayOperatorValueValuesEnum', 1)
+  values = _messages.StringField(2, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1ExamplesExampleGcsSource(_messages.Message):
@@ -16815,8 +26458,9 @@ class GoogleCloudAiplatformV1beta1ExamplesRestrictionsNamespace(_messages.Messag
 
 class GoogleCloudAiplatformV1beta1ExecutableCode(_messages.Message):
   r"""Code generated by the model that is meant to be executed, and the result
-  returned to the model. Generated when using the [FunctionDeclaration] tool
-  and [FunctionCallingConfig] mode is set to [Mode.CODE].
+  returned to the model. Generated when using the [CodeExecution] tool, in
+  which the code will be automatically executed, and a corresponding
+  [CodeExecutionResult] will also be generated.
 
   Enums:
     LanguageValueValuesEnum: Required. Programming language of the `code`.
@@ -16909,6 +26553,26 @@ class GoogleCloudAiplatformV1beta1ExecuteExtensionResponse(_messages.Message):
   """
 
   content = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1ExecuteSandboxEnvironmentRequest(_messages.Message):
+  r"""Request message for SandboxEnvironmentExecutionService.Execute.
+
+  Fields:
+    inputs: Required. The inputs to the sandbox environment.
+  """
+
+  inputs = _messages.MessageField('GoogleCloudAiplatformV1beta1Chunk', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ExecuteSandboxEnvironmentResponse(_messages.Message):
+  r"""Response message for SandboxEnvironmentExecutionService.Execute.
+
+  Fields:
+    outputs: The outputs from the sandbox environment.
+  """
+
+  outputs = _messages.MessageField('GoogleCloudAiplatformV1beta1Chunk', 1, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1Execution(_messages.Message):
@@ -17999,6 +27663,41 @@ class GoogleCloudAiplatformV1beta1ExportModelResponse(_messages.Message):
   r"""Response message of ModelService.ExportModel operation."""
 
 
+class GoogleCloudAiplatformV1beta1ExportPublisherModelOperationMetadata(_messages.Message):
+  r"""Runtime operation information for
+  ModelGardenService.ExportPublisherModel.
+
+  Fields:
+    genericMetadata: The operation generic information.
+  """
+
+  genericMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenericOperationMetadata', 1)
+
+
+class GoogleCloudAiplatformV1beta1ExportPublisherModelRequest(_messages.Message):
+  r"""Request message for ModelGardenService.ExportPublisherModel.
+
+  Fields:
+    destination: Required. The target where we are exporting the model weights
+      to
+  """
+
+  destination = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 1)
+
+
+class GoogleCloudAiplatformV1beta1ExportPublisherModelResponse(_messages.Message):
+  r"""Response message for ModelGardenService.ExportPublisherModel.
+
+  Fields:
+    destinationUri: The destination uri of the model weights.
+    publisherModel: The name of the PublisherModel resource. Format:
+      `publishers/{publisher}/models/{publisher_model}@{version_id}`
+  """
+
+  destinationUri = _messages.StringField(1)
+  publisherModel = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1ExportTensorboardTimeSeriesDataRequest(_messages.Message):
   r"""Request message for TensorboardService.ExportTensorboardTimeSeriesData.
 
@@ -18147,10 +27846,71 @@ class GoogleCloudAiplatformV1beta1ExtensionPrivateServiceConnectConfig(_messages
   serviceDirectory = _messages.StringField(1)
 
 
+class GoogleCloudAiplatformV1beta1ExternalApi(_messages.Message):
+  r"""Retrieve from data source powered by external API for grounding. The
+  external API is not owned by Google, but need to follow the pre-defined API
+  spec.
+
+  Enums:
+    ApiSpecValueValuesEnum: The API spec that the external API implements.
+
+  Fields:
+    apiAuth: The authentication config to access the API. Deprecated. Please
+      use auth_config instead.
+    apiSpec: The API spec that the external API implements.
+    authConfig: The authentication config to access the API.
+    elasticSearchParams: Parameters for the elastic search API.
+    endpoint: The endpoint of the external API. The system will call the API
+      at this endpoint to retrieve the data for grounding. Example:
+      https://acme.com:443/search
+    simpleSearchParams: Parameters for the simple search API.
+  """
+
+  class ApiSpecValueValuesEnum(_messages.Enum):
+    r"""The API spec that the external API implements.
+
+    Values:
+      API_SPEC_UNSPECIFIED: Unspecified API spec. This value should not be
+        used.
+      SIMPLE_SEARCH: Simple search API spec.
+      ELASTIC_SEARCH: Elastic search API spec.
+    """
+    API_SPEC_UNSPECIFIED = 0
+    SIMPLE_SEARCH = 1
+    ELASTIC_SEARCH = 2
+
+  apiAuth = _messages.MessageField('GoogleCloudAiplatformV1beta1ApiAuth', 1)
+  apiSpec = _messages.EnumField('ApiSpecValueValuesEnum', 2)
+  authConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AuthConfig', 3)
+  elasticSearchParams = _messages.MessageField('GoogleCloudAiplatformV1beta1ExternalApiElasticSearchParams', 4)
+  endpoint = _messages.StringField(5)
+  simpleSearchParams = _messages.MessageField('GoogleCloudAiplatformV1beta1ExternalApiSimpleSearchParams', 6)
+
+
+class GoogleCloudAiplatformV1beta1ExternalApiElasticSearchParams(_messages.Message):
+  r"""The search parameters to use for the ELASTIC_SEARCH spec.
+
+  Fields:
+    index: The ElasticSearch index to use.
+    numHits: Optional. Number of hits (chunks) to request. When specified, it
+      is passed to Elasticsearch as the `num_hits` param.
+    searchTemplate: The ElasticSearch search template to use.
+  """
+
+  index = _messages.StringField(1)
+  numHits = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  searchTemplate = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1ExternalApiSimpleSearchParams(_messages.Message):
+  r"""The search parameters to use for SIMPLE_SEARCH spec."""
+
+
 class GoogleCloudAiplatformV1beta1Fact(_messages.Message):
   r"""The fact used in grounding.
 
   Fields:
+    chunk: If present, chunk properties.
     query: Query that is used to retrieve this fact.
     score: If present, according to the underlying Vector DB and the selected
       metric type, the score can be either the distance or the similarity
@@ -18166,12 +27926,13 @@ class GoogleCloudAiplatformV1beta1Fact(_messages.Message):
       fact vector.
   """
 
-  query = _messages.StringField(1)
-  score = _messages.FloatField(2)
-  summary = _messages.StringField(3)
-  title = _messages.StringField(4)
-  uri = _messages.StringField(5)
-  vectorDistance = _messages.FloatField(6)
+  chunk = _messages.MessageField('GoogleCloudAiplatformV1beta1RagChunk', 1)
+  query = _messages.StringField(2)
+  score = _messages.FloatField(3)
+  summary = _messages.StringField(4)
+  title = _messages.StringField(5)
+  uri = _messages.StringField(6)
+  vectorDistance = _messages.FloatField(7)
 
 
 class GoogleCloudAiplatformV1beta1FasterDeploymentConfig(_messages.Message):
@@ -18874,9 +28635,15 @@ class GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtable(_messages.Message):
 
   Fields:
     autoScaling: Required. Autoscaling config applied to Bigtable Instance.
+    bigtableMetadata: Output only. Metadata of the Bigtable instance. Output
+      only.
+    enableDirectBigtableAccess: Optional. It true, enable direct access to the
+      Bigtable instance.
   """
 
   autoScaling = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtableAutoScaling', 1)
+  bigtableMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtableBigtableMetadata', 2)
+  enableDirectBigtableAccess = _messages.BooleanField(3)
 
 
 class GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtableAutoScaling(_messages.Message):
@@ -18899,6 +28666,21 @@ class GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtableAutoScaling(_message
   cpuUtilizationTarget = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   maxNodeCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   minNodeCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1FeatureOnlineStoreBigtableBigtableMetadata(_messages.Message):
+  r"""Metadata of the Bigtable instance. This is used by direct read access to
+  the Bigtable in tenant project.
+
+  Fields:
+    instanceId: The Cloud Bigtable instance id.
+    tableId: The Cloud Bigtable table id.
+    tenantProjectId: Tenant project ID.
+  """
+
+  instanceId = _messages.StringField(1)
+  tableId = _messages.StringField(2)
+  tenantProjectId = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1FeatureOnlineStoreDedicatedServingEndpoint(_messages.Message):
@@ -18961,6 +28743,7 @@ class GoogleCloudAiplatformV1beta1FeatureSelectionConfigFeatureConfig(_messages.
     driftThreshold: Optional. Drift threshold. If calculated difference with
       baseline data larger than threshold, it will be considered as the
       feature has drift. If not present, the threshold will be default to 0.3.
+      Must be in range [0, 1).
     featureId: Required. The ID of the feature resource. Final component of
       the Feature's resource name.
   """
@@ -19139,10 +28922,10 @@ class GoogleCloudAiplatformV1beta1FeatureValueMetadata(_messages.Message):
   Fields:
     generateTime: Feature generation timestamp. Typically, it is provided by
       user at feature ingestion time. If not, feature store will use the
-      system timestamp when the data is ingested into feature store. For
-      streaming ingestion, the time, aligned by days, must be no older than
-      five years (1825 days) and no later than one year (366 days) in the
-      future.
+      system timestamp when the data is ingested into feature store. Legacy
+      Feature Store: For streaming ingestion, the time, aligned by days, must
+      be no older than five years (1825 days) and no later than one year (366
+      days) in the future.
   """
 
   generateTime = _messages.StringField(1)
@@ -19173,6 +28956,8 @@ class GoogleCloudAiplatformV1beta1FeatureView(_messages.Message):
   Fields:
     bigQuerySource: Optional. Configures how data is supposed to be extracted
       from a BigQuery source to be loaded onto the FeatureOnlineStore.
+    bigtableMetadata: Output only. Metadata containing information about the
+      Cloud Bigtable.
     createTime: Output only. Timestamp when this FeatureView was created.
     etag: Optional. Used to perform consistent read-modify-write updates. If
       not set, a blind "overwrite" update happens.
@@ -19272,21 +29057,22 @@ class GoogleCloudAiplatformV1beta1FeatureView(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   bigQuerySource = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewBigQuerySource', 1)
-  createTime = _messages.StringField(2)
-  etag = _messages.StringField(3)
-  featureRegistrySource = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewFeatureRegistrySource', 4)
-  indexConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewIndexConfig', 5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  name = _messages.StringField(7)
-  optimizedConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewOptimizedConfig', 8)
-  satisfiesPzi = _messages.BooleanField(9)
-  satisfiesPzs = _messages.BooleanField(10)
-  serviceAccountEmail = _messages.StringField(11)
-  serviceAgentType = _messages.EnumField('ServiceAgentTypeValueValuesEnum', 12)
-  syncConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewSyncConfig', 13)
-  updateTime = _messages.StringField(14)
-  vectorSearchConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewVectorSearchConfig', 15)
-  vertexRagSource = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewVertexRagSource', 16)
+  bigtableMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewBigtableMetadata', 2)
+  createTime = _messages.StringField(3)
+  etag = _messages.StringField(4)
+  featureRegistrySource = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewFeatureRegistrySource', 5)
+  indexConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewIndexConfig', 6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  optimizedConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewOptimizedConfig', 9)
+  satisfiesPzi = _messages.BooleanField(10)
+  satisfiesPzs = _messages.BooleanField(11)
+  serviceAccountEmail = _messages.StringField(12)
+  serviceAgentType = _messages.EnumField('ServiceAgentTypeValueValuesEnum', 13)
+  syncConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewSyncConfig', 14)
+  updateTime = _messages.StringField(15)
+  vectorSearchConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewVectorSearchConfig', 16)
+  vertexRagSource = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewVertexRagSource', 17)
 
 
 class GoogleCloudAiplatformV1beta1FeatureViewBigQuerySource(_messages.Message):
@@ -19300,6 +29086,18 @@ class GoogleCloudAiplatformV1beta1FeatureViewBigQuerySource(_messages.Message):
 
   entityIdColumns = _messages.StringField(1, repeated=True)
   uri = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewBigtableMetadata(_messages.Message):
+  r"""Metadata for the Cloud Bigtable that supports directly interacting
+  Bigtable instances.
+
+  Fields:
+    readAppProfile: Output only. The Bigtable App Profile to use for reading
+      from Bigtable.
+  """
+
+  readAppProfile = _messages.StringField(1)
 
 
 class GoogleCloudAiplatformV1beta1FeatureViewDataKey(_messages.Message):
@@ -19324,6 +29122,93 @@ class GoogleCloudAiplatformV1beta1FeatureViewDataKeyCompositeKey(_messages.Messa
   """
 
   parts = _messages.StringField(1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequest(_messages.Message):
+  r"""Request message for FeatureOnlineStoreService.FeatureViewDirectWrite.
+
+  Fields:
+    dataKeyAndFeatureValues: Required. The data keys and associated feature
+      values.
+  """
+
+  dataKeyAndFeatureValues = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValues', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValues(_messages.Message):
+  r"""A data key and associated feature values to write to the feature view.
+
+  Fields:
+    dataKey: The data key.
+    features: List of features to write.
+  """
+
+  dataKey = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDataKey', 1)
+  features = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValuesFeature', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValuesFeature(_messages.Message):
+  r"""Feature name & value pair.
+
+  Fields:
+    name: Feature short name.
+    value: Feature value. A user provided timestamp may be set in the
+      `FeatureValue.metadata.generate_time` field.
+    valueAndTimestamp: Feature value and timestamp.
+  """
+
+  name = _messages.StringField(1)
+  value = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureValue', 2)
+  valueAndTimestamp = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValuesFeatureFeatureValueAndTimestamp', 3)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteRequestDataKeyAndFeatureValuesFeatureFeatureValueAndTimestamp(_messages.Message):
+  r"""Feature value and timestamp.
+
+  Fields:
+    timestamp: The feature timestamp to store with this value. If not set,
+      then the Feature Store server will generate a timestamp when it receives
+      the write request.
+    value: The feature value.
+  """
+
+  timestamp = _messages.StringField(1)
+  value = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureValue', 2)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteResponse(_messages.Message):
+  r"""Response message for FeatureOnlineStoreService.FeatureViewDirectWrite.
+
+  Fields:
+    status: Response status for the keys listed in
+      FeatureViewDirectWriteResponse.write_responses. The error only applies
+      to the listed data keys - the stream will remain open for further
+      FeatureOnlineStoreService.FeatureViewDirectWriteRequest requests.
+      Partial failures (e.g. if the first 10 keys of a request fail, but the
+      rest succeed) from a single request may result in multiple responses -
+      there will be one response for the successful request keys and one
+      response for the failing request keys.
+    writeResponses: Details about write for each key. If status is not OK,
+      WriteResponse.data_key will have the key with error, but
+      WriteResponse.online_store_write_time will not be present.
+  """
+
+  status = _messages.MessageField('GoogleRpcStatus', 1)
+  writeResponses = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDirectWriteResponseWriteResponse', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1FeatureViewDirectWriteResponseWriteResponse(_messages.Message):
+  r"""Details about the write for each key.
+
+  Fields:
+    dataKey: What key is this write response associated with.
+    onlineStoreWriteTime: When the feature values were written to the online
+      store. If FeatureViewDirectWriteResponse.status is not OK, this field is
+      not populated.
+  """
+
+  dataKey = _messages.MessageField('GoogleCloudAiplatformV1beta1FeatureViewDataKey', 1)
+  onlineStoreWriteTime = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1FeatureViewFeatureRegistrySource(_messages.Message):
@@ -19913,6 +29798,43 @@ class GoogleCloudAiplatformV1beta1FeaturestoreOnlineServingConfigScaling(_messag
   minNodeCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1FetchExamplesRequest(_messages.Message):
+  r"""Request message for ExampleStoreService.FetchExamples.
+
+  Fields:
+    exampleIds: Optional. Example IDs to fetch. If both metadata filters and
+      Example IDs are specified, then both ID and metadata filtering will be
+      applied.
+    pageSize: Optional. The maximum number of examples to return. The service
+      may return fewer than this value. If unspecified, at most 100 examples
+      will be returned.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list ExampleStoreService.FetchExamplesResponse call.
+    storedContentsExampleFilter: The metadata filters for
+      StoredContentsExamples.
+  """
+
+  exampleIds = _messages.StringField(1, repeated=True)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  storedContentsExampleFilter = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleFilter', 4)
+
+
+class GoogleCloudAiplatformV1beta1FetchExamplesResponse(_messages.Message):
+  r"""Response message for ExampleStoreService.FetchExamples.
+
+  Fields:
+    examples: The examples in the Example Store that satisfy the metadata
+      filters.
+    nextPageToken: A token, which can be sent as
+      FetchExamplesRequest.page_token to retrieve the next page. Absence of
+      this field indicates there are no subsequent pages.
+  """
+
+  examples = _messages.MessageField('GoogleCloudAiplatformV1beta1Example', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1FetchFeatureValuesRequest(_messages.Message):
   r"""Request message for FeatureOnlineStoreService.FetchFeatureValues. All
   the features under the requested feature view will be returned.
@@ -20045,15 +29967,23 @@ class GoogleCloudAiplatformV1beta1FetchPredictOperationRequest(_messages.Message
 
 
 class GoogleCloudAiplatformV1beta1FileData(_messages.Message):
-  r"""URI based data.
+  r"""URI-based data. A FileData message contains a URI pointing to data of a
+  specific media type. It is used to represent images, audio, and video stored
+  in Google Cloud Storage.
 
   Fields:
-    fileUri: Required. URI.
+    displayName: Optional. The display name of the file. Used to provide a
+      label or filename to distinguish files. This field is only returned in
+      `PromptMessage` for prompt management. It is used in the Gemini calls
+      only when server side tools (`code_execution`, `google_search`, and
+      `url_context`) are enabled.
+    fileUri: Required. The URI of the file in Google Cloud Storage.
     mimeType: Required. The IANA standard MIME type of the source data.
   """
 
-  fileUri = _messages.StringField(1)
-  mimeType = _messages.StringField(2)
+  displayName = _messages.StringField(1)
+  fileUri = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1FileStatus(_messages.Message):
@@ -20227,6 +30157,19 @@ class GoogleCloudAiplatformV1beta1FindNeighborsResponseNeighbor(_messages.Messag
   sparseDistance = _messages.FloatField(3)
 
 
+class GoogleCloudAiplatformV1beta1FlexStart(_messages.Message):
+  r"""FlexStart is used to schedule the deployment workload on DWS resource.
+  It contains the max duration of the deployment.
+
+  Fields:
+    maxRuntimeDuration: The max duration of the deployment is
+      max_runtime_duration. The deployment will be terminated after the
+      duration. The max_runtime_duration can be set up to 7 days.
+  """
+
+  maxRuntimeDuration = _messages.StringField(1)
+
+
 class GoogleCloudAiplatformV1beta1FluencyInput(_messages.Message):
   r"""Input for fluency metric.
 
@@ -20344,28 +30287,47 @@ class GoogleCloudAiplatformV1beta1FulfillmentSpec(_messages.Message):
   version = _messages.IntegerField(1, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1FullFineTuningSpec(_messages.Message):
+  r"""Tuning Spec for Full Fine Tuning.
+
+  Fields:
+    hyperParameters: Optional. Hyperparameters for Full Fine Tuning.
+    trainingDatasetUri: Required. Training dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
+    validationDatasetUri: Optional. Validation dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
+  """
+
+  hyperParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedHyperParameters', 1)
+  trainingDatasetUri = _messages.StringField(2)
+  validationDatasetUri = _messages.StringField(3)
+
+
 class GoogleCloudAiplatformV1beta1FunctionCall(_messages.Message):
   r"""A predicted [FunctionCall] returned from the model that contains a
   string representing the [FunctionDeclaration.name] and a structured JSON
   object containing the parameters and their values.
 
   Messages:
-    ArgsValue: Optional. Required. The function parameters and values in JSON
-      object format. See [FunctionDeclaration.parameters] for parameter
-      details.
+    ArgsValue: Optional. The function parameters and values in JSON object
+      format. See [FunctionDeclaration.parameters] for parameter details.
 
   Fields:
-    args: Optional. Required. The function parameters and values in JSON
-      object format. See [FunctionDeclaration.parameters] for parameter
-      details.
-    name: Required. The name of the function to call. Matches
+    args: Optional. The function parameters and values in JSON object format.
+      See [FunctionDeclaration.parameters] for parameter details.
+    id: Optional. The unique id of the function call. If populated, the client
+      to execute the `function_call` and return the response with the matching
+      `id`.
+    name: Optional. The name of the function to call. Matches
       [FunctionDeclaration.name].
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ArgsValue(_messages.Message):
-    r"""Optional. Required. The function parameters and values in JSON object
-    format. See [FunctionDeclaration.parameters] for parameter details.
+    r"""Optional. The function parameters and values in JSON object format.
+    See [FunctionDeclaration.parameters] for parameter details.
 
     Messages:
       AdditionalProperty: An additional property for a ArgsValue object.
@@ -20388,7 +30350,8 @@ class GoogleCloudAiplatformV1beta1FunctionCall(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   args = _messages.MessageField('ArgsValue', 1)
-  name = _messages.StringField(2)
+  id = _messages.StringField(2)
+  name = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1FunctionCallingConfig(_messages.Message):
@@ -20420,11 +30383,17 @@ class GoogleCloudAiplatformV1beta1FunctionCallingConfig(_messages.Message):
         "function_declarations".
       NONE: Model will not predict any function calls. Model behavior is same
         as when not passing any function declarations.
+      VALIDATED: Model is constrained to predict either function calls or
+        natural language response. If "allowed_function_names" are set, the
+        predicted function calls will be limited to any one of
+        "allowed_function_names", else the predicted function calls will be
+        any one of the provided "function_declarations".
     """
     MODE_UNSPECIFIED = 0
     AUTO = 1
     ANY = 2
     NONE = 3
+    VALIDATED = 4
 
   allowedFunctionNames = _messages.StringField(1, repeated=True)
   mode = _messages.EnumField('ModeValueValuesEnum', 2)
@@ -20453,15 +30422,27 @@ class GoogleCloudAiplatformV1beta1FunctionDeclaration(_messages.Message):
       Example with 1 required and 1 optional parameter: type: OBJECT
       properties: param1: type: STRING param2: type: INTEGER required: -
       param1
+    parametersJsonSchema: Optional. Describes the parameters to the function
+      in JSON Schema format. The schema must describe an object where the
+      properties are the parameters to the function. For example: ``` {
+      "type": "object", "properties": { "name": { "type": "string" }, "age": {
+      "type": "integer" } }, "additionalProperties": false, "required":
+      ["name", "age"], "propertyOrdering": ["name", "age"] } ``` This field is
+      mutually exclusive with `parameters`.
     response: Optional. Describes the output from this function in JSON Schema
       format. Reflects the Open API 3.03 Response Object. The Schema defines
       the type used for the response value of the function.
+    responseJsonSchema: Optional. Describes the output from this function in
+      JSON Schema format. The value specified by the schema is the response
+      value of the function. This field is mutually exclusive with `response`.
   """
 
   description = _messages.StringField(1)
   name = _messages.StringField(2)
   parameters = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 3)
-  response = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 4)
+  parametersJsonSchema = _messages.MessageField('extra_types.JsonValue', 4)
+  response = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 5)
+  responseJsonSchema = _messages.MessageField('extra_types.JsonValue', 6)
 
 
 class GoogleCloudAiplatformV1beta1FunctionResponse(_messages.Message):
@@ -20478,8 +30459,12 @@ class GoogleCloudAiplatformV1beta1FunctionResponse(_messages.Message):
       whole "response" is treated as function output.
 
   Fields:
+    id: Optional. The id of the function call this response is for. Populated
+      by the client to match the corresponding function call `id`.
     name: Required. The name of the function to call. Matches
       [FunctionDeclaration.name] and [FunctionCall.name].
+    parts: Optional. Ordered `Parts` that constitute a function response.
+      Parts may have different IANA MIME types.
     response: Required. The function response in JSON object format. Use
       "output" key to specify function output and "error" key to specify error
       details (if any). If "output" and "error" keys are not specified, then
@@ -20513,8 +30498,64 @@ class GoogleCloudAiplatformV1beta1FunctionResponse(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  name = _messages.StringField(1)
-  response = _messages.MessageField('ResponseValue', 2)
+  id = _messages.StringField(1)
+  name = _messages.StringField(2)
+  parts = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionResponsePart', 3, repeated=True)
+  response = _messages.MessageField('ResponseValue', 4)
+
+
+class GoogleCloudAiplatformV1beta1FunctionResponseBlob(_messages.Message):
+  r"""Raw media bytes for function response. Text should not be sent as raw
+  bytes, use the 'text' field.
+
+  Fields:
+    data: Required. Raw bytes.
+    displayName: Optional. Display name of the blob. Used to provide a label
+      or filename to distinguish blobs. This field is only returned in
+      PromptMessage for prompt management. It is currently used in the Gemini
+      GenerateContent calls only when server side tools (code_execution,
+      google_search, and url_context) are enabled.
+    mimeType: Required. The IANA standard MIME type of the source data.
+  """
+
+  data = _messages.BytesField(1)
+  displayName = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1FunctionResponseFileData(_messages.Message):
+  r"""URI based data for function response.
+
+  Fields:
+    displayName: Optional. Display name of the file data. Used to provide a
+      label or filename to distinguish file datas. This field is only returned
+      in PromptMessage for prompt management. It is currently used in the
+      Gemini GenerateContent calls only when server side tools
+      (code_execution, google_search, and url_context) are enabled.
+    fileUri: Required. URI.
+    mimeType: Required. The IANA standard MIME type of the source data.
+  """
+
+  displayName = _messages.StringField(1)
+  fileUri = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1FunctionResponsePart(_messages.Message):
+  r"""A datatype containing media that is part of a `FunctionResponse`
+  message. A `FunctionResponsePart` consists of data which has an associated
+  datatype. A `FunctionResponsePart` can only contain one of the accepted
+  types in `FunctionResponsePart.data`. A `FunctionResponsePart` must have a
+  fixed IANA MIME type identifying the type and subtype of the media if the
+  `inline_data` field is filled with raw bytes.
+
+  Fields:
+    fileData: URI based data.
+    inlineData: Inline media bytes.
+  """
+
+  fileData = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionResponseFileData', 1)
+  inlineData = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionResponseBlob', 2)
 
 
 class GoogleCloudAiplatformV1beta1GcsDestination(_messages.Message):
@@ -20535,10 +30576,21 @@ class GoogleCloudAiplatformV1beta1GcsSource(_messages.Message):
   Fields:
     uris: Required. Google Cloud Storage URI(-s) to the input file(s). May
       contain wildcards. For more information on wildcards, see
-      https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+      https://cloud.google.com/storage/docs/wildcards.
   """
 
   uris = _messages.StringField(1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GdcConfig(_messages.Message):
+  r"""Google Distributed Cloud (GDC) config.
+
+  Fields:
+    zone: GDC zone. A cluster will be designated for the Vertex AI workload in
+      this zone.
+  """
+
+  zone = _messages.StringField(1)
 
 
 class GoogleCloudAiplatformV1beta1GdceConfig(_messages.Message):
@@ -20550,6 +30602,196 @@ class GoogleCloudAiplatformV1beta1GdceConfig(_messages.Message):
   """
 
   zone = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1GeminiExample(_messages.Message):
+  r"""Format for Gemini examples used for Vertex Multimodal datasets.
+
+  Messages:
+    LabelsValue: Optional. The labels with user-defined metadata for the
+      request. It is used for billing and reporting only. Label keys and
+      values can be no longer than 63 characters (Unicode codepoints) and can
+      only contain lowercase letters, numeric characters, underscores, and
+      dashes. International characters are allowed. Label values are optional.
+      Label keys must start with a letter.
+
+  Fields:
+    cachedContent: Optional. The name of the cached content used as context to
+      serve the prediction. Note: only used in explicit caching, where users
+      can have control over caching (e.g. what content to cache) and enjoy
+      guaranteed cost savings. Format:
+      `projects/{project}/locations/{location}/cachedContents/{cachedContent}`
+    contents: Required. The content of the current conversation with the
+      model. For single-turn queries, this is a single instance. For multi-
+      turn queries, this is a repeated field that contains conversation
+      history + latest request.
+    generationConfig: Optional. Generation config.
+    labels: Optional. The labels with user-defined metadata for the request.
+      It is used for billing and reporting only. Label keys and values can be
+      no longer than 63 characters (Unicode codepoints) and can only contain
+      lowercase letters, numeric characters, underscores, and dashes.
+      International characters are allowed. Label values are optional. Label
+      keys must start with a letter.
+    model: Optional. The fully qualified name of the publisher model or tuned
+      model endpoint to use. Publisher model format:
+      `projects/{project}/locations/{location}/publishers/*/models/*` Tuned
+      model endpoint format:
+      `projects/{project}/locations/{location}/endpoints/{endpoint}`
+    safetySettings: Optional. Per request settings for blocking unsafe
+      content. Enforced on GenerateContentResponse.candidates.
+    systemInstruction: Optional. The user provided system instructions for the
+      model. Note: only text should be used in parts and content in each part
+      will be in a separate paragraph.
+    toolConfig: Optional. Tool config. This config is shared for all tools
+      provided in the request.
+    tools: Optional. A list of `Tools` the model may use to generate the next
+      response. A `Tool` is a piece of code that enables the system to
+      interact with external systems to perform an action, or set of actions,
+      outside of knowledge and scope of the model.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. The labels with user-defined metadata for the request. It is
+    used for billing and reporting only. Label keys and values can be no
+    longer than 63 characters (Unicode codepoints) and can only contain
+    lowercase letters, numeric characters, underscores, and dashes.
+    International characters are allowed. Label values are optional. Label
+    keys must start with a letter.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  cachedContent = _messages.StringField(1)
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2, repeated=True)
+  generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfig', 3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  model = _messages.StringField(5)
+  safetySettings = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetySetting', 6, repeated=True)
+  systemInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 7)
+  toolConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolConfig', 8)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 9, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GeminiPreferenceExample(_messages.Message):
+  r"""Input example for preference optimization.
+
+  Fields:
+    completions: List of completions for a given prompt.
+    contents: Multi-turn contents that represents the Prompt.
+  """
+
+  completions = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiPreferenceExampleCompletion', 1, repeated=True)
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GeminiPreferenceExampleCompletion(_messages.Message):
+  r"""Completion and its preference score.
+
+  Fields:
+    completion: Single turn completion for the given prompt.
+    score: The score for the given completion.
+  """
+
+  completion = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+  score = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1GeminiRequestReadConfig(_messages.Message):
+  r"""Configuration for how to read Gemini requests from a multimodal dataset.
+
+  Fields:
+    assembledRequestColumnName: Optional. Column name in the dataset table
+      that contains already fully assembled Gemini requests.
+    templateConfig: Gemini request template with placeholders.
+  """
+
+  assembledRequestColumnName = _messages.StringField(1)
+  templateConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiTemplateConfig', 2)
+
+
+class GoogleCloudAiplatformV1beta1GeminiTemplateConfig(_messages.Message):
+  r"""Template configuration to create Gemini examples from a multimodal
+  dataset.
+
+  Messages:
+    FieldMappingValue: Required. Map of template parameters to the columns in
+      the dataset table.
+
+  Fields:
+    fieldMapping: Required. Map of template parameters to the columns in the
+      dataset table.
+    geminiExample: Required. The template that will be used for assembling the
+      request to use for downstream applications.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class FieldMappingValue(_messages.Message):
+    r"""Required. Map of template parameters to the columns in the dataset
+    table.
+
+    Messages:
+      AdditionalProperty: An additional property for a FieldMappingValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type FieldMappingValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a FieldMappingValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  fieldMapping = _messages.MessageField('FieldMappingValue', 1)
+  geminiExample = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiExample', 2)
+
+
+class GoogleCloudAiplatformV1beta1GenAiAdvancedFeaturesConfig(_messages.Message):
+  r"""Configuration for GenAiAdvancedFeatures.
+
+  Fields:
+    ragConfig: Configuration for Retrieval Augmented Generation feature.
+  """
+
+  ragConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenAiAdvancedFeaturesConfigRagConfig', 1)
+
+
+class GoogleCloudAiplatformV1beta1GenAiAdvancedFeaturesConfigRagConfig(_messages.Message):
+  r"""Configuration for Retrieval Augmented Generation feature.
+
+  Fields:
+    enableRag: If true, enable Retrieval Augmented Generation in
+      ChatCompletion request. Once enabled, the endpoint will be identified as
+      GenAI endpoint and Arthedain router will be used.
+  """
+
+  enableRag = _messages.BooleanField(1)
 
 
 class GoogleCloudAiplatformV1beta1GenerateAccessTokenRequest(_messages.Message):
@@ -20613,6 +30855,9 @@ class GoogleCloudAiplatformV1beta1GenerateContentRequest(_messages.Message):
       lowercase letters, numeric characters, underscores, and dashes.
       International characters are allowed. Label values are optional. Label
       keys must start with a letter.
+    modelArmorConfig: Optional. Settings for prompt and response sanitization
+      using the Model Armor service. If supplied, safety_settings must not be
+      supplied.
     safetySettings: Optional. Per request settings for blocking unsafe
       content. Enforced on GenerateContentResponse.candidates.
     systemInstruction: Optional. The user provided system instructions for the
@@ -20659,10 +30904,11 @@ class GoogleCloudAiplatformV1beta1GenerateContentRequest(_messages.Message):
   contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2, repeated=True)
   generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfig', 3)
   labels = _messages.MessageField('LabelsValue', 4)
-  safetySettings = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetySetting', 5, repeated=True)
-  systemInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 6)
-  toolConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolConfig', 7)
-  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 8, repeated=True)
+  modelArmorConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelArmorConfig', 5)
+  safetySettings = _messages.MessageField('GoogleCloudAiplatformV1beta1SafetySetting', 6, repeated=True)
+  systemInstruction = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 7)
+  toolConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolConfig', 8)
+  tools = _messages.MessageField('GoogleCloudAiplatformV1beta1Tool', 9, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1GenerateContentResponse(_messages.Message):
@@ -20670,48 +30916,68 @@ class GoogleCloudAiplatformV1beta1GenerateContentResponse(_messages.Message):
 
   Fields:
     candidates: Output only. Generated candidates.
+    createTime: Output only. Timestamp when the request is made to the server.
     modelVersion: Output only. The model version used to generate the
       response.
     promptFeedback: Output only. Content filter results for a prompt sent in
       the request. Note: Sent only in the first stream chunk. Only happens
       when no candidates were generated due to content violations.
+    responseId: Output only. response_id is used to identify each response. It
+      is the encoding of the event_id.
     usageMetadata: Usage metadata about the response(s).
   """
 
   candidates = _messages.MessageField('GoogleCloudAiplatformV1beta1Candidate', 1, repeated=True)
-  modelVersion = _messages.StringField(2)
-  promptFeedback = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateContentResponsePromptFeedback', 3)
-  usageMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateContentResponseUsageMetadata', 4)
+  createTime = _messages.StringField(2)
+  modelVersion = _messages.StringField(3)
+  promptFeedback = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateContentResponsePromptFeedback', 4)
+  responseId = _messages.StringField(5)
+  usageMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateContentResponseUsageMetadata', 6)
 
 
 class GoogleCloudAiplatformV1beta1GenerateContentResponsePromptFeedback(_messages.Message):
-  r"""Content filter results for a prompt sent in the request.
+  r"""Content filter results for a prompt sent in the request. Note: This is
+  sent only in the first stream chunk and only if no candidates were generated
+  due to content violations.
 
   Enums:
-    BlockReasonValueValuesEnum: Output only. Blocked reason.
+    BlockReasonValueValuesEnum: Output only. The reason why the prompt was
+      blocked.
 
   Fields:
-    blockReason: Output only. Blocked reason.
-    blockReasonMessage: Output only. A readable block reason message.
-    safetyRatings: Output only. Safety ratings.
+    blockReason: Output only. The reason why the prompt was blocked.
+    blockReasonMessage: Output only. A readable message that explains the
+      reason why the prompt was blocked.
+    safetyRatings: Output only. A list of safety ratings for the prompt. There
+      is one rating per category.
   """
 
   class BlockReasonValueValuesEnum(_messages.Enum):
-    r"""Output only. Blocked reason.
+    r"""Output only. The reason why the prompt was blocked.
 
     Values:
-      BLOCKED_REASON_UNSPECIFIED: Unspecified blocked reason.
-      SAFETY: Candidates blocked due to safety.
-      OTHER: Candidates blocked due to other reason.
-      BLOCKLIST: Candidates blocked due to the terms which are included from
-        the terminology blocklist.
-      PROHIBITED_CONTENT: Candidates blocked due to prohibited content.
+      BLOCKED_REASON_UNSPECIFIED: The blocked reason is unspecified.
+      SAFETY: The prompt was blocked for safety reasons.
+      OTHER: The prompt was blocked for other reasons. For example, it may be
+        due to the prompt's language, or because it contains other harmful
+        content.
+      BLOCKLIST: The prompt was blocked because it contains a term from the
+        terminology blocklist.
+      PROHIBITED_CONTENT: The prompt was blocked because it contains
+        prohibited content.
+      MODEL_ARMOR: The prompt was blocked by Model Armor.
+      IMAGE_SAFETY: The prompt was blocked because it contains content that is
+        unsafe for image generation.
+      JAILBREAK: The prompt was blocked as a jailbreak attempt.
     """
     BLOCKED_REASON_UNSPECIFIED = 0
     SAFETY = 1
     OTHER = 2
     BLOCKLIST = 3
     PROHIBITED_CONTENT = 4
+    MODEL_ARMOR = 5
+    IMAGE_SAFETY = 6
+    JAILBREAK = 7
 
   blockReason = _messages.EnumField('BlockReasonValueValuesEnum', 1)
   blockReasonMessage = _messages.StringField(2)
@@ -20719,22 +30985,326 @@ class GoogleCloudAiplatformV1beta1GenerateContentResponsePromptFeedback(_message
 
 
 class GoogleCloudAiplatformV1beta1GenerateContentResponseUsageMetadata(_messages.Message):
-  r"""Usage metadata about response(s).
+  r"""Usage metadata about the content generation request and response. This
+  message provides a detailed breakdown of token usage and other relevant
+  metrics.
+
+  Enums:
+    TrafficTypeValueValuesEnum: Output only. The traffic type for this
+      request.
 
   Fields:
-    cachedContentTokenCount: Output only. Number of tokens in the cached part
-      in the input (the cached content).
-    candidatesTokenCount: Number of tokens in the response(s).
-    promptTokenCount: Number of tokens in the request. When `cached_content`
-      is set, this is still the total effective prompt size meaning this
-      includes the number of tokens in the cached content.
-    totalTokenCount: Total token count for prompt and response candidates.
+    cacheTokensDetails: Output only. A detailed breakdown of the token count
+      for each modality in the cached content.
+    cachedContentTokenCount: Output only. The number of tokens in the cached
+      content that was used for this request.
+    candidatesTokenCount: The total number of tokens in the generated
+      candidates.
+    candidatesTokensDetails: Output only. A detailed breakdown of the token
+      count for each modality in the generated candidates.
+    promptTokenCount: The total number of tokens in the prompt. This includes
+      any text, images, or other media provided in the request. When
+      `cached_content` is set, this also includes the number of tokens in the
+      cached content.
+    promptTokensDetails: Output only. A detailed breakdown of the token count
+      for each modality in the prompt.
+    thoughtsTokenCount: Output only. The number of tokens that were part of
+      the model's generated "thoughts" output, if applicable.
+    toolUsePromptTokenCount: Output only. The number of tokens in the results
+      from tool executions, which are provided back to the model as input, if
+      applicable.
+    toolUsePromptTokensDetails: Output only. A detailed breakdown by modality
+      of the token counts from the results of tool executions, which are
+      provided back to the model as input.
+    totalTokenCount: The total number of tokens for the entire request. This
+      is the sum of `prompt_token_count`, `candidates_token_count`,
+      `tool_use_prompt_token_count`, and `thoughts_token_count`.
+    trafficType: Output only. The traffic type for this request.
   """
 
-  cachedContentTokenCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  candidatesTokenCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  promptTokenCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  totalTokenCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  class TrafficTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The traffic type for this request.
+
+    Values:
+      TRAFFIC_TYPE_UNSPECIFIED: Unspecified request traffic type.
+      ON_DEMAND: The request was processed using Pay-As-You-Go quota.
+      PROVISIONED_THROUGHPUT: Type for Provisioned Throughput traffic.
+    """
+    TRAFFIC_TYPE_UNSPECIFIED = 0
+    ON_DEMAND = 1
+    PROVISIONED_THROUGHPUT = 2
+
+  cacheTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 1, repeated=True)
+  cachedContentTokenCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  candidatesTokenCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  candidatesTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 4, repeated=True)
+  promptTokenCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  promptTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 6, repeated=True)
+  thoughtsTokenCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  toolUsePromptTokenCount = _messages.IntegerField(8, variant=_messages.Variant.INT32)
+  toolUsePromptTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 9, repeated=True)
+  totalTokenCount = _messages.IntegerField(10, variant=_messages.Variant.INT32)
+  trafficType = _messages.EnumField('TrafficTypeValueValuesEnum', 11)
+
+
+class GoogleCloudAiplatformV1beta1GenerateFetchAccessTokenRequest(_messages.Message):
+  r"""Request message for FeatureOnlineStoreService.GenerateFetchAccessToken.
+  """
+
+
+
+class GoogleCloudAiplatformV1beta1GenerateFetchAccessTokenResponse(_messages.Message):
+  r"""Response message for FeatureOnlineStoreService.GenerateFetchAccessToken.
+
+  Fields:
+    accessToken: The OAuth 2.0 access token.
+    expireTime: Token expiration time. This is always set
+  """
+
+  accessToken = _messages.StringField(1)
+  expireTime = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1GenerateInstanceRubricsRequest(_messages.Message):
+  r"""Request message for EvaluationService.GenerateInstanceRubrics.
+
+  Fields:
+    agentConfig: Optional. Agent configuration, required for agent-based
+      rubric generation.
+    contents: Required. The prompt to generate rubrics from. For single-turn
+      queries, this is a single instance. For multi-turn queries, this is a
+      repeated field that contains conversation history + latest request.
+    predefinedRubricGenerationSpec: Optional. Specification for using the
+      rubric generation configs of a pre-defined metric, e.g.
+      "generic_quality_v1" and "instruction_following_v1". Some of the configs
+      may be only used in rubric generation and not supporting evaluation,
+      e.g. "fully_customized_generic_quality_v1". If this field is set, the
+      `rubric_generation_spec` field will be ignored.
+    rubricGenerationSpec: Optional. Specification for how the rubrics should
+      be generated.
+  """
+
+  agentConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationInstanceAgentConfig', 1)
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 2, repeated=True)
+  predefinedRubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PredefinedMetricSpec', 3)
+  rubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricGenerationSpec', 4)
+
+
+class GoogleCloudAiplatformV1beta1GenerateInstanceRubricsResponse(_messages.Message):
+  r"""Response message for EvaluationService.GenerateInstanceRubrics.
+
+  Fields:
+    generatedRubrics: Output only. A list of generated rubrics.
+  """
+
+  generatedRubrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Rubric', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequest(_messages.Message):
+  r"""Request message for MemoryBankService.GenerateMemories. Maximum size is
+  8 MB.
+
+  Messages:
+    RevisionLabelsValue: Optional. Labels to be applied to the generated
+      memory revisions. For example, you can use this to label a revision with
+      its data source.
+    ScopeValue: Optional. The scope of the memories that should be generated.
+      Memories will be consolidated across memories with the same scope. Must
+      be provided unless the scope is defined in the source content. If
+      `scope` is provided, it will override the scope defined in the source
+      content. Scope values cannot contain the wildcard character '*'.
+
+  Fields:
+    directContentsSource: Defines a direct source of content as the source
+      content from which to generate memories.
+    directMemoriesSource: Defines a direct source of memories that should be
+      uploaded to Memory Bank. This is similar to `CreateMemory`, but it
+      allows for consolidation between these new memories and existing
+      memories for the same scope.
+    disableConsolidation: Optional. If true, generated memories will not be
+      consolidated with existing memories; all generated memories will be
+      added as new memories regardless of whether they are duplicates of or
+      contradictory to existing memories. By default, memory consolidation is
+      enabled.
+    disableMemoryRevisions: Optional. If true, no revisions will be created
+      for this request.
+    revisionExpireTime: Optional. Timestamp of when the revision is considered
+      expired. If not set, the memory revision will be kept until manually
+      deleted.
+    revisionLabels: Optional. Labels to be applied to the generated memory
+      revisions. For example, you can use this to label a revision with its
+      data source.
+    revisionTtl: Optional. The TTL for the revision. The expiration time is
+      computed: now + TTL.
+    scope: Optional. The scope of the memories that should be generated.
+      Memories will be consolidated across memories with the same scope. Must
+      be provided unless the scope is defined in the source content. If
+      `scope` is provided, it will override the scope defined in the source
+      content. Scope values cannot contain the wildcard character '*'.
+    vertexSessionSource: Defines a Vertex Session as the source content from
+      which to generate memories.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RevisionLabelsValue(_messages.Message):
+    r"""Optional. Labels to be applied to the generated memory revisions. For
+    example, you can use this to label a revision with its data source.
+
+    Messages:
+      AdditionalProperty: An additional property for a RevisionLabelsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type RevisionLabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RevisionLabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ScopeValue(_messages.Message):
+    r"""Optional. The scope of the memories that should be generated. Memories
+    will be consolidated across memories with the same scope. Must be provided
+    unless the scope is defined in the source content. If `scope` is provided,
+    it will override the scope defined in the source content. Scope values
+    cannot contain the wildcard character '*'.
+
+    Messages:
+      AdditionalProperty: An additional property for a ScopeValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ScopeValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ScopeValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  directContentsSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectContentsSource', 1)
+  directMemoriesSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectMemoriesSource', 2)
+  disableConsolidation = _messages.BooleanField(3)
+  disableMemoryRevisions = _messages.BooleanField(4)
+  revisionExpireTime = _messages.StringField(5)
+  revisionLabels = _messages.MessageField('RevisionLabelsValue', 6)
+  revisionTtl = _messages.StringField(7)
+  scope = _messages.MessageField('ScopeValue', 8)
+  vertexSessionSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequestVertexSessionSource', 9)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectContentsSource(_messages.Message):
+  r"""Defines a direct source of content from which to generate the memories.
+
+  Fields:
+    events: Required. The source content (i.e. chat history) to generate
+      memories from.
+  """
+
+  events = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectContentsSourceEvent', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectContentsSourceEvent(_messages.Message):
+  r"""A single piece of conversation from which to generate memories.
+
+  Fields:
+    content: Required. A single piece of content from which to generate
+      memories.
+  """
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectMemoriesSource(_messages.Message):
+  r"""Defines a direct source of memories that should be uploaded to Memory
+  Bank with consolidation.
+
+  Fields:
+    directMemories: Required. The direct memories to upload to Memory Bank. At
+      most 5 direct memories are allowed per request.
+  """
+
+  directMemories = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectMemoriesSourceDirectMemory', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_messages.Message):
+  r"""A direct memory to upload to Memory Bank.
+
+  Fields:
+    fact: Required. The fact to consolidate with existing memories.
+    topics: Optional. The topics that the consolidated memories should be
+      associated with.
+  """
+
+  fact = _messages.StringField(1)
+  topics = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryTopicId', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GenerateMemoriesRequestVertexSessionSource(_messages.Message):
+  r"""Defines an Agent Engine Session from which to generate the memories. If
+  `scope` is not provided, the scope will be extracted from the Session (i.e.
+  {"user_id": sesison.user_id}).
+
+  Fields:
+    endTime: Optional. End time (exclusive) of the time range. If not set, the
+      end time is unbounded.
+    session: Required. The resource name of the Session to generate memories
+      for. Format: `projects/{project}/locations/{location}/reasoningEngines/{
+      reasoning_engine}/sessions/{session}`
+    startTime: Optional. Time range to define which session events should be
+      used to generate memories. Start time (inclusive) of the time range. If
+      not set, the start time is unbounded.
+  """
+
+  endTime = _messages.StringField(1)
+  session = _messages.StringField(2)
+  startTime = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1GenerateSyntheticDataRequest(_messages.Message):
+  r"""Request message for DataFoundryService.GenerateSyntheticData.
+
+  Fields:
+    count: Required. The number of synthetic examples to generate. For this
+      stateless API, the count is limited to a small number.
+    examples: Optional. A list of few-shot examples to guide the model's
+      output style and format.
+    outputFieldSpecs: Required. The schema of the desired output, defined by a
+      list of fields.
+    taskDescription: Generate data from a high-level task description.
+  """
+
+  count = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  examples = _messages.MessageField('GoogleCloudAiplatformV1beta1SyntheticExample', 2, repeated=True)
+  outputFieldSpecs = _messages.MessageField('GoogleCloudAiplatformV1beta1OutputFieldSpec', 3, repeated=True)
+  taskDescription = _messages.MessageField('GoogleCloudAiplatformV1beta1TaskDescriptionStrategy', 4)
+
+
+class GoogleCloudAiplatformV1beta1GenerateSyntheticDataResponse(_messages.Message):
+  r"""The response containing the generated data.
+
+  Fields:
+    syntheticExamples: A list of generated synthetic examples.
+  """
+
+  syntheticExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1SyntheticExample', 1, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1GenerateVideoResponse(_messages.Message):
@@ -20745,53 +31315,157 @@ class GoogleCloudAiplatformV1beta1GenerateVideoResponse(_messages.Message):
     raiMediaFilteredCount: Returns if any videos were filtered due to RAI
       policies.
     raiMediaFilteredReasons: Returns rai failure reasons if any.
+    videos: List of video bytes or Cloud Storage URIs of the generated videos.
   """
 
   generatedSamples = _messages.StringField(1, repeated=True)
   raiMediaFilteredCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   raiMediaFilteredReasons = _messages.StringField(3, repeated=True)
+  videos = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerateVideoResponseVideo', 4, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GenerateVideoResponseVideo(_messages.Message):
+  r"""A generated video.
+
+  Fields:
+    bytesBase64Encoded: Base64 encoded bytes string representing the video.
+    gcsUri: Cloud Storage URI where the generated video is written.
+    mimeType: The MIME type of the content of the video. - video/mp4
+  """
+
+  bytesBase64Encoded = _messages.StringField(1)
+  gcsUri = _messages.StringField(2)
+  mimeType = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1GenerationConfig(_messages.Message):
-  r"""Generation config.
+  r"""Configuration for content generation. This message contains all the
+  parameters that control how the model generates content. It allows you to
+  influence the randomness, length, and structure of the output.
 
   Enums:
+    MediaResolutionValueValuesEnum: Optional. The token resolution at which
+      input media content is sampled. This is used to control the trade-off
+      between the quality of the response and the number of tokens used to
+      represent the media. A higher resolution allows the model to perceive
+      more detail, which can lead to a more nuanced response, but it will also
+      use more tokens. This does not affect the image dimensions sent to the
+      model.
     ResponseModalitiesValueListEntryValuesEnum:
-    TokenResolutionValueValuesEnum: Optional. If specified, the token
-      resolution specified will be used.
 
   Fields:
-    audioTimestamp: Optional. If enabled, audio timestamp will be included in
-      the request to the model.
-    candidateCount: Optional. Number of candidates to generate.
-    frequencyPenalty: Optional. Frequency penalties.
-    logprobs: Optional. Logit probabilities.
-    maxOutputTokens: Optional. The maximum number of output tokens to generate
-      per message.
-    presencePenalty: Optional. Positive penalties.
-    responseLogprobs: Optional. If true, export the logprobs results in
+    audioTimestamp: Optional. If enabled, audio timestamps will be included in
+      the request to the model. This can be useful for synchronizing audio
+      with other modalities in the response.
+    candidateCount: Optional. The number of candidate responses to generate. A
+      higher `candidate_count` can provide more options to choose from, but it
+      also consumes more resources. This can be useful for generating a
+      variety of responses and selecting the best one.
+    enableAffectiveDialog: Optional. If enabled, the model will detect
+      emotions and adapt its responses accordingly. For example, if the model
+      detects that the user is frustrated, it may provide a more empathetic
       response.
-    responseMimeType: Optional. Output response mimetype of the generated
-      candidate text. Supported mimetype: - `text/plain`: (default) Text
-      output. - `application/json`: JSON response in the candidates. The model
-      needs to be prompted to output the appropriate response type, otherwise
-      the behavior is undefined. This is a preview feature.
-    responseModalities: Optional. The modalities of the response.
-    responseSchema: Optional. The `Schema` object allows the definition of
-      input and output data types. These types can be objects, but also
-      primitives and arrays. Represents a select subset of an [OpenAPI 3.0
-      schema object](https://spec.openapis.org/oas/v3.0.3#schema). If set, a
-      compatible response_mime_type must also be set. Compatible mimetypes:
-      `application/json`: Schema for JSON response.
+    frequencyPenalty: Optional. Penalizes tokens based on their frequency in
+      the generated text. A positive value helps to reduce the repetition of
+      words and phrases. Valid values can range from [-2.0, 2.0].
+    imageConfig: Optional. Config for image generation features.
+    logprobs: Optional. The number of top log probabilities to return for each
+      token. This can be used to see which other tokens were considered likely
+      candidates for a given position. A higher value will return more
+      options, but it will also increase the size of the response.
+    maxOutputTokens: Optional. The maximum number of tokens to generate in the
+      response. A token is approximately four characters. The default value
+      varies by model. This parameter can be used to control the length of the
+      generated text and prevent overly long responses.
+    mediaResolution: Optional. The token resolution at which input media
+      content is sampled. This is used to control the trade-off between the
+      quality of the response and the number of tokens used to represent the
+      media. A higher resolution allows the model to perceive more detail,
+      which can lead to a more nuanced response, but it will also use more
+      tokens. This does not affect the image dimensions sent to the model.
+    modelConfig: Optional. Config for model selection.
+    presencePenalty: Optional. Penalizes tokens that have already appeared in
+      the generated text. A positive value encourages the model to generate
+      more diverse and less repetitive text. Valid values can range from
+      [-2.0, 2.0].
+    responseJsonSchema: Optional. When this field is set, response_schema must
+      be omitted and response_mime_type must be set to `application/json`.
+    responseLogprobs: Optional. If set to true, the log probabilities of the
+      output tokens are returned. Log probabilities are the logarithm of the
+      probability of a token appearing in the output. A higher log probability
+      means the token is more likely to be generated. This can be useful for
+      analyzing the model's confidence in its own output and for debugging.
+    responseMimeType: Optional. The IANA standard MIME type of the response.
+      The model will generate output that conforms to this MIME type.
+      Supported values include 'text/plain' (default) and 'application/json'.
+      The model needs to be prompted to output the appropriate response type,
+      otherwise the behavior is undefined. This is a preview feature.
+    responseModalities: Optional. The modalities of the response. The model
+      will generate a response that includes all the specified modalities. For
+      example, if this is set to `[TEXT, IMAGE]`, the response will include
+      both text and an image.
+    responseSchema: Optional. Lets you to specify a schema for the model's
+      response, ensuring that the output conforms to a particular structure.
+      This is useful for generating structured data such as JSON. The schema
+      is a subset of the [OpenAPI 3.0 schema
+      object](https://spec.openapis.org/oas/v3.0.3#schema) object. When this
+      field is set, you must also set the `response_mime_type` to
+      `application/json`.
     routingConfig: Optional. Routing configuration.
-    seed: Optional. Seed.
-    stopSequences: Optional. Stop sequences.
-    temperature: Optional. Controls the randomness of predictions.
-    tokenResolution: Optional. If specified, the token resolution specified
-      will be used.
-    topK: Optional. If specified, top-k sampling will be used.
-    topP: Optional. If specified, nucleus sampling will be used.
+    seed: Optional. A seed for the random number generator. By setting a seed,
+      you can make the model's output mostly deterministic. For a given prompt
+      and parameters (like temperature, top_p, etc.), the model will produce
+      the same response every time. However, it's not a guaranteed absolute
+      deterministic behavior. This is different from parameters like
+      `temperature`, which control the *level* of randomness. `seed` ensures
+      that the "random" choices the model makes are the same on every run,
+      making it essential for testing and ensuring reproducible results.
+    speechConfig: Optional. The speech generation config.
+    stopSequences: Optional. A list of character sequences that will stop the
+      model from generating further tokens. If a stop sequence is generated,
+      the output will end at that point. This is useful for controlling the
+      length and structure of the output. For example, you can use ["\n",
+      "###"] to stop generation at a new line or a specific marker.
+    temperature: Optional. Controls the randomness of the output. A higher
+      temperature results in more creative and diverse responses, while a
+      lower temperature makes the output more predictable and focused. The
+      valid range is (0.0, 2.0].
+    thinkingConfig: Optional. Configuration for thinking features. An error
+      will be returned if this field is set for models that don't support
+      thinking.
+    topK: Optional. Specifies the top-k sampling threshold. The model
+      considers only the top k most probable tokens for the next token. This
+      can be useful for generating more coherent and less random text. For
+      example, a `top_k` of 40 means the model will choose the next word from
+      the 40 most likely words.
+    topP: Optional. Specifies the nucleus sampling threshold. The model
+      considers only the smallest set of tokens whose cumulative probability
+      is at least `top_p`. This helps generate more diverse and less
+      repetitive responses. For example, a `top_p` of 0.9 means the model
+      considers tokens until the cumulative probability of the tokens to
+      select from reaches 0.9. It's recommended to adjust either temperature
+      or `top_p`, but not both.
   """
+
+  class MediaResolutionValueValuesEnum(_messages.Enum):
+    r"""Optional. The token resolution at which input media content is
+    sampled. This is used to control the trade-off between the quality of the
+    response and the number of tokens used to represent the media. A higher
+    resolution allows the model to perceive more detail, which can lead to a
+    more nuanced response, but it will also use more tokens. This does not
+    affect the image dimensions sent to the model.
+
+    Values:
+      MEDIA_RESOLUTION_UNSPECIFIED: Media resolution has not been set.
+      MEDIA_RESOLUTION_LOW: Media resolution set to low (64 tokens).
+      MEDIA_RESOLUTION_MEDIUM: Media resolution set to medium (256 tokens).
+      MEDIA_RESOLUTION_HIGH: Media resolution set to high (zoomed reframing
+        with 256 tokens).
+    """
+    MEDIA_RESOLUTION_UNSPECIFIED = 0
+    MEDIA_RESOLUTION_LOW = 1
+    MEDIA_RESOLUTION_MEDIUM = 2
+    MEDIA_RESOLUTION_HIGH = 3
 
   class ResponseModalitiesValueListEntryValuesEnum(_messages.Enum):
     r"""ResponseModalitiesValueListEntryValuesEnum enum type.
@@ -20807,46 +31481,69 @@ class GoogleCloudAiplatformV1beta1GenerationConfig(_messages.Message):
     IMAGE = 2
     AUDIO = 3
 
-  class TokenResolutionValueValuesEnum(_messages.Enum):
-    r"""Optional. If specified, the token resolution specified will be used.
-
-    Values:
-      TOKEN_RESOLUTION_UNSPECIFIED: Token resolution has not been set.
-      TOKEN_RESOLUTION_LOW: Token resolution set to low (64 tokens).
-      TOKEN_RESOLUTION_MEDIUM: Token resolution set to medium (256 tokens).
-      TOKEN_RESOLUTION_HIGH: Token resolution set to high (P&S with 256
-        tokens).
-    """
-    TOKEN_RESOLUTION_UNSPECIFIED = 0
-    TOKEN_RESOLUTION_LOW = 1
-    TOKEN_RESOLUTION_MEDIUM = 2
-    TOKEN_RESOLUTION_HIGH = 3
-
   audioTimestamp = _messages.BooleanField(1)
   candidateCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  frequencyPenalty = _messages.FloatField(3, variant=_messages.Variant.FLOAT)
-  logprobs = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  maxOutputTokens = _messages.IntegerField(5, variant=_messages.Variant.INT32)
-  presencePenalty = _messages.FloatField(6, variant=_messages.Variant.FLOAT)
-  responseLogprobs = _messages.BooleanField(7)
-  responseMimeType = _messages.StringField(8)
-  responseModalities = _messages.EnumField('ResponseModalitiesValueListEntryValuesEnum', 9, repeated=True)
-  responseSchema = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 10)
-  routingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfig', 11)
-  seed = _messages.IntegerField(12, variant=_messages.Variant.INT32)
-  stopSequences = _messages.StringField(13, repeated=True)
-  temperature = _messages.FloatField(14, variant=_messages.Variant.FLOAT)
-  tokenResolution = _messages.EnumField('TokenResolutionValueValuesEnum', 15)
-  topK = _messages.FloatField(16, variant=_messages.Variant.FLOAT)
-  topP = _messages.FloatField(17, variant=_messages.Variant.FLOAT)
+  enableAffectiveDialog = _messages.BooleanField(3)
+  frequencyPenalty = _messages.FloatField(4, variant=_messages.Variant.FLOAT)
+  imageConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ImageConfig', 5)
+  logprobs = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  maxOutputTokens = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  mediaResolution = _messages.EnumField('MediaResolutionValueValuesEnum', 8)
+  modelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfigModelConfig', 9)
+  presencePenalty = _messages.FloatField(10, variant=_messages.Variant.FLOAT)
+  responseJsonSchema = _messages.MessageField('extra_types.JsonValue', 11)
+  responseLogprobs = _messages.BooleanField(12)
+  responseMimeType = _messages.StringField(13)
+  responseModalities = _messages.EnumField('ResponseModalitiesValueListEntryValuesEnum', 14, repeated=True)
+  responseSchema = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 15)
+  routingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfig', 16)
+  seed = _messages.IntegerField(17, variant=_messages.Variant.INT32)
+  speechConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1SpeechConfig', 18)
+  stopSequences = _messages.StringField(19, repeated=True)
+  temperature = _messages.FloatField(20, variant=_messages.Variant.FLOAT)
+  thinkingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfigThinkingConfig', 21)
+  topK = _messages.FloatField(22, variant=_messages.Variant.FLOAT)
+  topP = _messages.FloatField(23, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1GenerationConfigModelConfig(_messages.Message):
+  r"""Config for model selection.
+
+  Enums:
+    FeatureSelectionPreferenceValueValuesEnum: Required. Feature selection
+      preference.
+
+  Fields:
+    featureSelectionPreference: Required. Feature selection preference.
+  """
+
+  class FeatureSelectionPreferenceValueValuesEnum(_messages.Enum):
+    r"""Required. Feature selection preference.
+
+    Values:
+      FEATURE_SELECTION_PREFERENCE_UNSPECIFIED: Unspecified feature selection
+        preference.
+      PRIORITIZE_QUALITY: Prefer higher quality over lower cost.
+      BALANCED: Balanced feature selection preference.
+      PRIORITIZE_COST: Prefer lower cost over higher quality.
+    """
+    FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
+    PRIORITIZE_QUALITY = 1
+    BALANCED = 2
+    PRIORITIZE_COST = 3
+
+  featureSelectionPreference = _messages.EnumField('FeatureSelectionPreferenceValueValuesEnum', 1)
 
 
 class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfig(_messages.Message):
-  r"""The configuration for routing the request to a specific model.
+  r"""The configuration for routing the request to a specific model. This can
+  be used to control which model is used for the generation, either
+  automatically or by specifying a model name.
 
   Fields:
-    autoMode: Automated routing.
-    manualMode: Manual routing.
+    autoMode: In this mode, the model is selected automatically based on the
+      content of the request.
+    manualMode: In this mode, the model is specified manually.
   """
 
   autoMode = _messages.MessageField('GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigAutoRoutingMode', 1)
@@ -20854,8 +31551,9 @@ class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfig(_messages.Messag
 
 
 class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigAutoRoutingMode(_messages.Message):
-  r"""When automated routing is specified, the routing will be determined by
-  the pretrained routing model and customer provided model routing preference.
+  r"""The configuration for automated routing. When automated routing is
+  specified, the routing will be determined by the pretrained routing model
+  and customer provided model routing preference.
 
   Enums:
     ModelRoutingPreferenceValueValuesEnum: The model routing preference.
@@ -20869,9 +31567,11 @@ class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigAutoRoutingMode(_
 
     Values:
       UNKNOWN: Unspecified model routing preference.
-      PRIORITIZE_QUALITY: Prefer higher quality over low cost.
-      BALANCED: Balanced model routing preference.
-      PRIORITIZE_COST: Prefer lower cost over higher quality.
+      PRIORITIZE_QUALITY: The model will be selected to prioritize the quality
+        of the response.
+      BALANCED: The model will be selected to balance quality and cost.
+      PRIORITIZE_COST: The model will be selected to prioritize the cost of
+        the request.
     """
     UNKNOWN = 0
     PRIORITIZE_QUALITY = 1
@@ -20882,14 +31582,37 @@ class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigAutoRoutingMode(_
 
 
 class GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigManualRoutingMode(_messages.Message):
-  r"""When manual routing is set, the specified model will be used directly.
+  r"""The configuration for manual routing. When manual routing is specified,
+  the model will be selected based on the model name provided.
 
   Fields:
-    modelName: The model name to use. Only the public LLM models are accepted.
-      e.g. 'gemini-1.5-pro-001'.
+    modelName: The name of the model to use. Only public LLM models are
+      accepted.
   """
 
   modelName = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1GenerationConfigThinkingConfig(_messages.Message):
+  r"""Configuration for the model's thinking features. "Thinking" is a process
+  where the model breaks down a complex task into smaller, manageable steps.
+  This allows the model to reason about the task, plan its approach, and
+  execute the plan to generate a high-quality response.
+
+  Fields:
+    includeThoughts: Optional. If true, the model will include its thoughts in
+      the response. "Thoughts" are the intermediate steps the model takes to
+      arrive at the final response. They can provide insights into the model's
+      reasoning process and help with debugging. If this is true, thoughts are
+      returned only when available.
+    thinkingBudget: Optional. The token budget for the model's thinking
+      process. The model will make a best effort to stay within this budget.
+      This can be used to control the trade-off between response quality and
+      latency.
+  """
+
+  includeThoughts = _messages.BooleanField(1)
+  thinkingBudget = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1GenericOperationMetadata(_messages.Message):
@@ -20959,6 +31682,17 @@ class GoogleCloudAiplatformV1beta1GoogleDriveSourceResourceId(_messages.Message)
   resourceType = _messages.EnumField('ResourceTypeValueValuesEnum', 2)
 
 
+class GoogleCloudAiplatformV1beta1GoogleMaps(_messages.Message):
+  r"""Tool to retrieve public maps data for grounding, powered by Google.
+
+  Fields:
+    enableWidget: Optional. If true, include the widget context token in the
+      response.
+  """
+
+  enableWidget = _messages.BooleanField(1)
+
+
 class GoogleCloudAiplatformV1beta1GoogleSearchRetrieval(_messages.Message):
   r"""Tool to retrieve public web data for grounding, powered by Google.
 
@@ -21020,79 +31754,191 @@ class GoogleCloudAiplatformV1beta1GroundednessSpec(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1GroundingChunk(_messages.Message):
-  r"""Grounding chunk.
+  r"""A piece of evidence that supports a claim made by the model. This is
+  used to show a citation for a claim made by the model. When grounding is
+  enabled, the model returns a `GroundingChunk` that contains a reference to
+  the source of the information.
 
   Fields:
-    retrievedContext: Grounding chunk from context retrieved by the retrieval
-      tools.
-    web: Grounding chunk from the web.
+    maps: A grounding chunk from Google Maps. See the `Maps` message for
+      details.
+    retrievedContext: A grounding chunk from a data source retrieved by a
+      retrieval tool, such as Vertex AI Search. See the `RetrievedContext`
+      message for details
+    web: A grounding chunk from a web page, typically from Google Search. See
+      the `Web` message for details.
   """
 
-  retrievedContext = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkRetrievedContext', 1)
-  web = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkWeb', 2)
+  maps = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkMaps', 1)
+  retrievedContext = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkRetrievedContext', 2)
+  web = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkWeb', 3)
+
+
+class GoogleCloudAiplatformV1beta1GroundingChunkMaps(_messages.Message):
+  r"""A `Maps` chunk is a piece of evidence that comes from Google Maps. It
+  contains information about a place, such as its name, address, and reviews.
+  This is used to provide the user with rich, location-based information.
+
+  Fields:
+    placeAnswerSources: The sources that were used to generate the place
+      answer. This includes review snippets and photos that were used to
+      generate the answer, as well as URIs to flag content.
+    placeId: This Place's resource name, in `places/{place_id}` format. This
+      can be used to look up the place in the Google Maps API.
+    text: The text of the place answer.
+    title: The title of the place.
+    uri: The URI of the place.
+  """
+
+  placeAnswerSources = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSources', 1)
+  placeId = _messages.StringField(2)
+  text = _messages.StringField(3)
+  title = _messages.StringField(4)
+  uri = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSources(_messages.Message):
+  r"""The sources that were used to generate the place answer. This includes
+  review snippets and photos that were used to generate the answer, as well as
+  URIs to flag content.
+
+  Fields:
+    reviewSnippets: Snippets of reviews that were used to generate the answer.
+  """
+
+  reviewSnippets = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSourcesReviewSnippet', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSourcesReviewSnippet(_messages.Message):
+  r"""A review snippet that is used to generate the answer.
+
+  Fields:
+    googleMapsUri: A link to show the review on Google Maps.
+    reviewId: The ID of the review that is being referenced.
+    title: The title of the review.
+  """
+
+  googleMapsUri = _messages.StringField(1)
+  reviewId = _messages.StringField(2)
+  title = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1GroundingChunkRetrievedContext(_messages.Message):
-  r"""Chunk from context retrieved by the retrieval tools.
+  r"""Context retrieved from a data source to ground the model's response.
+  This is used when a retrieval tool fetches information from a user-provided
+  corpus or a public dataset.
 
   Fields:
-    text: Text of the attribution.
-    title: Title of the attribution.
-    uri: URI reference of the attribution.
+    documentName: Output only. The full resource name of the referenced Vertex
+      AI Search document. This is used to identify the specific document that
+      was retrieved. The format is `projects/{project}/locations/{location}/co
+      llections/{collection}/dataStores/{data_store}/branches/{branch}/documen
+      ts/{document}`.
+    ragChunk: Additional context for a Retrieval-Augmented Generation (RAG)
+      retrieval result. This is populated only when the RAG retrieval tool is
+      used.
+    text: The content of the retrieved data source.
+    title: The title of the retrieved data source.
+    uri: The URI of the retrieved data source.
   """
 
-  text = _messages.StringField(1)
+  documentName = _messages.StringField(1)
+  ragChunk = _messages.MessageField('GoogleCloudAiplatformV1beta1RagChunk', 2)
+  text = _messages.StringField(3)
+  title = _messages.StringField(4)
+  uri = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1GroundingChunkWeb(_messages.Message):
+  r"""A `Web` chunk is a piece of evidence that comes from a web page. It
+  contains the URI of the web page, the title of the page, and the domain of
+  the page. This is used to provide the user with a link to the source of the
+  information.
+
+  Fields:
+    domain: The domain of the web page that contains the evidence. This can be
+      used to filter out low-quality sources.
+    title: The title of the web page that contains the evidence.
+    uri: The URI of the web page that contains the evidence.
+  """
+
+  domain = _messages.StringField(1)
   title = _messages.StringField(2)
   uri = _messages.StringField(3)
 
 
-class GoogleCloudAiplatformV1beta1GroundingChunkWeb(_messages.Message):
-  r"""Chunk from the web.
-
-  Fields:
-    title: Title of the chunk.
-    uri: URI reference of the chunk.
-  """
-
-  title = _messages.StringField(1)
-  uri = _messages.StringField(2)
-
-
 class GoogleCloudAiplatformV1beta1GroundingMetadata(_messages.Message):
-  r"""Metadata returned to client when grounding is enabled.
+  r"""Information about the sources that support the content of a response.
+  When grounding is enabled, the model returns citations for claims in the
+  response. This object contains the retrieved sources.
 
   Fields:
-    groundingChunks: List of supporting references retrieved from specified
-      grounding source.
-    groundingSupports: Optional. List of grounding support.
-    retrievalMetadata: Optional. Output only. Retrieval metadata.
-    retrievalQueries: Optional. Queries executed by the retrieval tools.
-    searchEntryPoint: Optional. Google search entry for the following-up web
-      searches.
-    webSearchQueries: Optional. Web search queries for the following-up web
-      search.
+    googleMapsWidgetContextToken: Optional. Output only. A token that can be
+      used to render a Google Maps widget with the contextual data. This field
+      is populated only when the grounding source is Google Maps.
+    groundingChunks: A list of supporting references retrieved from the
+      grounding source. This field is populated when the grounding source is
+      Google Search, Vertex AI Search, or Google Maps.
+    groundingSupports: Optional. A list of grounding supports that connect the
+      generated content to the grounding chunks. This field is populated when
+      the grounding source is Google Search or Vertex AI Search.
+    retrievalMetadata: Optional. Output only. Metadata related to the
+      retrieval grounding source.
+    retrievalQueries: Optional. The queries that were executed by the
+      retrieval tools. This field is populated only when the grounding source
+      is a retrieval tool, such as Vertex AI Search.
+    searchEntryPoint: Optional. A web search entry point that can be used to
+      display search results. This field is populated only when the grounding
+      source is Google Search.
+    sourceFlaggingUris: Optional. Output only. A list of URIs that can be used
+      to flag a place or review for inappropriate content. This field is
+      populated only when the grounding source is Google Maps.
+    webSearchQueries: Optional. The web search queries that were used to
+      generate the content. This field is populated only when the grounding
+      source is Google Search.
   """
 
-  groundingChunks = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunk', 1, repeated=True)
-  groundingSupports = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingSupport', 2, repeated=True)
-  retrievalMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrievalMetadata', 3)
-  retrievalQueries = _messages.StringField(4, repeated=True)
-  searchEntryPoint = _messages.MessageField('GoogleCloudAiplatformV1beta1SearchEntryPoint', 5)
-  webSearchQueries = _messages.StringField(6, repeated=True)
+  googleMapsWidgetContextToken = _messages.StringField(1)
+  groundingChunks = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingChunk', 2, repeated=True)
+  groundingSupports = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingSupport', 3, repeated=True)
+  retrievalMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrievalMetadata', 4)
+  retrievalQueries = _messages.StringField(5, repeated=True)
+  searchEntryPoint = _messages.MessageField('GoogleCloudAiplatformV1beta1SearchEntryPoint', 6)
+  sourceFlaggingUris = _messages.MessageField('GoogleCloudAiplatformV1beta1GroundingMetadataSourceFlaggingUri', 7, repeated=True)
+  webSearchQueries = _messages.StringField(8, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1GroundingMetadataSourceFlaggingUri(_messages.Message):
+  r"""A URI that can be used to flag a place or review for inappropriate
+  content. This is populated only when the grounding source is Google Maps.
+
+  Fields:
+    flagContentUri: The URI that can be used to flag the content.
+    sourceId: The ID of the place or review.
+  """
+
+  flagContentUri = _messages.StringField(1)
+  sourceId = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1GroundingSupport(_messages.Message):
-  r"""Grounding support.
+  r"""A collection of supporting references for a segment of the model's
+  response.
 
   Fields:
-    confidenceScores: Confidence score of the support references. Ranges from
-      0 to 1. 1 is the most confident. This list must have the same size as
-      the grounding_chunk_indices.
-    groundingChunkIndices: A list of indices (into 'grounding_chunk')
-      specifying the citations associated with the claim. For instance [1,3,4]
-      means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4]
-      are the retrieved content attributed to the claim.
-    segment: Segment of the content this support belongs to.
+    confidenceScores: The confidence scores for the support references. This
+      list is parallel to the `grounding_chunk_indices` list. A score is a
+      value between 0.0 and 1.0, with a higher score indicating a higher
+      confidence that the reference supports the claim. For Gemini 2.0 and
+      before, this list has the same size as `grounding_chunk_indices`. For
+      Gemini 2.5 and later, this list is empty and should be ignored.
+    groundingChunkIndices: A list of indices into the `grounding_chunks` field
+      of the `GroundingMetadata` message. These indices specify which
+      grounding chunks support the claim made in the content segment. For
+      example, if this field has the values `[1, 3]`, it means that
+      `grounding_chunks[1]` and `grounding_chunks[3]` are the sources for the
+      claim in the content segment.
+    segment: The content segment that this support message applies to.
   """
 
   confidenceScores = _messages.FloatField(1, repeated=True, variant=_messages.Variant.FLOAT)
@@ -21253,6 +32099,59 @@ class GoogleCloudAiplatformV1beta1IdMatcher(_messages.Message):
   """
 
   ids = _messages.StringField(1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ImageConfig(_messages.Message):
+  r"""Configuration for image generation. This message allows you to control
+  various aspects of image generation, such as the output format, aspect
+  ratio, and whether the model can generate images of people.
+
+  Enums:
+    PersonGenerationValueValuesEnum: Optional. Controls whether the model can
+      generate people.
+
+  Fields:
+    aspectRatio: Optional. The desired aspect ratio for the generated images.
+      The following aspect ratios are supported: "1:1" "2:3", "3:2" "3:4",
+      "4:3" "4:5", "5:4" "9:16", "16:9" "21:9"
+    imageOutputOptions: Optional. The image output format for generated
+      images.
+    personGeneration: Optional. Controls whether the model can generate
+      people.
+  """
+
+  class PersonGenerationValueValuesEnum(_messages.Enum):
+    r"""Optional. Controls whether the model can generate people.
+
+    Values:
+      PERSON_GENERATION_UNSPECIFIED: The default behavior is unspecified. The
+        model will decide whether to generate images of people.
+      ALLOW_ALL: Allows the model to generate images of people, including
+        adults and children.
+      ALLOW_ADULT: Allows the model to generate images of adults, but not
+        children.
+      ALLOW_NONE: Prevents the model from generating images of people.
+    """
+    PERSON_GENERATION_UNSPECIFIED = 0
+    ALLOW_ALL = 1
+    ALLOW_ADULT = 2
+    ALLOW_NONE = 3
+
+  aspectRatio = _messages.StringField(1)
+  imageOutputOptions = _messages.MessageField('GoogleCloudAiplatformV1beta1ImageConfigImageOutputOptions', 2)
+  personGeneration = _messages.EnumField('PersonGenerationValueValuesEnum', 3)
+
+
+class GoogleCloudAiplatformV1beta1ImageConfigImageOutputOptions(_messages.Message):
+  r"""The image output format for generated images.
+
+  Fields:
+    compressionQuality: Optional. The compression quality of the output image.
+    mimeType: Optional. The image format that the output should be saved as.
+  """
+
+  compressionQuality = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  mimeType = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1ImportDataConfig(_messages.Message):
@@ -21521,6 +32420,114 @@ class GoogleCloudAiplatformV1beta1ImportFeatureValuesResponse(_messages.Message)
   timestampOutsideRetentionRowsCount = _messages.IntegerField(4)
 
 
+class GoogleCloudAiplatformV1beta1ImportIndexRequest(_messages.Message):
+  r"""Request message for IndexService.ImportIndex.
+
+  Fields:
+    config: Required. Configuration for importing data from an external
+      source.
+    isCompleteOverwrite: Optional. If true, completely replace existing index
+      data. Must be true for streaming update indexes.
+  """
+
+  config = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfig', 1)
+  isCompleteOverwrite = _messages.BooleanField(2)
+
+
+class GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfig(_messages.Message):
+  r"""Configuration for importing data from an external source.
+
+  Fields:
+    bigQuerySourceConfig: Configuration for importing data from a BigQuery
+      table.
+  """
+
+  bigQuerySourceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigBigQuerySourceConfig', 1)
+
+
+class GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigBigQuerySourceConfig(_messages.Message):
+  r"""Configuration for importing data from a BigQuery table.
+
+  Fields:
+    datapointFieldMapping: Required. Mapping of datapoint fields to BigQuery
+      column names.
+    tablePath: Required. The path to the BigQuery table containing the index
+      data, in the format of `bq://..`.
+  """
+
+  datapointFieldMapping = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMapping', 1)
+  tablePath = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMapping(_messages.Message):
+  r"""Mapping of datapoint fields to column names for columnar data sources.
+
+  Fields:
+    embeddingColumn: Required. The column with the vector embeddings for each
+      data point.
+    idColumn: Required. The column with unique identifiers for each data
+      point.
+    metadataColumns: Optional. List of columns containing metadata to be
+      included in the index.
+    numericRestricts: Optional. List of restricts for numeric values.
+    restricts: Optional. List of restricts for string values.
+  """
+
+  embeddingColumn = _messages.StringField(1)
+  idColumn = _messages.StringField(2)
+  metadataColumns = _messages.StringField(3, repeated=True)
+  numericRestricts = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMappingNumericRestrict', 4, repeated=True)
+  restricts = _messages.MessageField('GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMappingRestrict', 5, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMappingNumericRestrict(_messages.Message):
+  r"""Restrictions on numeric values.
+
+  Enums:
+    ValueTypeValueValuesEnum: Required. Numeric type of the restrict. Must be
+      consistent for all datapoints within the namespace.
+
+  Fields:
+    namespace: Required. The namespace of the restrict.
+    valueColumn: Optional. The column containing the numeric value.
+    valueType: Required. Numeric type of the restrict. Must be consistent for
+      all datapoints within the namespace.
+  """
+
+  class ValueTypeValueValuesEnum(_messages.Enum):
+    r"""Required. Numeric type of the restrict. Must be consistent for all
+    datapoints within the namespace.
+
+    Values:
+      VALUE_TYPE_UNSPECIFIED: Should not be used.
+      INT: Represents 64 bit integer.
+      FLOAT: Represents 32 bit float.
+      DOUBLE: Represents 64 bit float.
+    """
+    VALUE_TYPE_UNSPECIFIED = 0
+    INT = 1
+    FLOAT = 2
+    DOUBLE = 3
+
+  namespace = _messages.StringField(1)
+  valueColumn = _messages.StringField(2)
+  valueType = _messages.EnumField('ValueTypeValueValuesEnum', 3)
+
+
+class GoogleCloudAiplatformV1beta1ImportIndexRequestConnectorConfigDatapointFieldMappingRestrict(_messages.Message):
+  r"""Restrictions on string values.
+
+  Fields:
+    allowColumn: Optional. The columns containing the allow values.
+    denyColumn: Optional. The columns containing the deny values.
+    namespace: Required. The namespace of the restrict in the index.
+  """
+
+  allowColumn = _messages.StringField(1, repeated=True)
+  denyColumn = _messages.StringField(2, repeated=True)
+  namespace = _messages.StringField(3)
+
+
 class GoogleCloudAiplatformV1beta1ImportModelEvaluationRequest(_messages.Message):
   r"""Request message for ModelService.ImportModelEvaluation
 
@@ -21539,8 +32546,21 @@ class GoogleCloudAiplatformV1beta1ImportRagFilesConfig(_messages.Message):
       files as well as entire Google Cloud Storage directories. Sample
       formats: - `gs://bucket_name/my_directory/object_name/my_file.txt` -
       `gs://bucket_name/my_directory`
+    globalMaxEmbeddingRequestsPerMin: Optional. The max number of queries per
+      minute that the indexing pipeline job is allowed to make to the
+      embedding model specified in the project. Please follow the quota usage
+      guideline of the embedding model you use to set the value properly.If
+      this value is not specified, max_embedding_requests_per_min will be used
+      by indexing pipeline job as the global limit.
     googleDriveSource: Google Drive location. Supports importing individual
       files as well as Google Drive folders.
+    importResultBigquerySink: The BigQuery destination to write import result
+      to. It should be a bigquery table resource name (e.g.
+      "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the
+      table does not exist, it will be created with the expected schema. If
+      the table exists, the schema will be validated and data will be added to
+      this existing table.
+    importResultGcsSink: The Cloud Storage path to write import result to.
     jiraSource: Jira queries with their corresponding authentication.
     maxEmbeddingRequestsPerMin: Optional. The max number of queries per minute
       that this job is allowed to make to the embedding model specified on the
@@ -21558,25 +32578,38 @@ class GoogleCloudAiplatformV1beta1ImportRagFilesConfig(_messages.Message):
       to. Deprecated. Prefer to use `import_result_gcs_sink`.
     ragFileChunkingConfig: Specifies the size and overlap of chunks after
       importing RagFiles.
+    ragFileMetadataConfig: Specifies the metadata config for RagFiles.
+      Including paths for metadata schema and metadata.
     ragFileParsingConfig: Optional. Specifies the parsing config for RagFiles.
       RAG will use the default parser if this field is not set.
     ragFileTransformationConfig: Specifies the transformation config for
       RagFiles.
+    rebuildAnnIndex: Rebuilds the ANN index to optimize for recall on the
+      imported data. Only applicable for RagCorpora running on RagManagedDb
+      with `retrieval_strategy` set to `ANN`. The rebuild will be performed
+      using the existing ANN config set on the RagCorpus. To change the ANN
+      config, please use the UpdateRagCorpus API. Default is false, i.e.,
+      index is not rebuilt.
     sharePointSources: SharePoint sources.
     slackSource: Slack channels with their corresponding access tokens.
   """
 
   gcsSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsSource', 1)
-  googleDriveSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleDriveSource', 2)
-  jiraSource = _messages.MessageField('GoogleCloudAiplatformV1beta1JiraSource', 3)
-  maxEmbeddingRequestsPerMin = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  partialFailureBigquerySink = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryDestination', 5)
-  partialFailureGcsSink = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 6)
-  ragFileChunkingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileChunkingConfig', 7)
-  ragFileParsingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfig', 8)
-  ragFileTransformationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileTransformationConfig', 9)
-  sharePointSources = _messages.MessageField('GoogleCloudAiplatformV1beta1SharePointSources', 10)
-  slackSource = _messages.MessageField('GoogleCloudAiplatformV1beta1SlackSource', 11)
+  globalMaxEmbeddingRequestsPerMin = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  googleDriveSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleDriveSource', 3)
+  importResultBigquerySink = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryDestination', 4)
+  importResultGcsSink = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 5)
+  jiraSource = _messages.MessageField('GoogleCloudAiplatformV1beta1JiraSource', 6)
+  maxEmbeddingRequestsPerMin = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  partialFailureBigquerySink = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryDestination', 8)
+  partialFailureGcsSink = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 9)
+  ragFileChunkingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileChunkingConfig', 10)
+  ragFileMetadataConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileMetadataConfig', 11)
+  ragFileParsingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfig', 12)
+  ragFileTransformationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileTransformationConfig', 13)
+  rebuildAnnIndex = _messages.BooleanField(14)
+  sharePointSources = _messages.MessageField('GoogleCloudAiplatformV1beta1SharePointSources', 15)
+  slackSource = _messages.MessageField('GoogleCloudAiplatformV1beta1SlackSource', 16)
 
 
 class GoogleCloudAiplatformV1beta1ImportRagFilesRequest(_messages.Message):
@@ -21714,10 +32747,16 @@ class GoogleCloudAiplatformV1beta1Index(_messages.Message):
 class GoogleCloudAiplatformV1beta1IndexDatapoint(_messages.Message):
   r"""A datapoint of Index.
 
+  Messages:
+    EmbeddingMetadataValue: Optional. The key-value map of additional metadata
+      for the datapoint.
+
   Fields:
     crowdingTag: Optional. CrowdingTag of the datapoint, the number of
       neighbors to return in each crowding can be configured during query.
     datapointId: Required. Unique identifier of the datapoint.
+    embeddingMetadata: Optional. The key-value map of additional metadata for
+      the datapoint.
     featureVector: Required. Feature embedding vector for dense index. An
       array of numbers with the length of
       [NearestNeighborSearchConfig.dimensions].
@@ -21732,12 +32771,38 @@ class GoogleCloudAiplatformV1beta1IndexDatapoint(_messages.Message):
     sparseEmbedding: Optional. Feature embedding vector for sparse index.
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class EmbeddingMetadataValue(_messages.Message):
+    r"""Optional. The key-value map of additional metadata for the datapoint.
+
+    Messages:
+      AdditionalProperty: An additional property for a EmbeddingMetadataValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a EmbeddingMetadataValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   crowdingTag = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointCrowdingTag', 1)
   datapointId = _messages.StringField(2)
-  featureVector = _messages.FloatField(3, repeated=True, variant=_messages.Variant.FLOAT)
-  numericRestricts = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointNumericRestriction', 4, repeated=True)
-  restricts = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointRestriction', 5, repeated=True)
-  sparseEmbedding = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointSparseEmbedding', 6)
+  embeddingMetadata = _messages.MessageField('EmbeddingMetadataValue', 3)
+  featureVector = _messages.FloatField(4, repeated=True, variant=_messages.Variant.FLOAT)
+  numericRestricts = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointNumericRestriction', 5, repeated=True)
+  restricts = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointRestriction', 6, repeated=True)
+  sparseEmbedding = _messages.MessageField('GoogleCloudAiplatformV1beta1IndexDatapointSparseEmbedding', 7)
 
 
 class GoogleCloudAiplatformV1beta1IndexDatapointCrowdingTag(_messages.Message):
@@ -22099,6 +33164,17 @@ class GoogleCloudAiplatformV1beta1IntegratedGradientsAttribution(_messages.Messa
   stepCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1IntermediateExtractedMemory(_messages.Message):
+  r"""An extracted memory that is the intermediate result before
+  consolidation.
+
+  Fields:
+    fact: Output only. The fact of the extracted memory.
+  """
+
+  fact = _messages.StringField(1)
+
+
 class GoogleCloudAiplatformV1beta1InternalOsServiceStateInstance(_messages.Message):
   r"""Request message for [InternalOsServiceStateInstance].
 
@@ -22162,6 +33238,19 @@ class GoogleCloudAiplatformV1beta1InternalOsServiceStateInstance(_messages.Messa
   serviceState = _messages.EnumField('ServiceStateValueValuesEnum', 2)
 
 
+class GoogleCloudAiplatformV1beta1InvokeRequest(_messages.Message):
+  r"""Request message for PredictionService.Invoke.
+
+  Fields:
+    deployedModelId: ID of the DeployedModel that serves the invoke request.
+    httpBody: The invoke method input. Supports HTTP headers and arbitrary
+      data payload.
+  """
+
+  deployedModelId = _messages.StringField(1)
+  httpBody = _messages.MessageField('GoogleApiHttpBody', 2)
+
+
 class GoogleCloudAiplatformV1beta1JiraSource(_messages.Message):
   r"""The Jira source for the ImportRagFilesRequest.
 
@@ -22195,6 +33284,63 @@ class GoogleCloudAiplatformV1beta1JiraSourceJiraQueries(_messages.Message):
   email = _messages.StringField(3)
   projects = _messages.StringField(4, repeated=True)
   serverUri = _messages.StringField(5)
+
+
+class GoogleCloudAiplatformV1beta1LLMBasedMetricSpec(_messages.Message):
+  r"""Specification for an LLM based metric.
+
+  Messages:
+    AdditionalConfigValue: Optional. Optional additional configuration for the
+      metric.
+
+  Fields:
+    additionalConfig: Optional. Optional additional configuration for the
+      metric.
+    judgeAutoraterConfig: Optional. Optional configuration for the judge LLM
+      (Autorater).
+    metricPromptTemplate: Required. Template for the prompt sent to the judge
+      model.
+    predefinedRubricGenerationSpec: Dynamically generate rubrics using a
+      predefined spec.
+    rubricGenerationSpec: Dynamically generate rubrics using this
+      specification.
+    rubricGroupKey: Use a pre-defined group of rubrics associated with the
+      input. Refers to a key in the rubric_groups map of EvaluationInstance.
+    systemInstruction: Optional. System instructions for the judge model.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AdditionalConfigValue(_messages.Message):
+    r"""Optional. Optional additional configuration for the metric.
+
+    Messages:
+      AdditionalProperty: An additional property for a AdditionalConfigValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AdditionalConfigValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  additionalConfig = _messages.MessageField('AdditionalConfigValue', 1)
+  judgeAutoraterConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoraterConfig', 2)
+  metricPromptTemplate = _messages.StringField(3)
+  predefinedRubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PredefinedMetricSpec', 4)
+  rubricGenerationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricGenerationSpec', 5)
+  rubricGroupKey = _messages.StringField(6)
+  systemInstruction = _messages.StringField(7)
 
 
 class GoogleCloudAiplatformV1beta1LargeModelReference(_messages.Message):
@@ -22397,6 +33543,70 @@ class GoogleCloudAiplatformV1beta1ListEntityTypesResponse(_messages.Message):
   nextPageToken = _messages.StringField(2)
 
 
+class GoogleCloudAiplatformV1beta1ListEvaluationItemsResponse(_messages.Message):
+  r"""Response message for EvaluationManagementService.ListEvaluationItems.
+
+  Fields:
+    evaluationItems: List of EvaluationItems in the requested page.
+    nextPageToken: A token to retrieve the next page of results.
+  """
+
+  evaluationItems = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationItem', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ListEvaluationRunsResponse(_messages.Message):
+  r"""Response message for EvaluationManagementService.ListEvaluationRuns.
+
+  Fields:
+    evaluationRuns: List of EvaluationRuns in the requested page.
+    nextPageToken: A token to retrieve the next page of results.
+  """
+
+  evaluationRuns = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationRun', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ListEvaluationSetsResponse(_messages.Message):
+  r"""Response message for EvaluationManagementService.ListEvaluationSets.
+
+  Fields:
+    evaluationSets: List of EvaluationSets in the requested page.
+    nextPageToken: A token to retrieve the next page of results.
+  """
+
+  evaluationSets = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationSet', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ListEventsResponse(_messages.Message):
+  r"""Response message for SessionService.ListEvents.
+
+  Fields:
+    nextPageToken: A token, which can be sent as ListEventsRequest.page_token
+      to retrieve the next page. Absence of this field indicates there are no
+      subsequent pages.
+    sessionEvents: A list of events matching the request. Ordered by timestamp
+      in ascending order.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  sessionEvents = _messages.MessageField('GoogleCloudAiplatformV1beta1SessionEvent', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ListExampleStoresResponse(_messages.Message):
+  r"""Response message for ExampleStoreService.ListExampleStores.
+
+  Fields:
+    exampleStores: List of ExampleStore in the requested page.
+    nextPageToken: A token to retrieve the next page of results. Pass to
+      ListExampleStoresRequest.page_token to obtain that page.
+  """
+
+  exampleStores = _messages.MessageField('GoogleCloudAiplatformV1beta1ExampleStore', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1ListExecutionsResponse(_messages.Message):
   r"""Response message for MetadataService.ListExecutions.
 
@@ -22580,6 +33790,32 @@ class GoogleCloudAiplatformV1beta1ListIndexesResponse(_messages.Message):
   nextPageToken = _messages.StringField(2)
 
 
+class GoogleCloudAiplatformV1beta1ListMemoriesResponse(_messages.Message):
+  r"""Response message for MemoryBankService.ListMemories.
+
+  Fields:
+    memories: List of Memories in the requested page.
+    nextPageToken: A token to retrieve the next page of results. Pass to
+      ListMemoriesRequest.page_token to obtain that page.
+  """
+
+  memories = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ListMemoryRevisionsResponse(_messages.Message):
+  r"""Response message for MemoryBankService.ListMemoryRevisions.
+
+  Fields:
+    memoryRevisions: The list of Memory Revisions in the request page.
+    nextPageToken: A token, which can be sent as `page_token` to retrieve the
+      next page. If this field is omitted, there are no subsequent pages.
+  """
+
+  memoryRevisions = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryRevision', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1ListMetadataSchemasResponse(_messages.Message):
   r"""Response message for MetadataService.ListMetadataSchemas.
 
@@ -22670,6 +33906,19 @@ class GoogleCloudAiplatformV1beta1ListModelMonitorsResponse(_messages.Message):
   """
 
   modelMonitors = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitor', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1ListModelVersionCheckpointsResponse(_messages.Message):
+  r"""Response message for ModelService.ListModelVersionCheckpoints
+
+  Fields:
+    checkpoints: List of Model Version checkpoints.
+    nextPageToken: A token to retrieve the next page of results. Pass to
+      ListModelVersionCheckpointsRequest.page_token to obtain that page.
+  """
+
+  checkpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelVersionCheckpoint', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
 
 
@@ -22864,6 +34113,20 @@ class GoogleCloudAiplatformV1beta1ListReasoningEnginesResponse(_messages.Message
   reasoningEngines = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngine', 2, repeated=True)
 
 
+class GoogleCloudAiplatformV1beta1ListSandboxEnvironmentsResponse(_messages.Message):
+  r"""Response message for SandboxEnvironmentService.ListSandboxEnvironments.
+
+  Fields:
+    nextPageToken: A token, which can be sent as
+      ListSandboxEnvironmentsRequest.page_token to retrieve the next page.
+      Absence of this field indicates there are no subsequent pages.
+    sandboxEnvironments: The SandboxEnvironments matching the request.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  sandboxEnvironments = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironment', 2, repeated=True)
+
+
 class GoogleCloudAiplatformV1beta1ListSavedQueriesResponse(_messages.Message):
   r"""Response message for DatasetService.ListSavedQueries.
 
@@ -22888,6 +34151,33 @@ class GoogleCloudAiplatformV1beta1ListSchedulesResponse(_messages.Message):
 
   nextPageToken = _messages.StringField(1)
   schedules = _messages.MessageField('GoogleCloudAiplatformV1beta1Schedule', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ListServerlessRayJobsResponse(_messages.Message):
+  r"""Response message for JobService.ListServerlessRayJobs
+
+  Fields:
+    nextPageToken: A token to retrieve the next page of results. Pass to
+      ListCustomJobsRequest.page_token to obtain that page.
+    serverlessRayJobs: List of ServerlessRayJobs in the requested page.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  serverlessRayJobs = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJob', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1ListSessionsResponse(_messages.Message):
+  r"""Response message for SessionService.ListSessions.
+
+  Fields:
+    nextPageToken: A token, which can be sent as
+      ListSessionsRequest.page_token to retrieve the next page. Absence of
+      this field indicates there are no subsequent pages.
+    sessions: A list of sessions matching the request.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  sessions = _messages.MessageField('GoogleCloudAiplatformV1beta1Session', 2, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1ListSpecialistPoolsResponse(_messages.Message):
@@ -23014,12 +34304,20 @@ class GoogleCloudAiplatformV1beta1ListTuningJobsResponse(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1LogprobsResult(_messages.Message):
-  r"""Logprobs Result
+  r"""The log probabilities of the tokens generated by the model. This is
+  useful for understanding the model's confidence in its predictions and for
+  debugging. For example, you can use log probabilities to identify when the
+  model is making a less confident prediction or to explore alternative
+  responses that the model considered. A low log probability can also indicate
+  that the model is "hallucinating" or generating factually incorrect
+  information.
 
   Fields:
-    chosenCandidates: Length = total number of decoding steps. The chosen
-      candidates may or may not be in top_candidates.
-    topCandidates: Length = total number of decoding steps.
+    chosenCandidates: A list of the chosen candidate tokens at each decoding
+      step. The length of this list is equal to the total number of decoding
+      steps. Note that the chosen candidate might not be in `top_candidates`.
+    topCandidates: A list of the top candidate tokens at each decoding step.
+      The length of this list is equal to the total number of decoding steps.
   """
 
   chosenCandidates = _messages.MessageField('GoogleCloudAiplatformV1beta1LogprobsResultCandidate', 1, repeated=True)
@@ -23027,12 +34325,19 @@ class GoogleCloudAiplatformV1beta1LogprobsResult(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1LogprobsResultCandidate(_messages.Message):
-  r"""Candidate for the logprobs token and score.
+  r"""A single token and its associated log probability.
 
   Fields:
-    logProbability: The candidate's log probability.
-    token: The candidate's token string value.
-    tokenId: The candidate's token id value.
+    logProbability: The log probability of this token. A higher value
+      indicates that the model was more confident in this token. The log
+      probability can be used to assess the relative likelihood of different
+      tokens and to identify when the model is uncertain.
+    token: The token's string representation.
+    tokenId: The token's numerical ID. While the `token` field provides the
+      string representation of the token, the `token_id` is the numerical
+      representation that the model uses internally. This can be useful for
+      developers who want to build custom logic based on the model's
+      vocabulary.
   """
 
   logProbability = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
@@ -23041,10 +34346,13 @@ class GoogleCloudAiplatformV1beta1LogprobsResultCandidate(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1LogprobsResultTopCandidates(_messages.Message):
-  r"""Candidates with top log probabilities at each decoding step.
+  r"""A list of the top candidate tokens and their log probabilities at each
+  decoding step. This can be used to see what other tokens the model
+  considered.
 
   Fields:
-    candidates: Sorted by log probability in descending order.
+    candidates: The list of candidate tokens, sorted by log probability in
+      descending order.
   """
 
   candidates = _messages.MessageField('GoogleCloudAiplatformV1beta1LogprobsResultCandidate', 1, repeated=True)
@@ -23060,6 +34368,23 @@ class GoogleCloudAiplatformV1beta1LookupStudyRequest(_messages.Message):
   displayName = _messages.StringField(1)
 
 
+class GoogleCloudAiplatformV1beta1LustreMount(_messages.Message):
+  r"""Represents a mount configuration for Lustre file system.
+
+  Fields:
+    filesystem: Required. The name of the Lustre filesystem.
+    instanceIp: Required. IP address of the Lustre instance.
+    mountPoint: Required. Destination mount path. The Lustre file system will
+      be mounted for the user under /mnt/lustre/
+    volumeHandle: Required. The unique identifier of the Lustre volume.
+  """
+
+  filesystem = _messages.StringField(1)
+  instanceIp = _messages.StringField(2)
+  mountPoint = _messages.StringField(3)
+  volumeHandle = _messages.StringField(4)
+
+
 class GoogleCloudAiplatformV1beta1MachineSpec(_messages.Message):
   r"""Specification of a single machine.
 
@@ -23071,6 +34396,15 @@ class GoogleCloudAiplatformV1beta1MachineSpec(_messages.Message):
     acceleratorCount: The number of accelerators to attach to the machine.
     acceleratorType: Immutable. The type of accelerator(s) that may be
       attached to the machine as per accelerator_count.
+    gpuPartitionSize: Optional. Immutable. The Nvidia GPU partition size. When
+      specified, the requested accelerators will be partitioned into smaller
+      GPU partitions. For example, if the request is for 8 units of NVIDIA
+      A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 *
+      7 = 56 partitioned MIG instances. The partition size must be a value
+      supported by the requested accelerator. Refer to [Nvidia GPU
+      Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-
+      to/gpus-multi#multi-instance_gpu_partitions) for the available partition
+      sizes. If set, the accelerator_count should be set to 1.
     machineType: Immutable. The type of the machine. See the [list of machine
       types supported for prediction](https://cloud.google.com/vertex-
       ai/docs/predictions/configure-compute#machine-types) See the [list of
@@ -23079,6 +34413,8 @@ class GoogleCloudAiplatformV1beta1MachineSpec(_messages.Message):
       compute#machine-types). For DeployedModel this field is optional, and
       the default value is `n1-standard-2`. For BatchPredictionJob or as part
       of WorkerPoolSpec this field is required.
+    multihostGpuNodeCount: Optional. Immutable. The number of nodes per
+      replica for multihost GPU deployments.
     reservationAffinity: Optional. Immutable. Configuration controlling how
       this resource pool consumes reservation.
     tpuTopology: Immutable. The topology of the TPUs. Corresponds to the TPU
@@ -23103,6 +34439,10 @@ class GoogleCloudAiplatformV1beta1MachineSpec(_messages.Message):
       NVIDIA_L4: Nvidia L4 GPU.
       NVIDIA_H100_80GB: Nvidia H100 80Gb GPU.
       NVIDIA_H100_MEGA_80GB: Nvidia H100 Mega 80Gb GPU.
+      NVIDIA_H200_141GB: Nvidia H200 141Gb GPU.
+      NVIDIA_B200: Nvidia B200 GPU.
+      NVIDIA_GB200: Nvidia GB200 GPU.
+      NVIDIA_RTX_PRO_6000: Nvidia RTX Pro 6000 GPU.
       TPU_V2: TPU v2.
       TPU_V3: TPU v3.
       TPU_V4_POD: TPU v4.
@@ -23119,16 +34459,22 @@ class GoogleCloudAiplatformV1beta1MachineSpec(_messages.Message):
     NVIDIA_L4 = 8
     NVIDIA_H100_80GB = 9
     NVIDIA_H100_MEGA_80GB = 10
-    TPU_V2 = 11
-    TPU_V3 = 12
-    TPU_V4_POD = 13
-    TPU_V5_LITEPOD = 14
+    NVIDIA_H200_141GB = 11
+    NVIDIA_B200 = 12
+    NVIDIA_GB200 = 13
+    NVIDIA_RTX_PRO_6000 = 14
+    TPU_V2 = 15
+    TPU_V3 = 16
+    TPU_V4_POD = 17
+    TPU_V5_LITEPOD = 18
 
   acceleratorCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   acceleratorType = _messages.EnumField('AcceleratorTypeValueValuesEnum', 2)
-  machineType = _messages.StringField(3)
-  reservationAffinity = _messages.MessageField('GoogleCloudAiplatformV1beta1ReservationAffinity', 4)
-  tpuTopology = _messages.StringField(5)
+  gpuPartitionSize = _messages.StringField(3)
+  machineType = _messages.StringField(4)
+  multihostGpuNodeCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  reservationAffinity = _messages.MessageField('GoogleCloudAiplatformV1beta1ReservationAffinity', 6)
+  tpuTopology = _messages.StringField(7)
 
 
 class GoogleCloudAiplatformV1beta1ManualBatchTuningParameters(_messages.Message):
@@ -23177,6 +34523,343 @@ class GoogleCloudAiplatformV1beta1MeasurementMetric(_messages.Message):
   value = _messages.FloatField(2)
 
 
+class GoogleCloudAiplatformV1beta1Memory(_messages.Message):
+  r"""A memory.
+
+  Messages:
+    RevisionLabelsValue: Optional. Input only. The labels to apply to the
+      Memory Revision created as a result of this request.
+    ScopeValue: Required. Immutable. The scope of the Memory. Memories are
+      isolated within their scope. The scope is defined when creating or
+      generating memories. Scope values cannot contain the wildcard character
+      '*'.
+
+  Fields:
+    createTime: Output only. Timestamp when this Memory was created.
+    description: Optional. Description of the Memory.
+    disableMemoryRevisions: Optional. Input only. If true, no revision will be
+      created for this request.
+    displayName: Optional. Display name of the Memory.
+    expireTime: Optional. Timestamp of when this resource is considered
+      expired. This is *always* provided on output when `expiration` is set on
+      input, regardless of whether `expire_time` or `ttl` was provided.
+    fact: Required. Semantic knowledge extracted from the source content.
+    name: Identifier. The resource name of the Memory. Format: `projects/{proj
+      ect}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{
+      memory}`
+    revisionExpireTime: Optional. Input only. Timestamp of when the revision
+      is considered expired. If not set, the memory revision will be kept
+      until manually deleted.
+    revisionLabels: Optional. Input only. The labels to apply to the Memory
+      Revision created as a result of this request.
+    revisionTtl: Optional. Input only. The TTL for the revision. The
+      expiration time is computed: now + TTL.
+    scope: Required. Immutable. The scope of the Memory. Memories are isolated
+      within their scope. The scope is defined when creating or generating
+      memories. Scope values cannot contain the wildcard character '*'.
+    topics: Optional. The Topics of the Memory.
+    ttl: Optional. Input only. The TTL for this resource. The expiration time
+      is computed: now + TTL.
+    updateTime: Output only. Timestamp when this Memory was most recently
+      updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RevisionLabelsValue(_messages.Message):
+    r"""Optional. Input only. The labels to apply to the Memory Revision
+    created as a result of this request.
+
+    Messages:
+      AdditionalProperty: An additional property for a RevisionLabelsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type RevisionLabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RevisionLabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ScopeValue(_messages.Message):
+    r"""Required. Immutable. The scope of the Memory. Memories are isolated
+    within their scope. The scope is defined when creating or generating
+    memories. Scope values cannot contain the wildcard character '*'.
+
+    Messages:
+      AdditionalProperty: An additional property for a ScopeValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ScopeValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ScopeValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  disableMemoryRevisions = _messages.BooleanField(3)
+  displayName = _messages.StringField(4)
+  expireTime = _messages.StringField(5)
+  fact = _messages.StringField(6)
+  name = _messages.StringField(7)
+  revisionExpireTime = _messages.StringField(8)
+  revisionLabels = _messages.MessageField('RevisionLabelsValue', 9)
+  revisionTtl = _messages.StringField(10)
+  scope = _messages.MessageField('ScopeValue', 11)
+  topics = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryTopicId', 12, repeated=True)
+  ttl = _messages.StringField(13)
+  updateTime = _messages.StringField(14)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfig(_messages.Message):
+  r"""Configuration for organizing memories for a particular scope.
+
+  Fields:
+    generateMemoriesExamples: Optional. Examples of how to generate memories
+      for a particular scope.
+    memoryTopics: Optional. Topics of information that should be extracted
+      from conversations and stored as memories. If not set, then Memory
+      Bank's default topics will be used.
+    scopeKeys: Optional. The scope keys (i.e. 'user_id') for which to use this
+      config. A request's scope must include all of the provided keys for the
+      config to be used (order does not matter). If empty, then the config
+      will be used for all requests that do not have a more specific config.
+      Only one default config is allowed per Memory Bank.
+  """
+
+  generateMemoriesExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExample', 1, repeated=True)
+  memoryTopics = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopic', 2, repeated=True)
+  scopeKeys = _messages.StringField(3, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExample(_messages.Message):
+  r"""An example of how to generate memories for a particular scope.
+
+  Fields:
+    conversationSource: A conversation source for the example.
+    generatedMemories: Optional. The memories that are expected to be
+      generated from the input conversation. An empty list indicates that no
+      memories are expected to be generated for the input conversation.
+  """
+
+  conversationSource = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource', 1)
+  generatedMemories = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(_messages.Message):
+  r"""A conversation source for the example. This is similar to
+  `DirectContentsSource`.
+
+  Fields:
+    events: Optional. The input conversation events for the example.
+  """
+
+  events = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(_messages.Message):
+  r"""A single conversation event.
+
+  Fields:
+    content: Required. The content of the event.
+  """
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(_messages.Message):
+  r"""A memory generated by the operation.
+
+  Fields:
+    fact: Required. The fact to generate a memory from.
+    topics: Optional. The list of topics that the memory should be associated
+      with. For example, use `custom_memory_topic_label = "jargon"` if the
+      extracted memory is an example of memory extraction for the custom topic
+      `jargon`.
+  """
+
+  fact = _messages.StringField(1)
+  topics = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryTopicId', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopic(_messages.Message):
+  r"""A topic of information that should be extracted from conversations and
+  stored as memories.
+
+  Fields:
+    customMemoryTopic: A custom memory topic defined by the developer.
+    managedMemoryTopic: A managed memory topic defined by Memory Bank.
+  """
+
+  customMemoryTopic = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic', 1)
+  managedMemoryTopic = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic', 2)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_messages.Message):
+  r"""A custom memory topic defined by the developer.
+
+  Fields:
+    description: Required. Description of the memory topic. This should
+      explain what information should be extracted for this topic.
+    label: Required. The label of the topic.
+  """
+
+  description = _messages.StringField(1)
+  label = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_messages.Message):
+  r"""A managed memory topic defined by the system.
+
+  Enums:
+    ManagedTopicEnumValueValuesEnum: Required. The managed topic.
+
+  Fields:
+    managedTopicEnum: Required. The managed topic.
+  """
+
+  class ManagedTopicEnumValueValuesEnum(_messages.Enum):
+    r"""Required. The managed topic.
+
+    Values:
+      MANAGED_TOPIC_ENUM_UNSPECIFIED: Unspecified topic. This value should not
+        be used.
+      USER_PERSONAL_INFO: Significant personal information about the User like
+        first names, relationships, hobbies, important dates.
+      USER_PREFERENCES: Stated or implied likes, dislikes, preferred styles,
+        or patterns.
+      KEY_CONVERSATION_DETAILS: Important milestones or conclusions within the
+        dialogue.
+      EXPLICIT_INSTRUCTIONS: Information that the user explicitly requested to
+        remember or forget.
+    """
+    MANAGED_TOPIC_ENUM_UNSPECIFIED = 0
+    USER_PERSONAL_INFO = 1
+    USER_PREFERENCES = 2
+    KEY_CONVERSATION_DETAILS = 3
+    EXPLICIT_INSTRUCTIONS = 4
+
+  managedTopicEnum = _messages.EnumField('ManagedTopicEnumValueValuesEnum', 1)
+
+
+class GoogleCloudAiplatformV1beta1MemoryRevision(_messages.Message):
+  r"""A revision of a Memory.
+
+  Messages:
+    LabelsValue: Output only. The labels of the Memory Revision. These labels
+      are applied to the MemoryRevision when it is created based on
+      `GenerateMemoriesRequest.revision_labels`.
+
+  Fields:
+    createTime: Output only. Timestamp when this Memory Revision was created.
+    expireTime: Output only. Timestamp of when this resource is considered
+      expired.
+    extractedMemories: Output only. The extracted memories from the source
+      content before consolidation when the memory was updated via
+      GenerateMemories. This information was used to modify an existing Memory
+      via Consolidation.
+    fact: Output only. The fact of the Memory Revision. This corresponds to
+      the `fact` field of the parent Memory at the time of revision creation.
+    labels: Output only. The labels of the Memory Revision. These labels are
+      applied to the MemoryRevision when it is created based on
+      `GenerateMemoriesRequest.revision_labels`.
+    name: Identifier. The resource name of the Memory Revision. Format: `proje
+      cts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/m
+      emories/{memory}/revisions/{memory_revision}`
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Output only. The labels of the Memory Revision. These labels are
+    applied to the MemoryRevision when it is created based on
+    `GenerateMemoriesRequest.revision_labels`.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  expireTime = _messages.StringField(2)
+  extractedMemories = _messages.MessageField('GoogleCloudAiplatformV1beta1IntermediateExtractedMemory', 3, repeated=True)
+  fact = _messages.StringField(4)
+  labels = _messages.MessageField('LabelsValue', 5)
+  name = _messages.StringField(6)
+
+
+class GoogleCloudAiplatformV1beta1MemoryTopicId(_messages.Message):
+  r"""A memory topic identifier. This will be used to label a Memory and to
+  restrict which topics are eligible for generation or retrieval.
+
+  Enums:
+    ManagedMemoryTopicValueValuesEnum: Optional. The managed memory topic.
+
+  Fields:
+    customMemoryTopicLabel: Optional. The custom memory topic label.
+    managedMemoryTopic: Optional. The managed memory topic.
+  """
+
+  class ManagedMemoryTopicValueValuesEnum(_messages.Enum):
+    r"""Optional. The managed memory topic.
+
+    Values:
+      MANAGED_TOPIC_ENUM_UNSPECIFIED: Unspecified topic. This value should not
+        be used.
+      USER_PERSONAL_INFO: Significant personal information about the User like
+        first names, relationships, hobbies, important dates.
+      USER_PREFERENCES: Stated or implied likes, dislikes, preferred styles,
+        or patterns.
+      KEY_CONVERSATION_DETAILS: Important milestones or conclusions within the
+        dialogue.
+      EXPLICIT_INSTRUCTIONS: Information that the user explicitly requested to
+        remember or forget.
+    """
+    MANAGED_TOPIC_ENUM_UNSPECIFIED = 0
+    USER_PERSONAL_INFO = 1
+    USER_PREFERENCES = 2
+    KEY_CONVERSATION_DETAILS = 3
+    EXPLICIT_INSTRUCTIONS = 4
+
+  customMemoryTopicLabel = _messages.StringField(1)
+  managedMemoryTopic = _messages.EnumField('ManagedMemoryTopicValueValuesEnum', 2)
+
+
 class GoogleCloudAiplatformV1beta1MergeVersionAliasesRequest(_messages.Message):
   r"""Request message for ModelService.MergeVersionAliases.
 
@@ -23193,6 +34876,49 @@ class GoogleCloudAiplatformV1beta1MergeVersionAliasesRequest(_messages.Message):
   """
 
   versionAliases = _messages.StringField(1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1Metadata(_messages.Message):
+  r"""Metadata for a chunk.
+
+  Messages:
+    AttributesValue: Optional. Attributes attached to the data. The keys have
+      semantic conventions and the consumers of the attributes should know how
+      to deserialize the value bytes based on the keys.
+
+  Fields:
+    attributes: Optional. Attributes attached to the data. The keys have
+      semantic conventions and the consumers of the attributes should know how
+      to deserialize the value bytes based on the keys.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AttributesValue(_messages.Message):
+    r"""Optional. Attributes attached to the data. The keys have semantic
+    conventions and the consumers of the attributes should know how to
+    deserialize the value bytes based on the keys.
+
+    Messages:
+      AdditionalProperty: An additional property for a AttributesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type AttributesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AttributesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A byte attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.BytesField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  attributes = _messages.MessageField('AttributesValue', 1)
 
 
 class GoogleCloudAiplatformV1beta1MetadataSchema(_messages.Message):
@@ -23292,6 +35018,86 @@ class GoogleCloudAiplatformV1beta1MetadataStoreMetadataStoreState(_messages.Mess
   """
 
   diskUtilizationBytes = _messages.IntegerField(1)
+
+
+class GoogleCloudAiplatformV1beta1Metric(_messages.Message):
+  r"""The metric used for running evaluations.
+
+  Enums:
+    AggregationMetricsValueListEntryValuesEnum:
+
+  Fields:
+    aggregationMetrics: Optional. The aggregation metrics to use.
+    bleuSpec: Spec for bleu metric.
+    customCodeExecutionSpec: Spec for Custom Code Execution metric.
+    exactMatchSpec: Spec for exact match metric.
+    llmBasedMetricSpec: Spec for an LLM based metric.
+    pairwiseMetricSpec: Spec for pairwise metric.
+    pointwiseMetricSpec: Spec for pointwise metric.
+    predefinedMetricSpec: The spec for a pre-defined metric.
+    rougeSpec: Spec for rouge metric.
+  """
+
+  class AggregationMetricsValueListEntryValuesEnum(_messages.Enum):
+    r"""AggregationMetricsValueListEntryValuesEnum enum type.
+
+    Values:
+      AGGREGATION_METRIC_UNSPECIFIED: Unspecified aggregation metric.
+      AVERAGE: Average aggregation metric. Not supported for Pairwise metric.
+      MODE: Mode aggregation metric.
+      STANDARD_DEVIATION: Standard deviation aggregation metric. Not supported
+        for pairwise metric.
+      VARIANCE: Variance aggregation metric. Not supported for pairwise
+        metric.
+      MINIMUM: Minimum aggregation metric. Not supported for pairwise metric.
+      MAXIMUM: Maximum aggregation metric. Not supported for pairwise metric.
+      MEDIAN: Median aggregation metric. Not supported for pairwise metric.
+      PERCENTILE_P90: 90th percentile aggregation metric. Not supported for
+        pairwise metric.
+      PERCENTILE_P95: 95th percentile aggregation metric. Not supported for
+        pairwise metric.
+      PERCENTILE_P99: 99th percentile aggregation metric. Not supported for
+        pairwise metric.
+    """
+    AGGREGATION_METRIC_UNSPECIFIED = 0
+    AVERAGE = 1
+    MODE = 2
+    STANDARD_DEVIATION = 3
+    VARIANCE = 4
+    MINIMUM = 5
+    MAXIMUM = 6
+    MEDIAN = 7
+    PERCENTILE_P90 = 8
+    PERCENTILE_P95 = 9
+    PERCENTILE_P99 = 10
+
+  aggregationMetrics = _messages.EnumField('AggregationMetricsValueListEntryValuesEnum', 1, repeated=True)
+  bleuSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1BleuSpec', 2)
+  customCodeExecutionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomCodeExecutionSpec', 3)
+  exactMatchSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExactMatchSpec', 4)
+  llmBasedMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1LLMBasedMetricSpec', 5)
+  pairwiseMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PairwiseMetricSpec', 6)
+  pointwiseMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PointwiseMetricSpec', 7)
+  predefinedMetricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PredefinedMetricSpec', 8)
+  rougeSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1RougeSpec', 9)
+
+
+class GoogleCloudAiplatformV1beta1MetricResult(_messages.Message):
+  r"""Result for a single metric on a single instance.
+
+  Fields:
+    error: Output only. The error status for the metric result.
+    explanation: Output only. The explanation for the metric result.
+    rubricVerdicts: Output only. For rubric-based metrics, the verdicts for
+      each rubric.
+    score: Output only. The score for the metric. Please refer to each
+      metric's documentation for the meaning of the score.
+  """
+
+  error = _messages.MessageField('GoogleRpcStatus', 1)
+  explanation = _messages.StringField(2)
+  rubricVerdicts = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricVerdict', 3, repeated=True)
+  score = _messages.FloatField(4, variant=_messages.Variant.FLOAT)
 
 
 class GoogleCloudAiplatformV1beta1MetricxInput(_messages.Message):
@@ -23585,6 +35391,45 @@ class GoogleCloudAiplatformV1beta1MigrateResourceResponse(_messages.Message):
   model = _messages.StringField(3)
 
 
+class GoogleCloudAiplatformV1beta1ModalityTokenCount(_messages.Message):
+  r"""Represents a breakdown of token usage by modality. This message is used
+  in CountTokensResponse and GenerateContentResponse.UsageMetadata to provide
+  a detailed view of how many tokens are used by each modality (e.g., text,
+  image, video) in a request. This is particularly useful for multimodal
+  models, allowing you to track and manage token consumption for billing and
+  quota purposes.
+
+  Enums:
+    ModalityValueValuesEnum: The modality that this token count applies to.
+
+  Fields:
+    modality: The modality that this token count applies to.
+    tokenCount: The number of tokens counted for this modality.
+  """
+
+  class ModalityValueValuesEnum(_messages.Enum):
+    r"""The modality that this token count applies to.
+
+    Values:
+      MODALITY_UNSPECIFIED: When a modality is not specified, it is treated as
+        `TEXT`.
+      TEXT: The `Part` contains plain text.
+      IMAGE: The `Part` contains an image.
+      VIDEO: The `Part` contains a video.
+      AUDIO: The `Part` contains audio.
+      DOCUMENT: The `Part` contains a document, such as a PDF.
+    """
+    MODALITY_UNSPECIFIED = 0
+    TEXT = 1
+    IMAGE = 2
+    VIDEO = 3
+    AUDIO = 4
+    DOCUMENT = 5
+
+  modality = _messages.EnumField('ModalityValueValuesEnum', 1)
+  tokenCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
 class GoogleCloudAiplatformV1beta1Model(_messages.Message):
   r"""A trained machine learning Model.
 
@@ -23606,12 +35451,14 @@ class GoogleCloudAiplatformV1beta1Model(_messages.Message):
     baseModelSource: Optional. User input field to specify the base model
       source. Currently it only supports specifing the Model Garden models and
       Genie models.
+    checkpoints: Optional. Output only. The checkpoints of the model.
     containerSpec: Input only. The specification of the container that is to
       be used when deploying this Model. The specification is ingested upon
       ModelService.UploadModel, and all binaries it contains are copied and
       stored internally by Vertex AI. Not required for AutoML Models.
     createTime: Output only. Timestamp when this Model was uploaded into
       Vertex AI.
+    defaultCheckpointId: The default checkpoint id of a model version.
     deployedModels: Output only. The pointers to DeployedModels created from
       this Model. Note that Model could have been deployed to Endpoints in
       different Locations.
@@ -23782,35 +35629,64 @@ class GoogleCloudAiplatformV1beta1Model(_messages.Message):
 
   artifactUri = _messages.StringField(1)
   baseModelSource = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelBaseModelSource', 2)
-  containerSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelContainerSpec', 3)
-  createTime = _messages.StringField(4)
-  deployedModels = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployedModelRef', 5, repeated=True)
-  description = _messages.StringField(6)
-  displayName = _messages.StringField(7)
-  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 8)
-  etag = _messages.StringField(9)
-  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 10)
-  labels = _messages.MessageField('LabelsValue', 11)
-  metadata = _messages.MessageField('extra_types.JsonValue', 12)
-  metadataArtifact = _messages.StringField(13)
-  metadataSchemaUri = _messages.StringField(14)
-  modelSourceInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelSourceInfo', 15)
-  name = _messages.StringField(16)
-  originalModelInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelOriginalModelInfo', 17)
-  predictSchemata = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictSchemata', 18)
-  satisfiesPzi = _messages.BooleanField(19)
-  satisfiesPzs = _messages.BooleanField(20)
-  supportedDeploymentResourcesTypes = _messages.EnumField('SupportedDeploymentResourcesTypesValueListEntryValuesEnum', 21, repeated=True)
-  supportedExportFormats = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelExportFormat', 22, repeated=True)
-  supportedInputStorageFormats = _messages.StringField(23, repeated=True)
-  supportedOutputStorageFormats = _messages.StringField(24, repeated=True)
-  trainingPipeline = _messages.StringField(25)
-  updateTime = _messages.StringField(26)
-  versionAliases = _messages.StringField(27, repeated=True)
-  versionCreateTime = _messages.StringField(28)
-  versionDescription = _messages.StringField(29)
-  versionId = _messages.StringField(30)
-  versionUpdateTime = _messages.StringField(31)
+  checkpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1Checkpoint', 3, repeated=True)
+  containerSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelContainerSpec', 4)
+  createTime = _messages.StringField(5)
+  defaultCheckpointId = _messages.StringField(6)
+  deployedModels = _messages.MessageField('GoogleCloudAiplatformV1beta1DeployedModelRef', 7, repeated=True)
+  description = _messages.StringField(8)
+  displayName = _messages.StringField(9)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 10)
+  etag = _messages.StringField(11)
+  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 12)
+  labels = _messages.MessageField('LabelsValue', 13)
+  metadata = _messages.MessageField('extra_types.JsonValue', 14)
+  metadataArtifact = _messages.StringField(15)
+  metadataSchemaUri = _messages.StringField(16)
+  modelSourceInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelSourceInfo', 17)
+  name = _messages.StringField(18)
+  originalModelInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelOriginalModelInfo', 19)
+  predictSchemata = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictSchemata', 20)
+  satisfiesPzi = _messages.BooleanField(21)
+  satisfiesPzs = _messages.BooleanField(22)
+  supportedDeploymentResourcesTypes = _messages.EnumField('SupportedDeploymentResourcesTypesValueListEntryValuesEnum', 23, repeated=True)
+  supportedExportFormats = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelExportFormat', 24, repeated=True)
+  supportedInputStorageFormats = _messages.StringField(25, repeated=True)
+  supportedOutputStorageFormats = _messages.StringField(26, repeated=True)
+  trainingPipeline = _messages.StringField(27)
+  updateTime = _messages.StringField(28)
+  versionAliases = _messages.StringField(29, repeated=True)
+  versionCreateTime = _messages.StringField(30)
+  versionDescription = _messages.StringField(31)
+  versionId = _messages.StringField(32)
+  versionUpdateTime = _messages.StringField(33)
+
+
+class GoogleCloudAiplatformV1beta1ModelArmorConfig(_messages.Message):
+  r"""Configuration for Model Armor. Model Armor is a Google Cloud service
+  that provides safety and security filtering for prompts and responses. It
+  helps protect your AI applications from risks such as harmful content,
+  sensitive data leakage, and prompt injection attacks.
+
+  Fields:
+    promptTemplateName: Optional. The resource name of the Model Armor
+      template to use for prompt screening. A Model Armor template is a set of
+      customized filters and thresholds that define how Model Armor screens
+      content. If specified, Model Armor will use this template to check the
+      user's prompt for safety and security risks before it is sent to the
+      model. The name must be in the format
+      `projects/{project}/locations/{location}/templates/{template}`.
+    responseTemplateName: Optional. The resource name of the Model Armor
+      template to use for response screening. A Model Armor template is a set
+      of customized filters and thresholds that define how Model Armor screens
+      content. If specified, Model Armor will use this template to check the
+      model's response for safety and security risks before it is returned to
+      the user. The name must be in the format
+      `projects/{project}/locations/{location}/templates/{template}`.
+  """
+
+  promptTemplateName = _messages.StringField(1)
+  responseTemplateName = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1ModelBaseModelSource(_messages.Message):
@@ -23952,6 +35828,14 @@ class GoogleCloudAiplatformV1beta1ModelContainerSpec(_messages.Message):
       to one of Vertex AI's [pre-built container images for
       prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-
       built-containers) in this field.
+    invokeRoutePrefix: Immutable. Invoke route prefix for the custom
+      container. "/*" is the only supported value right now. By setting this
+      field, any non-root route on this model will be accessible with invoke
+      http call eg: "/invoke/foo/bar", however the [PredictionService.Invoke]
+      RPC is not supported yet. Only one of `predict_route` or
+      `invoke_route_prefix` can be set, and we default to using
+      `predict_route` if this field is not set. If this field is set, the
+      Model can only be deployed to dedicated endpoint.
     livenessProbe: Immutable. Specification for Kubernetes liveness probe.
     ports: Immutable. List of ports to expose from the container. Vertex AI
       sends any prediction requests that it receives to the first port on this
@@ -23998,11 +35882,12 @@ class GoogleCloudAiplatformV1beta1ModelContainerSpec(_messages.Message):
   healthProbe = _messages.MessageField('GoogleCloudAiplatformV1beta1Probe', 6)
   healthRoute = _messages.StringField(7)
   imageUri = _messages.StringField(8)
-  livenessProbe = _messages.MessageField('GoogleCloudAiplatformV1beta1Probe', 9)
-  ports = _messages.MessageField('GoogleCloudAiplatformV1beta1Port', 10, repeated=True)
-  predictRoute = _messages.StringField(11)
-  sharedMemorySizeMb = _messages.IntegerField(12)
-  startupProbe = _messages.MessageField('GoogleCloudAiplatformV1beta1Probe', 13)
+  invokeRoutePrefix = _messages.StringField(9)
+  livenessProbe = _messages.MessageField('GoogleCloudAiplatformV1beta1Probe', 10)
+  ports = _messages.MessageField('GoogleCloudAiplatformV1beta1Port', 11, repeated=True)
+  predictRoute = _messages.StringField(12)
+  sharedMemorySizeMb = _messages.IntegerField(13)
+  startupProbe = _messages.MessageField('GoogleCloudAiplatformV1beta1Probe', 14)
 
 
 class GoogleCloudAiplatformV1beta1ModelDeploymentMonitoringBigQueryTable(_messages.Message):
@@ -24587,7 +36472,7 @@ class GoogleCloudAiplatformV1beta1ModelExportFormat(_messages.Message):
       [TensorFlow.js](https://www.tensorflow.org/js) model that can be used in
       the browser and in Node.js using JavaScript. * `core-ml` Used for iOS
       mobile devices. * `custom-trained` A Model that was uploaded or trained
-      by custom code.
+      by custom code. * `genie` A tuned Model Garden model.
   """
 
   class ExportableContentsValueListEntryValuesEnum(_messages.Enum):
@@ -24616,9 +36501,14 @@ class GoogleCloudAiplatformV1beta1ModelGardenSource(_messages.Message):
 
   Fields:
     publicModelName: Required. The model garden source model resource name.
+    skipHfModelCache: Optional. Whether to avoid pulling the model from the HF
+      cache.
+    versionId: Optional. The model garden source model version ID.
   """
 
   publicModelName = _messages.StringField(1)
+  skipHfModelCache = _messages.BooleanField(2)
+  versionId = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1ModelMonitor(_messages.Message):
@@ -24631,6 +36521,9 @@ class GoogleCloudAiplatformV1beta1ModelMonitor(_messages.Message):
     createTime: Output only. Timestamp when this ModelMonitor was created.
     displayName: The display name of the ModelMonitor. The name can be up to
       128 characters long and can consist of any UTF-8.
+    encryptionSpec: Customer-managed encryption key spec for a ModelMonitor.
+      If set, this ModelMonitor and all sub-resources of this ModelMonitor
+      will be secured by this key.
     explanationSpec: Optional model explanation spec. It is used for feature
       attribution monitoring.
     modelMonitoringSchema: Monitoring Schema is to specify the model's
@@ -24662,17 +36555,18 @@ class GoogleCloudAiplatformV1beta1ModelMonitor(_messages.Message):
 
   createTime = _messages.StringField(1)
   displayName = _messages.StringField(2)
-  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 3)
-  modelMonitoringSchema = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringSchema', 4)
-  modelMonitoringTarget = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitorModelMonitoringTarget', 5)
-  name = _messages.StringField(6)
-  notificationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringNotificationSpec', 7)
-  outputSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringOutputSpec', 8)
-  satisfiesPzi = _messages.BooleanField(9)
-  satisfiesPzs = _messages.BooleanField(10)
-  tabularObjective = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringObjectiveSpecTabularObjective', 11)
-  trainingDataset = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringInput', 12)
-  updateTime = _messages.StringField(13)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 3)
+  explanationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ExplanationSpec', 4)
+  modelMonitoringSchema = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringSchema', 5)
+  modelMonitoringTarget = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitorModelMonitoringTarget', 6)
+  name = _messages.StringField(7)
+  notificationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringNotificationSpec', 8)
+  outputSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringOutputSpec', 9)
+  satisfiesPzi = _messages.BooleanField(10)
+  satisfiesPzs = _messages.BooleanField(11)
+  tabularObjective = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringObjectiveSpecTabularObjective', 12)
+  trainingDataset = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelMonitoringInput', 13)
+  updateTime = _messages.StringField(14)
 
 
 class GoogleCloudAiplatformV1beta1ModelMonitorModelMonitoringTarget(_messages.Message):
@@ -24885,7 +36779,7 @@ class GoogleCloudAiplatformV1beta1ModelMonitoringInputModelMonitoringDatasetMode
     format: Data format of the dataset.
     gcsUri: Google Cloud Storage URI to the input file(s). May contain
       wildcards. For more information on wildcards, see
-      https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+      https://cloud.google.com/storage/docs/wildcards.
   """
 
   class FormatValueValuesEnum(_messages.Enum):
@@ -25818,6 +37712,31 @@ class GoogleCloudAiplatformV1beta1ModelSourceInfo(_messages.Message):
   sourceType = _messages.EnumField('SourceTypeValueValuesEnum', 2)
 
 
+class GoogleCloudAiplatformV1beta1ModelVersionCheckpoint(_messages.Message):
+  r"""Describes the machine learning model version checkpoint.
+
+  Fields:
+    checkpointId: The ID of the checkpoint.
+    epoch: The epoch of the checkpoint.
+    step: The step of the checkpoint.
+  """
+
+  checkpointId = _messages.StringField(1)
+  epoch = _messages.IntegerField(2)
+  step = _messages.IntegerField(3)
+
+
+class GoogleCloudAiplatformV1beta1MultiSpeakerVoiceConfig(_messages.Message):
+  r"""Configuration for a multi-speaker text-to-speech request.
+
+  Fields:
+    speakerVoiceConfigs: Required. A list of configurations for the voices of
+      the speakers. Exactly two speaker voice configurations must be provided.
+  """
+
+  speakerVoiceConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1SpeakerVoiceConfig', 1, repeated=True)
+
+
 class GoogleCloudAiplatformV1beta1MutateDeployedIndexOperationMetadata(_messages.Message):
   r"""Runtime operation information for
   IndexEndpointService.MutateDeployedIndex.
@@ -25860,8 +37779,11 @@ class GoogleCloudAiplatformV1beta1MutateDeployedModelRequest(_messages.Message):
       Endpoint. Only the following fields can be mutated: *
       `min_replica_count` in either DedicatedResources or AutomaticResources *
       `max_replica_count` in either DedicatedResources or AutomaticResources *
+      `required_replica_count` in DedicatedResources *
       autoscaling_metric_specs * `disable_container_logging` (v1 only) *
-      `enable_container_logging` (v1beta1 only)
+      `enable_container_logging` (v1beta1 only) * `scale_to_zero_spec` in
+      DedicatedResources (v1beta1 only) * `initial_replica_count` in
+      DedicatedResources (v1beta1 only)
     updateMask: Required. The update mask applies to the resource. See
       google.protobuf.FieldMask.
   """
@@ -26434,6 +38356,9 @@ class GoogleCloudAiplatformV1beta1NearestNeighborSearchOperationMetadataRecordEr
       INVALID_TOKEN_VALUE: Token restrict value is invalid.
       INVALID_SPARSE_EMBEDDING: Invalid sparse embedding.
       INVALID_EMBEDDING: Invalid dense embedding.
+      INVALID_EMBEDDING_METADATA: Invalid embedding metadata.
+      EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT: Embedding metadata exceeds size
+        limit.
     """
     ERROR_TYPE_UNSPECIFIED = 0
     EMPTY_LINE = 1
@@ -26453,6 +38378,8 @@ class GoogleCloudAiplatformV1beta1NearestNeighborSearchOperationMetadataRecordEr
     INVALID_TOKEN_VALUE = 15
     INVALID_SPARSE_EMBEDDING = 16
     INVALID_EMBEDDING = 17
+    INVALID_EMBEDDING_METADATA = 18
+    EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT = 19
 
   embeddingId = _messages.StringField(1)
   errorMessage = _messages.StringField(2)
@@ -26610,8 +38537,8 @@ class GoogleCloudAiplatformV1beta1NotebookExecutionJob(_messages.Message):
       d}`
     notebookRuntimeTemplateResourceName: The NotebookRuntimeTemplate to source
       compute configuration from.
-    scheduleResourceName: Output only. The Schedule resource name if this job
-      is triggered by one. Format:
+    scheduleResourceName: The Schedule resource name if this job is triggered
+      by one. Format:
       `projects/{project_id}/locations/{location}/schedules/{schedule_id}`
     serviceAccount: The service account to run the execution as.
     status: Output only. Populated when the NotebookExecutionJob is completed.
@@ -26786,10 +38713,55 @@ class GoogleCloudAiplatformV1beta1NotebookIdleShutdownConfig(_messages.Message):
   idleTimeout = _messages.StringField(2)
 
 
+class GoogleCloudAiplatformV1beta1NotebookReservationAffinity(_messages.Message):
+  r"""Notebook Reservation Affinity for consuming Zonal reservation.
+
+  Enums:
+    ConsumeReservationTypeValueValuesEnum: Required. Specifies the type of
+      reservation from which this instance can consume resources:
+      RESERVATION_ANY (default), RESERVATION_SPECIFIC, or RESERVATION_NONE.
+      See Consuming reserved instances for examples.
+
+  Fields:
+    consumeReservationType: Required. Specifies the type of reservation from
+      which this instance can consume resources: RESERVATION_ANY (default),
+      RESERVATION_SPECIFIC, or RESERVATION_NONE. See Consuming reserved
+      instances for examples.
+    key: Optional. Corresponds to the label key of a reservation resource. To
+      target a RESERVATION_SPECIFIC by name, use
+      compute.googleapis.com/reservation-name as the key and specify the name
+      of your reservation as its value.
+    values: Optional. Corresponds to the label values of a reservation
+      resource. This must be the full path name of Reservation.
+  """
+
+  class ConsumeReservationTypeValueValuesEnum(_messages.Enum):
+    r"""Required. Specifies the type of reservation from which this instance
+    can consume resources: RESERVATION_ANY (default), RESERVATION_SPECIFIC, or
+    RESERVATION_NONE. See Consuming reserved instances for examples.
+
+    Values:
+      RESERVATION_AFFINITY_TYPE_UNSPECIFIED: Default type.
+      RESERVATION_NONE: Do not consume from any allocated capacity.
+      RESERVATION_ANY: Consume any reservation available.
+      RESERVATION_SPECIFIC: Must consume from a specific reservation. Must
+        specify key value fields for specifying the reservations.
+    """
+    RESERVATION_AFFINITY_TYPE_UNSPECIFIED = 0
+    RESERVATION_NONE = 1
+    RESERVATION_ANY = 2
+    RESERVATION_SPECIFIC = 3
+
+  consumeReservationType = _messages.EnumField('ConsumeReservationTypeValueValuesEnum', 1)
+  key = _messages.StringField(2)
+  values = _messages.StringField(3, repeated=True)
+
+
 class GoogleCloudAiplatformV1beta1NotebookRuntime(_messages.Message):
   r"""A runtime is a virtual machine allocated to a particular user for a
-  particular Notebook file on temporary basis with lifetime limited to 24
-  hours.
+  particular Notebook file on temporary basis with lifetime. Default runtimes
+  have a lifetime of 18 hours, while custom runtimes last for 6 months from
+  their creation or last upgrade.
 
   Enums:
     HealthStateValueValuesEnum: Output only. The health state of the
@@ -26861,6 +38833,8 @@ class GoogleCloudAiplatformV1beta1NotebookRuntime(_messages.Message):
     notebookRuntimeType: Output only. The type of the notebook runtime.
     proxyUri: Output only. The proxy endpoint used to access the
       NotebookRuntime.
+    reservationAffinity: Output only. Reservation Affinity of the notebook
+      runtime.
     runtimeState: Output only. The runtime (instance) state of the
       NotebookRuntime.
     runtimeUser: Required. The user email of the NotebookRuntime.
@@ -26873,6 +38847,7 @@ class GoogleCloudAiplatformV1beta1NotebookRuntime(_messages.Message):
       ai-notebook-service-account for more details. The service account that
       the NotebookRuntime workload runs as.
     shieldedVmConfig: Output only. Runtime Shielded VM spec.
+    softwareConfig: Output only. Software config of the notebook runtime.
     updateTime: Output only. Timestamp when this NotebookRuntime was most
       recently updated.
     version: Output only. The VM os image version of NotebookRuntime.
@@ -26911,7 +38886,8 @@ class GoogleCloudAiplatformV1beta1NotebookRuntime(_messages.Message):
     Values:
       RUNTIME_STATE_UNSPECIFIED: Unspecified runtime state.
       RUNNING: NotebookRuntime is in running state.
-      BEING_STARTED: NotebookRuntime is in starting state.
+      BEING_STARTED: NotebookRuntime is in starting state. This is when the
+        runtime is being started from a stopped state.
       BEING_STOPPED: NotebookRuntime is in stopping state.
       STOPPED: NotebookRuntime is in stopped state.
       BEING_UPGRADED: NotebookRuntime is in upgrading state. It is in the
@@ -26983,14 +38959,16 @@ class GoogleCloudAiplatformV1beta1NotebookRuntime(_messages.Message):
   notebookRuntimeTemplateRef = _messages.MessageField('GoogleCloudAiplatformV1beta1NotebookRuntimeTemplateRef', 16)
   notebookRuntimeType = _messages.EnumField('NotebookRuntimeTypeValueValuesEnum', 17)
   proxyUri = _messages.StringField(18)
-  runtimeState = _messages.EnumField('RuntimeStateValueValuesEnum', 19)
-  runtimeUser = _messages.StringField(20)
-  satisfiesPzi = _messages.BooleanField(21)
-  satisfiesPzs = _messages.BooleanField(22)
-  serviceAccount = _messages.StringField(23)
-  shieldedVmConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ShieldedVmConfig', 24)
-  updateTime = _messages.StringField(25)
-  version = _messages.StringField(26)
+  reservationAffinity = _messages.MessageField('GoogleCloudAiplatformV1beta1NotebookReservationAffinity', 19)
+  runtimeState = _messages.EnumField('RuntimeStateValueValuesEnum', 20)
+  runtimeUser = _messages.StringField(21)
+  satisfiesPzi = _messages.BooleanField(22)
+  satisfiesPzs = _messages.BooleanField(23)
+  serviceAccount = _messages.StringField(24)
+  shieldedVmConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ShieldedVmConfig', 25)
+  softwareConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1NotebookSoftwareConfig', 26)
+  updateTime = _messages.StringField(27)
+  version = _messages.StringField(28)
 
 
 class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplate(_messages.Message):
@@ -27045,6 +39023,8 @@ class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplate(_messages.Message):
       network-tags)).
     notebookRuntimeType: Optional. Immutable. The type of the notebook runtime
       template.
+    reservationAffinity: Optional. Reservation Affinity of the notebook
+      runtime template.
     serviceAccount: Deprecated: This field is ignored and the "Vertex AI
       Notebook Service Account" (service-PROJECT_NUMBER@gcp-sa-aiplatform-
       vm.iam.gserviceaccount.com) is used for the runtime workload identity.
@@ -27057,6 +39037,8 @@ class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplate(_messages.Message):
       account](https://cloud.google.com/compute/docs/access/service-
       accounts#default_service_account) is used.
     shieldedVmConfig: Optional. Immutable. Runtime Shielded VM spec.
+    softwareConfig: Optional. The notebook software configuration of the
+      notebook runtime.
     updateTime: Output only. Timestamp when this NotebookRuntimeTemplate was
       most recently updated.
   """
@@ -27119,9 +39101,11 @@ class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplate(_messages.Message):
   networkSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1NetworkSpec', 13)
   networkTags = _messages.StringField(14, repeated=True)
   notebookRuntimeType = _messages.EnumField('NotebookRuntimeTypeValueValuesEnum', 15)
-  serviceAccount = _messages.StringField(16)
-  shieldedVmConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ShieldedVmConfig', 17)
-  updateTime = _messages.StringField(18)
+  reservationAffinity = _messages.MessageField('GoogleCloudAiplatformV1beta1NotebookReservationAffinity', 16)
+  serviceAccount = _messages.StringField(17)
+  shieldedVmConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ShieldedVmConfig', 18)
+  softwareConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1NotebookSoftwareConfig', 19)
+  updateTime = _messages.StringField(20)
 
 
 class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplateRef(_messages.Message):
@@ -27135,22 +39119,165 @@ class GoogleCloudAiplatformV1beta1NotebookRuntimeTemplateRef(_messages.Message):
   notebookRuntimeTemplate = _messages.StringField(1)
 
 
-class GoogleCloudAiplatformV1beta1PSCAutomationConfig(_messages.Message):
-  r"""PSC config that is used to automatically create forwarding rule via
-  ServiceConnectionMap.
+class GoogleCloudAiplatformV1beta1NotebookSoftwareConfig(_messages.Message):
+  r"""Notebook Software Config. This is passed to the backend when user makes
+  software configurations in UI.
 
   Fields:
+    colabImage: Optional. Google-managed NotebookRuntime colab image.
+    env: Optional. Environment variables to be passed to the container.
+      Maximum limit is 100.
+    postStartupScriptConfig: Optional. Post startup script config.
+  """
+
+  colabImage = _messages.MessageField('GoogleCloudAiplatformV1beta1ColabImage', 1)
+  env = _messages.MessageField('GoogleCloudAiplatformV1beta1EnvVar', 2, repeated=True)
+  postStartupScriptConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PostStartupScriptConfig', 3)
+
+
+class GoogleCloudAiplatformV1beta1OptimizePromptRequest(_messages.Message):
+  r"""Request message for GenAiTuningService.OptimizePrompt.
+
+  Enums:
+    OptimizationTargetValueValuesEnum: Optional. The target model to optimize
+      the prompt for.
+
+  Fields:
+    content: Required. The content to optimize.
+    optimizationTarget: Optional. The target model to optimize the prompt for.
+  """
+
+  class OptimizationTargetValueValuesEnum(_messages.Enum):
+    r"""Optional. The target model to optimize the prompt for.
+
+    Values:
+      OPTIMIZATION_TARGET_UNSPECIFIED: Unspecified optimization target.
+        Default to OPTIMIZATION_TARGET_GENERAL.
+      OPTIMIZATION_TARGET_GENERAL: Optimize the prompt for quality.
+      OPTIMIZATION_TARGET_GEMINI_NANO: Optimize the prompt for Gemini Nano.
+    """
+    OPTIMIZATION_TARGET_UNSPECIFIED = 0
+    OPTIMIZATION_TARGET_GENERAL = 1
+    OPTIMIZATION_TARGET_GEMINI_NANO = 2
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+  optimizationTarget = _messages.EnumField('OptimizationTargetValueValuesEnum', 2)
+
+
+class GoogleCloudAiplatformV1beta1OptimizePromptResponse(_messages.Message):
+  r"""Response message for GenAiTuningService.OptimizePrompt
+
+  Fields:
+    content: Output only. The optimized prompt content.
+  """
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+
+
+class GoogleCloudAiplatformV1beta1OutputConfig(_messages.Message):
+  r"""Config for evaluation output.
+
+  Fields:
+    gcsDestination: Cloud storage destination for evaluation output.
+  """
+
+  gcsDestination = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 1)
+
+
+class GoogleCloudAiplatformV1beta1OutputFieldSpec(_messages.Message):
+  r"""Defines a specification for a single output field.
+
+  Enums:
+    FieldTypeValueValuesEnum: Optional. The data type of the field. Defaults
+      to CONTENT if not set.
+
+  Fields:
+    fieldName: Required. The name of the output field.
+    fieldType: Optional. The data type of the field. Defaults to CONTENT if
+      not set.
+    guidance: Optional. Optional, but recommended. Additional guidance
+      specific to this field to provide targeted instructions for the LLM to
+      generate the content of a single output field. While the LLM can
+      sometimes infer content from the field name, providing explicit guidance
+      is preferred.
+  """
+
+  class FieldTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The data type of the field. Defaults to CONTENT if not set.
+
+    Values:
+      FIELD_TYPE_UNSPECIFIED: Field type is unspecified.
+      CONTENT: Arbitrary content field type.
+      TEXT: Text field type.
+      IMAGE: Image field type.
+      AUDIO: Audio field type.
+    """
+    FIELD_TYPE_UNSPECIFIED = 0
+    CONTENT = 1
+    TEXT = 2
+    IMAGE = 3
+    AUDIO = 4
+
+  fieldName = _messages.StringField(1)
+  fieldType = _messages.EnumField('FieldTypeValueValuesEnum', 2)
+  guidance = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1OutputInfo(_messages.Message):
+  r"""Describes the info for output of EvaluationService.EvaluateDataset.
+
+  Fields:
+    gcsOutputDirectory: Output only. The full path of the Cloud Storage
+      directory created, into which the evaluation results and aggregation
+      results are written.
+  """
+
+  gcsOutputDirectory = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1PSCAutomationConfig(_messages.Message):
+  r"""PSC config that is used to automatically create PSC endpoints in the
+  user projects.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the PSC service
+      automation.
+
+  Fields:
+    errorMessage: Output only. Error message if the PSC service automation
+      failed.
+    forwardingRule: Output only. Forwarding rule created by the PSC service
+      automation.
+    ipAddress: Output only. IP address rule created by the PSC service
+      automation.
     network: Required. The full name of the Google Compute Engine
       [network](https://cloud.google.com/compute/docs/networks-and-
       firewalls#networks). [Format](https://cloud.google.com/compute/docs/refe
-      rence/rest/v1/networks/insert):
-      `projects/{project}/global/networks/{network}`. Where {project} is a
-      project number, as in '12345', and {network} is network name.
+      rence/rest/v1/networks/get):
+      `projects/{project}/global/networks/{network}`.
     projectId: Required. Project id used to create forwarding rule.
+    state: Output only. The state of the PSC service automation.
   """
 
-  network = _messages.StringField(1)
-  projectId = _messages.StringField(2)
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the PSC service automation.
+
+    Values:
+      PSC_AUTOMATION_STATE_UNSPECIFIED: Should not be used.
+      PSC_AUTOMATION_STATE_SUCCESSFUL: The PSC service automation is
+        successful.
+      PSC_AUTOMATION_STATE_FAILED: The PSC service automation has failed.
+    """
+    PSC_AUTOMATION_STATE_UNSPECIFIED = 0
+    PSC_AUTOMATION_STATE_SUCCESSFUL = 1
+    PSC_AUTOMATION_STATE_FAILED = 2
+
+  errorMessage = _messages.StringField(1)
+  forwardingRule = _messages.StringField(2)
+  ipAddress = _messages.StringField(3)
+  network = _messages.StringField(4)
+  projectId = _messages.StringField(5)
+  state = _messages.EnumField('StateValueValuesEnum', 6)
 
 
 class GoogleCloudAiplatformV1beta1PairwiseMetricInput(_messages.Message):
@@ -27170,12 +39297,17 @@ class GoogleCloudAiplatformV1beta1PairwiseMetricInstance(_messages.Message):
   an evaluation dataset.
 
   Fields:
+    contentMapInstance: Key-value contents for the mutlimodality input,
+      including text, image, video, audio, and pdf, etc. The key is
+      placeholder in metric prompt template, and the value is the multimodal
+      content.
     jsonInstance: Instance specified as a json string. String key-value pairs
       are expected in the json_instance to render
       PairwiseMetricSpec.instance_prompt_template.
   """
 
-  jsonInstance = _messages.StringField(1)
+  contentMapInstance = _messages.MessageField('GoogleCloudAiplatformV1beta1ContentMap', 1)
+  jsonInstance = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1PairwiseMetricResult(_messages.Message):
@@ -27185,6 +39317,7 @@ class GoogleCloudAiplatformV1beta1PairwiseMetricResult(_messages.Message):
     PairwiseChoiceValueValuesEnum: Output only. Pairwise metric choice.
 
   Fields:
+    customOutput: Output only. Spec for custom output.
     explanation: Output only. Explanation for pairwise metric score.
     pairwiseChoice: Output only. Pairwise metric choice.
   """
@@ -27203,19 +39336,34 @@ class GoogleCloudAiplatformV1beta1PairwiseMetricResult(_messages.Message):
     CANDIDATE = 2
     TIE = 3
 
-  explanation = _messages.StringField(1)
-  pairwiseChoice = _messages.EnumField('PairwiseChoiceValueValuesEnum', 2)
+  customOutput = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomOutput', 1)
+  explanation = _messages.StringField(2)
+  pairwiseChoice = _messages.EnumField('PairwiseChoiceValueValuesEnum', 3)
 
 
 class GoogleCloudAiplatformV1beta1PairwiseMetricSpec(_messages.Message):
   r"""Spec for pairwise metric.
 
   Fields:
+    baselineResponseFieldName: Optional. The field name of the baseline
+      response.
+    candidateResponseFieldName: Optional. The field name of the candidate
+      response.
+    customOutputFormatConfig: Optional. CustomOutputFormatConfig allows
+      customization of metric output. When this config is set, the default
+      output is replaced with the raw output string. If a custom format is
+      chosen, the `pairwise_choice` and `explanation` fields in the
+      corresponding metric result will be empty.
     metricPromptTemplate: Required. Metric prompt template for pairwise
       metric.
+    systemInstruction: Optional. System instructions for pairwise metric.
   """
 
-  metricPromptTemplate = _messages.StringField(1)
+  baselineResponseFieldName = _messages.StringField(1)
+  candidateResponseFieldName = _messages.StringField(2)
+  customOutputFormatConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomOutputFormatConfig', 3)
+  metricPromptTemplate = _messages.StringField(4)
+  systemInstruction = _messages.StringField(5)
 
 
 class GoogleCloudAiplatformV1beta1PairwiseQuestionAnsweringQualityInput(_messages.Message):
@@ -27373,26 +39521,31 @@ class GoogleCloudAiplatformV1beta1PairwiseSummarizationQualitySpec(_messages.Mes
 
 
 class GoogleCloudAiplatformV1beta1Part(_messages.Message):
-  r"""A datatype containing media that is part of a multi-part `Content`
+  r"""A datatype containing media that is part of a multi-part Content
   message. A `Part` consists of data which has an associated datatype. A
-  `Part` can only contain one of the accepted types in `Part.data`. A `Part`
-  must have a fixed IANA MIME type identifying the type and subtype of the
-  media if `inline_data` or `file_data` field is filled with raw bytes.
+  `Part` can only contain one of the accepted types in `Part.data`. For media
+  types that are not text, `Part` must have a fixed IANA MIME type identifying
+  the type and subtype of the media if `inline_data` or `file_data` field is
+  filled with raw bytes.
 
   Fields:
-    codeExecutionResult: Optional. Result of executing the [ExecutableCode].
-    executableCode: Optional. Code generated by the model that is meant to be
-      executed.
-    fileData: Optional. URI based data.
-    functionCall: Optional. A predicted [FunctionCall] returned from the model
-      that contains a string representing the [FunctionDeclaration.name] with
-      the parameters and their values.
-    functionResponse: Optional. The result output of a [FunctionCall] that
-      contains a string representing the [FunctionDeclaration.name] and a
-      structured JSON object containing any output from the function call. It
-      is used as context to the model.
-    inlineData: Optional. Inlined bytes data.
-    text: Optional. Text part (can be code).
+    codeExecutionResult: Optional. The result of executing the ExecutableCode.
+    executableCode: Optional. Code generated by the model that is intended to
+      be executed.
+    fileData: Optional. The URI-based data of the part. This can be used to
+      include files from Google Cloud Storage.
+    functionCall: Optional. A predicted function call returned from the model.
+      This contains the name of the function to call and the arguments to pass
+      to the function.
+    functionResponse: Optional. The result of a function call. This is used to
+      provide the model with the result of a function call that it predicted.
+    inlineData: Optional. The inline data content of the part. This can be
+      used to include images, audio, or video in a request.
+    text: Optional. The text content of the part.
+    thought: Optional. Indicates whether the `part` represents the model's
+      thought process or reasoning.
+    thoughtSignature: Optional. An opaque signature for the thought so it can
+      be reused in subsequent requests.
     videoMetadata: Optional. Video metadata. The metadata should only be
       specified while the video data is presented in inline_data or file_data.
   """
@@ -27404,7 +39557,9 @@ class GoogleCloudAiplatformV1beta1Part(_messages.Message):
   functionResponse = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionResponse', 5)
   inlineData = _messages.MessageField('GoogleCloudAiplatformV1beta1Blob', 6)
   text = _messages.StringField(7)
-  videoMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1VideoMetadata', 8)
+  thought = _messages.BooleanField(8)
+  thoughtSignature = _messages.BytesField(9)
+  videoMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1VideoMetadata', 10)
 
 
 class GoogleCloudAiplatformV1beta1PartnerModelTuningSpec(_messages.Message):
@@ -28101,6 +40256,13 @@ class GoogleCloudAiplatformV1beta1PipelineTaskDetail(_messages.Message):
     taskId: Output only. The system generated ID of the task.
     taskName: Output only. The user specified name of the task that is defined
       in pipeline_spec.
+    taskUniqueName: Output only. The unique name of a task. This field is used
+      by rerun pipeline job. Console UI and Vertex AI SDK will support
+      triggering pipeline job reruns. The name is constructed by concatenating
+      all the parent tasks name with the task name. For example, if a task
+      named "child_task" has a parent task named "parent_task_1" and parent
+      task 1 has a parent task named "parent_task_2", the task unique name
+      will be "parent_task_2.parent_task_1.child_task".
   """
 
   class StateValueValuesEnum(_messages.Enum):
@@ -28194,6 +40356,7 @@ class GoogleCloudAiplatformV1beta1PipelineTaskDetail(_messages.Message):
   state = _messages.EnumField('StateValueValuesEnum', 11)
   taskId = _messages.IntegerField(12)
   taskName = _messages.StringField(13)
+  taskUniqueName = _messages.StringField(14)
 
 
 class GoogleCloudAiplatformV1beta1PipelineTaskDetailArtifactList(_messages.Message):
@@ -28436,35 +40599,51 @@ class GoogleCloudAiplatformV1beta1PointwiseMetricInstance(_messages.Message):
   in an evaluation dataset.
 
   Fields:
+    contentMapInstance: Key-value contents for the mutlimodality input,
+      including text, image, video, audio, and pdf, etc. The key is
+      placeholder in metric prompt template, and the value is the multimodal
+      content.
     jsonInstance: Instance specified as a json string. String key-value pairs
       are expected in the json_instance to render
       PointwiseMetricSpec.instance_prompt_template.
   """
 
-  jsonInstance = _messages.StringField(1)
+  contentMapInstance = _messages.MessageField('GoogleCloudAiplatformV1beta1ContentMap', 1)
+  jsonInstance = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1PointwiseMetricResult(_messages.Message):
   r"""Spec for pointwise metric result.
 
   Fields:
+    customOutput: Output only. Spec for custom output.
     explanation: Output only. Explanation for pointwise metric score.
     score: Output only. Pointwise metric score.
   """
 
-  explanation = _messages.StringField(1)
-  score = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  customOutput = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomOutput', 1)
+  explanation = _messages.StringField(2)
+  score = _messages.FloatField(3, variant=_messages.Variant.FLOAT)
 
 
 class GoogleCloudAiplatformV1beta1PointwiseMetricSpec(_messages.Message):
   r"""Spec for pointwise metric.
 
   Fields:
+    customOutputFormatConfig: Optional. CustomOutputFormatConfig allows
+      customization of metric output. By default, metrics return a score and
+      explanation. When this config is set, the default output is replaced
+      with either: - The raw output string. - A parsed output based on a user-
+      defined schema. If a custom format is chosen, the `score` and
+      `explanation` fields in the corresponding metric result will be empty.
     metricPromptTemplate: Required. Metric prompt template for pointwise
       metric.
+    systemInstruction: Optional. System instructions for pointwise metric.
   """
 
-  metricPromptTemplate = _messages.StringField(1)
+  customOutputFormatConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1CustomOutputFormatConfig', 1)
+  metricPromptTemplate = _messages.StringField(2)
+  systemInstruction = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1Port(_messages.Message):
@@ -28476,6 +40655,118 @@ class GoogleCloudAiplatformV1beta1Port(_messages.Message):
   """
 
   containerPort = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1PostStartupScriptConfig(_messages.Message):
+  r"""Post startup script config.
+
+  Enums:
+    PostStartupScriptBehaviorValueValuesEnum: Optional. Post startup script
+      behavior that defines download and execution behavior.
+
+  Fields:
+    postStartupScript: Optional. Post startup script to run after runtime is
+      started.
+    postStartupScriptBehavior: Optional. Post startup script behavior that
+      defines download and execution behavior.
+    postStartupScriptUrl: Optional. Post startup script url to download.
+      Example: `gs://bucket/script.sh`
+  """
+
+  class PostStartupScriptBehaviorValueValuesEnum(_messages.Enum):
+    r"""Optional. Post startup script behavior that defines download and
+    execution behavior.
+
+    Values:
+      POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED: Unspecified post startup
+        script behavior.
+      RUN_ONCE: Run post startup script after runtime is started.
+      RUN_EVERY_START: Run post startup script after runtime is stopped.
+      DOWNLOAD_AND_RUN_EVERY_START: Download and run post startup script every
+        time runtime is started.
+    """
+    POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED = 0
+    RUN_ONCE = 1
+    RUN_EVERY_START = 2
+    DOWNLOAD_AND_RUN_EVERY_START = 3
+
+  postStartupScript = _messages.StringField(1)
+  postStartupScriptBehavior = _messages.EnumField('PostStartupScriptBehaviorValueValuesEnum', 2)
+  postStartupScriptUrl = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1PreTunedModel(_messages.Message):
+  r"""A pre-tuned model for continuous tuning.
+
+  Fields:
+    baseModel: Output only. The name of the base model this PreTunedModel was
+      tuned from.
+    checkpointId: Optional. The source checkpoint id. If not specified, the
+      default checkpoint will be used.
+    tunedModelName: The resource name of the Model. E.g., a model resource
+      name with a specified version id or alias:
+      `projects/{project}/locations/{location}/models/{model}@{version_id}`
+      `projects/{project}/locations/{location}/models/{model}@{alias}` Or,
+      omit the version id to use the default version:
+      `projects/{project}/locations/{location}/models/{model}`
+  """
+
+  baseModel = _messages.StringField(1)
+  checkpointId = _messages.StringField(2)
+  tunedModelName = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1PrebuiltVoiceConfig(_messages.Message):
+  r"""Configuration for a prebuilt voice.
+
+  Fields:
+    voiceName: The name of the prebuilt voice to use.
+  """
+
+  voiceName = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1PredefinedMetricSpec(_messages.Message):
+  r"""The spec for a pre-defined metric.
+
+  Messages:
+    MetricSpecParametersValue: Optional. The parameters needed to run the pre-
+      defined metric.
+
+  Fields:
+    metricSpecName: Required. The name of a pre-defined metric, such as
+      "instruction_following_v1" or "text_quality_v1".
+    metricSpecParameters: Optional. The parameters needed to run the pre-
+      defined metric.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MetricSpecParametersValue(_messages.Message):
+    r"""Optional. The parameters needed to run the pre-defined metric.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        MetricSpecParametersValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MetricSpecParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  metricSpecName = _messages.StringField(1)
+  metricSpecParameters = _messages.MessageField('MetricSpecParametersValue', 2)
 
 
 class GoogleCloudAiplatformV1beta1PredefinedSplit(_messages.Message):
@@ -28531,6 +40822,10 @@ class GoogleCloudAiplatformV1beta1PredictLongRunningResponse(_messages.Message):
 class GoogleCloudAiplatformV1beta1PredictRequest(_messages.Message):
   r"""Request message for PredictionService.Predict.
 
+  Messages:
+    LabelsValue: Optional. The user labels for Imagen billing usage only. Only
+      Imagen supports labels. For other use cases, it will be ignored.
+
   Fields:
     instances: Required. The instances that are the input to the prediction
       call. A DeployedModel may have an upper limit on the number of instances
@@ -28539,13 +40834,41 @@ class GoogleCloudAiplatformV1beta1PredictRequest(_messages.Message):
       the behaviour is as documented by that Model. The schema of any single
       instance may be specified via Endpoint's DeployedModels' Model's
       PredictSchemata's instance_schema_uri.
+    labels: Optional. The user labels for Imagen billing usage only. Only
+      Imagen supports labels. For other use cases, it will be ignored.
     parameters: The parameters that govern the prediction. The schema of the
       parameters may be specified via Endpoint's DeployedModels' Model's
       PredictSchemata's parameters_schema_uri.
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. The user labels for Imagen billing usage only. Only Imagen
+    supports labels. For other use cases, it will be ignored.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   instances = _messages.MessageField('extra_types.JsonValue', 1, repeated=True)
-  parameters = _messages.MessageField('extra_types.JsonValue', 2)
+  labels = _messages.MessageField('LabelsValue', 2)
+  parameters = _messages.MessageField('extra_types.JsonValue', 3)
 
 
 class GoogleCloudAiplatformV1beta1PredictRequestResponseLoggingConfig(_messages.Message):
@@ -28557,14 +40880,23 @@ class GoogleCloudAiplatformV1beta1PredictRequestResponseLoggingConfig(_messages.
       BigQuery-dataset-name compatible (e.g. most special characters will
       become underscores). If no table name is given, a new table will be
       created with name `request_response_logging`
+    enableOtelLogging: This field is used for large models. If true, in
+      addition to the original large model logs, logs will be converted in
+      OTel schema format, and saved in otel_log column. Default value is
+      false.
     enabled: If logging is enabled or not.
+    requestResponseLoggingSchemaVersion: Output only. The schema version used
+      in creating the BigQuery table for the request response logging. The
+      versions are "v1" and "v2". The current default version is "v1".
     samplingRate: Percentage of requests to be logged, expressed as a fraction
       in range(0,1].
   """
 
   bigqueryDestination = _messages.MessageField('GoogleCloudAiplatformV1beta1BigQueryDestination', 1)
-  enabled = _messages.BooleanField(2)
-  samplingRate = _messages.FloatField(3)
+  enableOtelLogging = _messages.BooleanField(2)
+  enabled = _messages.BooleanField(3)
+  requestResponseLoggingSchemaVersion = _messages.StringField(4)
+  samplingRate = _messages.FloatField(5)
 
 
 class GoogleCloudAiplatformV1beta1PredictResponse(_messages.Message):
@@ -28636,6 +40968,108 @@ class GoogleCloudAiplatformV1beta1PredictSchemata(_messages.Message):
   instanceSchemaUri = _messages.StringField(1)
   parametersSchemaUri = _messages.StringField(2)
   predictionSchemaUri = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1PreferenceOptimizationDataStats(_messages.Message):
+  r"""Statistics computed for datasets used for preference optimization.
+
+  Fields:
+    droppedExampleIndices: Output only. A partial sample of the indices
+      (starting from 1) of the dropped examples.
+    droppedExampleReasons: Output only. For each index in
+      `dropped_example_indices`, the user-facing reason why the example was
+      dropped.
+    scoreVariancePerExampleDistribution: Output only. Dataset distributions
+      for scores variance per example.
+    scoresDistribution: Output only. Dataset distributions for scores.
+    totalBillableTokenCount: Output only. Number of billable tokens in the
+      tuning dataset.
+    tuningDatasetExampleCount: Output only. Number of examples in the tuning
+      dataset.
+    tuningStepCount: Output only. Number of tuning steps for this Tuning Job.
+    userDatasetExamples: Output only. Sample user examples in the training
+      dataset.
+    userInputTokenDistribution: Output only. Dataset distributions for the
+      user input tokens.
+    userOutputTokenDistribution: Output only. Dataset distributions for the
+      user output tokens.
+  """
+
+  droppedExampleIndices = _messages.IntegerField(1, repeated=True)
+  droppedExampleReasons = _messages.StringField(2, repeated=True)
+  scoreVariancePerExampleDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 3)
+  scoresDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 4)
+  totalBillableTokenCount = _messages.IntegerField(5)
+  tuningDatasetExampleCount = _messages.IntegerField(6)
+  tuningStepCount = _messages.IntegerField(7)
+  userDatasetExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1GeminiPreferenceExample', 8, repeated=True)
+  userInputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 9)
+  userOutputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1DatasetDistribution', 10)
+
+
+class GoogleCloudAiplatformV1beta1PreferenceOptimizationHyperParameters(_messages.Message):
+  r"""Hyperparameters for Preference Optimization.
+
+  Enums:
+    AdapterSizeValueValuesEnum: Optional. Adapter size for preference
+      optimization.
+
+  Fields:
+    adapterSize: Optional. Adapter size for preference optimization.
+    beta: Optional. Weight for KL Divergence regularization.
+    epochCount: Optional. Number of complete passes the model makes over the
+      entire training dataset during training.
+    learningRateMultiplier: Optional. Multiplier for adjusting the default
+      learning rate.
+  """
+
+  class AdapterSizeValueValuesEnum(_messages.Enum):
+    r"""Optional. Adapter size for preference optimization.
+
+    Values:
+      ADAPTER_SIZE_UNSPECIFIED: Adapter size is unspecified.
+      ADAPTER_SIZE_ONE: Adapter size 1.
+      ADAPTER_SIZE_TWO: Adapter size 2.
+      ADAPTER_SIZE_FOUR: Adapter size 4.
+      ADAPTER_SIZE_EIGHT: Adapter size 8.
+      ADAPTER_SIZE_SIXTEEN: Adapter size 16.
+      ADAPTER_SIZE_THIRTY_TWO: Adapter size 32.
+    """
+    ADAPTER_SIZE_UNSPECIFIED = 0
+    ADAPTER_SIZE_ONE = 1
+    ADAPTER_SIZE_TWO = 2
+    ADAPTER_SIZE_FOUR = 3
+    ADAPTER_SIZE_EIGHT = 4
+    ADAPTER_SIZE_SIXTEEN = 5
+    ADAPTER_SIZE_THIRTY_TWO = 6
+
+  adapterSize = _messages.EnumField('AdapterSizeValueValuesEnum', 1)
+  beta = _messages.FloatField(2)
+  epochCount = _messages.IntegerField(3)
+  learningRateMultiplier = _messages.FloatField(4)
+
+
+class GoogleCloudAiplatformV1beta1PreferenceOptimizationSpec(_messages.Message):
+  r"""Tuning Spec for Preference Optimization.
+
+  Fields:
+    exportLastCheckpointOnly: Optional. If set to true, disable intermediate
+      checkpoints for Preference Optimization and only the last checkpoint
+      will be exported. Otherwise, enable intermediate checkpoints for
+      Preference Optimization. Default is false.
+    hyperParameters: Optional. Hyperparameters for Preference Optimization.
+    trainingDatasetUri: Required. Cloud Storage path to file containing
+      training dataset for preference optimization tuning. The dataset must be
+      formatted as a JSONL file.
+    validationDatasetUri: Optional. Cloud Storage path to file containing
+      validation dataset for preference optimization tuning. The dataset must
+      be formatted as a JSONL file.
+  """
+
+  exportLastCheckpointOnly = _messages.BooleanField(1)
+  hyperParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1PreferenceOptimizationHyperParameters', 2)
+  trainingDatasetUri = _messages.StringField(3)
+  validationDatasetUri = _messages.StringField(4)
 
 
 class GoogleCloudAiplatformV1beta1Presets(_messages.Message):
@@ -28725,6 +41159,9 @@ class GoogleCloudAiplatformV1beta1PrivateServiceConnectConfig(_messages.Message)
       slightly increased if authorization is enabled.
     projectAllowlist: A list of Projects from which the forwarding rule will
       target the service attachment.
+    pscAutomationConfigs: Optional. List of projects and networks where the
+      PSC endpoints will be created. This field is used by Online
+      Inference(Prediction) only.
     serviceAttachment: Output only. The name of the generated service
       attachment resource. This is only populated if the endpoint is deployed
       with PrivateServiceConnect.
@@ -28733,7 +41170,8 @@ class GoogleCloudAiplatformV1beta1PrivateServiceConnectConfig(_messages.Message)
   enablePrivateServiceConnect = _messages.BooleanField(1)
   enableSecurePrivateServiceConnect = _messages.BooleanField(2)
   projectAllowlist = _messages.StringField(3, repeated=True)
-  serviceAttachment = _messages.StringField(4)
+  pscAutomationConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1PSCAutomationConfig', 4, repeated=True)
+  serviceAttachment = _messages.StringField(5)
 
 
 class GoogleCloudAiplatformV1beta1Probe(_messages.Message):
@@ -28742,13 +41180,22 @@ class GoogleCloudAiplatformV1beta1Probe(_messages.Message):
 
   Fields:
     exec_: ExecAction probes the health of a container by executing a command.
+    failureThreshold: Number of consecutive failures before the probe is
+      considered failed. Defaults to 3. Minimum value is 1. Maps to Kubernetes
+      probe argument 'failureThreshold'.
     grpc: GrpcAction probes the health of a container by sending a gRPC
       request.
     httpGet: HttpGetAction probes the health of a container by sending an HTTP
       GET request.
+    initialDelaySeconds: Number of seconds to wait before starting the probe.
+      Defaults to 0. Minimum value is 0. Maps to Kubernetes probe argument
+      'initialDelaySeconds'.
     periodSeconds: How often (in seconds) to perform the probe. Default to 10
       seconds. Minimum value is 1. Must be less than timeout_seconds. Maps to
       Kubernetes probe argument 'periodSeconds'.
+    successThreshold: Number of consecutive successes before the probe is
+      considered successful. Defaults to 1. Minimum value is 1. Maps to
+      Kubernetes probe argument 'successThreshold'.
     tcpSocket: TcpSocketAction probes the health of a container by opening a
       TCP socket connection.
     timeoutSeconds: Number of seconds after which the probe times out.
@@ -28757,11 +41204,14 @@ class GoogleCloudAiplatformV1beta1Probe(_messages.Message):
   """
 
   exec_ = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeExecAction', 1)
-  grpc = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeGrpcAction', 2)
-  httpGet = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeHttpGetAction', 3)
-  periodSeconds = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  tcpSocket = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeTcpSocketAction', 5)
-  timeoutSeconds = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  failureThreshold = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  grpc = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeGrpcAction', 3)
+  httpGet = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeHttpGetAction', 4)
+  initialDelaySeconds = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  periodSeconds = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  successThreshold = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  tcpSocket = _messages.MessageField('GoogleCloudAiplatformV1beta1ProbeTcpSocketAction', 8)
+  timeoutSeconds = _messages.IntegerField(9, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1ProbeExecAction(_messages.Message):
@@ -28786,9 +41236,9 @@ class GoogleCloudAiplatformV1beta1ProbeGrpcAction(_messages.Message):
     port: Port number of the gRPC service. Number must be in the range 1 to
       65535.
     service: Service is the name of the service to place in the gRPC
-      HealthCheckRequest (see
-      https://github.com/grpc/grpc/blob/master/doc/health-checking.md). If
-      this is not specified, the default behavior is defined by gRPC.
+      HealthCheckRequest. See
+      https://github.com/grpc/grpc/blob/master/doc/health-checking.md. If this
+      is not specified, the default behavior is defined by gRPC.
   """
 
   port = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -28864,6 +41314,11 @@ class GoogleCloudAiplatformV1beta1PscInterfaceConfig(_messages.Message):
   r"""Configuration for PSC-I.
 
   Fields:
+    dnsPeeringConfigs: Optional. DNS peering configurations. When specified,
+      Vertex AI will attempt to configure DNS peering zones in the tenant
+      project VPC to resolve the specified domains using the target network's
+      Cloud DNS. The user must grant the dns.peer role to the Vertex AI
+      Service Agent on the target project.
     networkAttachment: Optional. The name of the Compute Engine [network
       attachment](https://cloud.google.com/vpc/docs/about-network-attachments)
       to attach to the resource within the region and user project. To specify
@@ -28873,7 +41328,8 @@ class GoogleCloudAiplatformV1beta1PscInterfaceConfig(_messages.Message):
       resources using PSC-I.
   """
 
-  networkAttachment = _messages.StringField(1)
+  dnsPeeringConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1DnsPeeringConfig', 1, repeated=True)
+  networkAttachment = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1PublisherModel(_messages.Message):
@@ -29158,10 +41614,15 @@ class GoogleCloudAiplatformV1beta1PublisherModelCallToActionRegionalResourceRefe
     ReferencesValue: Required.
 
   Fields:
+    colabNotebookDisabled: Optional. For notebook resource. When set to true,
+      the Colab Enterprise link will be disabled in the "open notebook" dialog
+      in UI.
     references: Required.
     resourceDescription: Optional. Description of the resource.
     resourceTitle: Optional. Title of the resource.
     resourceUseCase: Optional. Use case (CUJ) of the resource.
+    supportsWorkbench: Optional. For notebook resource, whether the notebook
+      supports Workbench.
     title: Required.
   """
 
@@ -29190,11 +41651,13 @@ class GoogleCloudAiplatformV1beta1PublisherModelCallToActionRegionalResourceRefe
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  references = _messages.MessageField('ReferencesValue', 1)
-  resourceDescription = _messages.StringField(2)
-  resourceTitle = _messages.StringField(3)
-  resourceUseCase = _messages.StringField(4)
-  title = _messages.StringField(5)
+  colabNotebookDisabled = _messages.BooleanField(1)
+  references = _messages.MessageField('ReferencesValue', 2)
+  resourceDescription = _messages.StringField(3)
+  resourceTitle = _messages.StringField(4)
+  resourceUseCase = _messages.StringField(5)
+  supportsWorkbench = _messages.BooleanField(6)
+  title = _messages.StringField(7)
 
 
 class GoogleCloudAiplatformV1beta1PublisherModelCallToActionViewRestApi(_messages.Message):
@@ -29209,6 +41672,16 @@ class GoogleCloudAiplatformV1beta1PublisherModelCallToActionViewRestApi(_message
   title = _messages.StringField(2)
 
 
+class GoogleCloudAiplatformV1beta1PublisherModelConfig(_messages.Message):
+  r"""This message contains configs of a publisher model.
+
+  Fields:
+    loggingConfig: The prediction request/response logging config.
+  """
+
+  loggingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PredictRequestResponseLoggingConfig', 1)
+
+
 class GoogleCloudAiplatformV1beta1PublisherModelDocumentation(_messages.Message):
   r"""A named piece of documentation.
 
@@ -29220,6 +41693,20 @@ class GoogleCloudAiplatformV1beta1PublisherModelDocumentation(_messages.Message)
 
   content = _messages.StringField(1)
   title = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1PublisherModelEulaAcceptance(_messages.Message):
+  r"""Response message for ModelGardenService.UpdatePublisherModelEula.
+
+  Fields:
+    projectNumber: The project number requesting access for named model.
+    publisherModel: The publisher model resource name.
+    publisherModelEulaAcked: The EULA content acceptance status.
+  """
+
+  projectNumber = _messages.IntegerField(1)
+  publisherModel = _messages.StringField(2)
+  publisherModelEulaAcked = _messages.BooleanField(3)
 
 
 class GoogleCloudAiplatformV1beta1PublisherModelParent(_messages.Message):
@@ -29738,6 +42225,32 @@ class GoogleCloudAiplatformV1beta1QuestionAnsweringRelevanceSpec(_messages.Messa
   version = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1RagChunk(_messages.Message):
+  r"""A RagChunk includes the content of a chunk of a RagFile, and associated
+  metadata.
+
+  Fields:
+    pageSpan: If populated, represents where the chunk starts and ends in the
+      document.
+    text: The content of the chunk.
+  """
+
+  pageSpan = _messages.MessageField('GoogleCloudAiplatformV1beta1RagChunkPageSpan', 1)
+  text = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1RagChunkPageSpan(_messages.Message):
+  r"""Represents where the chunk starts and ends in the document.
+
+  Fields:
+    firstPage: Page where chunk starts in the document. Inclusive. 1-indexed.
+    lastPage: Page where chunk ends in the document. Inclusive. 1-indexed.
+  """
+
+  firstPage = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  lastPage = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
 class GoogleCloudAiplatformV1beta1RagContexts(_messages.Message):
   r"""Relevant contexts for one query.
 
@@ -29752,6 +42265,7 @@ class GoogleCloudAiplatformV1beta1RagContextsContext(_messages.Message):
   r"""A context of the query.
 
   Fields:
+    chunk: Context of the retrieved chunk.
     distance: The distance between the query dense embedding vector and the
       context text vector.
     score: According to the underlying Vector DB and the selected metric type,
@@ -29770,12 +42284,13 @@ class GoogleCloudAiplatformV1beta1RagContextsContext(_messages.Message):
     text: The text chunk.
   """
 
-  distance = _messages.FloatField(1)
-  score = _messages.FloatField(2)
-  sourceDisplayName = _messages.StringField(3)
-  sourceUri = _messages.StringField(4)
-  sparseDistance = _messages.FloatField(5)
-  text = _messages.StringField(6)
+  chunk = _messages.MessageField('GoogleCloudAiplatformV1beta1RagChunk', 1)
+  distance = _messages.FloatField(2)
+  score = _messages.FloatField(3)
+  sourceDisplayName = _messages.StringField(4)
+  sourceUri = _messages.StringField(5)
+  sparseDistance = _messages.FloatField(6)
+  text = _messages.StringField(7)
 
 
 class GoogleCloudAiplatformV1beta1RagCorpus(_messages.Message):
@@ -29784,15 +42299,25 @@ class GoogleCloudAiplatformV1beta1RagCorpus(_messages.Message):
 
   Fields:
     corpusStatus: Output only. RagCorpus state.
+    corpusTypeConfig: Optional. The corpus type config of the RagCorpus.
     createTime: Output only. Timestamp when this RagCorpus was created.
     description: Optional. The description of the RagCorpus.
     displayName: Required. The display name of the RagCorpus. The name can be
       up to 128 characters long and can consist of any UTF-8 characters.
+    encryptionSpec: Optional. Immutable. The CMEK key name used to encrypt at-
+      rest data related to this Corpus. Only applicable to RagManagedDb option
+      for Vector DB. This field can only be set at corpus creation time, and
+      cannot be updated or deleted.
     name: Output only. The resource name of the RagCorpus.
     ragEmbeddingModelConfig: Optional. Immutable. The embedding model config
       of the RagCorpus.
+    ragFilesCount: Output only. Number of RagFiles in the RagCorpus. NOTE:
+      This field is not populated in the response of
+      VertexRagDataService.ListRagCorpora.
     ragVectorDbConfig: Optional. Immutable. The Vector DB config of the
       RagCorpus.
+    satisfiesPzi: Output only. Reserved for future use.
+    satisfiesPzs: Output only. Reserved for future use.
     updateTime: Output only. Timestamp when this RagCorpus was last updated.
     vectorDbConfig: Optional. Immutable. The config for the Vector DBs.
     vertexAiSearchConfig: Optional. Immutable. The config for the Vertex AI
@@ -29800,15 +42325,46 @@ class GoogleCloudAiplatformV1beta1RagCorpus(_messages.Message):
   """
 
   corpusStatus = _messages.MessageField('GoogleCloudAiplatformV1beta1CorpusStatus', 1)
-  createTime = _messages.StringField(2)
-  description = _messages.StringField(3)
-  displayName = _messages.StringField(4)
-  name = _messages.StringField(5)
-  ragEmbeddingModelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagEmbeddingModelConfig', 6)
-  ragVectorDbConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfig', 7)
-  updateTime = _messages.StringField(8)
-  vectorDbConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfig', 9)
-  vertexAiSearchConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexAiSearchConfig', 10)
+  corpusTypeConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfig', 2)
+  createTime = _messages.StringField(3)
+  description = _messages.StringField(4)
+  displayName = _messages.StringField(5)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 6)
+  name = _messages.StringField(7)
+  ragEmbeddingModelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagEmbeddingModelConfig', 8)
+  ragFilesCount = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  ragVectorDbConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfig', 10)
+  satisfiesPzi = _messages.BooleanField(11)
+  satisfiesPzs = _messages.BooleanField(12)
+  updateTime = _messages.StringField(13)
+  vectorDbConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfig', 14)
+  vertexAiSearchConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexAiSearchConfig', 15)
+
+
+class GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfig(_messages.Message):
+  r"""The config for the corpus type of the RagCorpus.
+
+  Fields:
+    documentCorpus: Optional. Config for the document corpus.
+    memoryCorpus: Optional. Config for the memory corpus.
+  """
+
+  documentCorpus = _messages.MessageField('GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfigDocumentCorpus', 1)
+  memoryCorpus = _messages.MessageField('GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfigMemoryCorpus', 2)
+
+
+class GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfigDocumentCorpus(_messages.Message):
+  r"""Config for the document corpus."""
+
+
+class GoogleCloudAiplatformV1beta1RagCorpusCorpusTypeConfigMemoryCorpus(_messages.Message):
+  r"""Config for the memory corpus.
+
+  Fields:
+    llmParser: The LLM parser to use for the memory corpus.
+  """
+
+  llmParser = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfigLlmParser', 1)
 
 
 class GoogleCloudAiplatformV1beta1RagEmbeddingModelConfig(_messages.Message):
@@ -29889,6 +42445,19 @@ class GoogleCloudAiplatformV1beta1RagEmbeddingModelConfigVertexPredictionEndpoin
   modelVersionId = _messages.StringField(3)
 
 
+class GoogleCloudAiplatformV1beta1RagEngineConfig(_messages.Message):
+  r"""Config for RagEngine.
+
+  Fields:
+    name: Identifier. The name of the RagEngineConfig. Format:
+      `projects/{project}/locations/{location}/ragEngineConfig`
+    ragManagedDbConfig: The config of the RagManagedDb used by RagEngine.
+  """
+
+  name = _messages.StringField(1)
+  ragManagedDbConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagManagedDbConfig', 2)
+
+
 class GoogleCloudAiplatformV1beta1RagFile(_messages.Message):
   r"""A RagFile contains user data for chunking, embedding and indexing.
 
@@ -29914,6 +42483,8 @@ class GoogleCloudAiplatformV1beta1RagFile(_messages.Message):
     sizeBytes: Output only. The size of the RagFile in bytes.
     slackSource: The RagFile is imported from a Slack channel.
     updateTime: Output only. Timestamp when this RagFile was last updated.
+    userMetadata: Output only. The metadata for metadata search. The
+      user_metadata Needs to be in JSON format.
   """
 
   class RagFileTypeValueValuesEnum(_messages.Enum):
@@ -29942,6 +42513,7 @@ class GoogleCloudAiplatformV1beta1RagFile(_messages.Message):
   sizeBytes = _messages.IntegerField(12)
   slackSource = _messages.MessageField('GoogleCloudAiplatformV1beta1SlackSource', 13)
   updateTime = _messages.StringField(14)
+  userMetadata = _messages.StringField(15)
 
 
 class GoogleCloudAiplatformV1beta1RagFileChunkingConfig(_messages.Message):
@@ -29970,18 +42542,59 @@ class GoogleCloudAiplatformV1beta1RagFileChunkingConfigFixedLengthChunking(_mess
   chunkSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1RagFileMetadataConfig(_messages.Message):
+  r"""Metadata config for RagFile.
+
+  Fields:
+    gcsMetadataSchemaSource: Google Cloud Storage location. Supports importing
+      individual files as well as entire Google Cloud Storage directories.
+      Sample formats: -
+      `gs://bucket_name/my_directory/object_name/metadata_schema.json` -
+      `gs://bucket_name/my_directory` If the user provides a directory, the
+      metadata schema will be read from the files that ends with
+      "metadata_schema.json" in the directory.
+    gcsMetadataSource: Google Cloud Storage location. Supports importing
+      individual files as well as entire Google Cloud Storage directories.
+      Sample formats: -
+      `gs://bucket_name/my_directory/object_name/metadata.json` -
+      `gs://bucket_name/my_directory` If the user provides a directory, the
+      metadata will be read from the files that ends with "metadata.json" in
+      the directory.
+    googleDriveMetadataSchemaSource: Google Drive location. Supports importing
+      individual files as well as Google Drive folders. If the user provides a
+      folder, the metadata schema will be read from the files that ends with
+      "metadata_schema.json" in the directory.
+    googleDriveMetadataSource: Google Drive location. Supports importing
+      individual files as well as Google Drive folders. If the user provides a
+      directory, the metadata will be read from the files that ends with
+      "metadata.json" in the directory.
+    inlineMetadataSchemaSource: Inline metadata schema source. Must be a JSON
+      string.
+    inlineMetadataSource: Inline metadata source. Must be a JSON string.
+  """
+
+  gcsMetadataSchemaSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsSource', 1)
+  gcsMetadataSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsSource', 2)
+  googleDriveMetadataSchemaSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleDriveSource', 3)
+  googleDriveMetadataSource = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleDriveSource', 4)
+  inlineMetadataSchemaSource = _messages.StringField(5)
+  inlineMetadataSource = _messages.StringField(6)
+
+
 class GoogleCloudAiplatformV1beta1RagFileParsingConfig(_messages.Message):
   r"""Specifies the parsing config for RagFiles.
 
   Fields:
     advancedParser: The Advanced Parser to use for RagFiles.
     layoutParser: The Layout Parser to use for RagFiles.
+    llmParser: The LLM Parser to use for RagFiles.
     useAdvancedPdfParsing: Whether to use advanced PDF parsing.
   """
 
   advancedParser = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfigAdvancedParser', 1)
   layoutParser = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfigLayoutParser', 2)
-  useAdvancedPdfParsing = _messages.BooleanField(3)
+  llmParser = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfigLlmParser', 3)
+  useAdvancedPdfParsing = _messages.BooleanField(4)
 
 
 class GoogleCloudAiplatformV1beta1RagFileParsingConfigAdvancedParser(_messages.Message):
@@ -29998,6 +42611,12 @@ class GoogleCloudAiplatformV1beta1RagFileParsingConfigLayoutParser(_messages.Mes
   r"""Document AI Layout Parser config.
 
   Fields:
+    globalMaxParsingRequestsPerMin: The maximum number of requests the job is
+      allowed to make to the Document AI processor per minute in this project.
+      Consult https://cloud.google.com/document-ai/quotas and the Quota page
+      for your project to set an appropriate value here. If this value is not
+      specified, max_parsing_requests_per_min will be used by indexing
+      pipeline as the global limit.
     maxParsingRequestsPerMin: The maximum number of requests the job is
       allowed to make to the Document AI processor per minute. Consult
       https://cloud.google.com/document-ai/quotas and the Quota page for your
@@ -30012,8 +42631,36 @@ class GoogleCloudAiplatformV1beta1RagFileParsingConfigLayoutParser(_messages.Mes
       ocessorVersions/{processor_version_id}`
   """
 
-  maxParsingRequestsPerMin = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  processorName = _messages.StringField(2)
+  globalMaxParsingRequestsPerMin = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  maxParsingRequestsPerMin = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  processorName = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1RagFileParsingConfigLlmParser(_messages.Message):
+  r"""Specifies the LLM parsing for RagFiles.
+
+  Fields:
+    customParsingPrompt: The prompt to use for parsing. If not specified, a
+      default prompt will be used.
+    globalMaxParsingRequestsPerMin: The maximum number of requests the job is
+      allowed to make to the LLM model per minute in this project. Consult
+      https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your
+      document size to set an appropriate value here. If this value is not
+      specified, max_parsing_requests_per_min will be used by indexing
+      pipeline job as the global limit.
+    maxParsingRequestsPerMin: The maximum number of requests the job is
+      allowed to make to the LLM model per minute. Consult
+      https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your
+      document size to set an appropriate value here. If unspecified, a
+      default value of 5000 QPM would be used.
+    modelName: The name of a LLM model used for parsing. Format: * `projects/{
+      project_id}/locations/{location}/publishers/{publisher}/models/{model}`
+  """
+
+  customParsingPrompt = _messages.StringField(1)
+  globalMaxParsingRequestsPerMin = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  maxParsingRequestsPerMin = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  modelName = _messages.StringField(4)
 
 
 class GoogleCloudAiplatformV1beta1RagFileTransformationConfig(_messages.Message):
@@ -30024,6 +42671,57 @@ class GoogleCloudAiplatformV1beta1RagFileTransformationConfig(_messages.Message)
   """
 
   ragFileChunkingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileChunkingConfig', 1)
+
+
+class GoogleCloudAiplatformV1beta1RagManagedDbConfig(_messages.Message):
+  r"""Configuration message for RagManagedDb used by RagEngine.
+
+  Fields:
+    basic: Sets the RagManagedDb to the Basic tier.
+    enterprise: Sets the RagManagedDb to the Enterprise tier.
+    scaled: Sets the RagManagedDb to the Scaled tier. This is the default tier
+      if not explicitly chosen.
+    unprovisioned: Sets the RagManagedDb to the Unprovisioned tier.
+  """
+
+  basic = _messages.MessageField('GoogleCloudAiplatformV1beta1RagManagedDbConfigBasic', 1)
+  enterprise = _messages.MessageField('GoogleCloudAiplatformV1beta1RagManagedDbConfigEnterprise', 2)
+  scaled = _messages.MessageField('GoogleCloudAiplatformV1beta1RagManagedDbConfigScaled', 3)
+  unprovisioned = _messages.MessageField('GoogleCloudAiplatformV1beta1RagManagedDbConfigUnprovisioned', 4)
+
+
+class GoogleCloudAiplatformV1beta1RagManagedDbConfigBasic(_messages.Message):
+  r"""Basic tier is a cost-effective and low compute tier suitable for the
+  following cases: * Experimenting with RagManagedDb. * Small data size. *
+  Latency insensitive workload. * Only using RAG Engine with external vector
+  DBs. NOTE: This is the default tier if not explicitly chosen.
+  """
+
+
+
+class GoogleCloudAiplatformV1beta1RagManagedDbConfigEnterprise(_messages.Message):
+  r"""Enterprise tier offers production grade performance along with
+  autoscaling functionality. It is suitable for customers with large amounts
+  of data or performance sensitive workloads.
+  """
+
+
+
+class GoogleCloudAiplatformV1beta1RagManagedDbConfigScaled(_messages.Message):
+  r"""Scaled tier offers production grade performance along with autoscaling
+  functionality. It is suitable for customers with large amounts of data or
+  performance sensitive workloads.
+  """
+
+
+
+class GoogleCloudAiplatformV1beta1RagManagedDbConfigUnprovisioned(_messages.Message):
+  r"""Disables the RAG Engine service and deletes all your data held within
+  this service. This will halt the billing of the service. NOTE: Once deleted
+  the data cannot be recovered. To start using RAG Engine again, you will need
+  to update the tier by calling the UpdateRagEngineConfig API.
+  """
+
 
 
 class GoogleCloudAiplatformV1beta1RagQuery(_messages.Message):
@@ -30116,8 +42814,9 @@ class GoogleCloudAiplatformV1beta1RagRetrievalConfigRankingLlmRanker(_messages.M
   r"""Config for LlmRanker.
 
   Fields:
-    modelName: Optional. The model name used for ranking. Format:
-      `gemini-1.5-pro`
+    modelName: Optional. The model name used for ranking. See [Supported
+      models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-
+      reference/inference#supported-models).
   """
 
   modelName = _messages.StringField(1)
@@ -30169,7 +42868,41 @@ class GoogleCloudAiplatformV1beta1RagVectorDbConfigPinecone(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1RagVectorDbConfigRagManagedDb(_messages.Message):
-  r"""The config for the default RAG-managed Vector DB."""
+  r"""The config for the default RAG-managed Vector DB.
+
+  Fields:
+    ann: Performs an ANN search on RagCorpus. Use this if you have a lot of
+      files (> 10K) in your RagCorpus and want to reduce the search latency.
+    knn: Performs a KNN search on RagCorpus. Default choice if not specified.
+  """
+
+  ann = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfigRagManagedDbANN', 1)
+  knn = _messages.MessageField('GoogleCloudAiplatformV1beta1RagVectorDbConfigRagManagedDbKNN', 2)
+
+
+class GoogleCloudAiplatformV1beta1RagVectorDbConfigRagManagedDbANN(_messages.Message):
+  r"""Config for ANN search. RagManagedDb uses a tree-based structure to
+  partition data and facilitate faster searches. As a tradeoff, it requires
+  longer indexing time and manual triggering of index rebuild via the
+  ImportRagFiles and UpdateRagCorpus API.
+
+  Fields:
+    leafCount: Number of leaf nodes in the tree-based structure. Each leaf
+      node contains groups of closely related vectors along with their
+      corresponding centroid. Recommended value is 10 * sqrt(num of RagFiles
+      in your RagCorpus). Default value is 500.
+    treeDepth: The depth of the tree-based structure. Only depth values of 2
+      and 3 are supported. Recommended value is 2 if you have if you have
+      O(10K) files in the RagCorpus and set this to 3 if more than that.
+      Default value is 2.
+  """
+
+  leafCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  treeDepth = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1RagVectorDbConfigRagManagedDbKNN(_messages.Message):
+  r"""Config for KNN search."""
 
 
 class GoogleCloudAiplatformV1beta1RagVectorDbConfigVertexFeatureStore(_messages.Message):
@@ -30212,6 +42945,16 @@ class GoogleCloudAiplatformV1beta1RagVectorDbConfigWeaviate(_messages.Message):
 
   collectionName = _messages.StringField(1)
   httpEndpoint = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1RawOutput(_messages.Message):
+  r"""Raw output.
+
+  Fields:
+    rawOutput: Output only. Raw output string.
+  """
+
+  rawOutput = _messages.StringField(1, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1RawPredictRequest(_messages.Message):
@@ -30532,38 +43275,228 @@ class GoogleCloudAiplatformV1beta1ReasoningEngine(_messages.Message):
   r"""ReasoningEngine provides a customizable runtime for models to determine
   which actions to take and in which order.
 
+  Messages:
+    LabelsValue: Labels for the ReasoningEngine.
+
   Fields:
+    contextSpec: Optional. Configuration for how Agent Engine sub-resources
+      should manage context.
     createTime: Output only. Timestamp when this ReasoningEngine was created.
     description: Optional. The description of the ReasoningEngine.
     displayName: Required. The display name of the ReasoningEngine.
+    encryptionSpec: Customer-managed encryption key spec for a
+      ReasoningEngine. If set, this ReasoningEngine and all sub-resources of
+      this ReasoningEngine will be secured by this key.
     etag: Optional. Used to perform consistent read-modify-write updates. If
       not set, a blind "overwrite" update happens.
-    name: Identifier. The resource name of the ReasoningEngine.
-    spec: Required. Configurations of the ReasoningEngine
+    labels: Labels for the ReasoningEngine.
+    name: Identifier. The resource name of the ReasoningEngine. Format: `proje
+      cts/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`
+    spec: Optional. Configurations of the ReasoningEngine
     updateTime: Output only. Timestamp when this ReasoningEngine was most
       recently updated.
   """
 
-  createTime = _messages.StringField(1)
-  description = _messages.StringField(2)
-  displayName = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  name = _messages.StringField(5)
-  spec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpec', 6)
-  updateTime = _messages.StringField(7)
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Labels for the ReasoningEngine.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  contextSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpec', 1)
+  createTime = _messages.StringField(2)
+  description = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 5)
+  etag = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  spec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpec', 9)
+  updateTime = _messages.StringField(10)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpec(_messages.Message):
+  r"""Configuration for how Agent Engine sub-resources should manage context.
+
+  Fields:
+    memoryBankConfig: Optional. Specification for a Memory Bank, which manages
+      memories for the Agent Engine.
+  """
+
+  memoryBankConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfig', 1)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfig(_messages.Message):
+  r"""Specification for a Memory Bank.
+
+  Fields:
+    customizationConfigs: Optional. Configuration for how to customize Memory
+      Bank behavior for a particular scope.
+    disableMemoryRevisions: If true, no memory revisions will be created for
+      any requests to the Memory Bank.
+    generationConfig: Optional. Configuration for how to generate memories for
+      the Memory Bank.
+    similaritySearchConfig: Optional. Configuration for how to perform
+      similarity search on memories. If not set, the Memory Bank will use the
+      default embedding model `text-embedding-005`.
+    ttlConfig: Optional. Configuration for automatic TTL ("time-to-live") of
+      the memories in the Memory Bank. If not set, TTL will not be applied
+      automatically. The TTL can be explicitly set by modifying the
+      `expire_time` of each Memory resource.
+  """
+
+  customizationConfigs = _messages.MessageField('GoogleCloudAiplatformV1beta1MemoryBankCustomizationConfig', 1, repeated=True)
+  disableMemoryRevisions = _messages.BooleanField(2)
+  generationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigGenerationConfig', 3)
+  similaritySearchConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig', 4)
+  ttlConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigTtlConfig', 5)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_messages.Message):
+  r"""Configuration for how to generate memories.
+
+  Fields:
+    model: Required. The model used to generate memories. Format: `projects/{p
+      roject}/locations/{location}/publishers/google/models/{model}`.
+  """
+
+  model = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(_messages.Message):
+  r"""Configuration for how to perform similarity search on memories.
+
+  Fields:
+    embeddingModel: Required. The model used to generate embeddings to lookup
+      similar memories. Format: `projects/{project}/locations/{location}/publi
+      shers/google/models/{model}`.
+  """
+
+  embeddingModel = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigTtlConfig(_messages.Message):
+  r"""Configuration for automatically setting the TTL ("time-to-live") of the
+  memories in the Memory Bank.
+
+  Fields:
+    defaultTtl: Optional. The default TTL duration of the memories in the
+      Memory Bank. This applies to all operations that create or update a
+      memory.
+    granularTtlConfig: Optional. The granular TTL configuration of the
+      memories in the Memory Bank.
+    memoryRevisionDefaultTtl: Optional. The default TTL duration of the memory
+      revisions in the Memory Bank. This applies to all operations that create
+      a memory revision. If not set, a default TTL of 365 days will be used.
+  """
+
+  defaultTtl = _messages.StringField(1)
+  granularTtlConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig', 2)
+  memoryRevisionDefaultTtl = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(_messages.Message):
+  r"""Configuration for TTL of the memories in the Memory Bank based on the
+  action that created or updated the memory.
+
+  Fields:
+    createTtl: Optional. The TTL duration for memories uploaded via
+      CreateMemory.
+    generateCreatedTtl: Optional. The TTL duration for memories newly
+      generated via GenerateMemories
+      (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED).
+    generateUpdatedTtl: Optional. The TTL duration for memories updated via
+      GenerateMemories
+      (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case
+      of an UPDATE action, the `expire_time` of the existing memory will be
+      updated to the new value (now + TTL).
+  """
+
+  createTtl = _messages.StringField(1)
+  generateCreatedTtl = _messages.StringField(2)
+  generateUpdatedTtl = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1ReasoningEngineSpec(_messages.Message):
   r"""ReasoningEngine configurations
 
   Messages:
+    AgentCardValue: Optional. The A2A Agent Card for the agent (if available).
+      It follows the specification at
+      https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-
+      agent-card.
     ClassMethodsValueListEntry: A ClassMethodsValueListEntry object.
 
   Fields:
+    agentCard: Optional. The A2A Agent Card for the agent (if available). It
+      follows the specification at
+      https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-
+      agent-card.
+    agentFramework: Optional. The OSS agent framework used to develop the
+      agent. Currently supported values: "google-adk", "langchain",
+      "langgraph", "ag2", "llama-index", "custom".
     classMethods: Optional. Declarations for object class methods in OpenAPI
       specification format.
-    packageSpec: Required. User provided package spec of the ReasoningEngine.
+    deploymentSpec: Optional. The specification of a Reasoning Engine
+      deployment.
+    packageSpec: Optional. User provided package spec of the ReasoningEngine.
+      Ignored when users directly specify a deployment image through
+      `deployment_spec.first_party_image_override`, but keeping the
+      field_behavior to avoid introducing breaking changes. The
+      `deployment_source` field should not be set if `package_spec` is
+      specified.
+    serviceAccount: Optional. The service account that the Reasoning Engine
+      artifact runs as. It should have "roles/storage.objectViewer" for
+      reading the user project's Cloud Storage and "roles/aiplatform.user" for
+      using Vertex extensions. If not specified, the Vertex AI Reasoning
+      Engine Service Agent in the project will be used.
+    sourceCodeSpec: Deploy from source code files with a defined entrypoint.
   """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AgentCardValue(_messages.Message):
+    r"""Optional. The A2A Agent Card for the agent (if available). It follows
+    the specification at
+    https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-
+    agent-card.
+
+    Messages:
+      AdditionalProperty: An additional property for a AgentCardValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AgentCardValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ClassMethodsValueListEntry(_messages.Message):
@@ -30590,20 +43523,125 @@ class GoogleCloudAiplatformV1beta1ReasoningEngineSpec(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  classMethods = _messages.MessageField('ClassMethodsValueListEntry', 1, repeated=True)
-  packageSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecPackageSpec', 2)
+  agentCard = _messages.MessageField('AgentCardValue', 1)
+  agentFramework = _messages.StringField(2)
+  classMethods = _messages.MessageField('ClassMethodsValueListEntry', 3, repeated=True)
+  deploymentSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecDeploymentSpec', 4)
+  packageSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecPackageSpec', 5)
+  serviceAccount = _messages.StringField(6)
+  sourceCodeSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpec', 7)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineSpecDeploymentSpec(_messages.Message):
+  r"""The specification of a Reasoning Engine deployment.
+
+  Enums:
+    AgentServerModeValueValuesEnum: The agent server mode.
+
+  Messages:
+    ResourceLimitsValue: Optional. Resource limits for each container. Only
+      'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4",
+      "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4',
+      '6' and '8'. For more information, go to
+      https://cloud.google.com/run/docs/configuring/cpu. * The only supported
+      values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on
+      different memory values, go to
+      https://cloud.google.com/run/docs/configuring/memory-limits
+
+  Fields:
+    agentServerMode: The agent server mode.
+    containerConcurrency: Optional. Concurrency for each container and agent
+      server. Recommended value: 2 * cpu + 1. Defaults to 9.
+    env: Optional. Environment variables to be set with the Reasoning Engine
+      deployment. The environment variables can be updated through the
+      UpdateReasoningEngine API.
+    maxInstances: Optional. The maximum number of application instances that
+      can be launched to handle increased traffic. Defaults to 100. Range: [1,
+      1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+    minInstances: Optional. The minimum number of application instances that
+      will be kept running at all times. Defaults to 1. Range: [0, 10].
+    pscInterfaceConfig: Optional. Configuration for PSC-I.
+    resourceLimits: Optional. Resource limits for each container. Only 'cpu'
+      and 'memory' keys are supported. Defaults to {"cpu": "4", "memory":
+      "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and
+      '8'. For more information, go to
+      https://cloud.google.com/run/docs/configuring/cpu. * The only supported
+      values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on
+      different memory values, go to
+      https://cloud.google.com/run/docs/configuring/memory-limits
+    secretEnv: Optional. Environment variables where the value is a secret in
+      Cloud Secret Manager. To use this feature, add 'Secret Manager Secret
+      Accessor' role (roles/secretmanager.secretAccessor) to AI Platform
+      Reasoning Engine Service Agent.
+  """
+
+  class AgentServerModeValueValuesEnum(_messages.Enum):
+    r"""The agent server mode.
+
+    Values:
+      AGENT_SERVER_MODE_UNSPECIFIED: Unspecified agent server mode. Do not
+        use.
+      STABLE: Stable agent server mode. This mode has everything stable and
+        well-tested features agent engine offers.
+      EXPERIMENTAL: Experimental agent server mode. This mode contains
+        experimental features.
+    """
+    AGENT_SERVER_MODE_UNSPECIFIED = 0
+    STABLE = 1
+    EXPERIMENTAL = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ResourceLimitsValue(_messages.Message):
+    r"""Optional. Resource limits for each container. Only 'cpu' and 'memory'
+    keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only
+    supported values for CPU are '1', '2', '4', '6' and '8'. For more
+    information, go to https://cloud.google.com/run/docs/configuring/cpu. *
+    The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For
+    required cpu on different memory values, go to
+    https://cloud.google.com/run/docs/configuring/memory-limits
+
+    Messages:
+      AdditionalProperty: An additional property for a ResourceLimitsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type ResourceLimitsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ResourceLimitsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  agentServerMode = _messages.EnumField('AgentServerModeValueValuesEnum', 1)
+  containerConcurrency = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  env = _messages.MessageField('GoogleCloudAiplatformV1beta1EnvVar', 3, repeated=True)
+  maxInstances = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  minInstances = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  pscInterfaceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PscInterfaceConfig', 6)
+  resourceLimits = _messages.MessageField('ResourceLimitsValue', 7)
+  secretEnv = _messages.MessageField('GoogleCloudAiplatformV1beta1SecretEnvVar', 8, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1ReasoningEngineSpecPackageSpec(_messages.Message):
-  r"""User provided package spec like pickled object and package requirements.
+  r"""User-provided package specification, containing pickled object and
+  package requirements.
 
   Fields:
     dependencyFilesGcsUri: Optional. The Cloud Storage URI of the dependency
       files in tar.gz format.
     pickleObjectGcsUri: Optional. The Cloud Storage URI of the pickled python
       object.
-    pythonVersion: Optional. The Python version. Currently support 3.8, 3.9,
-      3.10, 3.11. If not specified, default value is 3.10.
+    pythonVersion: Optional. The Python version. Supported values are 3.9,
+      3.10, 3.11, 3.12, 3.13. If not specified, the default value is 3.10.
     requirementsGcsUri: Optional. The Cloud Storage URI of the
       `requirements.txt` file
   """
@@ -30612,6 +43650,52 @@ class GoogleCloudAiplatformV1beta1ReasoningEngineSpecPackageSpec(_messages.Messa
   pickleObjectGcsUri = _messages.StringField(2)
   pythonVersion = _messages.StringField(3)
   requirementsGcsUri = _messages.StringField(4)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpec(_messages.Message):
+  r"""Specification for deploying from source code.
+
+  Fields:
+    inlineSource: Source code is provided directly in the request.
+    pythonSpec: Configuration for a Python application.
+  """
+
+  inlineSource = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpecInlineSource', 1)
+  pythonSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpecPythonSpec', 2)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpecInlineSource(_messages.Message):
+  r"""Specifies source code provided as a byte stream.
+
+  Fields:
+    sourceArchive: Required. Input only. The application source code archive,
+      provided as a compressed tarball (.tar.gz) file.
+  """
+
+  sourceArchive = _messages.BytesField(1)
+
+
+class GoogleCloudAiplatformV1beta1ReasoningEngineSpecSourceCodeSpecPythonSpec(_messages.Message):
+  r"""Specification for running a Python application from source.
+
+  Fields:
+    entrypointModule: Optional. The Python module to load as the entrypoint,
+      specified as a fully qualified module name. For example: path.to.agent.
+      If not specified, defaults to "agent". The project root will be added to
+      Python sys.path, allowing imports to be specified relative to the root.
+    entrypointObject: Optional. The name of the callable object within the
+      `entrypoint_module` to use as the application If not specified, defaults
+      to "root_agent".
+    requirementsFile: Optional. The path to the requirements file, relative to
+      the source root. If not specified, defaults to "requirements.txt".
+    version: Optional. The version of Python to use. Support version includes
+      3.9, 3.10, 3.11, 3.12, 3.13. If not specified, default value is 3.10.
+  """
+
+  entrypointModule = _messages.StringField(1)
+  entrypointObject = _messages.StringField(2)
+  requirementsFile = _messages.StringField(3)
+  version = _messages.StringField(4)
 
 
 class GoogleCloudAiplatformV1beta1RebaseTunedModelRequest(_messages.Message):
@@ -30654,6 +43738,88 @@ class GoogleCloudAiplatformV1beta1RebootPersistentResourceRequest(_messages.Mess
 
 
 
+class GoogleCloudAiplatformV1beta1RecommendSpecRequest(_messages.Message):
+  r"""Request message for ModelService.RecommendSpec.
+
+  Fields:
+    checkMachineAvailability: Optional. If true, check machine availability
+      for the recommended regions. Only return the machine spec in regions
+      where the machine is available.
+    checkUserQuota: Optional. If true, check user quota for the recommended
+      regions. Returns all the machine spec in regions they are available, and
+      also the user quota state for each machine type in each region.
+    gcsUri: Required. The Google Cloud Storage URI of the custom model,
+      storing weights and config files (which can be used to infer the base
+      model).
+  """
+
+  checkMachineAvailability = _messages.BooleanField(1)
+  checkUserQuota = _messages.BooleanField(2)
+  gcsUri = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1RecommendSpecResponse(_messages.Message):
+  r"""Response message for ModelService.RecommendSpec.
+
+  Fields:
+    baseModel: Output only. The base model used to finetune the custom model.
+    recommendations: Output only. Recommendations of deployment options for
+      the given custom weights model.
+    specs: Output only. The machine and model container specs.
+  """
+
+  baseModel = _messages.StringField(1)
+  recommendations = _messages.MessageField('GoogleCloudAiplatformV1beta1RecommendSpecResponseRecommendation', 2, repeated=True)
+  specs = _messages.MessageField('GoogleCloudAiplatformV1beta1RecommendSpecResponseMachineAndModelContainerSpec', 3, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1RecommendSpecResponseMachineAndModelContainerSpec(_messages.Message):
+  r"""A machine and model container spec.
+
+  Fields:
+    containerSpec: Output only. The model container spec.
+    machineSpec: Output only. The machine spec.
+  """
+
+  containerSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ModelContainerSpec', 1)
+  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 2)
+
+
+class GoogleCloudAiplatformV1beta1RecommendSpecResponseRecommendation(_messages.Message):
+  r"""Recommendation of one deployment option for the given custom weights
+  model in one region. Contains the machine and container spec, and user
+  accelerator quota state.
+
+  Enums:
+    UserQuotaStateValueValuesEnum: Output only. The user accelerator quota
+      state.
+
+  Fields:
+    region: The region for the deployment spec (machine).
+    spec: Output only. The machine and model container specs.
+    userQuotaState: Output only. The user accelerator quota state.
+  """
+
+  class UserQuotaStateValueValuesEnum(_messages.Enum):
+    r"""Output only. The user accelerator quota state.
+
+    Values:
+      QUOTA_STATE_UNSPECIFIED: Unspecified quota state. Quota information not
+        available.
+      QUOTA_STATE_USER_HAS_QUOTA: User has enough accelerator quota for the
+        machine type.
+      QUOTA_STATE_NO_USER_QUOTA: User does not have enough accelerator quota
+        for the machine type.
+    """
+    QUOTA_STATE_UNSPECIFIED = 0
+    QUOTA_STATE_USER_HAS_QUOTA = 1
+    QUOTA_STATE_NO_USER_QUOTA = 2
+
+  region = _messages.StringField(1)
+  spec = _messages.MessageField('GoogleCloudAiplatformV1beta1RecommendSpecResponseMachineAndModelContainerSpec', 2)
+  userQuotaState = _messages.EnumField('UserQuotaStateValueValuesEnum', 3)
+
+
 class GoogleCloudAiplatformV1beta1RemoveContextChildrenRequest(_messages.Message):
   r"""Request message for MetadataService.DeleteContextChildrenRequest.
 
@@ -30680,6 +43846,31 @@ class GoogleCloudAiplatformV1beta1RemoveDatapointsRequest(_messages.Message):
 
 class GoogleCloudAiplatformV1beta1RemoveDatapointsResponse(_messages.Message):
   r"""Response message for IndexService.RemoveDatapoints"""
+
+
+class GoogleCloudAiplatformV1beta1RemoveExamplesRequest(_messages.Message):
+  r"""Request message for ExampleStoreService.RemoveExamples.
+
+  Fields:
+    exampleIds: Optional. Example IDs to remove. If both metadata filters and
+      Example IDs are specified, the metadata filters will be applied to the
+      specified examples in order to identify which should be removed.
+    storedContentsExampleFilter: The metadata filters for
+      StoredContentsExamples.
+  """
+
+  exampleIds = _messages.StringField(1, repeated=True)
+  storedContentsExampleFilter = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleFilter', 2)
+
+
+class GoogleCloudAiplatformV1beta1RemoveExamplesResponse(_messages.Message):
+  r"""Response message for ExampleStoreService.RemoveExamples.
+
+  Fields:
+    exampleIds: The IDs for the removed examples.
+  """
+
+  exampleIds = _messages.StringField(1, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1ReportExecutionEventRequest(_messages.Message):
@@ -30815,7 +44006,8 @@ class GoogleCloudAiplatformV1beta1ReservationAffinity(_messages.Message):
     reservationAffinityType: Required. Specifies the reservation affinity
       type.
     values: Optional. Corresponds to the label values of a reservation
-      resource. This must be the full resource name of the reservation.
+      resource. This must be the full resource name of the reservation or
+      reservation block.
   """
 
   class ReservationAffinityTypeValueValuesEnum(_messages.Enum):
@@ -30999,26 +44191,41 @@ class GoogleCloudAiplatformV1beta1Retrieval(_messages.Message):
   Fields:
     disableAttribution: Optional. Deprecated. This option is no longer
       supported.
+    externalApi: Use data source powered by external API for grounding.
     vertexAiSearch: Set to use data source powered by Vertex AI Search.
     vertexRagStore: Set to use data source powered by Vertex RAG store. User
       data is uploaded via the VertexRagDataService.
   """
 
   disableAttribution = _messages.BooleanField(1)
-  vertexAiSearch = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexAISearch', 2)
-  vertexRagStore = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexRagStore', 3)
+  externalApi = _messages.MessageField('GoogleCloudAiplatformV1beta1ExternalApi', 2)
+  vertexAiSearch = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexAISearch', 3)
+  vertexRagStore = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexRagStore', 4)
+
+
+class GoogleCloudAiplatformV1beta1RetrievalConfig(_messages.Message):
+  r"""Retrieval config.
+
+  Fields:
+    languageCode: The language code of the user.
+    latLng: The location of the user.
+  """
+
+  languageCode = _messages.StringField(1)
+  latLng = _messages.MessageField('GoogleTypeLatLng', 2)
 
 
 class GoogleCloudAiplatformV1beta1RetrievalMetadata(_messages.Message):
-  r"""Metadata related to retrieval in the grounding flow.
+  r"""Metadata related to the retrieval grounding source. This is part of the
+  `GroundingMetadata` returned when grounding is enabled.
 
   Fields:
-    googleSearchDynamicRetrievalScore: Optional. Score indicating how likely
-      information from Google Search could help answer the prompt. The score
-      is in the range `[0, 1]`, where 0 is the least likely and 1 is the most
-      likely. This score is only populated when Google Search grounding and
-      dynamic retrieval is enabled. It will be compared to the threshold to
-      determine whether to trigger Google Search.
+    googleSearchDynamicRetrievalScore: Optional. A score indicating how likely
+      it is that a Google Search query could help answer the prompt. The score
+      is in the range of `[0, 1]`. A score of 1 means the model is confident
+      that a search will be helpful, and 0 means it is not. This score is
+      populated only when Google Search grounding and dynamic retrieval are
+      enabled. The score is used to determine whether to trigger a search.
   """
 
   googleSearchDynamicRetrievalScore = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
@@ -31077,6 +44284,162 @@ class GoogleCloudAiplatformV1beta1RetrieveContextsResponse(_messages.Message):
   """
 
   contexts = _messages.MessageField('GoogleCloudAiplatformV1beta1RagContexts', 1)
+
+
+class GoogleCloudAiplatformV1beta1RetrieveMemoriesRequest(_messages.Message):
+  r"""Request message for MemoryBankService.RetrieveMemories.
+
+  Messages:
+    ScopeValue: Required. The scope of the memories to retrieve. A memory must
+      have exactly the same scope (`Memory.scope`) as the scope provided here
+      to be retrieved (same keys and values). Order does not matter, but it is
+      case-sensitive.
+
+  Fields:
+    filter: Optional. The standard list filter that will be applied to the
+      retrieved memories. More detail in
+      [AIP-160](https://google.aip.dev/160). Supported fields: * `fact` *
+      `create_time` * `update_time`
+    scope: Required. The scope of the memories to retrieve. A memory must have
+      exactly the same scope (`Memory.scope`) as the scope provided here to be
+      retrieved (same keys and values). Order does not matter, but it is case-
+      sensitive.
+    similaritySearchParams: Parameters for semantic similarity search based
+      retrieval.
+    simpleRetrievalParams: Parameters for simple (non-similarity search)
+      retrieval.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ScopeValue(_messages.Message):
+    r"""Required. The scope of the memories to retrieve. A memory must have
+    exactly the same scope (`Memory.scope`) as the scope provided here to be
+    retrieved (same keys and values). Order does not matter, but it is case-
+    sensitive.
+
+    Messages:
+      AdditionalProperty: An additional property for a ScopeValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ScopeValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ScopeValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  filter = _messages.StringField(1)
+  scope = _messages.MessageField('ScopeValue', 2)
+  similaritySearchParams = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrieveMemoriesRequestSimilaritySearchParams', 3)
+  simpleRetrievalParams = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrieveMemoriesRequestSimpleRetrievalParams', 4)
+
+
+class GoogleCloudAiplatformV1beta1RetrieveMemoriesRequestSimilaritySearchParams(_messages.Message):
+  r"""Parameters for semantic similarity search based retrieval.
+
+  Fields:
+    searchQuery: Required. Query to use for similarity search retrieval. If
+      provided, then the parent ReasoningEngine must have
+      ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig set.
+    topK: Optional. The maximum number of memories to return. The service may
+      return fewer than this value. If unspecified, at most 3 memories will be
+      returned. The maximum value is 100; values above 100 will be coerced to
+      100.
+  """
+
+  searchQuery = _messages.StringField(1)
+  topK = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1RetrieveMemoriesRequestSimpleRetrievalParams(_messages.Message):
+  r"""Parameters for simple (non-similarity search) retrieval.
+
+  Fields:
+    pageSize: Optional. The maximum number of memories to return. The service
+      may return fewer than this value. If unspecified, at most 3 memories
+      will be returned. The maximum value is 100; values above 100 will be
+      coerced to 100.
+    pageToken: Optional. A page token, received from a previous
+      `RetrieveMemories` call. Provide this to retrieve the subsequent page.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1RetrieveMemoriesResponse(_messages.Message):
+  r"""Response message for MemoryBankService.RetrieveMemories.
+
+  Fields:
+    nextPageToken: A token that can be sent as `page_token` to retrieve the
+      next page. If this field is omitted, there are no subsequent pages. This
+      token is not set if similarity search was used for retrieval.
+    retrievedMemories: The retrieved memories.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  retrievedMemories = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrieveMemoriesResponseRetrievedMemory', 2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1RetrieveMemoriesResponseRetrievedMemory(_messages.Message):
+  r"""A retrieved memory.
+
+  Fields:
+    distance: The distance between the query and the retrieved Memory. Smaller
+      values indicate more similar memories. This is only set if similarity
+      search was used for retrieval.
+    memory: The retrieved Memory.
+  """
+
+  distance = _messages.FloatField(1)
+  memory = _messages.MessageField('GoogleCloudAiplatformV1beta1Memory', 2)
+
+
+class GoogleCloudAiplatformV1beta1RollbackMemoryRequest(_messages.Message):
+  r"""Request message for MemoryBankService.RollbackMemory.
+
+  Fields:
+    targetRevisionId: Required. The ID of the revision to rollback to.
+  """
+
+  targetRevisionId = _messages.IntegerField(1)
+
+
+class GoogleCloudAiplatformV1beta1RolloutOptions(_messages.Message):
+  r"""Configuration for rolling deployments.
+
+  Fields:
+    maxSurgePercentage: Percentage of allowed additional replicas. For
+      autoscaling deployments, this refers to the target replica count.
+    maxSurgeReplicas: Absolute count of allowed additional replicas.
+    maxUnavailablePercentage: Percentage of replicas allowed to be
+      unavailable. For autoscaling deployments, this refers to the target
+      replica count.
+    maxUnavailableReplicas: Absolute count of replicas allowed to be
+      unavailable.
+    previousDeployedModel: ID of the DeployedModel that this deployment should
+      replace.
+    revisionNumber: Output only. Read-only. Revision number determines the
+      relative priority of DeployedModels in the same rollout. The
+      DeployedModel with the largest revision number specifies the intended
+      state of the deployment.
+  """
+
+  maxSurgePercentage = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  maxSurgeReplicas = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  maxUnavailablePercentage = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  maxUnavailableReplicas = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  previousDeployedModel = _messages.StringField(5)
+  revisionNumber = _messages.IntegerField(6, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudAiplatformV1beta1RougeInput(_messages.Message):
@@ -31139,6 +44502,203 @@ class GoogleCloudAiplatformV1beta1RougeSpec(_messages.Message):
   rougeType = _messages.StringField(1)
   splitSummaries = _messages.BooleanField(2)
   useStemmer = _messages.BooleanField(3)
+
+
+class GoogleCloudAiplatformV1beta1Rubric(_messages.Message):
+  r"""Message representing a single testable criterion for evaluation. One
+  input prompt could have multiple rubrics.
+
+  Enums:
+    ImportanceValueValuesEnum: Optional. The relative importance of this
+      rubric.
+
+  Fields:
+    content: Required. The actual testable criteria for the rubric.
+    importance: Optional. The relative importance of this rubric.
+    rubricId: Unique identifier for the rubric. This ID is used to refer to
+      this rubric, e.g., in RubricVerdict.
+    type: Optional. A type designator for the rubric, which can inform how
+      it's evaluated or interpreted by systems or users. It's recommended to
+      use consistent, well-defined, upper snake_case strings. Examples:
+      "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE".
+  """
+
+  class ImportanceValueValuesEnum(_messages.Enum):
+    r"""Optional. The relative importance of this rubric.
+
+    Values:
+      IMPORTANCE_UNSPECIFIED: Importance is not specified.
+      HIGH: High importance.
+      MEDIUM: Medium importance.
+      LOW: Low importance.
+    """
+    IMPORTANCE_UNSPECIFIED = 0
+    HIGH = 1
+    MEDIUM = 2
+    LOW = 3
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricContent', 1)
+  importance = _messages.EnumField('ImportanceValueValuesEnum', 2)
+  rubricId = _messages.StringField(3)
+  type = _messages.StringField(4)
+
+
+class GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingInput(_messages.Message):
+  r"""Instance and metric spec for RubricBasedInstructionFollowing metric.
+
+  Fields:
+    instance: Required. Instance for RubricBasedInstructionFollowing metric.
+    metricSpec: Required. Spec for RubricBasedInstructionFollowing metric.
+  """
+
+  instance = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingInstance', 1)
+  metricSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingSpec', 2)
+
+
+class GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingInstance(_messages.Message):
+  r"""Instance for RubricBasedInstructionFollowing metric - one instance
+  corresponds to one row in an evaluation dataset.
+
+  Fields:
+    jsonInstance: Required. Instance specified as a json string. String key-
+      value pairs are expected in the json_instance to render
+      RubricBasedInstructionFollowing prompt templates.
+  """
+
+  jsonInstance = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingResult(_messages.Message):
+  r"""Result for RubricBasedInstructionFollowing metric.
+
+  Fields:
+    rubricCritiqueResults: Output only. List of per rubric critique results.
+    score: Output only. Overall score for the instruction following.
+  """
+
+  rubricCritiqueResults = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricCritiqueResult', 1, repeated=True)
+  score = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+
+
+class GoogleCloudAiplatformV1beta1RubricBasedInstructionFollowingSpec(_messages.Message):
+  r"""Spec for RubricBasedInstructionFollowing metric - returns rubrics and
+  verdicts corresponding to rubrics along with overall score.
+  """
+
+
+
+class GoogleCloudAiplatformV1beta1RubricContent(_messages.Message):
+  r"""Content of the rubric, defining the testable criteria.
+
+  Fields:
+    property: Evaluation criteria based on a specific property.
+  """
+
+  property = _messages.MessageField('GoogleCloudAiplatformV1beta1RubricContentProperty', 1)
+
+
+class GoogleCloudAiplatformV1beta1RubricContentProperty(_messages.Message):
+  r"""Defines criteria based on a specific property.
+
+  Fields:
+    description: Description of the property being evaluated. Example: "The
+      model's response is grammatically correct."
+  """
+
+  description = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1RubricCritiqueResult(_messages.Message):
+  r"""Rubric critique result.
+
+  Fields:
+    rubric: Output only. Rubric to be evaluated.
+    verdict: Output only. Verdict for the rubric - true if the rubric is met,
+      false otherwise.
+  """
+
+  rubric = _messages.StringField(1)
+  verdict = _messages.BooleanField(2)
+
+
+class GoogleCloudAiplatformV1beta1RubricGenerationSpec(_messages.Message):
+  r"""Specification for how rubrics should be generated.
+
+  Enums:
+    RubricContentTypeValueValuesEnum: The type of rubric content to be
+      generated.
+
+  Fields:
+    modelConfig: Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation.
+    promptTemplate: Template for the prompt used to generate rubrics. The
+      details should be updated based on the most-recent recipe requirements.
+    rubricContentType: The type of rubric content to be generated.
+    rubricTypeOntology: Optional. An optional, pre-defined list of allowed
+      types for generated rubrics. If this field is provided, it implies
+      `include_rubric_type` should be true, and the generated rubric types
+      should be chosen from this ontology.
+  """
+
+  class RubricContentTypeValueValuesEnum(_messages.Enum):
+    r"""The type of rubric content to be generated.
+
+    Values:
+      RUBRIC_CONTENT_TYPE_UNSPECIFIED: The content type to generate is not
+        specified.
+      PROPERTY: Generate rubrics based on properties.
+      NL_QUESTION_ANSWER: Generate rubrics in an NL question answer format.
+      PYTHON_CODE_ASSERTION: Generate rubrics in a unit test format.
+    """
+    RUBRIC_CONTENT_TYPE_UNSPECIFIED = 0
+    PROPERTY = 1
+    NL_QUESTION_ANSWER = 2
+    PYTHON_CODE_ASSERTION = 3
+
+  modelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1AutoraterConfig', 1)
+  promptTemplate = _messages.StringField(2)
+  rubricContentType = _messages.EnumField('RubricContentTypeValueValuesEnum', 3)
+  rubricTypeOntology = _messages.StringField(4, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1RubricGroup(_messages.Message):
+  r"""A group of rubrics, used for grouping rubrics based on a metric or a
+  version.
+
+  Fields:
+    displayName: Human-readable name for the group. This should be unique
+      within a given context if used for display or selection. Example:
+      "Instruction Following V1", "Content Quality - Summarization Task".
+    groupId: Unique identifier for the group.
+    rubrics: Rubrics that are part of this group.
+  """
+
+  displayName = _messages.StringField(1)
+  groupId = _messages.StringField(2)
+  rubrics = _messages.MessageField('GoogleCloudAiplatformV1beta1Rubric', 3, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1RubricVerdict(_messages.Message):
+  r"""Represents the verdict of an evaluation against a single rubric.
+
+  Fields:
+    evaluatedRubric: Required. The full rubric definition that was evaluated.
+      Storing this ensures the verdict is self-contained and understandable,
+      especially if the original rubric definition changes or was dynamically
+      generated.
+    reasoning: Optional. Human-readable reasoning or explanation for the
+      verdict. This can include specific examples or details from the
+      evaluated content that justify the given verdict.
+    verdict: Required. Outcome of the evaluation against the rubric,
+      represented as a boolean. `true` indicates a "Pass", `false` indicates a
+      "Fail".
+  """
+
+  evaluatedRubric = _messages.MessageField('GoogleCloudAiplatformV1beta1Rubric', 1)
+  reasoning = _messages.StringField(2)
+  verdict = _messages.BooleanField(3)
 
 
 class GoogleCloudAiplatformV1beta1RuntimeArtifact(_messages.Message):
@@ -31372,35 +44932,57 @@ class GoogleCloudAiplatformV1beta1SafetyInstance(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1SafetyRating(_messages.Message):
-  r"""Safety rating corresponding to the generated content.
+  r"""A safety rating for a piece of content. The safety rating contains the
+  harm category and the harm probability level.
 
   Enums:
-    CategoryValueValuesEnum: Output only. Harm category.
-    ProbabilityValueValuesEnum: Output only. Harm probability levels in the
-      content.
-    SeverityValueValuesEnum: Output only. Harm severity levels in the content.
+    CategoryValueValuesEnum: Output only. The harm category of this rating.
+    OverwrittenThresholdValueValuesEnum: Output only. The overwritten
+      threshold for the safety category of Gemini 2.0 image out. If minors are
+      detected in the output image, the threshold of each safety category will
+      be overwritten if user sets a lower threshold.
+    ProbabilityValueValuesEnum: Output only. The probability of harm for this
+      category.
+    SeverityValueValuesEnum: Output only. The severity of harm for this
+      category.
 
   Fields:
-    blocked: Output only. Indicates whether the content was filtered out
-      because of this rating.
-    category: Output only. Harm category.
-    probability: Output only. Harm probability levels in the content.
-    probabilityScore: Output only. Harm probability score.
-    severity: Output only. Harm severity levels in the content.
-    severityScore: Output only. Harm severity score.
+    blocked: Output only. Indicates whether the content was blocked because of
+      this rating.
+    category: Output only. The harm category of this rating.
+    overwrittenThreshold: Output only. The overwritten threshold for the
+      safety category of Gemini 2.0 image out. If minors are detected in the
+      output image, the threshold of each safety category will be overwritten
+      if user sets a lower threshold.
+    probability: Output only. The probability of harm for this category.
+    probabilityScore: Output only. The probability score of harm for this
+      category.
+    severity: Output only. The severity of harm for this category.
+    severityScore: Output only. The severity score of harm for this category.
   """
 
   class CategoryValueValuesEnum(_messages.Enum):
-    r"""Output only. Harm category.
+    r"""Output only. The harm category of this rating.
 
     Values:
-      HARM_CATEGORY_UNSPECIFIED: The harm category is unspecified.
-      HARM_CATEGORY_HATE_SPEECH: The harm category is hate speech.
-      HARM_CATEGORY_DANGEROUS_CONTENT: The harm category is dangerous content.
-      HARM_CATEGORY_HARASSMENT: The harm category is harassment.
-      HARM_CATEGORY_SEXUALLY_EXPLICIT: The harm category is sexually explicit
+      HARM_CATEGORY_UNSPECIFIED: Default value. This value is unused.
+      HARM_CATEGORY_HATE_SPEECH: Content that promotes violence or incites
+        hatred against individuals or groups based on certain attributes.
+      HARM_CATEGORY_DANGEROUS_CONTENT: Content that promotes, facilitates, or
+        enables dangerous activities.
+      HARM_CATEGORY_HARASSMENT: Abusive, threatening, or content intended to
+        bully, torment, or ridicule.
+      HARM_CATEGORY_SEXUALLY_EXPLICIT: Content that contains sexually explicit
+        material.
+      HARM_CATEGORY_CIVIC_INTEGRITY: Deprecated: Election filter is not longer
+        supported. The harm category is civic integrity.
+      HARM_CATEGORY_IMAGE_HATE: Images that contain hate speech.
+      HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT: Images that contain dangerous
         content.
-      HARM_CATEGORY_CIVIC_INTEGRITY: The harm category is civic integrity.
+      HARM_CATEGORY_IMAGE_HARASSMENT: Images that contain harassment.
+      HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT: Images that contain sexually
+        explicit content.
+      HARM_CATEGORY_JAILBREAK: Prompts designed to bypass safety filters.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -31408,16 +44990,46 @@ class GoogleCloudAiplatformV1beta1SafetyRating(_messages.Message):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+    HARM_CATEGORY_IMAGE_HATE = 6
+    HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT = 7
+    HARM_CATEGORY_IMAGE_HARASSMENT = 8
+    HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT = 9
+    HARM_CATEGORY_JAILBREAK = 10
 
-  class ProbabilityValueValuesEnum(_messages.Enum):
-    r"""Output only. Harm probability levels in the content.
+  class OverwrittenThresholdValueValuesEnum(_messages.Enum):
+    r"""Output only. The overwritten threshold for the safety category of
+    Gemini 2.0 image out. If minors are detected in the output image, the
+    threshold of each safety category will be overwritten if user sets a lower
+    threshold.
 
     Values:
-      HARM_PROBABILITY_UNSPECIFIED: Harm probability unspecified.
-      NEGLIGIBLE: Negligible level of harm.
-      LOW: Low level of harm.
-      MEDIUM: Medium level of harm.
-      HIGH: High level of harm.
+      HARM_BLOCK_THRESHOLD_UNSPECIFIED: The harm block threshold is
+        unspecified.
+      BLOCK_LOW_AND_ABOVE: Block content with a low harm probability or
+        higher.
+      BLOCK_MEDIUM_AND_ABOVE: Block content with a medium harm probability or
+        higher.
+      BLOCK_ONLY_HIGH: Block content with a high harm probability.
+      BLOCK_NONE: Do not block any content, regardless of its harm
+        probability.
+      OFF: Turn off the safety filter entirely.
+    """
+    HARM_BLOCK_THRESHOLD_UNSPECIFIED = 0
+    BLOCK_LOW_AND_ABOVE = 1
+    BLOCK_MEDIUM_AND_ABOVE = 2
+    BLOCK_ONLY_HIGH = 3
+    BLOCK_NONE = 4
+    OFF = 5
+
+  class ProbabilityValueValuesEnum(_messages.Enum):
+    r"""Output only. The probability of harm for this category.
+
+    Values:
+      HARM_PROBABILITY_UNSPECIFIED: The harm probability is unspecified.
+      NEGLIGIBLE: The harm probability is negligible.
+      LOW: The harm probability is low.
+      MEDIUM: The harm probability is medium.
+      HIGH: The harm probability is high.
     """
     HARM_PROBABILITY_UNSPECIFIED = 0
     NEGLIGIBLE = 1
@@ -31426,14 +45038,14 @@ class GoogleCloudAiplatformV1beta1SafetyRating(_messages.Message):
     HIGH = 4
 
   class SeverityValueValuesEnum(_messages.Enum):
-    r"""Output only. Harm severity levels in the content.
+    r"""Output only. The severity of harm for this category.
 
     Values:
-      HARM_SEVERITY_UNSPECIFIED: Harm severity unspecified.
-      HARM_SEVERITY_NEGLIGIBLE: Negligible level of harm severity.
-      HARM_SEVERITY_LOW: Low level of harm severity.
-      HARM_SEVERITY_MEDIUM: Medium level of harm severity.
-      HARM_SEVERITY_HIGH: High level of harm severity.
+      HARM_SEVERITY_UNSPECIFIED: The harm severity is unspecified.
+      HARM_SEVERITY_NEGLIGIBLE: The harm severity is negligible.
+      HARM_SEVERITY_LOW: The harm severity is low.
+      HARM_SEVERITY_MEDIUM: The harm severity is medium.
+      HARM_SEVERITY_HIGH: The harm severity is high.
     """
     HARM_SEVERITY_UNSPECIFIED = 0
     HARM_SEVERITY_NEGLIGIBLE = 1
@@ -31443,10 +45055,11 @@ class GoogleCloudAiplatformV1beta1SafetyRating(_messages.Message):
 
   blocked = _messages.BooleanField(1)
   category = _messages.EnumField('CategoryValueValuesEnum', 2)
-  probability = _messages.EnumField('ProbabilityValueValuesEnum', 3)
-  probabilityScore = _messages.FloatField(4, variant=_messages.Variant.FLOAT)
-  severity = _messages.EnumField('SeverityValueValuesEnum', 5)
-  severityScore = _messages.FloatField(6, variant=_messages.Variant.FLOAT)
+  overwrittenThreshold = _messages.EnumField('OverwrittenThresholdValueValuesEnum', 3)
+  probability = _messages.EnumField('ProbabilityValueValuesEnum', 4)
+  probabilityScore = _messages.FloatField(5, variant=_messages.Variant.FLOAT)
+  severity = _messages.EnumField('SeverityValueValuesEnum', 6)
+  severityScore = _messages.FloatField(7, variant=_messages.Variant.FLOAT)
 
 
 class GoogleCloudAiplatformV1beta1SafetyResult(_messages.Message):
@@ -31464,34 +45077,47 @@ class GoogleCloudAiplatformV1beta1SafetyResult(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1SafetySetting(_messages.Message):
-  r"""Safety settings.
+  r"""A safety setting that affects the safety-blocking behavior. A
+  SafetySetting consists of a harm category and a threshold for that category.
 
   Enums:
-    CategoryValueValuesEnum: Required. Harm category.
-    MethodValueValuesEnum: Optional. Specify if the threshold is used for
-      probability or severity score. If not specified, the threshold is used
-      for probability score.
-    ThresholdValueValuesEnum: Required. The harm block threshold.
+    CategoryValueValuesEnum: Required. The harm category to be blocked.
+    MethodValueValuesEnum: Optional. The method for blocking content. If not
+      specified, the default behavior is to use the probability score.
+    ThresholdValueValuesEnum: Required. The threshold for blocking content. If
+      the harm probability exceeds this threshold, the content will be
+      blocked.
 
   Fields:
-    category: Required. Harm category.
-    method: Optional. Specify if the threshold is used for probability or
-      severity score. If not specified, the threshold is used for probability
-      score.
-    threshold: Required. The harm block threshold.
+    category: Required. The harm category to be blocked.
+    method: Optional. The method for blocking content. If not specified, the
+      default behavior is to use the probability score.
+    threshold: Required. The threshold for blocking content. If the harm
+      probability exceeds this threshold, the content will be blocked.
   """
 
   class CategoryValueValuesEnum(_messages.Enum):
-    r"""Required. Harm category.
+    r"""Required. The harm category to be blocked.
 
     Values:
-      HARM_CATEGORY_UNSPECIFIED: The harm category is unspecified.
-      HARM_CATEGORY_HATE_SPEECH: The harm category is hate speech.
-      HARM_CATEGORY_DANGEROUS_CONTENT: The harm category is dangerous content.
-      HARM_CATEGORY_HARASSMENT: The harm category is harassment.
-      HARM_CATEGORY_SEXUALLY_EXPLICIT: The harm category is sexually explicit
+      HARM_CATEGORY_UNSPECIFIED: Default value. This value is unused.
+      HARM_CATEGORY_HATE_SPEECH: Content that promotes violence or incites
+        hatred against individuals or groups based on certain attributes.
+      HARM_CATEGORY_DANGEROUS_CONTENT: Content that promotes, facilitates, or
+        enables dangerous activities.
+      HARM_CATEGORY_HARASSMENT: Abusive, threatening, or content intended to
+        bully, torment, or ridicule.
+      HARM_CATEGORY_SEXUALLY_EXPLICIT: Content that contains sexually explicit
+        material.
+      HARM_CATEGORY_CIVIC_INTEGRITY: Deprecated: Election filter is not longer
+        supported. The harm category is civic integrity.
+      HARM_CATEGORY_IMAGE_HATE: Images that contain hate speech.
+      HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT: Images that contain dangerous
         content.
-      HARM_CATEGORY_CIVIC_INTEGRITY: The harm category is civic integrity.
+      HARM_CATEGORY_IMAGE_HARASSMENT: Images that contain harassment.
+      HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT: Images that contain sexually
+        explicit content.
+      HARM_CATEGORY_JAILBREAK: Prompts designed to bypass safety filters.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -31499,10 +45125,15 @@ class GoogleCloudAiplatformV1beta1SafetySetting(_messages.Message):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+    HARM_CATEGORY_IMAGE_HATE = 6
+    HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT = 7
+    HARM_CATEGORY_IMAGE_HARASSMENT = 8
+    HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT = 9
+    HARM_CATEGORY_JAILBREAK = 10
 
   class MethodValueValuesEnum(_messages.Enum):
-    r"""Optional. Specify if the threshold is used for probability or severity
-    score. If not specified, the threshold is used for probability score.
+    r"""Optional. The method for blocking content. If not specified, the
+    default behavior is to use the probability score.
 
     Values:
       HARM_BLOCK_METHOD_UNSPECIFIED: The harm block method is unspecified.
@@ -31515,15 +45146,20 @@ class GoogleCloudAiplatformV1beta1SafetySetting(_messages.Message):
     PROBABILITY = 2
 
   class ThresholdValueValuesEnum(_messages.Enum):
-    r"""Required. The harm block threshold.
+    r"""Required. The threshold for blocking content. If the harm probability
+    exceeds this threshold, the content will be blocked.
 
     Values:
-      HARM_BLOCK_THRESHOLD_UNSPECIFIED: Unspecified harm block threshold.
-      BLOCK_LOW_AND_ABOVE: Block low threshold and above (i.e. block more).
-      BLOCK_MEDIUM_AND_ABOVE: Block medium threshold and above.
-      BLOCK_ONLY_HIGH: Block only high threshold (i.e. block less).
-      BLOCK_NONE: Block none.
-      OFF: Turn off the safety filter.
+      HARM_BLOCK_THRESHOLD_UNSPECIFIED: The harm block threshold is
+        unspecified.
+      BLOCK_LOW_AND_ABOVE: Block content with a low harm probability or
+        higher.
+      BLOCK_MEDIUM_AND_ABOVE: Block content with a medium harm probability or
+        higher.
+      BLOCK_ONLY_HIGH: Block content with a high harm probability.
+      BLOCK_NONE: Do not block any content, regardless of its harm
+        probability.
+      OFF: Turn off the safety filter entirely.
     """
     HARM_BLOCK_THRESHOLD_UNSPECIFIED = 0
     BLOCK_LOW_AND_ABOVE = 1
@@ -31615,6 +45251,137 @@ class GoogleCloudAiplatformV1beta1SamplingStrategyRandomSampleConfig(_messages.M
   """
 
   sampleRate = _messages.FloatField(1)
+
+
+class GoogleCloudAiplatformV1beta1SandboxEnvironment(_messages.Message):
+  r"""SandboxEnvironment is a containerized environment that provides a
+  customizable secure execution runtime for AI agents.
+
+  Enums:
+    StateValueValuesEnum: Output only. The runtime state of the
+      SandboxEnvironment.
+
+  Fields:
+    connectionInfo: Output only. The connection information of the
+      SandboxEnvironment.
+    createTime: Output only. The timestamp when this SandboxEnvironment was
+      created.
+    displayName: Required. The display name of the SandboxEnvironment.
+    expireTime: Optional. Timestamp in UTC of when this SandboxEnvironment is
+      considered expired. This is *always* provided on output, regardless of
+      what `expiration` was sent on input.
+    name: Identifier. The name of the SandboxEnvironment.
+    spec: Optional. The configuration of the SandboxEnvironment.
+    state: Output only. The runtime state of the SandboxEnvironment.
+    ttl: Optional. Input only. The TTL for the sandbox environment. The
+      expiration time is computed: now + TTL.
+    updateTime: Output only. The timestamp when this SandboxEnvironment was
+      most recently updated.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The runtime state of the SandboxEnvironment.
+
+    Values:
+      STATE_UNSPECIFIED: The default value. This value is unused.
+      STATE_PROVISIONING: Runtime resources are being allocated for the
+        sandbox environment.
+      STATE_RUNNING: Sandbox runtime is ready for serving.
+      STATE_DEPROVISIONING: Sandbox runtime is halted, performing tear down
+        tasks.
+      STATE_TERMINATED: Sandbox has terminated with underlying runtime
+        failure.
+      STATE_DELETED: Sandbox runtime has been deleted.
+    """
+    STATE_UNSPECIFIED = 0
+    STATE_PROVISIONING = 1
+    STATE_RUNNING = 2
+    STATE_DEPROVISIONING = 3
+    STATE_TERMINATED = 4
+    STATE_DELETED = 5
+
+  connectionInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironmentConnectionInfo', 1)
+  createTime = _messages.StringField(2)
+  displayName = _messages.StringField(3)
+  expireTime = _messages.StringField(4)
+  name = _messages.StringField(5)
+  spec = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironmentSpec', 6)
+  state = _messages.EnumField('StateValueValuesEnum', 7)
+  ttl = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
+
+
+class GoogleCloudAiplatformV1beta1SandboxEnvironmentConnectionInfo(_messages.Message):
+  r"""The connection information of the SandboxEnvironment.
+
+  Fields:
+    loadBalancerHostname: Output only. The hostname of the load balancer.
+    loadBalancerIp: Output only. The IP address of the load balancer.
+    sandboxInternalIp: Output only. The internal IP address of the
+      SandboxEnvironment.
+  """
+
+  loadBalancerHostname = _messages.StringField(1)
+  loadBalancerIp = _messages.StringField(2)
+  sandboxInternalIp = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1SandboxEnvironmentSpec(_messages.Message):
+  r"""The specification of a SandboxEnvironment.
+
+  Fields:
+    codeExecutionEnvironment: Optional. The code execution environment.
+    computerUseEnvironment: Optional. The computer use environment.
+  """
+
+  codeExecutionEnvironment = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironmentSpecCodeExecutionEnvironment', 1)
+  computerUseEnvironment = _messages.MessageField('GoogleCloudAiplatformV1beta1SandboxEnvironmentSpecComputerUseEnvironment', 2)
+
+
+class GoogleCloudAiplatformV1beta1SandboxEnvironmentSpecCodeExecutionEnvironment(_messages.Message):
+  r"""The code execution environment with customized settings.
+
+  Enums:
+    CodeLanguageValueValuesEnum: The coding language supported in this
+      environment.
+    MachineConfigValueValuesEnum: The machine config of the code execution
+      environment.
+
+  Fields:
+    codeLanguage: The coding language supported in this environment.
+    machineConfig: The machine config of the code execution environment.
+  """
+
+  class CodeLanguageValueValuesEnum(_messages.Enum):
+    r"""The coding language supported in this environment.
+
+    Values:
+      LANGUAGE_UNSPECIFIED: The default value. This value is unused.
+      LANGUAGE_PYTHON: The coding language is Python.
+      LANGUAGE_JAVASCRIPT: The coding language is JavaScript.
+    """
+    LANGUAGE_UNSPECIFIED = 0
+    LANGUAGE_PYTHON = 1
+    LANGUAGE_JAVASCRIPT = 2
+
+  class MachineConfigValueValuesEnum(_messages.Enum):
+    r"""The machine config of the code execution environment.
+
+    Values:
+      MACHINE_CONFIG_UNSPECIFIED: The default value: milligcu 2000, memory
+        1.5Gib
+      MACHINE_CONFIG_VCPU4_RAM4GIB: The default value: milligcu 4000, memory 4
+        Gib
+    """
+    MACHINE_CONFIG_UNSPECIFIED = 0
+    MACHINE_CONFIG_VCPU4_RAM4GIB = 1
+
+  codeLanguage = _messages.EnumField('CodeLanguageValueValuesEnum', 1)
+  machineConfig = _messages.EnumField('MachineConfigValueValuesEnum', 2)
+
+
+class GoogleCloudAiplatformV1beta1SandboxEnvironmentSpecComputerUseEnvironment(_messages.Message):
+  r"""The computer use environment with customized settings."""
 
 
 class GoogleCloudAiplatformV1beta1SavedQuery(_messages.Message):
@@ -31860,13 +45627,19 @@ class GoogleCloudAiplatformV1beta1Schema(_messages.Message):
     TypeValueValuesEnum: Optional. The type of the data.
 
   Messages:
+    DefsValue: Optional. A map of definitions for use by `ref` Only allowed at
+      the root of the schema.
     PropertiesValue: Optional. SCHEMA FIELDS FOR TYPE OBJECT Properties of
       Type.OBJECT.
 
   Fields:
+    additionalProperties: Optional. Can either be a boolean or an object;
+      controls the presence of additional properties.
     anyOf: Optional. The value should be validated against any (one or more)
       of the subschemas in the list.
     default: Optional. Default value of the data.
+    defs: Optional. A map of definitions for use by `ref` Only allowed at the
+      root of the schema.
     description: Optional. The description of the data.
     enum: Optional. Possible values of the element of primitive type with enum
       format. Examples: 1. We can define direction as : {type:STRING,
@@ -31898,6 +45671,13 @@ class GoogleCloudAiplatformV1beta1Schema(_messages.Message):
     propertyOrdering: Optional. The order of the properties. Not a standard
       field in open api spec. Only used to support the order of the
       properties.
+    ref: Optional. Allows indirect references between schema nodes. The value
+      should be a valid reference to a child of the root `defs`. For example,
+      the following schema defines a reference to a schema node named "Pet":
+      type: object properties: pet: ref: #/defs/Pet defs: Pet: type: object
+      properties: name: type: string The value of the "pet" property is a
+      reference to the schema node named "Pet". See details in https://json-
+      schema.org/understanding-json-schema/structuring
     required: Optional. Required properties of Type.OBJECT.
     title: Optional. The title of the Schema.
     type: Optional. The type of the data.
@@ -31914,6 +45694,7 @@ class GoogleCloudAiplatformV1beta1Schema(_messages.Message):
       BOOLEAN: OpenAPI boolean type
       ARRAY: OpenAPI array type
       OBJECT: OpenAPI object type
+      NULL: Null type
     """
     TYPE_UNSPECIFIED = 0
     STRING = 1
@@ -31922,6 +45703,32 @@ class GoogleCloudAiplatformV1beta1Schema(_messages.Message):
     BOOLEAN = 4
     ARRAY = 5
     OBJECT = 6
+    NULL = 7
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class DefsValue(_messages.Message):
+    r"""Optional. A map of definitions for use by `ref` Only allowed at the
+    root of the schema.
+
+    Messages:
+      AdditionalProperty: An additional property for a DefsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type DefsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a DefsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudAiplatformV1beta1Schema attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class PropertiesValue(_messages.Message):
@@ -31947,28 +45754,31 @@ class GoogleCloudAiplatformV1beta1Schema(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  anyOf = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 1, repeated=True)
-  default = _messages.MessageField('extra_types.JsonValue', 2)
-  description = _messages.StringField(3)
-  enum = _messages.StringField(4, repeated=True)
-  example = _messages.MessageField('extra_types.JsonValue', 5)
-  format = _messages.StringField(6)
-  items = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 7)
-  maxItems = _messages.IntegerField(8)
-  maxLength = _messages.IntegerField(9)
-  maxProperties = _messages.IntegerField(10)
-  maximum = _messages.FloatField(11)
-  minItems = _messages.IntegerField(12)
-  minLength = _messages.IntegerField(13)
-  minProperties = _messages.IntegerField(14)
-  minimum = _messages.FloatField(15)
-  nullable = _messages.BooleanField(16)
-  pattern = _messages.StringField(17)
-  properties = _messages.MessageField('PropertiesValue', 18)
-  propertyOrdering = _messages.StringField(19, repeated=True)
-  required = _messages.StringField(20, repeated=True)
-  title = _messages.StringField(21)
-  type = _messages.EnumField('TypeValueValuesEnum', 22)
+  additionalProperties = _messages.MessageField('extra_types.JsonValue', 1)
+  anyOf = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 2, repeated=True)
+  default = _messages.MessageField('extra_types.JsonValue', 3)
+  defs = _messages.MessageField('DefsValue', 4)
+  description = _messages.StringField(5)
+  enum = _messages.StringField(6, repeated=True)
+  example = _messages.MessageField('extra_types.JsonValue', 7)
+  format = _messages.StringField(8)
+  items = _messages.MessageField('GoogleCloudAiplatformV1beta1Schema', 9)
+  maxItems = _messages.IntegerField(10)
+  maxLength = _messages.IntegerField(11)
+  maxProperties = _messages.IntegerField(12)
+  maximum = _messages.FloatField(13)
+  minItems = _messages.IntegerField(14)
+  minLength = _messages.IntegerField(15)
+  minProperties = _messages.IntegerField(16)
+  minimum = _messages.FloatField(17)
+  nullable = _messages.BooleanField(18)
+  pattern = _messages.StringField(19)
+  properties = _messages.MessageField('PropertiesValue', 20)
+  propertyOrdering = _messages.StringField(21, repeated=True)
+  ref = _messages.StringField(22)
+  required = _messages.StringField(23, repeated=True)
+  title = _messages.StringField(24)
+  type = _messages.EnumField('TypeValueValuesEnum', 25)
 
 
 class GoogleCloudAiplatformV1beta1SchemaAnnotationSpecColor(_messages.Message):
@@ -33852,8 +47662,9 @@ class GoogleCloudAiplatformV1beta1SchemaTextDataItem(_messages.Message):
   r"""Payload of Text DataItem.
 
   Fields:
-    gcsUri: Output only. Google Cloud Storage URI points to the original text
-      in user's bucket. The text file is up to 10MB in size.
+    gcsUri: Output only. Google Cloud Storage URI points to a copy of the
+      original text in the Vertex-managed bucket in the user's project. The
+      text file is up to 10MB in size.
   """
 
   gcsUri = _messages.StringField(1)
@@ -36102,16 +49913,57 @@ class GoogleCloudAiplatformV1beta1SearchDataItemsResponse(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1SearchEntryPoint(_messages.Message):
-  r"""Google search entry point.
+  r"""An entry point for displaying Google Search results. A
+  `SearchEntryPoint` is populated when the grounding source for a model's
+  response is Google Search. It provides information that you can use to
+  display the search results in your application.
 
   Fields:
-    renderedContent: Optional. Web content snippet that can be embedded in a
-      web page or an app webview.
-    sdkBlob: Optional. Base64 encoded JSON representing array of tuple.
+    renderedContent: Optional. An HTML snippet that can be embedded in a web
+      page or an application's webview. This snippet displays a search result,
+      including the title, URL, and a brief description of the search result.
+    sdkBlob: Optional. A base64-encoded JSON object that contains a list of
+      search queries and their corresponding search URLs. This information can
+      be used to build a custom search UI.
   """
 
   renderedContent = _messages.StringField(1)
   sdkBlob = _messages.BytesField(2)
+
+
+class GoogleCloudAiplatformV1beta1SearchExamplesRequest(_messages.Message):
+  r"""Request message for ExampleStoreService.SearchExamples.
+
+  Fields:
+    storedContentsExampleParameters: The parameters of StoredContentsExamples
+      to be searched.
+    topK: Optional. The number of similar examples to return.
+  """
+
+  storedContentsExampleParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleParameters', 1)
+  topK = _messages.IntegerField(2)
+
+
+class GoogleCloudAiplatformV1beta1SearchExamplesResponse(_messages.Message):
+  r"""Response message for ExampleStoreService.SearchExamples.
+
+  Fields:
+    results: The results of searching for similar examples.
+  """
+
+  results = _messages.MessageField('GoogleCloudAiplatformV1beta1SearchExamplesResponseSimilarExample', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1SearchExamplesResponseSimilarExample(_messages.Message):
+  r"""The result of the similar example.
+
+  Fields:
+    example: The example that is similar to the searched query.
+    similarityScore: The similarity score of this example.
+  """
+
+  example = _messages.MessageField('GoogleCloudAiplatformV1beta1Example', 1)
+  similarityScore = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
 
 
 class GoogleCloudAiplatformV1beta1SearchFeaturesResponse(_messages.Message):
@@ -36379,24 +50231,262 @@ class GoogleCloudAiplatformV1beta1SearchNearestEntitiesResponse(_messages.Messag
   nearestNeighbors = _messages.MessageField('GoogleCloudAiplatformV1beta1NearestNeighbors', 1)
 
 
-class GoogleCloudAiplatformV1beta1Segment(_messages.Message):
-  r"""Segment of the content.
+class GoogleCloudAiplatformV1beta1SecretEnvVar(_messages.Message):
+  r"""Represents an environment variable where the value is a secret in Cloud
+  Secret Manager.
 
   Fields:
-    endIndex: Output only. End index in the given Part, measured in bytes.
-      Offset from the start of the Part, exclusive, starting at zero.
-    partIndex: Output only. The index of a Part object within its parent
-      Content object.
-    startIndex: Output only. Start index in the given Part, measured in bytes.
-      Offset from the start of the Part, inclusive, starting at zero.
-    text: Output only. The text corresponding to the segment from the
-      response.
+    name: Required. Name of the secret environment variable.
+    secretRef: Required. Reference to a secret stored in the Cloud Secret
+      Manager that will provide the value for this environment variable.
+  """
+
+  name = _messages.StringField(1)
+  secretRef = _messages.MessageField('GoogleCloudAiplatformV1beta1SecretRef', 2)
+
+
+class GoogleCloudAiplatformV1beta1SecretRef(_messages.Message):
+  r"""Reference to a secret stored in the Cloud Secret Manager that will
+  provide the value for this environment variable.
+
+  Fields:
+    secret: Required. The name of the secret in Cloud Secret Manager. Format:
+      {secret_name}.
+    version: The Cloud Secret Manager secret version. Can be 'latest' for the
+      latest version, an integer for a specific version, or a version alias.
+  """
+
+  secret = _messages.StringField(1)
+  version = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1Segment(_messages.Message):
+  r"""A segment of the content.
+
+  Fields:
+    endIndex: Output only. The end index of the segment in the `Part`,
+      measured in bytes. This marks the end of the segment and is exclusive,
+      meaning the segment includes content up to, but not including, the byte
+      at this index.
+    partIndex: Output only. The index of the `Part` object that this segment
+      belongs to. This is useful for associating the segment with a specific
+      part of the content.
+    startIndex: Output only. The start index of the segment in the `Part`,
+      measured in bytes. This marks the beginning of the segment and is
+      inclusive, meaning the byte at this index is the first byte of the
+      segment.
+    text: Output only. The text of the segment.
   """
 
   endIndex = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   partIndex = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   startIndex = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   text = _messages.StringField(4)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJob(_messages.Message):
+  r"""Represents a serverless Ray job resources.
+
+  Messages:
+    LabelsValue: Optional. The labels with user-defined metadata to organize
+      ServerlessRayJobs. Label keys and values can be no longer than 64
+      characters (Unicode codepoints), can only contain lowercase letters,
+      numeric characters, underscores and dashes. International characters are
+      allowed. See https://goo.gl/xmQnxf for more information and examples of
+      labels.
+
+  Fields:
+    description: Optional. The description of the ServerlessRayJob.
+    displayName: Required. The display name of the ServerlessRayJob. The name
+      can be up to 128 characters long and can be consist of any UTF-8
+      characters.
+    error: Output only. Only populated when the serverless Ray job state is
+      `FAILED`.
+    jobSpec: Required. The spec of the ServerlessRayJob.
+    labels: Optional. The labels with user-defined metadata to organize
+      ServerlessRayJobs. Label keys and values can be no longer than 64
+      characters (Unicode codepoints), can only contain lowercase letters,
+      numeric characters, underscores and dashes. International characters are
+      allowed. See https://goo.gl/xmQnxf for more information and examples of
+      labels.
+    name: Output only. Identifier. Resource name of a ServerlessRayJob.
+      Format: `projects/{project}/locations/{location}/serverlessRayJobs/{serv
+      erless_ray_job_id}`
+    stateInfo: Output only. The current state of the ServerlessRayJob.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. The labels with user-defined metadata to organize
+    ServerlessRayJobs. Label keys and values can be no longer than 64
+    characters (Unicode codepoints), can only contain lowercase letters,
+    numeric characters, underscores and dashes. International characters are
+    allowed. See https://goo.gl/xmQnxf for more information and examples of
+    labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  description = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  error = _messages.MessageField('GoogleRpcStatus', 3)
+  jobSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobSpec', 4)
+  labels = _messages.MessageField('LabelsValue', 5)
+  name = _messages.StringField(6)
+  stateInfo = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobStateInfo', 7)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobSpec(_messages.Message):
+  r"""Represents the spec of a ServerlessRayJob.
+
+  Fields:
+    archiveUris: Optional. The URIs of archives to be extracted into the
+      working directory of each Ray node. Supported file types: `.tar`,
+      `.tar.gz`, `.tgz`, and `.zip`. We only support Cloud Storage paths for
+      this field.
+    args: Optional. The arguments to pass to the Ray job script.
+    mainPythonFileUri: Required. The URI of the main Python file to use as the
+      Ray job. Must be a .py file.
+    pscInterfaceConfig: Optional. The PSC interface config for the
+      ServerlessRayJob. If unspecified, the ServerlessRayJob will not use PSC
+      interface.
+    resourceSpecs: Optional. The resource specs of the ServerlessRayJob. If
+      unspecified, the default resource will be used.
+    runtimeEnv: Optional. The runtime environment of the ServerlessRayJob.
+    serviceAccount: Optional. Specifies the service account for workload run-
+      as account. Users submitting jobs must have act-as permission on this
+      run-as account. If unspecified, the [Vertex AI Custom Code Service
+      Agent](https://cloud.google.com/vertex-ai/docs/general/access-
+      control#service-agents) for the ServerelessRayJob's project is used.
+  """
+
+  archiveUris = _messages.StringField(1, repeated=True)
+  args = _messages.StringField(2, repeated=True)
+  mainPythonFileUri = _messages.StringField(3)
+  pscInterfaceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PscInterfaceConfig', 4)
+  resourceSpecs = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobSpecResourceSpec', 5, repeated=True)
+  runtimeEnv = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobSpecRuntimeEnv', 6)
+  serviceAccount = _messages.StringField(7)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobSpecResourceSpec(_messages.Message):
+  r"""Represents the resource spec of a worker node pool.
+
+  Fields:
+    disk: Optional. The disk spec for the node. By default, we use pd-standard
+      disk with 100GB.
+    maxNodeCount: Optional. The maximum number of nodes this job can occupy
+      while running. Default is 2000.
+    resourceUnit: Optional. Define the number of CPUs on one node. E.g. 1
+      resource_unit = 4 vCPUs. By default machine e2-standard series,
+      resource_unit value can only be 1, 2, 4. Default value is 1.
+  """
+
+  disk = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobSpecResourceSpecDisk', 1)
+  maxNodeCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  resourceUnit = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobSpecResourceSpecDisk(_messages.Message):
+  r"""Represents the disk spec.
+
+  Fields:
+    diskSizeGb: Optional. The size of the disk in GB.
+  """
+
+  diskSizeGb = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobSpecRuntimeEnv(_messages.Message):
+  r"""Represents the runtime environment of a ServerlessRayJob.
+
+  Fields:
+    container: Optional. Docker container to run the Ray job in.
+  """
+
+  container = _messages.MessageField('GoogleCloudAiplatformV1beta1ServerlessRayJobSpecRuntimeEnvContainer', 1)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobSpecRuntimeEnvContainer(_messages.Message):
+  r"""Require a given (Docker) image, and the worker process will run in a
+  container with this image.
+
+  Fields:
+    imageUri: Optional. The URI of the Docker image.
+  """
+
+  imageUri = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1ServerlessRayJobStateInfo(_messages.Message):
+  r"""The state information of the ServerlessRayJob.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the ServerlessRayJob.
+
+  Fields:
+    state: Output only. The state of the ServerlessRayJob.
+    stateMessage: Output only. A message containing details about the current
+      state of the ServerlessRayJob.
+    stateTime: Output only. The time when the current state was entered.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the ServerlessRayJob.
+
+    Values:
+      JOB_STATE_UNSPECIFIED: The job state is unspecified.
+      JOB_STATE_QUEUED: The job has been just created or resumed and
+        processing has not yet begun.
+      JOB_STATE_PENDING: The service is preparing to run the job.
+      JOB_STATE_RUNNING: The job is in progress.
+      JOB_STATE_SUCCEEDED: The job completed successfully.
+      JOB_STATE_FAILED: The job failed.
+      JOB_STATE_CANCELLING: The job is being cancelled. From this state the
+        job may only go to either `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED` or
+        `JOB_STATE_CANCELLED`.
+      JOB_STATE_CANCELLED: The job has been cancelled.
+      JOB_STATE_PAUSED: The job has been stopped, and can be resumed.
+      JOB_STATE_EXPIRED: The job has expired.
+      JOB_STATE_UPDATING: The job is being updated. Only jobs in the `RUNNING`
+        state can be updated. After updating, the job goes back to the
+        `RUNNING` state.
+      JOB_STATE_PARTIALLY_SUCCEEDED: The job is partially succeeded, some
+        results may be missing due to errors.
+    """
+    JOB_STATE_UNSPECIFIED = 0
+    JOB_STATE_QUEUED = 1
+    JOB_STATE_PENDING = 2
+    JOB_STATE_RUNNING = 3
+    JOB_STATE_SUCCEEDED = 4
+    JOB_STATE_FAILED = 5
+    JOB_STATE_CANCELLING = 6
+    JOB_STATE_CANCELLED = 7
+    JOB_STATE_PAUSED = 8
+    JOB_STATE_EXPIRED = 9
+    JOB_STATE_UPDATING = 10
+    JOB_STATE_PARTIALLY_SUCCEEDED = 11
+
+  state = _messages.EnumField('StateValueValuesEnum', 1)
+  stateMessage = _messages.StringField(2)
+  stateTime = _messages.StringField(3)
 
 
 class GoogleCloudAiplatformV1beta1ServiceAccountSpec(_messages.Message):
@@ -36421,6 +50511,105 @@ class GoogleCloudAiplatformV1beta1ServiceAccountSpec(_messages.Message):
 
   enableCustomServiceAccount = _messages.BooleanField(1)
   serviceAccount = _messages.StringField(2)
+
+
+class GoogleCloudAiplatformV1beta1Session(_messages.Message):
+  r"""A session contains a set of actions between users and Vertex agents.
+
+  Messages:
+    SessionStateValue: Optional. Session specific memory which stores key
+      conversation points.
+
+  Fields:
+    createTime: Output only. Timestamp when the session was created.
+    displayName: Optional. The display name of the session.
+    expireTime: Optional. Timestamp of when this session is considered
+      expired. This is *always* provided on output, regardless of what was
+      sent on input.
+    name: Identifier. The resource name of the session. Format: 'projects/{pro
+      ject}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/
+      {session}'.
+    sessionState: Optional. Session specific memory which stores key
+      conversation points.
+    ttl: Optional. Input only. The TTL for this session.
+    updateTime: Output only. Timestamp when the session was updated.
+    userId: Required. Immutable. String id provided by the user
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class SessionStateValue(_messages.Message):
+    r"""Optional. Session specific memory which stores key conversation
+    points.
+
+    Messages:
+      AdditionalProperty: An additional property for a SessionStateValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a SessionStateValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  expireTime = _messages.StringField(3)
+  name = _messages.StringField(4)
+  sessionState = _messages.MessageField('SessionStateValue', 5)
+  ttl = _messages.StringField(6)
+  updateTime = _messages.StringField(7)
+  userId = _messages.StringField(8)
+
+
+class GoogleCloudAiplatformV1beta1SessionEvent(_messages.Message):
+  r"""An event represents a message from either the user or agent.
+
+  Fields:
+    actions: Optional. Actions executed by the agent.
+    author: Required. The name of the agent that sent the event, or user.
+    content: Optional. Content of the event provided by the author.
+    errorCode: Optional. Error code if the response is an error. Code varies
+      by model.
+    errorMessage: Optional. Error message if the response is an error.
+    eventMetadata: Optional. Metadata relating to this event.
+    invocationId: Required. The invocation id of the event, multiple events
+      can have the same invocation id.
+    name: Identifier. The resource name of the event. Format:`projects/{projec
+      t}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{se
+      ssion}/events/{event}`.
+    timestamp: Required. Timestamp when the event was created on client side.
+  """
+
+  actions = _messages.MessageField('GoogleCloudAiplatformV1beta1EventActions', 1)
+  author = _messages.StringField(2)
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 3)
+  errorCode = _messages.StringField(4)
+  errorMessage = _messages.StringField(5)
+  eventMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1EventMetadata', 6)
+  invocationId = _messages.StringField(7)
+  name = _messages.StringField(8)
+  timestamp = _messages.StringField(9)
+
+
+class GoogleCloudAiplatformV1beta1SetPublisherModelConfigRequest(_messages.Message):
+  r"""Request message for EndpointService.SetPublisherModelConfig.
+
+  Fields:
+    publisherModelConfig: Required. The publisher model config.
+  """
+
+  publisherModelConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PublisherModelConfig', 1)
 
 
 class GoogleCloudAiplatformV1beta1SharePointSources(_messages.Message):
@@ -36555,6 +50744,19 @@ class GoogleCloudAiplatformV1beta1SmoothGradConfig(_messages.Message):
   noisySampleCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1SpeakerVoiceConfig(_messages.Message):
+  r"""Configuration for a single speaker in a multi-speaker setup.
+
+  Fields:
+    speaker: Required. The name of the speaker. This should be the same as the
+      speaker name used in the prompt.
+    voiceConfig: Required. The configuration for the voice of this speaker.
+  """
+
+  speaker = _messages.StringField(1)
+  voiceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1VoiceConfig', 2)
+
+
 class GoogleCloudAiplatformV1beta1SpecialistPool(_messages.Message):
   r"""SpecialistPool represents customers' own workforce to work on their data
   labeling jobs. It includes a group of specialist managers and workers.
@@ -36586,6 +50788,62 @@ class GoogleCloudAiplatformV1beta1SpecialistPool(_messages.Message):
   specialistWorkerEmails = _messages.StringField(6, repeated=True)
 
 
+class GoogleCloudAiplatformV1beta1SpeculativeDecodingSpec(_messages.Message):
+  r"""Configuration for Speculative Decoding.
+
+  Fields:
+    draftModelSpeculation: draft model speculation.
+    ngramSpeculation: N-Gram speculation.
+    speculativeTokenCount: The number of speculative tokens to generate at
+      each step.
+  """
+
+  draftModelSpeculation = _messages.MessageField('GoogleCloudAiplatformV1beta1SpeculativeDecodingSpecDraftModelSpeculation', 1)
+  ngramSpeculation = _messages.MessageField('GoogleCloudAiplatformV1beta1SpeculativeDecodingSpecNgramSpeculation', 2)
+  speculativeTokenCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1SpeculativeDecodingSpecDraftModelSpeculation(_messages.Message):
+  r"""Draft model speculation works by using the smaller model to generate
+  candidate tokens for speculative decoding.
+
+  Fields:
+    draftModel: Required. The resource name of the draft model.
+  """
+
+  draftModel = _messages.StringField(1)
+
+
+class GoogleCloudAiplatformV1beta1SpeculativeDecodingSpecNgramSpeculation(_messages.Message):
+  r"""N-Gram speculation works by trying to find matching tokens in the
+  previous prompt sequence and use those as speculation for generating new
+  tokens.
+
+  Fields:
+    ngramSize: The number of last N input tokens used as ngram to search/match
+      against the previous prompt sequence. This is equal to the N in N-Gram.
+      The default value is 3 if not specified.
+  """
+
+  ngramSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1SpeechConfig(_messages.Message):
+  r"""Configuration for speech generation.
+
+  Fields:
+    languageCode: Optional. The language code (ISO 639-1) for the speech
+      synthesis.
+    multiSpeakerVoiceConfig: The configuration for a multi-speaker text-to-
+      speech request. This field is mutually exclusive with `voice_config`.
+    voiceConfig: The configuration for the voice to use.
+  """
+
+  languageCode = _messages.StringField(1)
+  multiSpeakerVoiceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1MultiSpeakerVoiceConfig', 2)
+  voiceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1VoiceConfig', 3)
+
+
 class GoogleCloudAiplatformV1beta1StartNotebookRuntimeOperationMetadata(_messages.Message):
   r"""Metadata information for NotebookService.StartNotebookRuntime.
 
@@ -36609,6 +50867,90 @@ class GoogleCloudAiplatformV1beta1StopNotebookRuntimeRequest(_messages.Message):
 
 class GoogleCloudAiplatformV1beta1StopTrialRequest(_messages.Message):
   r"""Request message for VizierService.StopTrial."""
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExample(_messages.Message):
+  r"""A ContentsExample to be used with GenerateContent alongside information
+  required for storage and retrieval with Example Store.
+
+  Fields:
+    contentsExample: Required. The example to be used with GenerateContent.
+    searchKey: Optional. (Optional) the search key used for retrieval. If not
+      provided at upload-time, the search key will be generated from
+      `contents_example.contents` using the method provided by
+      `search_key_generation_method`. The generated search key will be
+      included in retrieved examples.
+    searchKeyGenerationMethod: Optional. The method used to generate the
+      search key from `contents_example.contents`. This is ignored when
+      uploading an example if `search_key` is provided.
+  """
+
+  contentsExample = _messages.MessageField('GoogleCloudAiplatformV1beta1ContentsExample', 1)
+  searchKey = _messages.StringField(2)
+  searchKeyGenerationMethod = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleSearchKeyGenerationMethod', 3)
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExampleFilter(_messages.Message):
+  r"""The metadata filters that will be used to remove or fetch
+  StoredContentsExamples. If a field is unspecified, then no filtering for
+  that field will be applied.
+
+  Fields:
+    functionNames: Optional. The function names for filtering.
+    searchKeys: Optional. The search keys for filtering. Only examples with
+      one of the specified search keys (StoredContentsExample.search_key) are
+      eligible to be returned.
+  """
+
+  functionNames = _messages.MessageField('GoogleCloudAiplatformV1beta1ExamplesArrayFilter', 1)
+  searchKeys = _messages.StringField(2, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExampleParameters(_messages.Message):
+  r"""The metadata filters that will be used to search StoredContentsExamples.
+  If a field is unspecified, then no filtering for that field will be applied
+
+  Fields:
+    contentSearchKey: The chat history to use to generate the search key for
+      retrieval.
+    functionNames: Optional. The function names for filtering.
+    searchKey: The exact search key to use for retrieval.
+  """
+
+  contentSearchKey = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleParametersContentSearchKey', 1)
+  functionNames = _messages.MessageField('GoogleCloudAiplatformV1beta1ExamplesArrayFilter', 2)
+  searchKey = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExampleParametersContentSearchKey(_messages.Message):
+  r"""The chat history to use to generate the search key for retrieval.
+
+  Fields:
+    contents: Required. The conversation for generating a search key.
+    searchKeyGenerationMethod: Required. The method of generating a search
+      key.
+  """
+
+  contents = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1, repeated=True)
+  searchKeyGenerationMethod = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleSearchKeyGenerationMethod', 2)
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExampleSearchKeyGenerationMethod(_messages.Message):
+  r"""Options for generating the search key from the conversation history.
+
+  Fields:
+    lastEntry: Use only the last entry of the conversation history
+      (`contents_example.contents`) as the search key.
+  """
+
+  lastEntry = _messages.MessageField('GoogleCloudAiplatformV1beta1StoredContentsExampleSearchKeyGenerationMethodLastEntry', 1)
+
+
+class GoogleCloudAiplatformV1beta1StoredContentsExampleSearchKeyGenerationMethodLastEntry(_messages.Message):
+  r"""Configuration for using only the last entry of the conversation history
+  as the search key.
+  """
+
 
 
 class GoogleCloudAiplatformV1beta1StratifiedSplit(_messages.Message):
@@ -37658,6 +52000,47 @@ class GoogleCloudAiplatformV1beta1SummarizationVerbositySpec(_messages.Message):
   version = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
+class GoogleCloudAiplatformV1beta1SummaryMetrics(_messages.Message):
+  r"""The summary metrics for the evaluation run.
+
+  Messages:
+    MetricsValue: Optional. Map of metric name to metric value.
+
+  Fields:
+    failedItems: Optional. The number of items that failed to be evaluated.
+    metrics: Optional. Map of metric name to metric value.
+    totalItems: Optional. The total number of items that were evaluated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MetricsValue(_messages.Message):
+    r"""Optional. Map of metric name to metric value.
+
+    Messages:
+      AdditionalProperty: An additional property for a MetricsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type MetricsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MetricsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  failedItems = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  metrics = _messages.MessageField('MetricsValue', 2)
+  totalItems = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
 class GoogleCloudAiplatformV1beta1SupervisedHyperParameters(_messages.Message):
   r"""Hyperparameters for SFT.
 
@@ -37666,10 +52049,16 @@ class GoogleCloudAiplatformV1beta1SupervisedHyperParameters(_messages.Message):
 
   Fields:
     adapterSize: Optional. Adapter size for tuning.
+    batchSize: Optional. Batch size for tuning. This feature is only available
+      for open source models.
     epochCount: Optional. Number of complete passes the model makes over the
       entire training dataset during training.
+    learningRate: Optional. Learning rate for tuning. Mutually exclusive with
+      `learning_rate_multiplier`. This feature is only available for open
+      source models.
     learningRateMultiplier: Optional. Multiplier for adjusting the default
-      learning rate.
+      learning rate. Mutually exclusive with `learning_rate`. This feature is
+      only available for 1P models.
   """
 
   class AdapterSizeValueValuesEnum(_messages.Enum):
@@ -37678,6 +52067,7 @@ class GoogleCloudAiplatformV1beta1SupervisedHyperParameters(_messages.Message):
     Values:
       ADAPTER_SIZE_UNSPECIFIED: Adapter size is unspecified.
       ADAPTER_SIZE_ONE: Adapter size 1.
+      ADAPTER_SIZE_TWO: Adapter size 2.
       ADAPTER_SIZE_FOUR: Adapter size 4.
       ADAPTER_SIZE_EIGHT: Adapter size 8.
       ADAPTER_SIZE_SIXTEEN: Adapter size 16.
@@ -37685,30 +52075,38 @@ class GoogleCloudAiplatformV1beta1SupervisedHyperParameters(_messages.Message):
     """
     ADAPTER_SIZE_UNSPECIFIED = 0
     ADAPTER_SIZE_ONE = 1
-    ADAPTER_SIZE_FOUR = 2
-    ADAPTER_SIZE_EIGHT = 3
-    ADAPTER_SIZE_SIXTEEN = 4
-    ADAPTER_SIZE_THIRTY_TWO = 5
+    ADAPTER_SIZE_TWO = 2
+    ADAPTER_SIZE_FOUR = 3
+    ADAPTER_SIZE_EIGHT = 4
+    ADAPTER_SIZE_SIXTEEN = 5
+    ADAPTER_SIZE_THIRTY_TWO = 6
 
   adapterSize = _messages.EnumField('AdapterSizeValueValuesEnum', 1)
-  epochCount = _messages.IntegerField(2)
-  learningRateMultiplier = _messages.FloatField(3)
+  batchSize = _messages.IntegerField(2)
+  epochCount = _messages.IntegerField(3)
+  learningRate = _messages.FloatField(4)
+  learningRateMultiplier = _messages.FloatField(5)
 
 
 class GoogleCloudAiplatformV1beta1SupervisedTuningDataStats(_messages.Message):
   r"""Tuning data statistics for Supervised Tuning.
 
   Fields:
+    droppedExampleReasons: Output only. For each index in
+      `truncated_example_indices`, the user-facing reason why the example was
+      dropped.
     totalBillableCharacterCount: Output only. Number of billable characters in
       the tuning dataset.
     totalBillableTokenCount: Output only. Number of billable tokens in the
       tuning dataset.
-    totalTruncatedExampleCount: The number of examples in the dataset that
-      have been truncated by any amount.
+    totalTruncatedExampleCount: Output only. The number of examples in the
+      dataset that have been dropped. An example can be dropped for reasons
+      including: too many tokens, contains an invalid image, contains too many
+      images, etc.
     totalTuningCharacterCount: Output only. Number of tuning characters in the
       tuning dataset.
-    truncatedExampleIndices: A partial sample of the indices (starting from 1)
-      of the truncated examples.
+    truncatedExampleIndices: Output only. A partial sample of the indices
+      (starting from 1) of the dropped examples.
     tuningDatasetExampleCount: Output only. Number of examples in the tuning
       dataset.
     tuningStepCount: Output only. Number of tuning steps for this Tuning Job.
@@ -37722,17 +52120,18 @@ class GoogleCloudAiplatformV1beta1SupervisedTuningDataStats(_messages.Message):
       user output tokens.
   """
 
-  totalBillableCharacterCount = _messages.IntegerField(1)
-  totalBillableTokenCount = _messages.IntegerField(2)
-  totalTruncatedExampleCount = _messages.IntegerField(3)
-  totalTuningCharacterCount = _messages.IntegerField(4)
-  truncatedExampleIndices = _messages.IntegerField(5, repeated=True)
-  tuningDatasetExampleCount = _messages.IntegerField(6)
-  tuningStepCount = _messages.IntegerField(7)
-  userDatasetExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 8, repeated=True)
-  userInputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 9)
-  userMessagePerExampleDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 10)
-  userOutputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 11)
+  droppedExampleReasons = _messages.StringField(1, repeated=True)
+  totalBillableCharacterCount = _messages.IntegerField(2)
+  totalBillableTokenCount = _messages.IntegerField(3)
+  totalTruncatedExampleCount = _messages.IntegerField(4)
+  totalTuningCharacterCount = _messages.IntegerField(5)
+  truncatedExampleIndices = _messages.IntegerField(6, repeated=True)
+  tuningDatasetExampleCount = _messages.IntegerField(7)
+  tuningStepCount = _messages.IntegerField(8)
+  userDatasetExamples = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 9, repeated=True)
+  userInputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 10)
+  userMessagePerExampleDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 11)
+  userOutputTokenDistribution = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution', 12)
 
 
 class GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistribution(_messages.Message):
@@ -37780,19 +52179,42 @@ class GoogleCloudAiplatformV1beta1SupervisedTuningDatasetDistributionDatasetBuck
 class GoogleCloudAiplatformV1beta1SupervisedTuningSpec(_messages.Message):
   r"""Tuning Spec for Supervised Tuning for first party models.
 
+  Enums:
+    TuningModeValueValuesEnum: Tuning mode.
+
   Fields:
+    evaluationConfig: Optional. Evaluation Config for Tuning Job.
+    exportLastCheckpointOnly: Optional. If set to true, disable intermediate
+      checkpoints for SFT and only the last checkpoint will be exported.
+      Otherwise, enable intermediate checkpoints for SFT. Default is false.
     hyperParameters: Optional. Hyperparameters for SFT.
-    trainingDatasetUri: Required. Cloud Storage path to file containing
-      training dataset for tuning. The dataset must be formatted as a JSONL
-      file.
-    validationDatasetUri: Optional. Cloud Storage path to file containing
-      validation dataset for tuning. The dataset must be formatted as a JSONL
-      file.
+    trainingDatasetUri: Required. Training dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
+    tuningMode: Tuning mode.
+    validationDatasetUri: Optional. Validation dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
   """
 
-  hyperParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedHyperParameters', 1)
-  trainingDatasetUri = _messages.StringField(2)
-  validationDatasetUri = _messages.StringField(3)
+  class TuningModeValueValuesEnum(_messages.Enum):
+    r"""Tuning mode.
+
+    Values:
+      TUNING_MODE_UNSPECIFIED: Tuning mode is unspecified.
+      TUNING_MODE_FULL: Full fine-tuning mode.
+      TUNING_MODE_PEFT_ADAPTER: PEFT adapter tuning mode.
+    """
+    TUNING_MODE_UNSPECIFIED = 0
+    TUNING_MODE_FULL = 1
+    TUNING_MODE_PEFT_ADAPTER = 2
+
+  evaluationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluationConfig', 1)
+  exportLastCheckpointOnly = _messages.BooleanField(2)
+  hyperParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedHyperParameters', 3)
+  trainingDatasetUri = _messages.StringField(4)
+  tuningMode = _messages.EnumField('TuningModeValueValuesEnum', 5)
+  validationDatasetUri = _messages.StringField(6)
 
 
 class GoogleCloudAiplatformV1beta1SyncFeatureViewRequest(_messages.Message):
@@ -37811,6 +52233,30 @@ class GoogleCloudAiplatformV1beta1SyncFeatureViewResponse(_messages.Message):
   featureViewSync = _messages.StringField(1)
 
 
+class GoogleCloudAiplatformV1beta1SyntheticExample(_messages.Message):
+  r"""Represents a single synthetic example, composed of multiple fields. Used
+  for providing few-shot examples in the request and for returning generated
+  examples in the response.
+
+  Fields:
+    fields: Required. A list of fields that constitute an example.
+  """
+
+  fields = _messages.MessageField('GoogleCloudAiplatformV1beta1SyntheticField', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1SyntheticField(_messages.Message):
+  r"""Represents a single named field within a SyntheticExample.
+
+  Fields:
+    content: Required. The content of the field.
+    fieldName: Optional. The name of the field.
+  """
+
+  content = _messages.MessageField('GoogleCloudAiplatformV1beta1Content', 1)
+  fieldName = _messages.StringField(2)
+
+
 class GoogleCloudAiplatformV1beta1TFRecordDestination(_messages.Message):
   r"""The storage details for TFRecord output content.
 
@@ -37819,6 +52265,17 @@ class GoogleCloudAiplatformV1beta1TFRecordDestination(_messages.Message):
   """
 
   gcsDestination = _messages.MessageField('GoogleCloudAiplatformV1beta1GcsDestination', 1)
+
+
+class GoogleCloudAiplatformV1beta1TaskDescriptionStrategy(_messages.Message):
+  r"""Defines a generation strategy based on a high-level task description.
+
+  Fields:
+    taskDescription: Required. A high-level description of the synthetic data
+      to be generated.
+  """
+
+  taskDescription = _messages.StringField(1)
 
 
 class GoogleCloudAiplatformV1beta1Tensor(_messages.Message):
@@ -38442,29 +52899,40 @@ class GoogleCloudAiplatformV1beta1Tool(_messages.Message):
 
   Fields:
     codeExecution: Optional. CodeExecution tool type. Enables the model to
-      execute code as part of generation. This field is only used by the
-      Gemini Developer API services.
+      execute code as part of generation.
+    computerUse: Optional. Tool to support the model interacting directly with
+      the computer. If enabled, it automatically populates computer-use
+      specific Function Declarations.
+    enterpriseWebSearch: Optional. Tool to support searching public web data,
+      powered by Vertex AI Search and Sec4 compliance.
     functionDeclarations: Optional. Function tool type. One or more function
       declarations to be passed to the model along with the current user
       query. Model may decide to call a subset of these functions by
       populating FunctionCall in the response. User should provide a
       FunctionResponse for each function call in the next turn. Based on the
       function responses, Model will generate the final response back to the
-      user. Maximum 128 function declarations can be provided.
+      user. Maximum 512 function declarations can be provided.
+    googleMaps: Optional. GoogleMaps tool type. Tool to support Google Maps in
+      Model.
     googleSearch: Optional. GoogleSearch tool type. Tool to support Google
       Search in Model. Powered by Google.
-    googleSearchRetrieval: Optional. GoogleSearchRetrieval tool type.
-      Specialized retrieval tool that is powered by Google search.
+    googleSearchRetrieval: Optional. Specialized retrieval tool that is
+      powered by Google Search.
     retrieval: Optional. Retrieval tool type. System will always execute the
       provided retrieval tool(s) to get external knowledge to answer the
       prompt. Retrieval results are presented to the model for generation.
+    urlContext: Optional. Tool to support URL context retrieval.
   """
 
   codeExecution = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolCodeExecution', 1)
-  functionDeclarations = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionDeclaration', 2, repeated=True)
-  googleSearch = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolGoogleSearch', 3)
-  googleSearchRetrieval = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleSearchRetrieval', 4)
-  retrieval = _messages.MessageField('GoogleCloudAiplatformV1beta1Retrieval', 5)
+  computerUse = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolComputerUse', 2)
+  enterpriseWebSearch = _messages.MessageField('GoogleCloudAiplatformV1beta1EnterpriseWebSearch', 3)
+  functionDeclarations = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionDeclaration', 4, repeated=True)
+  googleMaps = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleMaps', 5)
+  googleSearch = _messages.MessageField('GoogleCloudAiplatformV1beta1ToolGoogleSearch', 6)
+  googleSearchRetrieval = _messages.MessageField('GoogleCloudAiplatformV1beta1GoogleSearchRetrieval', 7)
+  retrieval = _messages.MessageField('GoogleCloudAiplatformV1beta1Retrieval', 8)
+  urlContext = _messages.MessageField('GoogleCloudAiplatformV1beta1UrlContext', 9)
 
 
 class GoogleCloudAiplatformV1beta1ToolCall(_messages.Message):
@@ -38535,22 +53003,94 @@ class GoogleCloudAiplatformV1beta1ToolCodeExecution(_messages.Message):
 
 
 
+class GoogleCloudAiplatformV1beta1ToolComputerUse(_messages.Message):
+  r"""Tool to support computer use.
+
+  Enums:
+    EnvironmentValueValuesEnum: Required. The environment being operated.
+
+  Fields:
+    environment: Required. The environment being operated.
+    excludedPredefinedFunctions: Optional. By default, [predefined
+      functions](https://cloud.google.com/vertex-ai/generative-
+      ai/docs/computer-use#supported-actions) are included in the final model
+      call. Some of them can be explicitly excluded from being automatically
+      included. This can serve two purposes: 1. Using a more restricted /
+      different action space. 2. Improving the definitions / instructions of
+      predefined functions.
+  """
+
+  class EnvironmentValueValuesEnum(_messages.Enum):
+    r"""Required. The environment being operated.
+
+    Values:
+      ENVIRONMENT_UNSPECIFIED: Defaults to browser.
+      ENVIRONMENT_BROWSER: Operates in a web browser.
+    """
+    ENVIRONMENT_UNSPECIFIED = 0
+    ENVIRONMENT_BROWSER = 1
+
+  environment = _messages.EnumField('EnvironmentValueValuesEnum', 1)
+  excludedPredefinedFunctions = _messages.StringField(2, repeated=True)
+
+
 class GoogleCloudAiplatformV1beta1ToolConfig(_messages.Message):
   r"""Tool config. This config is shared for all tools provided in the
   request.
 
   Fields:
     functionCallingConfig: Optional. Function calling config.
+    retrievalConfig: Optional. Retrieval config.
   """
 
   functionCallingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1FunctionCallingConfig', 1)
+  retrievalConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RetrievalConfig', 2)
 
 
 class GoogleCloudAiplatformV1beta1ToolGoogleSearch(_messages.Message):
   r"""GoogleSearch tool type. Tool to support Google Search in Model. Powered
   by Google.
+
+  Enums:
+    BlockingConfidenceValueValuesEnum: Optional. Sites with confidence level
+      chosen & above this value will be blocked from the search results.
+
+  Fields:
+    blockingConfidence: Optional. Sites with confidence level chosen & above
+      this value will be blocked from the search results.
+    excludeDomains: Optional. List of domains to be excluded from the search
+      results. The default limit is 2000 domains. Example: ["amazon.com",
+      "facebook.com"].
   """
 
+  class BlockingConfidenceValueValuesEnum(_messages.Enum):
+    r"""Optional. Sites with confidence level chosen & above this value will
+    be blocked from the search results.
+
+    Values:
+      PHISH_BLOCK_THRESHOLD_UNSPECIFIED: Defaults to unspecified.
+      BLOCK_LOW_AND_ABOVE: Blocks Low and above confidence URL that is risky.
+      BLOCK_MEDIUM_AND_ABOVE: Blocks Medium and above confidence URL that is
+        risky.
+      BLOCK_HIGH_AND_ABOVE: Blocks High and above confidence URL that is
+        risky.
+      BLOCK_HIGHER_AND_ABOVE: Blocks Higher and above confidence URL that is
+        risky.
+      BLOCK_VERY_HIGH_AND_ABOVE: Blocks Very high and above confidence URL
+        that is risky.
+      BLOCK_ONLY_EXTREMELY_HIGH: Blocks Extremely high confidence URL that is
+        risky.
+    """
+    PHISH_BLOCK_THRESHOLD_UNSPECIFIED = 0
+    BLOCK_LOW_AND_ABOVE = 1
+    BLOCK_MEDIUM_AND_ABOVE = 2
+    BLOCK_HIGH_AND_ABOVE = 3
+    BLOCK_HIGHER_AND_ABOVE = 4
+    BLOCK_VERY_HIGH_AND_ABOVE = 5
+    BLOCK_ONLY_EXTREMELY_HIGH = 6
+
+  blockingConfidence = _messages.EnumField('BlockingConfidenceValueValuesEnum', 1)
+  excludeDomains = _messages.StringField(2, repeated=True)
 
 
 class GoogleCloudAiplatformV1beta1ToolNameMatchInput(_messages.Message):
@@ -39454,18 +53994,46 @@ class GoogleCloudAiplatformV1beta1TrialParameter(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1TunedModel(_messages.Message):
-  r"""The Model Registry Model and Online Prediction Endpoint assiociated with
+  r"""The Model Registry Model and Online Prediction Endpoint associated with
   this TuningJob.
 
   Fields:
+    checkpoints: Output only. The checkpoints associated with this TunedModel.
+      This field is only populated for tuning jobs that enable intermediate
+      checkpoints.
     endpoint: Output only. A resource name of an Endpoint. Format:
       `projects/{project}/locations/{location}/endpoints/{endpoint}`.
     model: Output only. The resource name of the TunedModel. Format:
-      `projects/{project}/locations/{location}/models/{model}`.
+      `projects/{project}/locations/{location}/models/{model}@{version_id}`
+      When tuning from a base model, the version ID will be 1. For continuous
+      tuning, if the provided tuned_model_display_name is set and different
+      from parent model's display name, the tuned model will have a new parent
+      model with version 1. Otherwise the version id will be incremented by 1
+      from the last version ID in the parent model. E.g.,
+      `projects/{project}/locations/{location}/models/{model}@{last_version_id
+      + 1}`
   """
 
-  endpoint = _messages.StringField(1)
-  model = _messages.StringField(2)
+  checkpoints = _messages.MessageField('GoogleCloudAiplatformV1beta1TunedModelCheckpoint', 1, repeated=True)
+  endpoint = _messages.StringField(2)
+  model = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1TunedModelCheckpoint(_messages.Message):
+  r"""TunedModelCheckpoint for the Tuned Model of a Tuning Job.
+
+  Fields:
+    checkpointId: The ID of the checkpoint.
+    endpoint: The Endpoint resource name that the checkpoint is deployed to.
+      Format: `projects/{project}/locations/{location}/endpoints/{endpoint}`.
+    epoch: The epoch of the checkpoint.
+    step: The step of the checkpoint.
+  """
+
+  checkpointId = _messages.StringField(1)
+  endpoint = _messages.StringField(2)
+  epoch = _messages.IntegerField(3)
+  step = _messages.IntegerField(4)
 
 
 class GoogleCloudAiplatformV1beta1TunedModelRef(_messages.Message):
@@ -39489,11 +54057,14 @@ class GoogleCloudAiplatformV1beta1TuningDataStats(_messages.Message):
 
   Fields:
     distillationDataStats: Output only. Statistics for distillation.
+    preferenceOptimizationDataStats: Output only. Statistics for preference
+      optimization.
     supervisedTuningDataStats: The SFT Tuning data stats.
   """
 
   distillationDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1DistillationDataStats', 1)
-  supervisedTuningDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDataStats', 2)
+  preferenceOptimizationDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1PreferenceOptimizationDataStats', 2)
+  supervisedTuningDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningDataStats', 3)
 
 
 class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
@@ -39501,6 +54072,8 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
 
   Enums:
     StateValueValuesEnum: Output only. The detailed state of the job.
+    TuningJobStateValueValuesEnum: Output only. The detail state of the tuning
+      job (while the overall `JobState` is running).
 
   Messages:
     LabelsValue: Optional. The labels with user-defined metadata to organize
@@ -39511,9 +54084,17 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
       for more information and examples of labels.
 
   Fields:
-    baseModel: The base model that is being tuned, e.g., "gemini-1.0-pro-002".
-      .
+    baseModel: The base model that is being tuned. See [Supported
+      models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-
+      reference/tuning#supported_models).
     createTime: Output only. Time when the TuningJob was created.
+    customBaseModel: Optional. The user-provided path to custom model weights.
+      Set this field to tune a custom model. The path must be a Cloud Storage
+      directory that contains the model weights in .safetensors format along
+      with associated model metadata files. If this field is set, the
+      base_model field must still be set to indicate which base model the
+      custom model is derived from. This feature is only available for open
+      source models.
     description: Optional. The description of the TuningJob.
     distillationSpec: Tuning Spec for Distillation.
     encryptionSpec: Customer-managed encryption key options for a TuningJob.
@@ -39524,7 +54105,9 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
       `JOB_STATE_CANCELLED`, `JOB_STATE_EXPIRED`.
     error: Output only. Only populated when job's state is `JOB_STATE_FAILED`
       or `JOB_STATE_CANCELLED`.
+    evaluateDatasetRuns: Output only. Evaluation runs for the Tuning Job.
     experiment: Output only. The Experiment associated with this TuningJob.
+    fullFineTuningSpec: Tuning Spec for Full Fine Tuning.
     labels: Optional. The labels with user-defined metadata to organize
       TuningJob and generated resources such as Model and Endpoint. Label keys
       and values can be no longer than 64 characters (Unicode codepoints), can
@@ -39533,11 +54116,18 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
       for more information and examples of labels.
     name: Output only. Identifier. Resource name of a TuningJob. Format:
       `projects/{project}/locations/{location}/tuningJobs/{tuning_job}`
+    outputUri: Optional. Cloud Storage path to the directory where tuning job
+      outputs are written to. This field is only available and required for
+      open source models.
     partnerModelTuningSpec: Tuning Spec for open sourced and third party
       Partner models.
     pipelineJob: Output only. The resource name of the PipelineJob associated
       with the TuningJob. Format:
       `projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}`.
+    preTunedModel: The pre-tuned model for continuous tuning.
+    preferenceOptimizationSpec: Tuning Spec for Preference Optimization.
+    satisfiesPzi: Output only. Reserved for future use.
+    satisfiesPzs: Output only. Reserved for future use.
     serviceAccount: The service account that the tuningJob workload runs as.
       If not specified, the Vertex AI Secure Fine-Tuned Service Agent in the
       project will be used. See https://cloud.google.com/iam/docs/service-
@@ -39548,15 +54138,21 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
       the `JOB_STATE_RUNNING` state.
     state: Output only. The detailed state of the job.
     supervisedTuningSpec: Tuning Spec for Supervised Fine Tuning.
-    tunedModel: Output only. The tuned model resources assiociated with this
+    tunedModel: Output only. The tuned model resources associated with this
       TuningJob.
     tunedModelDisplayName: Optional. The display name of the TunedModel. The
       name can be up to 128 characters long and can consist of any UTF-8
-      characters.
+      characters. For continuous tuning, tuned_model_display_name will by
+      default use the same display name as the pre-tuned model. If a new
+      display name is provided, the tuning job will create a new model instead
+      of a new version.
     tuningDataStats: Output only. The tuning data statistics associated with
       this TuningJob.
+    tuningJobState: Output only. The detail state of the tuning job (while the
+      overall `JobState` is running).
     updateTime: Output only. Time when the TuningJob was most recently
       updated.
+    veoTuningSpec: Tuning Spec for Veo Tuning.
   """
 
   class StateValueValuesEnum(_messages.Enum):
@@ -39595,6 +54191,28 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
     JOB_STATE_UPDATING = 10
     JOB_STATE_PARTIALLY_SUCCEEDED = 11
 
+  class TuningJobStateValueValuesEnum(_messages.Enum):
+    r"""Output only. The detail state of the tuning job (while the overall
+    `JobState` is running).
+
+    Values:
+      TUNING_JOB_STATE_UNSPECIFIED: Default tuning job state.
+      TUNING_JOB_STATE_WAITING_FOR_QUOTA: Tuning job is waiting for job quota.
+      TUNING_JOB_STATE_PROCESSING_DATASET: Tuning job is validating the
+        dataset.
+      TUNING_JOB_STATE_WAITING_FOR_CAPACITY: Tuning job is waiting for
+        hardware capacity.
+      TUNING_JOB_STATE_TUNING: Tuning job is running.
+      TUNING_JOB_STATE_POST_PROCESSING: Tuning job is doing some post
+        processing steps.
+    """
+    TUNING_JOB_STATE_UNSPECIFIED = 0
+    TUNING_JOB_STATE_WAITING_FOR_QUOTA = 1
+    TUNING_JOB_STATE_PROCESSING_DATASET = 2
+    TUNING_JOB_STATE_WAITING_FOR_CAPACITY = 3
+    TUNING_JOB_STATE_TUNING = 4
+    TUNING_JOB_STATE_POST_PROCESSING = 5
+
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
     r"""Optional. The labels with user-defined metadata to organize TuningJob
@@ -39626,24 +54244,34 @@ class GoogleCloudAiplatformV1beta1TuningJob(_messages.Message):
 
   baseModel = _messages.StringField(1)
   createTime = _messages.StringField(2)
-  description = _messages.StringField(3)
-  distillationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1DistillationSpec', 4)
-  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 5)
-  endTime = _messages.StringField(6)
-  error = _messages.MessageField('GoogleRpcStatus', 7)
-  experiment = _messages.StringField(8)
-  labels = _messages.MessageField('LabelsValue', 9)
-  name = _messages.StringField(10)
-  partnerModelTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PartnerModelTuningSpec', 11)
-  pipelineJob = _messages.StringField(12)
-  serviceAccount = _messages.StringField(13)
-  startTime = _messages.StringField(14)
-  state = _messages.EnumField('StateValueValuesEnum', 15)
-  supervisedTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningSpec', 16)
-  tunedModel = _messages.MessageField('GoogleCloudAiplatformV1beta1TunedModel', 17)
-  tunedModelDisplayName = _messages.StringField(18)
-  tuningDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1TuningDataStats', 19)
-  updateTime = _messages.StringField(20)
+  customBaseModel = _messages.StringField(3)
+  description = _messages.StringField(4)
+  distillationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1DistillationSpec', 5)
+  encryptionSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1EncryptionSpec', 6)
+  endTime = _messages.StringField(7)
+  error = _messages.MessageField('GoogleRpcStatus', 8)
+  evaluateDatasetRuns = _messages.MessageField('GoogleCloudAiplatformV1beta1EvaluateDatasetRun', 9, repeated=True)
+  experiment = _messages.StringField(10)
+  fullFineTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1FullFineTuningSpec', 11)
+  labels = _messages.MessageField('LabelsValue', 12)
+  name = _messages.StringField(13)
+  outputUri = _messages.StringField(14)
+  partnerModelTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PartnerModelTuningSpec', 15)
+  pipelineJob = _messages.StringField(16)
+  preTunedModel = _messages.MessageField('GoogleCloudAiplatformV1beta1PreTunedModel', 17)
+  preferenceOptimizationSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PreferenceOptimizationSpec', 18)
+  satisfiesPzi = _messages.BooleanField(19)
+  satisfiesPzs = _messages.BooleanField(20)
+  serviceAccount = _messages.StringField(21)
+  startTime = _messages.StringField(22)
+  state = _messages.EnumField('StateValueValuesEnum', 23)
+  supervisedTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1SupervisedTuningSpec', 24)
+  tunedModel = _messages.MessageField('GoogleCloudAiplatformV1beta1TunedModel', 25)
+  tunedModelDisplayName = _messages.StringField(26)
+  tuningDataStats = _messages.MessageField('GoogleCloudAiplatformV1beta1TuningDataStats', 27)
+  tuningJobState = _messages.EnumField('TuningJobStateValueValuesEnum', 28)
+  updateTime = _messages.StringField(29)
+  veoTuningSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1VeoTuningSpec', 30)
 
 
 class GoogleCloudAiplatformV1beta1UndeployIndexOperationMetadata(_messages.Message):
@@ -40012,12 +54640,19 @@ class GoogleCloudAiplatformV1beta1UploadRagFileConfig(_messages.Message):
   Fields:
     ragFileChunkingConfig: Specifies the size and overlap of chunks after
       uploading RagFile.
+    ragFileMetadataConfig: Specifies the metadata config for RagFiles.
+      Including paths for metadata schema and metadata. Alteratively, inline
+      metadata schema and metadata can be provided.
+    ragFileParsingConfig: Optional. Specifies the parsing config for RagFiles.
+      RAG will use the default parser if this field is not set.
     ragFileTransformationConfig: Specifies the transformation config for
       RagFiles.
   """
 
   ragFileChunkingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileChunkingConfig', 1)
-  ragFileTransformationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileTransformationConfig', 2)
+  ragFileMetadataConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileMetadataConfig', 2)
+  ragFileParsingConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileParsingConfig', 3)
+  ragFileTransformationConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagFileTransformationConfig', 4)
 
 
 class GoogleCloudAiplatformV1beta1UploadRagFileRequest(_messages.Message):
@@ -40065,6 +54700,151 @@ class GoogleCloudAiplatformV1beta1UpsertDatapointsResponse(_messages.Message):
   r"""Response message for IndexService.UpsertDatapoints"""
 
 
+class GoogleCloudAiplatformV1beta1UpsertExamplesRequest(_messages.Message):
+  r"""Request message for ExampleStoreService.UpsertExamples.
+
+  Fields:
+    examples: Required. A list of examples to be created/updated.
+    overwrite: Optional. A flag indicating whether an example can be
+      overwritten if it already exists. If False (default) and the example
+      already exists, the example will not be updated. This does not affect
+      behavior if the example does not exist already.
+  """
+
+  examples = _messages.MessageField('GoogleCloudAiplatformV1beta1Example', 1, repeated=True)
+  overwrite = _messages.BooleanField(2)
+
+
+class GoogleCloudAiplatformV1beta1UpsertExamplesResponse(_messages.Message):
+  r"""Response message for ExampleStoreService.UpsertExamples.
+
+  Fields:
+    results: A list of results for creating/updating. It's either a
+      successfully created/updated example or a status with an error message.
+  """
+
+  results = _messages.MessageField('GoogleCloudAiplatformV1beta1UpsertExamplesResponseUpsertResult', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1UpsertExamplesResponseUpsertResult(_messages.Message):
+  r"""The result for creating/updating a single example.
+
+  Fields:
+    example: The example created/updated successfully.
+    status: The error message of the example that was not created/updated
+      successfully.
+  """
+
+  example = _messages.MessageField('GoogleCloudAiplatformV1beta1Example', 1)
+  status = _messages.MessageField('GoogleRpcStatus', 2)
+
+
+class GoogleCloudAiplatformV1beta1UrlContext(_messages.Message):
+  r"""Tool to support URL context."""
+
+
+class GoogleCloudAiplatformV1beta1UrlContextMetadata(_messages.Message):
+  r"""Metadata returned when the model uses the `url_context` tool to get
+  information from a user-provided URL.
+
+  Fields:
+    urlMetadata: Output only. A list of URL metadata, with one entry for each
+      URL retrieved by the tool.
+  """
+
+  urlMetadata = _messages.MessageField('GoogleCloudAiplatformV1beta1UrlMetadata', 1, repeated=True)
+
+
+class GoogleCloudAiplatformV1beta1UrlMetadata(_messages.Message):
+  r"""The metadata for a single URL retrieval.
+
+  Enums:
+    UrlRetrievalStatusValueValuesEnum: The status of the URL retrieval.
+
+  Fields:
+    retrievedUrl: The URL retrieved by the tool.
+    urlRetrievalStatus: The status of the URL retrieval.
+  """
+
+  class UrlRetrievalStatusValueValuesEnum(_messages.Enum):
+    r"""The status of the URL retrieval.
+
+    Values:
+      URL_RETRIEVAL_STATUS_UNSPECIFIED: Default value. This value is unused.
+      URL_RETRIEVAL_STATUS_SUCCESS: The URL was retrieved successfully.
+      URL_RETRIEVAL_STATUS_ERROR: The URL retrieval failed.
+    """
+    URL_RETRIEVAL_STATUS_UNSPECIFIED = 0
+    URL_RETRIEVAL_STATUS_SUCCESS = 1
+    URL_RETRIEVAL_STATUS_ERROR = 2
+
+  retrievedUrl = _messages.StringField(1)
+  urlRetrievalStatus = _messages.EnumField('UrlRetrievalStatusValueValuesEnum', 2)
+
+
+class GoogleCloudAiplatformV1beta1UsageMetadata(_messages.Message):
+  r"""Usage metadata about the content generation request and response. This
+  message provides a detailed breakdown of token usage and other relevant
+  metrics.
+
+  Enums:
+    TrafficTypeValueValuesEnum: Output only. The traffic type for this
+      request.
+
+  Fields:
+    cacheTokensDetails: Output only. A detailed breakdown of the token count
+      for each modality in the cached content.
+    cachedContentTokenCount: Output only. The number of tokens in the cached
+      content that was used for this request.
+    candidatesTokenCount: The total number of tokens in the generated
+      candidates.
+    candidatesTokensDetails: Output only. A detailed breakdown of the token
+      count for each modality in the generated candidates.
+    promptTokenCount: The total number of tokens in the prompt. This includes
+      any text, images, or other media provided in the request. When
+      `cached_content` is set, this also includes the number of tokens in the
+      cached content.
+    promptTokensDetails: Output only. A detailed breakdown of the token count
+      for each modality in the prompt.
+    thoughtsTokenCount: Output only. The number of tokens that were part of
+      the model's generated "thoughts" output, if applicable.
+    toolUsePromptTokenCount: Output only. The number of tokens in the results
+      from tool executions, which are provided back to the model as input, if
+      applicable.
+    toolUsePromptTokensDetails: Output only. A detailed breakdown by modality
+      of the token counts from the results of tool executions, which are
+      provided back to the model as input.
+    totalTokenCount: The total number of tokens for the entire request. This
+      is the sum of `prompt_token_count`, `candidates_token_count`,
+      `tool_use_prompt_token_count`, and `thoughts_token_count`.
+    trafficType: Output only. The traffic type for this request.
+  """
+
+  class TrafficTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The traffic type for this request.
+
+    Values:
+      TRAFFIC_TYPE_UNSPECIFIED: Unspecified request traffic type.
+      ON_DEMAND: Type for Pay-As-You-Go traffic.
+      PROVISIONED_THROUGHPUT: Type for Provisioned Throughput traffic.
+    """
+    TRAFFIC_TYPE_UNSPECIFIED = 0
+    ON_DEMAND = 1
+    PROVISIONED_THROUGHPUT = 2
+
+  cacheTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 1, repeated=True)
+  cachedContentTokenCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  candidatesTokenCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  candidatesTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 4, repeated=True)
+  promptTokenCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  promptTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 6, repeated=True)
+  thoughtsTokenCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  toolUsePromptTokenCount = _messages.IntegerField(8, variant=_messages.Variant.INT32)
+  toolUsePromptTokensDetails = _messages.MessageField('GoogleCloudAiplatformV1beta1ModalityTokenCount', 9, repeated=True)
+  totalTokenCount = _messages.IntegerField(10, variant=_messages.Variant.INT32)
+  trafficType = _messages.EnumField('TrafficTypeValueValuesEnum', 11)
+
+
 class GoogleCloudAiplatformV1beta1UserActionReference(_messages.Message):
   r"""References an API call. It contains more information about long running
   operation and Jobs that are triggered by the API call.
@@ -40099,17 +54879,103 @@ class GoogleCloudAiplatformV1beta1Value(_messages.Message):
   stringValue = _messages.StringField(3)
 
 
+class GoogleCloudAiplatformV1beta1VeoHyperParameters(_messages.Message):
+  r"""Hyperparameters for Veo.
+
+  Enums:
+    TuningTaskValueValuesEnum: Optional. The tuning task. Either I2V or T2V.
+
+  Fields:
+    epochCount: Optional. Number of complete passes the model makes over the
+      entire training dataset during training.
+    learningRateMultiplier: Optional. Multiplier for adjusting the default
+      learning rate.
+    tuningTask: Optional. The tuning task. Either I2V or T2V.
+  """
+
+  class TuningTaskValueValuesEnum(_messages.Enum):
+    r"""Optional. The tuning task. Either I2V or T2V.
+
+    Values:
+      TUNING_TASK_UNSPECIFIED: Default value. This value is unused.
+      TUNING_TASK_I2V: Tuning task for image to video.
+      TUNING_TASK_T2V: Tuning task for text to video.
+      TUNING_TASK_R2V: Tuning task for reference to video.
+    """
+    TUNING_TASK_UNSPECIFIED = 0
+    TUNING_TASK_I2V = 1
+    TUNING_TASK_T2V = 2
+    TUNING_TASK_R2V = 3
+
+  epochCount = _messages.IntegerField(1)
+  learningRateMultiplier = _messages.FloatField(2)
+  tuningTask = _messages.EnumField('TuningTaskValueValuesEnum', 3)
+
+
+class GoogleCloudAiplatformV1beta1VeoTuningSpec(_messages.Message):
+  r"""Tuning Spec for Veo Model Tuning.
+
+  Fields:
+    hyperParameters: Optional. Hyperparameters for Veo.
+    trainingDatasetUri: Required. Training dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
+    validationDatasetUri: Optional. Validation dataset used for tuning. The
+      dataset can be specified as either a Cloud Storage path to a JSONL file
+      or as the resource name of a Vertex Multimodal Dataset.
+  """
+
+  hyperParameters = _messages.MessageField('GoogleCloudAiplatformV1beta1VeoHyperParameters', 1)
+  trainingDatasetUri = _messages.StringField(2)
+  validationDatasetUri = _messages.StringField(3)
+
+
 class GoogleCloudAiplatformV1beta1VertexAISearch(_messages.Message):
-  r"""Retrieve from Vertex AI Search datastore for grounding. See
+  r"""Retrieve from Vertex AI Search datastore or engine for grounding.
+  datastore and engine are mutually exclusive. See
   https://cloud.google.com/products/agent-builder
 
   Fields:
-    datastore: Required. Fully-qualified Vertex AI Search data store resource
+    dataStoreSpecs: Specifications that define the specific DataStores to be
+      searched, along with configurations for those data stores. This is only
+      considered for Engines with multiple data stores. It should only be set
+      if engine is used.
+    datastore: Optional. Fully-qualified Vertex AI Search data store resource
       ID. Format: `projects/{project}/locations/{location}/collections/{collec
       tion}/dataStores/{dataStore}`
+    engine: Optional. Fully-qualified Vertex AI Search engine resource ID.
+      Format: `projects/{project}/locations/{location}/collections/{collection
+      }/engines/{engine}`
+    filter: Optional. Filter strings to be passed to the search API.
+    maxResults: Optional. Number of search results to return per query. The
+      default value is 10. The maximumm allowed value is 10.
   """
 
-  datastore = _messages.StringField(1)
+  dataStoreSpecs = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexAISearchDataStoreSpec', 1, repeated=True)
+  datastore = _messages.StringField(2)
+  engine = _messages.StringField(3)
+  filter = _messages.StringField(4)
+  maxResults = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudAiplatformV1beta1VertexAISearchDataStoreSpec(_messages.Message):
+  r"""Define data stores within engine to filter on in a search call and
+  configurations for those data stores. For more information, see
+  https://cloud.google.com/generative-ai-app-
+  builder/docs/reference/rpc/google.cloud.discoveryengine.v1#datastorespec
+
+  Fields:
+    dataStore: Full resource name of DataStore, such as Format: `projects/{pro
+      ject}/locations/{location}/collections/{collection}/dataStores/{dataStor
+      e}`
+    filter: Optional. Filter specification to filter documents in the data
+      store specified by data_store field. For more information on filtering,
+      see [Filtering](https://cloud.google.com/generative-ai-app-
+      builder/docs/filter-search-metadata)
+  """
+
+  dataStore = _messages.StringField(1)
+  filter = _messages.StringField(2)
 
 
 class GoogleCloudAiplatformV1beta1VertexAiSearchConfig(_messages.Message):
@@ -40138,6 +55004,12 @@ class GoogleCloudAiplatformV1beta1VertexRagStore(_messages.Message):
     ragRetrievalConfig: Optional. The retrieval config for the Rag query.
     similarityTopK: Optional. Number of top k results to return from the
       selected corpora.
+    storeContext: Optional. Currently only supported for Gemini Multimodal
+      Live API. In Gemini Multimodal Live API, if `store_context` bool is
+      specified, Gemini will leverage it to automatically memorize the
+      interactions between the client and Gemini, and retrieve context when
+      needed to augment the response generation for users' ongoing and future
+      interactions.
     vectorDistanceThreshold: Optional. Only return results with vector
       distance smaller than the threshold.
   """
@@ -40146,7 +55018,8 @@ class GoogleCloudAiplatformV1beta1VertexRagStore(_messages.Message):
   ragResources = _messages.MessageField('GoogleCloudAiplatformV1beta1VertexRagStoreRagResource', 2, repeated=True)
   ragRetrievalConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1RagRetrievalConfig', 3)
   similarityTopK = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  vectorDistanceThreshold = _messages.FloatField(5)
+  storeContext = _messages.BooleanField(5)
+  vectorDistanceThreshold = _messages.FloatField(6)
 
 
 class GoogleCloudAiplatformV1beta1VertexRagStoreRagResource(_messages.Message):
@@ -40164,15 +55037,29 @@ class GoogleCloudAiplatformV1beta1VertexRagStoreRagResource(_messages.Message):
 
 
 class GoogleCloudAiplatformV1beta1VideoMetadata(_messages.Message):
-  r"""Metadata describes the input video content.
+  r"""Provides metadata for a video, including the start and end offsets for
+  clipping and the frame rate.
 
   Fields:
     endOffset: Optional. The end offset of the video.
+    fps: Optional. The frame rate of the video sent to the model. If not
+      specified, the default value is 1.0. The valid range is (0.0, 24.0].
     startOffset: Optional. The start offset of the video.
   """
 
   endOffset = _messages.StringField(1)
-  startOffset = _messages.StringField(2)
+  fps = _messages.FloatField(2)
+  startOffset = _messages.StringField(3)
+
+
+class GoogleCloudAiplatformV1beta1VoiceConfig(_messages.Message):
+  r"""Configuration for a voice.
+
+  Fields:
+    prebuiltVoiceConfig: The configuration for a prebuilt voice.
+  """
+
+  prebuiltVoiceConfig = _messages.MessageField('GoogleCloudAiplatformV1beta1PrebuiltVoiceConfig', 1)
 
 
 class GoogleCloudAiplatformV1beta1WorkerPoolSpec(_messages.Message):
@@ -40181,6 +55068,7 @@ class GoogleCloudAiplatformV1beta1WorkerPoolSpec(_messages.Message):
   Fields:
     containerSpec: The custom container task.
     diskSpec: Disk spec.
+    lustreMounts: Optional. List of Lustre mounts.
     machineSpec: Optional. Immutable. The specification of a single machine.
     nfsMounts: Optional. List of NFS mount spec.
     pythonPackageSpec: The Python packaged task.
@@ -40190,10 +55078,11 @@ class GoogleCloudAiplatformV1beta1WorkerPoolSpec(_messages.Message):
 
   containerSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1ContainerSpec', 1)
   diskSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1DiskSpec', 2)
-  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 3)
-  nfsMounts = _messages.MessageField('GoogleCloudAiplatformV1beta1NfsMount', 4, repeated=True)
-  pythonPackageSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PythonPackageSpec', 5)
-  replicaCount = _messages.IntegerField(6)
+  lustreMounts = _messages.MessageField('GoogleCloudAiplatformV1beta1LustreMount', 3, repeated=True)
+  machineSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1MachineSpec', 4)
+  nfsMounts = _messages.MessageField('GoogleCloudAiplatformV1beta1NfsMount', 5, repeated=True)
+  pythonPackageSpec = _messages.MessageField('GoogleCloudAiplatformV1beta1PythonPackageSpec', 6)
+  replicaCount = _messages.IntegerField(7)
 
 
 class GoogleCloudAiplatformV1beta1WriteFeatureValuesPayload(_messages.Message):
@@ -40664,10 +55553,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):
@@ -40989,6 +55883,22 @@ class GoogleTypeInterval(_messages.Message):
   startTime = _messages.StringField(2)
 
 
+class GoogleTypeLatLng(_messages.Message):
+  r"""An object that represents a latitude/longitude pair. This is expressed
+  as a pair of doubles to represent degrees latitude and degrees longitude.
+  Unless specified otherwise, this object must conform to the WGS84 standard.
+  Values must be within normalized ranges.
+
+  Fields:
+    latitude: The latitude in degrees. It must be in the range [-90.0, +90.0].
+    longitude: The longitude in degrees. It must be in the range [-180.0,
+      +180.0].
+  """
+
+  latitude = _messages.FloatField(1)
+  longitude = _messages.FloatField(2)
+
+
 class GoogleTypeMoney(_messages.Message):
   r"""Represents an amount of money with its currency type.
 
@@ -41086,6 +55996,20 @@ encoding.AddCustomJsonFieldMapping(
     AiplatformProjectsLocationsDatasetsSearchDataItemsRequest, 'orderByAnnotation_savedQuery', 'orderByAnnotation.savedQuery')
 encoding.AddCustomJsonFieldMapping(
     AiplatformProjectsLocationsEndpointsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_createTime', 'exampleStore.createTime')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_description', 'exampleStore.description')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_displayName', 'exampleStore.displayName')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_exampleStoreConfig_vertexEmbeddingModel', 'exampleStore.exampleStoreConfig.vertexEmbeddingModel')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_name', 'exampleStore.name')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsExampleStoresCreateRequest, 'exampleStore_updateTime', 'exampleStore.updateTime')
+encoding.AddCustomJsonFieldMapping(
+    AiplatformProjectsLocationsFeatureGroupsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     AiplatformProjectsLocationsFeatureGroupsFeaturesGetRequest, 'featureStatsAndAnomalySpec_latestStatsCount', 'featureStatsAndAnomalySpec.latestStatsCount')
 encoding.AddCustomJsonFieldMapping(

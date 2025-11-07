@@ -243,25 +243,6 @@ class CloudcommerceconsumerprocurementBillingAccountsOrdersLicensePoolEnumerateL
   parent = _messages.StringField(3, required=True)
 
 
-class CloudcommerceconsumerprocurementBillingAccountsOrdersLicensePoolPatchRequest(_messages.Message):
-  r"""A
-  CloudcommerceconsumerprocurementBillingAccountsOrdersLicensePoolPatchRequest
-  object.
-
-  Fields:
-    googleCloudCommerceConsumerProcurementV1alpha1LicensePool: A
-      GoogleCloudCommerceConsumerProcurementV1alpha1LicensePool resource to be
-      passed as the request body.
-    name: Identifier. Format:
-      `billingAccounts/{billing_account}/orders/{order}/licensePool`
-    updateMask: Required. The list of fields to update.
-  """
-
-  googleCloudCommerceConsumerProcurementV1alpha1LicensePool = _messages.MessageField('GoogleCloudCommerceConsumerProcurementV1alpha1LicensePool', 1)
-  name = _messages.StringField(2, required=True)
-  updateMask = _messages.StringField(3)
-
-
 class CloudcommerceconsumerprocurementBillingAccountsOrdersLicensePoolUnassignRequest(_messages.Message):
   r"""A CloudcommerceconsumerprocurementBillingAccountsOrdersLicensePoolUnassi
   gnRequest object.
@@ -395,6 +376,24 @@ class CloudcommerceconsumerprocurementBillingAccountsOrdersPlaceRequest(_message
 
   googleCloudCommerceConsumerProcurementV1alpha1PlaceOrderRequest = _messages.MessageField('GoogleCloudCommerceConsumerProcurementV1alpha1PlaceOrderRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class CloudcommerceconsumerprocurementBillingAccountsOrdersUpdateLicensePoolRequest(_messages.Message):
+  r"""A CloudcommerceconsumerprocurementBillingAccountsOrdersUpdateLicensePool
+  Request object.
+
+  Fields:
+    googleCloudCommerceConsumerProcurementV1alpha1LicensePool: A
+      GoogleCloudCommerceConsumerProcurementV1alpha1LicensePool resource to be
+      passed as the request body.
+    name: Identifier. Format:
+      `billingAccounts/{billing_account}/orders/{order}/licensePool`
+    updateMask: Required. The list of fields to update.
+  """
+
+  googleCloudCommerceConsumerProcurementV1alpha1LicensePool = _messages.MessageField('GoogleCloudCommerceConsumerProcurementV1alpha1LicensePool', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
 
 
 class CloudcommerceconsumerprocurementProjectsCheckEntitlementsRequest(_messages.Message):
@@ -1872,7 +1871,15 @@ class GoogleCloudCommerceConsumerProcurementV1alpha1Order(_messages.Message):
   later, if the product allows.
 
   Enums:
-    OrderStateValueValuesEnum: Output only. The state of the order.
+    OrderStateValueValuesEnum: Output only. The state of the entire Order.
+      This is different from the state of the line items in the Order. Orders
+      are in the OrderState.ORDER_STATE_ACTIVE state when created, although
+      line items may not be activated yet. Order state changes to
+      OrderState.ORDER_STATE_PENDING_CANCELLATION after activation if the
+      Order will be cancelled after the current term. The line item and its
+      state might evolve independently, such as switching to another line
+      item, without impacting the Order state until the entire Order is
+      cancelled.
 
   Fields:
     account: The resource name of the account that this order is based on.
@@ -1885,7 +1892,15 @@ class GoogleCloudCommerceConsumerProcurementV1alpha1Order(_messages.Message):
     lineItems: Output only. The items being purchased.
     name: Output only. The resource name of the order. Has the form
       `billingAccounts/{billing_account}/orders/{order}`.
-    orderState: Output only. The state of the order.
+    orderState: Output only. The state of the entire Order. This is different
+      from the state of the line items in the Order. Orders are in the
+      OrderState.ORDER_STATE_ACTIVE state when created, although line items
+      may not be activated yet. Order state changes to
+      OrderState.ORDER_STATE_PENDING_CANCELLATION after activation if the
+      Order will be cancelled after the current term. The line item and its
+      state might evolve independently, such as switching to another line
+      item, without impacting the Order state until the entire Order is
+      cancelled.
     provider: Provider of the products being purchased. Provider has the
       format of `providers/{provider}`.
     stateReason: Output only. An explanation for the order's state. Mainly
@@ -1895,7 +1910,14 @@ class GoogleCloudCommerceConsumerProcurementV1alpha1Order(_messages.Message):
   """
 
   class OrderStateValueValuesEnum(_messages.Enum):
-    r"""Output only. The state of the order.
+    r"""Output only. The state of the entire Order. This is different from the
+    state of the line items in the Order. Orders are in the
+    OrderState.ORDER_STATE_ACTIVE state when created, although line items may
+    not be activated yet. Order state changes to
+    OrderState.ORDER_STATE_PENDING_CANCELLATION after activation if the Order
+    will be cancelled after the current term. The line item and its state
+    might evolve independently, such as switching to another line item,
+    without impacting the Order state until the entire Order is cancelled.
 
     Values:
       ORDER_STATE_UNSPECIFIED: Sentinel value. Do not use.

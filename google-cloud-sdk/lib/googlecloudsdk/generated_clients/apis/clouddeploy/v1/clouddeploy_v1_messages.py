@@ -99,6 +99,165 @@ class AdvanceRolloutRule(_messages.Message):
   wait = _messages.StringField(4)
 
 
+class AlertPolicyCheck(_messages.Message):
+  r"""AlertPolicyCheck configures a set of Cloud Monitoring alerting policies
+  that will be periodically polled for alerts. If any of the listed policies
+  have an active alert, the analysis check will fail.
+
+  Messages:
+    LabelsValue: Optional. A set of labels to filter active alerts. If set,
+      only alerts having all of the specified labels will be considered.
+
+  Fields:
+    alertPolicies: Required. The Cloud Monitoring Alert Policies to check for
+      active alerts. Format is
+      `projects/{project}/alertPolicies/{alert_policy}`.
+    id: Required. The ID of the analysis check.
+    labels: Optional. A set of labels to filter active alerts. If set, only
+      alerts having all of the specified labels will be considered.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. A set of labels to filter active alerts. If set, only alerts
+    having all of the specified labels will be considered.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  alertPolicies = _messages.StringField(1, repeated=True)
+  id = _messages.StringField(2)
+  labels = _messages.MessageField('LabelsValue', 3)
+
+
+class AlertPolicyCheckStatus(_messages.Message):
+  r"""AlertPolicyCheckStatus contains information specific to a single run of
+  an alert policy check.
+
+  Messages:
+    LabelsValue: Output only. The resolved labels used to filter for specific
+      incidents.
+
+  Fields:
+    alertPolicies: Output only. The alert policies that this analysis
+      monitors. Format is
+      `projects/{project}/locations/{location}/alertPolicies/{alertPolicy}`.
+    failedAlertPolicies: Output only. The alert policies that were found to be
+      firing during this check. This will be empty if no incidents were found.
+    failureMessage: Output only. Additional information about the alert policy
+      check failure, if available. This will be empty if the alert policy
+      check succeeded.
+    id: Output only. The ID of this analysis.
+    labels: Output only. The resolved labels used to filter for specific
+      incidents.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Output only. The resolved labels used to filter for specific
+    incidents.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  alertPolicies = _messages.StringField(1, repeated=True)
+  failedAlertPolicies = _messages.MessageField('FailedAlertPolicy', 2, repeated=True)
+  failureMessage = _messages.StringField(3)
+  id = _messages.StringField(4)
+  labels = _messages.MessageField('LabelsValue', 5)
+
+
+class Analysis(_messages.Message):
+  r"""Analysis contains the configuration for the set of analyses to be
+  performed on the target.
+
+  Fields:
+    customChecks: Optional. Custom analysis checks from 3P metric providers.
+    duration: Required. The amount of time in minutes the analysis on the
+      target will last. If all analysis checks have successfully completed
+      before the specified duration, the analysis is successful. If a check is
+      still running while the specified duration passes, it will wait for that
+      check to complete to determine if the analysis is successful. The
+      maximum duration is 48 hours.
+    googleCloud: Optional. Google Cloud - based analysis checks.
+  """
+
+  customChecks = _messages.MessageField('CustomCheck', 1, repeated=True)
+  duration = _messages.StringField(2)
+  googleCloud = _messages.MessageField('GoogleCloudAnalysis', 3)
+
+
+class AnalysisJob(_messages.Message):
+  r"""An analysis Job.
+
+  Fields:
+    customChecks: Optional. Custom analysis checks from 3P metric providers
+      that are run as part of the analysis Job.
+    duration: Required. The amount of time in minutes the analysis Job will
+      last. If any check in this Job is still running when the duration ends,
+      the Job keeps running until that check completes. The maximum duration
+      is 48 hours.
+    googleCloud: Optional. Google Cloud - based analysis checks that are run
+      as part of the analysis Job.
+  """
+
+  customChecks = _messages.MessageField('CustomCheck', 1, repeated=True)
+  duration = _messages.StringField(2)
+  googleCloud = _messages.MessageField('GoogleCloudAnalysis', 3)
+
+
+class AnalysisJobRun(_messages.Message):
+  r"""AnalysisJobRun contains information specific to an analysis `JobRun`.
+
+  Fields:
+    alertPolicyAnalyses: Output only. The status of the running alert policy
+      checks configured for this analysis.
+    customCheckAnalyses: Output only. The status of the running custom checks
+      configured for this analysis.
+    failedCheckId: Output only. The ID of the configured check that failed.
+      This will always be blank while the analysis is in progress or if it
+      succeeded.
+  """
+
+  alertPolicyAnalyses = _messages.MessageField('AlertPolicyCheckStatus', 1, repeated=True)
+  customCheckAnalyses = _messages.MessageField('CustomCheckStatus', 2, repeated=True)
+  failedCheckId = _messages.StringField(3)
+
+
 class AnthosCluster(_messages.Message):
   r"""Information specifying an Anthos Cluster.
 
@@ -415,7 +574,7 @@ class AutomationResourceSelector(_messages.Message):
   resources to which an Automation is going to be applied.
 
   Fields:
-    targets: Contains attributes about a target.
+    targets: Optional. Contains attributes about a target.
   """
 
   targets = _messages.MessageField('TargetAttribute', 1, repeated=True)
@@ -708,9 +867,9 @@ class BuildArtifact(_messages.Message):
   r"""Description of an a image to use during Skaffold rendering.
 
   Fields:
-    image: Image name in Skaffold configuration.
-    tag: Image tag to use. This will generally be the full path to an image,
-      such as "gcr.io/my-project/busybox:1.2.3" or "gcr.io/my-
+    image: Optional. Image name in Skaffold configuration.
+    tag: Optional. Image tag to use. This will generally be the full path to
+      an image, such as "gcr.io/my-project/busybox:1.2.3" or "gcr.io/my-
       project/busybox@sha256:abc123".
   """
 
@@ -722,11 +881,11 @@ class Canary(_messages.Message):
   r"""Canary represents the canary deployment strategy.
 
   Fields:
-    canaryDeployment: Configures the progressive based deployment for a
-      Target.
-    customCanaryDeployment: Configures the progressive based deployment for a
-      Target, but allows customizing at the phase level where a phase
-      represents each of the percentage deployments.
+    canaryDeployment: Optional. Configures the progressive based deployment
+      for a Target.
+    customCanaryDeployment: Optional. Configures the progressive based
+      deployment for a Target, but allows customizing at the phase level where
+      a phase represents each of the percentage deployments.
     runtimeConfig: Optional. Runtime specific configurations for the
       deployment strategy. The runtime configuration is used to determine how
       Cloud Deploy will split traffic to enable a progressive deployment.
@@ -741,6 +900,8 @@ class CanaryDeployment(_messages.Message):
   r"""CanaryDeployment represents the canary deployment configuration
 
   Fields:
+    analysis: Optional. Configuration for the analysis job. If configured, the
+      analysis will run after each percentage deployment.
     percentages: Required. The percentage based deployments that will occur as
       a part of a `Rollout`. List is expected in ascending order and each
       integer n is 0 <= n < 100. If the GatewayServiceMesh is configured for
@@ -751,13 +912,18 @@ class CanaryDeployment(_messages.Message):
     predeploy: Optional. Configuration for the predeploy job of the first
       phase. If this is not configured, there will be no predeploy job for
       this phase.
-    verify: Whether to run verify tests after each percentage deployment.
+    verify: Optional. Whether to run verify tests after each percentage
+      deployment via `skaffold verify`.
+    verifyConfig: Optional. Configuration for the verify job. Cannot be set if
+      `verify` is set to true.
   """
 
-  percentages = _messages.IntegerField(1, repeated=True, variant=_messages.Variant.INT32)
-  postdeploy = _messages.MessageField('Postdeploy', 2)
-  predeploy = _messages.MessageField('Predeploy', 3)
-  verify = _messages.BooleanField(4)
+  analysis = _messages.MessageField('Analysis', 1)
+  percentages = _messages.IntegerField(2, repeated=True, variant=_messages.Variant.INT32)
+  postdeploy = _messages.MessageField('Postdeploy', 3)
+  predeploy = _messages.MessageField('Predeploy', 4)
+  verify = _messages.BooleanField(5)
+  verifyConfig = _messages.MessageField('Verify', 6)
 
 
 class CancelAutomationRunRequest(_messages.Message):
@@ -803,10 +969,10 @@ class CloudRunConfig(_messages.Message):
   r"""CloudRunConfig contains the Cloud Run runtime configuration.
 
   Fields:
-    automaticTrafficControl: Whether Cloud Deploy should update the traffic
-      stanza in a Cloud Run Service on the user's behalf to facilitate traffic
-      splitting. This is required to be true for CanaryDeployments, but
-      optional for CustomCanaryDeployments.
+    automaticTrafficControl: Optional. Whether Cloud Deploy should update the
+      traffic stanza in a Cloud Run Service on the user's behalf to facilitate
+      traffic splitting. This is required to be true for CanaryDeployments,
+      but optional for CustomCanaryDeployments.
     canaryRevisionTags: Optional. A list of tags that are added to the canary
       revision while the canary phase is in progress.
     priorRevisionTags: Optional. A list of tags that are added to the prior
@@ -839,6 +1005,10 @@ class CloudRunMetadata(_messages.Message):
     job: Output only. The name of the Cloud Run job that is associated with a
       `Rollout`. Format is
       `projects/{project}/locations/{location}/jobs/{job_name}`.
+    previousRevision: Output only. The previous Cloud Run Revision name
+      associated with a `Rollout`. Only set when a canary deployment strategy
+      is configured. Format is projects/{project}/locations/{location}/service
+      s/{service}/revisions/{revision}.
     revision: Output only. The Cloud Run Revision id associated with a
       `Rollout`.
     service: Output only. The name of the Cloud Run Service that is associated
@@ -849,9 +1019,10 @@ class CloudRunMetadata(_messages.Message):
   """
 
   job = _messages.StringField(1)
-  revision = _messages.StringField(2)
-  service = _messages.StringField(3)
-  serviceUrls = _messages.StringField(4, repeated=True)
+  previousRevision = _messages.StringField(2)
+  revision = _messages.StringField(3)
+  service = _messages.StringField(4)
+  serviceUrls = _messages.StringField(5, repeated=True)
 
 
 class CloudRunRenderMetadata(_messages.Message):
@@ -859,12 +1030,48 @@ class CloudRunRenderMetadata(_messages.Message):
   `Release` render.
 
   Fields:
+    job: Output only. The name of the Cloud Run Job in the rendered manifest.
+      Format is `projects/{project}/locations/{location}/jobs/{job}`.
+    revision: Output only. The name of the Cloud Run Revision in the rendered
+      manifest. Format is `projects/{project}/locations/{location}/services/{s
+      ervice}/revisions/{revision}`.
     service: Output only. The name of the Cloud Run Service in the rendered
       manifest. Format is
       `projects/{project}/locations/{location}/services/{service}`.
   """
 
-  service = _messages.StringField(1)
+  job = _messages.StringField(1)
+  revision = _messages.StringField(2)
+  service = _messages.StringField(3)
+
+
+class CloudServiceMesh(_messages.Message):
+  r"""Information about the Cloud Service Mesh configuration.
+
+  Fields:
+    deployment: Required. Name of the Kubernetes Deployment whose traffic is
+      managed by the specified Service.
+    grpcRoute: Required. Name of the GrpcRoute resource that defines how gRPC
+      traffic routed by a Mesh or Gateway resource is routed. Format is
+      `projects/{project}/locations/global/httpRoutes/{grpc_route}`
+    httpRoute: Required. Name of the HttpRoute resource that defines how HTTP
+      traffic should be routed by a Mesh or Gateway resource. Format is
+      `projects/{project}/locations/global/httpRoutes/{http_route}`.
+    podSelectorLabel: Optional. The label to use when selecting Pods for the
+      Deployment and Service resources. This label must already be present in
+      both resources.
+    routeUpdateWaitTime: Optional. The time to wait for route updates to
+      propagate. The maximum configurable time is 3 hours, in seconds format.
+      If unspecified, there is no wait time.
+    service: Required. Name of the Kubernetes Service.
+  """
+
+  deployment = _messages.StringField(1)
+  grpcRoute = _messages.StringField(2)
+  httpRoute = _messages.StringField(3)
+  podSelectorLabel = _messages.StringField(4)
+  routeUpdateWaitTime = _messages.StringField(5)
+  service = _messages.StringField(6)
 
 
 class ClouddeployProjectsLocationsCustomTargetTypesCreateRequest(_messages.Message):
@@ -1007,8 +1214,8 @@ class ClouddeployProjectsLocationsCustomTargetTypesPatchRequest(_messages.Messag
       does not exist will result in the creation of a new `CustomTargetType`.
     customTargetType: A CustomTargetType resource to be passed as the request
       body.
-    name: Optional. Name of the `CustomTargetType`. Format is `projects/{proje
-      ct}/locations/{location}/customTargetTypes/{customTargetType}`. The
+    name: Identifier. Name of the `CustomTargetType`. Format is `projects/{pro
+      ject}/locations/{location}/customTargetTypes/{customTargetType}`. The
       `customTargetType` component must match
       `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     requestId: Optional. A request ID to identify requests. Specify a unique
@@ -1403,8 +1610,8 @@ class ClouddeployProjectsLocationsDeliveryPipelinesPatchRequest(_messages.Messag
       does not exist will result in the creation of a new `DeliveryPipeline`.
     deliveryPipeline: A DeliveryPipeline resource to be passed as the request
       body.
-    name: Optional. Name of the `DeliveryPipeline`. Format is `projects/{proje
-      ct}/locations/{location}/deliveryPipelines/{deliveryPipeline}`. The
+    name: Identifier. Name of the `DeliveryPipeline`. Format is `projects/{pro
+      ject}/locations/{location}/deliveryPipelines/{deliveryPipeline}`. The
       `deliveryPipeline` component must match
       `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     requestId: Optional. A request ID to identify requests. Specify a unique
@@ -1861,6 +2068,32 @@ class ClouddeployProjectsLocationsDeployPoliciesDeleteRequest(_messages.Message)
   validateOnly = _messages.BooleanField(5)
 
 
+class ClouddeployProjectsLocationsDeployPoliciesGetIamPolicyRequest(_messages.Message):
+  r"""A ClouddeployProjectsLocationsDeployPoliciesGetIamPolicyRequest object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
+
+
 class ClouddeployProjectsLocationsDeployPoliciesGetRequest(_messages.Message):
   r"""A ClouddeployProjectsLocationsDeployPoliciesGetRequest object.
 
@@ -1939,6 +2172,22 @@ class ClouddeployProjectsLocationsDeployPoliciesPatchRequest(_messages.Message):
   validateOnly = _messages.BooleanField(6)
 
 
+class ClouddeployProjectsLocationsDeployPoliciesSetIamPolicyRequest(_messages.Message):
+  r"""A ClouddeployProjectsLocationsDeployPoliciesSetIamPolicyRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
+      request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+
+
 class ClouddeployProjectsLocationsGetConfigRequest(_messages.Message):
   r"""A ClouddeployProjectsLocationsGetConfigRequest object.
 
@@ -1963,6 +2212,9 @@ class ClouddeployProjectsLocationsListRequest(_messages.Message):
   r"""A ClouddeployProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1973,10 +2225,11 @@ class ClouddeployProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ClouddeployProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -2020,12 +2273,20 @@ class ClouddeployProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ClouddeployProjectsLocationsTargetsCreateRequest(_messages.Message):
@@ -2161,7 +2422,7 @@ class ClouddeployProjectsLocationsTargetsPatchRequest(_messages.Message):
   Fields:
     allowMissing: Optional. If set to true, updating a `Target` that does not
       exist will result in the creation of a new `Target`.
-    name: Optional. Name of the `Target`. Format is
+    name: Identifier. Name of the `Target`. Format is
       `projects/{project}/locations/{location}/targets/{target}`. The `target`
       component must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     requestId: Optional. A request ID to identify requests. Specify a unique
@@ -2231,13 +2492,166 @@ class Config(_messages.Message):
   Fields:
     defaultSkaffoldVersion: Default Skaffold version that is assigned when a
       Release is created without specifying a Skaffold version.
+    defaultToolVersions: Output only. Default tool versions. These tool
+      versions are assigned when a Release is created without specifying tool
+      versions.
     name: Name of the configuration.
     supportedVersions: All supported versions of Skaffold.
   """
 
   defaultSkaffoldVersion = _messages.StringField(1)
-  name = _messages.StringField(2)
-  supportedVersions = _messages.MessageField('SkaffoldVersion', 3, repeated=True)
+  defaultToolVersions = _messages.MessageField('ToolVersions', 2)
+  name = _messages.StringField(3)
+  supportedVersions = _messages.MessageField('SkaffoldVersion', 4, repeated=True)
+
+
+class ConfigTask(_messages.Message):
+  r"""ConfigTask represents either a task in the Deploy Config or a custom
+  action in the Skaffold Config.
+
+  Messages:
+    EnvValue: Optional. Environment variables that are passed into the
+      containers defined for either the task in the Deploy Config or the
+      custom action in the Skaffold Config.
+
+  Fields:
+    env: Optional. Environment variables that are passed into the containers
+      defined for either the task in the Deploy Config or the custom action in
+      the Skaffold Config.
+    id: Required. The name of the task in the Deploy Config or the name of the
+      custom action in the Skaffold Config.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class EnvValue(_messages.Message):
+    r"""Optional. Environment variables that are passed into the containers
+    defined for either the task in the Deploy Config or the custom action in
+    the Skaffold Config.
+
+    Messages:
+      AdditionalProperty: An additional property for a EnvValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type EnvValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a EnvValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  env = _messages.MessageField('EnvValue', 1)
+  id = _messages.StringField(2)
+
+
+class Container(_messages.Message):
+  r"""Container definition for the containers task.
+
+  Messages:
+    EnvValue: Optional. Environment variables that are set in the container.
+
+  Fields:
+    args: Optional. Args is the container arguments to use. This overrides the
+      default arguments defined in the container image.
+    command: Optional. Command is the container entrypoint to use. This
+      overrides the default entrypoint defined in the container image.
+    env: Optional. Environment variables that are set in the container.
+    image: Required. Image is the container image to use.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class EnvValue(_messages.Message):
+    r"""Optional. Environment variables that are set in the container.
+
+    Messages:
+      AdditionalProperty: An additional property for a EnvValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type EnvValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a EnvValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  args = _messages.StringField(1, repeated=True)
+  command = _messages.StringField(2, repeated=True)
+  env = _messages.MessageField('EnvValue', 3)
+  image = _messages.StringField(4)
+
+
+class ContainerTask(_messages.Message):
+  r"""This task is represented by a container that is executed in the Cloud
+  Build execution environment.
+
+  Messages:
+    EnvValue: Optional. Environment variables that are set in the container.
+
+  Fields:
+    args: Optional. Args is the container arguments to use. This overrides the
+      default arguments defined in the container image.
+    command: Optional. Command is the container entrypoint to use. This
+      overrides the default entrypoint defined in the container image.
+    env: Optional. Environment variables that are set in the container.
+    image: Required. Image is the container image to use.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class EnvValue(_messages.Message):
+    r"""Optional. Environment variables that are set in the container.
+
+    Messages:
+      AdditionalProperty: An additional property for a EnvValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type EnvValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a EnvValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  args = _messages.StringField(1, repeated=True)
+  command = _messages.StringField(2, repeated=True)
+  env = _messages.MessageField('EnvValue', 3)
+  image = _messages.StringField(4)
+
+
+class ContainersTask(_messages.Message):
+  r"""This task is represented by a set of containers that are executed in
+  parallel in the Cloud Build execution environment.
+
+  Fields:
+    containers: Required. Set of containers that are executed in parallel.
+  """
+
+  containers = _messages.MessageField('Container', 1, repeated=True)
 
 
 class CreateChildRolloutJob(_messages.Message):
@@ -2270,6 +2684,82 @@ class CustomCanaryDeployment(_messages.Message):
   """
 
   phaseConfigs = _messages.MessageField('PhaseConfig', 1, repeated=True)
+
+
+class CustomCheck(_messages.Message):
+  r"""CustomCheck configures a third-party metric provider to run the
+  analysis, via a Task that runs at a specified frequency.
+
+  Fields:
+    frequency: Optional. The frequency at which the custom check will be run,
+      with a minimum and default of 5 minutes.
+    id: Required. The ID of the custom Analysis check.
+    task: Required. The Task to be run for this custom check.
+  """
+
+  frequency = _messages.StringField(1)
+  id = _messages.StringField(2)
+  task = _messages.MessageField('Task', 3)
+
+
+class CustomCheckStatus(_messages.Message):
+  r"""CustomCheckStatus contains information specific to a single iteration of
+  a custom analysis job.
+
+  Enums:
+    FailureCauseValueValuesEnum: Output only. The reason the analysis failed.
+      This will always be unspecified while the analysis is in progress or if
+      it succeeded.
+
+  Fields:
+    failureCause: Output only. The reason the analysis failed. This will
+      always be unspecified while the analysis is in progress or if it
+      succeeded.
+    failureMessage: Output only. Additional information about the analysis
+      failure, if available.
+    frequency: Output only. The frequency in minutes at which the custom check
+      is run.
+    id: Output only. The ID of the custom check.
+    latestBuild: Output only. The resource name of the Cloud Build `Build`
+      object that was used to execute the latest run of this custom action
+      check. Format is
+      `projects/{project}/locations/{location}/builds/{build}`.
+    metadata: Output only. Custom metadata provided by the user-defined custom
+      check operation. result.
+    task: Output only. The task that ran for this custom check.
+  """
+
+  class FailureCauseValueValuesEnum(_messages.Enum):
+    r"""Output only. The reason the analysis failed. This will always be
+    unspecified while the analysis is in progress or if it succeeded.
+
+    Values:
+      FAILURE_CAUSE_UNSPECIFIED: No reason for failure is specified.
+      CLOUD_BUILD_UNAVAILABLE: Cloud Build is not available, either because it
+        is not enabled or because Cloud Deploy has insufficient permissions.
+        See [required permission](https://cloud.google.com/deploy/docs/cloud-
+        deploy-service-account#required_permissions).
+      EXECUTION_FAILED: The analysis operation did not complete successfully;
+        check Cloud Build logs.
+      DEADLINE_EXCEEDED: The analysis job run did not complete within the
+        alloted time defined in the target's execution environment
+        configuration.
+      CLOUD_BUILD_REQUEST_FAILED: Cloud Build failed to fulfill Cloud Deploy's
+        request. See failure_message for additional details.
+    """
+    FAILURE_CAUSE_UNSPECIFIED = 0
+    CLOUD_BUILD_UNAVAILABLE = 1
+    EXECUTION_FAILED = 2
+    DEADLINE_EXCEEDED = 3
+    CLOUD_BUILD_REQUEST_FAILED = 4
+
+  failureCause = _messages.EnumField('FailureCauseValueValuesEnum', 1)
+  failureMessage = _messages.StringField(2)
+  frequency = _messages.StringField(3)
+  id = _messages.StringField(4)
+  latestBuild = _messages.StringField(5)
+  metadata = _messages.MessageField('CustomMetadata', 6)
+  task = _messages.MessageField('Task', 7)
 
 
 class CustomMetadata(_messages.Message):
@@ -2355,6 +2845,20 @@ class CustomTargetSkaffoldActions(_messages.Message):
   renderAction = _messages.StringField(3)
 
 
+class CustomTargetTasks(_messages.Message):
+  r"""CustomTargetTasks represents the `CustomTargetType` configuration using
+  tasks.
+
+  Fields:
+    deploy: Required. The task responsible for deploy operations.
+    render: Optional. The task responsible for render operations. If not
+      provided then Cloud Deploy will perform its default rendering operation.
+  """
+
+  deploy = _messages.MessageField('Task', 1)
+  render = _messages.MessageField('Task', 2)
+
+
 class CustomTargetType(_messages.Message):
   r"""A `CustomTargetType` resource in the Cloud Deploy API. A
   `CustomTargetType` defines a type of custom target that can be referenced in
@@ -2381,8 +2885,8 @@ class CustomTargetType(_messages.Message):
       https://google.aip.dev/128#annotations for more details such as format
       and size limitations.
     createTime: Output only. Time at which the `CustomTargetType` was created.
-    customActions: Configures render and deploy for the `CustomTargetType`
-      using Skaffold custom actions.
+    customActions: Optional. Configures render and deploy for the
+      `CustomTargetType` using Skaffold custom actions.
     customTargetTypeId: Output only. Resource id of the `CustomTargetType`.
     description: Optional. Description of the `CustomTargetType`. Max length
       is 255 characters.
@@ -2397,10 +2901,12 @@ class CustomTargetType(_messages.Message):
       start with a lowercase letter or international character. * Each
       resource is limited to a maximum of 64 labels. Both keys and values are
       additionally constrained to be <= 128 bytes.
-    name: Optional. Name of the `CustomTargetType`. Format is `projects/{proje
-      ct}/locations/{location}/customTargetTypes/{customTargetType}`. The
+    name: Identifier. Name of the `CustomTargetType`. Format is `projects/{pro
+      ject}/locations/{location}/customTargetTypes/{customTargetType}`. The
       `customTargetType` component must match
       `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
+    tasks: Optional. Configures render and deploy for the `CustomTargetType`
+      using tasks.
     uid: Output only. Unique identifier of the `CustomTargetType`.
     updateTime: Output only. Most recent time at which the `CustomTargetType`
       was updated.
@@ -2473,8 +2979,9 @@ class CustomTargetType(_messages.Message):
   etag = _messages.StringField(6)
   labels = _messages.MessageField('LabelsValue', 7)
   name = _messages.StringField(8)
-  uid = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  tasks = _messages.MessageField('CustomTargetTasks', 9)
+  uid = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
 
 
 class CustomTargetTypeNotificationEvent(_messages.Message):
@@ -2575,8 +3082,8 @@ class DeliveryPipeline(_messages.Message):
   can progress.
 
   Messages:
-    AnnotationsValue: User annotations. These attributes can only be set and
-      used by the user, and not by Cloud Deploy.
+    AnnotationsValue: Optional. User annotations. These attributes can only be
+      set and used by the user, and not by Cloud Deploy.
     LabelsValue: Labels are attributes that can be set and used by both the
       user and by Cloud Deploy. Labels must meet the following constraints: *
       Keys and values can contain only lowercase letters, numeric characters,
@@ -2587,13 +3094,13 @@ class DeliveryPipeline(_messages.Message):
       to be <= 128 bytes.
 
   Fields:
-    annotations: User annotations. These attributes can only be set and used
-      by the user, and not by Cloud Deploy.
+    annotations: Optional. User annotations. These attributes can only be set
+      and used by the user, and not by Cloud Deploy.
     condition: Output only. Information around the state of the Delivery
       Pipeline.
     createTime: Output only. Time at which the pipeline was created.
-    description: Description of the `DeliveryPipeline`. Max length is 255
-      characters.
+    description: Optional. Description of the `DeliveryPipeline`. Max length
+      is 255 characters.
     etag: This checksum is computed by the server based on the value of other
       fields, and may be sent on update and delete requests to ensure the
       client has an up-to-date value before proceeding.
@@ -2605,14 +3112,14 @@ class DeliveryPipeline(_messages.Message):
       letter or international character. * Each resource is limited to a
       maximum of 64 labels. Both keys and values are additionally constrained
       to be <= 128 bytes.
-    name: Optional. Name of the `DeliveryPipeline`. Format is `projects/{proje
-      ct}/locations/{location}/deliveryPipelines/{deliveryPipeline}`. The
+    name: Identifier. Name of the `DeliveryPipeline`. Format is `projects/{pro
+      ject}/locations/{location}/deliveryPipelines/{deliveryPipeline}`. The
       `deliveryPipeline` component must match
       `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
-    serialPipeline: SerialPipeline defines a sequential set of stages for a
-      `DeliveryPipeline`.
-    suspended: When suspended, no new releases or rollouts can be created, but
-      in-progress ones will complete.
+    serialPipeline: Optional. SerialPipeline defines a sequential set of
+      stages for a `DeliveryPipeline`.
+    suspended: Optional. When suspended, no new releases or rollouts can be
+      created, but in-progress ones will complete.
     uid: Output only. Unique identifier of the `DeliveryPipeline`.
     updateTime: Output only. Most recent time at which the pipeline was
       updated.
@@ -2620,8 +3127,8 @@ class DeliveryPipeline(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AnnotationsValue(_messages.Message):
-    r"""User annotations. These attributes can only be set and used by the
-    user, and not by Cloud Deploy.
+    r"""Optional. User annotations. These attributes can only be set and used
+    by the user, and not by Cloud Deploy.
 
     Messages:
       AdditionalProperty: An additional property for a AnnotationsValue
@@ -2695,9 +3202,9 @@ class DeliveryPipelineAttribute(_messages.Message):
     LabelsValue: DeliveryPipeline labels.
 
   Fields:
-    id: ID of the `DeliveryPipeline`. The value of this field could be one of
-      the following: * The last segment of a pipeline name * "*", all delivery
-      pipelines in a location
+    id: Optional. ID of the `DeliveryPipeline`. The value of this field could
+      be one of the following: * The last segment of a pipeline name * "*",
+      all delivery pipelines in a location
     labels: DeliveryPipeline labels.
   """
 
@@ -2830,7 +3337,7 @@ class DeployJobRun(_messages.Message):
       EXECUTION_FAILED: The deploy operation did not complete successfully;
         check Cloud Build logs.
       DEADLINE_EXCEEDED: The deploy job run did not complete within the
-        alloted time.
+        allotted time.
       MISSING_RESOURCES_FOR_CANARY: There were missing resources in the
         runtime environment required for a canary deployment. Check the Cloud
         Build logs for more information.
@@ -2950,9 +3457,9 @@ class DeployPolicy(_messages.Message):
   Target.
 
   Messages:
-    AnnotationsValue: User annotations. These attributes can only be set and
-      used by the user, and not by Cloud Deploy. Annotations must meet the
-      following constraints: * Annotations are key/value pairs. * Valid
+    AnnotationsValue: Optional. User annotations. These attributes can only be
+      set and used by the user, and not by Cloud Deploy. Annotations must meet
+      the following constraints: * Annotations are key/value pairs. * Valid
       annotation keys have two segments: an optional prefix and name,
       separated by a slash (`/`). * The name segment is required and must be
       63 characters or less, beginning and ending with an alphanumeric
@@ -2973,8 +3480,8 @@ class DeployPolicy(_messages.Message):
       to be <= 128 bytes.
 
   Fields:
-    annotations: User annotations. These attributes can only be set and used
-      by the user, and not by Cloud Deploy. Annotations must meet the
+    annotations: Optional. User annotations. These attributes can only be set
+      and used by the user, and not by Cloud Deploy. Annotations must meet the
       following constraints: * Annotations are key/value pairs. * Valid
       annotation keys have two segments: an optional prefix and name,
       separated by a slash (`/`). * The name segment is required and must be
@@ -2987,9 +3494,9 @@ class DeployPolicy(_messages.Message):
       https://kubernetes.io/docs/concepts/overview/working-with-
       objects/annotations/#syntax-and-character-set for more details.
     createTime: Output only. Time at which the deploy policy was created.
-    description: Description of the `DeployPolicy`. Max length is 255
-      characters.
-    etag: The weak etag of the `Automation` resource. This checksum is
+    description: Optional. Description of the `DeployPolicy`. Max length is
+      255 characters.
+    etag: The weak etag of the `DeployPolicy` resource. This checksum is
       computed by the server based on the value of other fields, and may be
       sent on update and delete requests to ensure the client has an up-to-
       date value before proceeding.
@@ -3011,8 +3518,8 @@ class DeployPolicy(_messages.Message):
       resource the policy applies. For example, if there are two selectors and
       the action being attempted matches one of them, the policy will apply to
       that action.
-    suspended: When suspended, the policy will not prevent actions from
-      occurring, even if the action violates the policy.
+    suspended: Optional. When suspended, the policy will not prevent actions
+      from occurring, even if the action violates the policy.
     uid: Output only. Unique identifier of the `DeployPolicy`.
     updateTime: Output only. Most recent time at which the deploy policy was
       updated.
@@ -3020,8 +3527,8 @@ class DeployPolicy(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AnnotationsValue(_messages.Message):
-    r"""User annotations. These attributes can only be set and used by the
-    user, and not by Cloud Deploy. Annotations must meet the following
+    r"""Optional. User annotations. These attributes can only be set and used
+    by the user, and not by Cloud Deploy. Annotations must meet the following
     constraints: * Annotations are key/value pairs. * Valid annotation keys
     have two segments: an optional prefix and name, separated by a slash
     (`/`). * The name segment is required and must be 63 characters or less,
@@ -3254,6 +3761,8 @@ class DeploymentJobs(_messages.Message):
   r"""Deployment job composition.
 
   Fields:
+    analysisJob: Output only. The analysis Job. Runs after a verify if there
+      is a verify job and the verify job succeeds.
     deployJob: Output only. The deploy Job. This is the deploy job in the
       phase.
     postdeployJob: Output only. The postdeploy Job, which is the last job on
@@ -3264,10 +3773,11 @@ class DeploymentJobs(_messages.Message):
       succeeds.
   """
 
-  deployJob = _messages.MessageField('Job', 1)
-  postdeployJob = _messages.MessageField('Job', 2)
-  predeployJob = _messages.MessageField('Job', 3)
-  verifyJob = _messages.MessageField('Job', 4)
+  analysisJob = _messages.MessageField('Job', 1)
+  deployJob = _messages.MessageField('Job', 2)
+  postdeployJob = _messages.MessageField('Job', 3)
+  predeployJob = _messages.MessageField('Job', 4)
+  verifyJob = _messages.MessageField('Job', 5)
 
 
 class Empty(_messages.Message):
@@ -3319,6 +3829,7 @@ class ExecutionConfig(_messages.Message):
       VERIFY: Use for deployment verification.
       PREDEPLOY: Use for predeploy job execution.
       POSTDEPLOY: Use for postdeploy job execution.
+      ANALYSIS: Use for analysis job execution.
     """
     EXECUTION_ENVIRONMENT_USAGE_UNSPECIFIED = 0
     RENDER = 1
@@ -3326,6 +3837,7 @@ class ExecutionConfig(_messages.Message):
     VERIFY = 3
     PREDEPLOY = 4
     POSTDEPLOY = 5
+    ANALYSIS = 6
 
   artifactStorage = _messages.StringField(1)
   defaultPool = _messages.MessageField('DefaultPool', 2)
@@ -3373,6 +3885,22 @@ class Expr(_messages.Message):
   title = _messages.StringField(4)
 
 
+class FailedAlertPolicy(_messages.Message):
+  r"""FailedAlertPolicy contains information about an alert policy that was
+  found to be firing during an alert policy check.
+
+  Fields:
+    alertPolicy: Output only. The name of the alert policy that was found to
+      be firing. Format is
+      `projects/{project}/locations/{location}/alertPolicies/{alertPolicy}`.
+    alerts: Output only. Open alerts for the alerting policies that matched
+      the alert policy check configuration.
+  """
+
+  alertPolicy = _messages.StringField(1)
+  alerts = _messages.StringField(2, repeated=True)
+
+
 class GatewayServiceMesh(_messages.Message):
   r"""Information about the Kubernetes Gateway API service mesh configuration.
 
@@ -3414,7 +3942,7 @@ class GkeCluster(_messages.Message):
     cluster: Optional. Information specifying a GKE Cluster. Format is
       `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`.
     dnsEndpoint: Optional. If set, the cluster will be accessed using the DNS
-      endpoint. Note that `dns_endpoint` and `internal_ip` cannot both be set
+      endpoint. Note that both `dns_endpoint` and `internal_ip` cannot be set
       to true.
     internalIp: Optional. If true, `cluster` is accessed using the private IP
       address of the control plane endpoint. Otherwise, the default IP address
@@ -3433,6 +3961,18 @@ class GkeCluster(_messages.Message):
   dnsEndpoint = _messages.BooleanField(2)
   internalIp = _messages.BooleanField(3)
   proxyUrl = _messages.StringField(4)
+
+
+class GoogleCloudAnalysis(_messages.Message):
+  r"""GoogleCloudAnalysis is a set of Google Cloud-based checks to perform on
+  the deployment.
+
+  Fields:
+    alertPolicyChecks: Optional. A list of Cloud Monitoring Alert Policy
+      checks to perform as part of the analysis.
+  """
+
+  alertPolicyChecks = _messages.MessageField('AlertPolicyCheck', 1, repeated=True)
 
 
 class IgnoreJobRequest(_messages.Message):
@@ -3462,6 +4002,7 @@ class Job(_messages.Message):
 
   Fields:
     advanceChildRolloutJob: Output only. An advanceChildRollout Job.
+    analysisJob: Output only. An analysis Job.
     createChildRolloutJob: Output only. A createChildRollout Job.
     deployJob: Output only. A deploy Job.
     id: Output only. The ID of the Job.
@@ -3501,15 +4042,16 @@ class Job(_messages.Message):
     IGNORED = 8
 
   advanceChildRolloutJob = _messages.MessageField('AdvanceChildRolloutJob', 1)
-  createChildRolloutJob = _messages.MessageField('CreateChildRolloutJob', 2)
-  deployJob = _messages.MessageField('DeployJob', 3)
-  id = _messages.StringField(4)
-  jobRun = _messages.StringField(5)
-  postdeployJob = _messages.MessageField('PostdeployJob', 6)
-  predeployJob = _messages.MessageField('PredeployJob', 7)
-  skipMessage = _messages.StringField(8)
-  state = _messages.EnumField('StateValueValuesEnum', 9)
-  verifyJob = _messages.MessageField('VerifyJob', 10)
+  analysisJob = _messages.MessageField('AnalysisJob', 2)
+  createChildRolloutJob = _messages.MessageField('CreateChildRolloutJob', 3)
+  deployJob = _messages.MessageField('DeployJob', 4)
+  id = _messages.StringField(5)
+  jobRun = _messages.StringField(6)
+  postdeployJob = _messages.MessageField('PostdeployJob', 7)
+  predeployJob = _messages.MessageField('PredeployJob', 8)
+  skipMessage = _messages.StringField(9)
+  state = _messages.EnumField('StateValueValuesEnum', 10)
+  verifyJob = _messages.MessageField('VerifyJob', 11)
 
 
 class JobRun(_messages.Message):
@@ -3522,6 +4064,7 @@ class JobRun(_messages.Message):
   Fields:
     advanceChildRolloutJobRun: Output only. Information specific to an
       advanceChildRollout `JobRun`
+    analysisJobRun: Output only. Information specific to an analysis `JobRun`.
     createChildRolloutJobRun: Output only. Information specific to a
       createChildRollout `JobRun`.
     createTime: Output only. Time at which the `JobRun` was created.
@@ -3531,9 +4074,9 @@ class JobRun(_messages.Message):
       value of other fields, and may be sent on update and delete requests to
       ensure the client has an up-to-date value before proceeding.
     jobId: Output only. ID of the `Rollout` job this `JobRun` corresponds to.
-    name: Optional. Name of the `JobRun`. Format is `projects/{project}/locati
-      ons/{location}/deliveryPipelines/{deliveryPipeline}/releases/{releases}/
-      rollouts/{rollouts}/jobRuns/{uuid}`.
+    name: Output only. Name of the `JobRun`. Format is `projects/{project}/loc
+      ations/{location}/deliveryPipelines/{deliveryPipeline}/releases/{release
+      s}/rollouts/{rollouts}/jobRuns/{uuid}`.
     phaseId: Output only. ID of the `Rollout` phase this `JobRun` belongs in.
     postdeployJobRun: Output only. Information specific to a postdeploy
       `JobRun`.
@@ -3564,20 +4107,21 @@ class JobRun(_messages.Message):
     TERMINATED = 5
 
   advanceChildRolloutJobRun = _messages.MessageField('AdvanceChildRolloutJobRun', 1)
-  createChildRolloutJobRun = _messages.MessageField('CreateChildRolloutJobRun', 2)
-  createTime = _messages.StringField(3)
-  deployJobRun = _messages.MessageField('DeployJobRun', 4)
-  endTime = _messages.StringField(5)
-  etag = _messages.StringField(6)
-  jobId = _messages.StringField(7)
-  name = _messages.StringField(8)
-  phaseId = _messages.StringField(9)
-  postdeployJobRun = _messages.MessageField('PostdeployJobRun', 10)
-  predeployJobRun = _messages.MessageField('PredeployJobRun', 11)
-  startTime = _messages.StringField(12)
-  state = _messages.EnumField('StateValueValuesEnum', 13)
-  uid = _messages.StringField(14)
-  verifyJobRun = _messages.MessageField('VerifyJobRun', 15)
+  analysisJobRun = _messages.MessageField('AnalysisJobRun', 2)
+  createChildRolloutJobRun = _messages.MessageField('CreateChildRolloutJobRun', 3)
+  createTime = _messages.StringField(4)
+  deployJobRun = _messages.MessageField('DeployJobRun', 5)
+  endTime = _messages.StringField(6)
+  etag = _messages.StringField(7)
+  jobId = _messages.StringField(8)
+  name = _messages.StringField(9)
+  phaseId = _messages.StringField(10)
+  postdeployJobRun = _messages.MessageField('PostdeployJobRun', 11)
+  predeployJobRun = _messages.MessageField('PredeployJobRun', 12)
+  startTime = _messages.StringField(13)
+  state = _messages.EnumField('StateValueValuesEnum', 14)
+  uid = _messages.StringField(15)
+  verifyJobRun = _messages.MessageField('VerifyJobRun', 16)
 
 
 class JobRunNotificationEvent(_messages.Message):
@@ -3642,12 +4186,36 @@ class KubernetesConfig(_messages.Message):
   r"""KubernetesConfig contains the Kubernetes runtime configuration.
 
   Fields:
-    gatewayServiceMesh: Kubernetes Gateway API service mesh configuration.
-    serviceNetworking: Kubernetes Service networking configuration.
+    cloudServiceMesh: Optional. Cloud Service Mesh configuration.
+    gatewayServiceMesh: Optional. Kubernetes Gateway API service mesh
+      configuration.
+    serviceNetworking: Optional. Kubernetes Service networking configuration.
   """
 
-  gatewayServiceMesh = _messages.MessageField('GatewayServiceMesh', 1)
-  serviceNetworking = _messages.MessageField('ServiceNetworking', 2)
+  cloudServiceMesh = _messages.MessageField('CloudServiceMesh', 1)
+  gatewayServiceMesh = _messages.MessageField('GatewayServiceMesh', 2)
+  serviceNetworking = _messages.MessageField('ServiceNetworking', 3)
+
+
+class KubernetesRenderMetadata(_messages.Message):
+  r"""KubernetesRenderMetadata contains Kubernetes information associated with
+  a `Release` render.
+
+  Fields:
+    canaryDeployment: Output only. Name of the canary version of the
+      Kubernetes Deployment that will be applied to the GKE cluster. Only set
+      if a canary deployment strategy was configured.
+    deployment: Output only. Name of the Kubernetes Deployment that will be
+      applied to the GKE cluster. Only set if a single Deployment was provided
+      in the rendered manifest.
+    kubernetesNamespace: Output only. Namespace the Kubernetes resources will
+      be applied to in the GKE cluster. Only set if applying resources to a
+      single namespace.
+  """
+
+  canaryDeployment = _messages.StringField(1)
+  deployment = _messages.StringField(2)
+  kubernetesNamespace = _messages.StringField(3)
 
 
 class ListAutomationRunsResponse(_messages.Message):
@@ -3760,10 +4328,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListReleasesResponse(_messages.Message):
@@ -3782,7 +4355,7 @@ class ListReleasesResponse(_messages.Message):
 
 
 class ListRolloutsResponse(_messages.Message):
-  r"""ListRolloutsResponse is the response object reutrned by `ListRollouts`.
+  r"""ListRolloutsResponse is the response object returned by `ListRollouts`.
 
   Fields:
     nextPageToken: A token, which can be sent as `page_token` to retrieve the
@@ -4122,6 +4695,11 @@ class PhaseArtifact(_messages.Message):
   r"""Contains the paths to the artifacts, relative to the URI, for a phase.
 
   Fields:
+    backendServicePath: Output only. File path of the rendered backend service
+      configuration relative to the URI.
+    deployConfigPath: Output only. File path of the resolved Deploy Config
+      relative to the URI. Only one of deploy_config_path or
+      skaffold_config_path will be set.
     jobManifestsPath: Output only. File path of the directory of rendered job
       manifests relative to the URI. This is only set if it is applicable.
     manifestPath: Output only. File path of the rendered manifest relative to
@@ -4130,9 +4708,11 @@ class PhaseArtifact(_messages.Message):
       configuration relative to the URI.
   """
 
-  jobManifestsPath = _messages.StringField(1)
-  manifestPath = _messages.StringField(2)
-  skaffoldConfigPath = _messages.StringField(3)
+  backendServicePath = _messages.StringField(1)
+  deployConfigPath = _messages.StringField(2)
+  jobManifestsPath = _messages.StringField(3)
+  manifestPath = _messages.StringField(4)
+  skaffoldConfigPath = _messages.StringField(5)
 
 
 class PhaseConfig(_messages.Message):
@@ -4140,6 +4720,8 @@ class PhaseConfig(_messages.Message):
   canary deployment.
 
   Fields:
+    analysis: Optional. Configuration for the analysis job of this phase. If
+      this is not configured, there will be no analysis job for this phase.
     percentage: Required. Percentage deployment for the phase.
     phaseId: Required. The ID to assign to the `Rollout` phase. This value
       must consist of lower-case letters, numbers, and hyphens, start with a
@@ -4151,18 +4733,23 @@ class PhaseConfig(_messages.Message):
       phase.
     predeploy: Optional. Configuration for the predeploy job of this phase. If
       this is not configured, there will be no predeploy job for this phase.
-    profiles: Skaffold profiles to use when rendering the manifest for this
-      phase. These are in addition to the profiles list specified in the
-      `DeliveryPipeline` stage.
-    verify: Whether to run verify tests after the deployment.
+    profiles: Optional. Skaffold profiles to use when rendering the manifest
+      for this phase. These are in addition to the profiles list specified in
+      the `DeliveryPipeline` stage.
+    verify: Optional. Whether to run verify tests after the deployment via
+      `skaffold verify`.
+    verifyConfig: Optional. Configuration for the verify job. Cannot be set if
+      `verify` is set to true.
   """
 
-  percentage = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  phaseId = _messages.StringField(2)
-  postdeploy = _messages.MessageField('Postdeploy', 3)
-  predeploy = _messages.MessageField('Predeploy', 4)
-  profiles = _messages.StringField(5, repeated=True)
-  verify = _messages.BooleanField(6)
+  analysis = _messages.MessageField('Analysis', 1)
+  percentage = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  phaseId = _messages.StringField(3)
+  postdeploy = _messages.MessageField('Postdeploy', 4)
+  predeploy = _messages.MessageField('Predeploy', 5)
+  profiles = _messages.StringField(6, repeated=True)
+  verify = _messages.BooleanField(7)
+  verifyConfig = _messages.MessageField('Verify', 8)
 
 
 class PipelineCondition(_messages.Message):
@@ -4280,7 +4867,7 @@ class PolicyRule(_messages.Message):
   r"""Deploy Policy rule.
 
   Fields:
-    rolloutRestriction: Rollout restrictions.
+    rolloutRestriction: Optional. Rollout restrictions.
   """
 
   rolloutRestriction = _messages.MessageField('RolloutRestriction', 1)
@@ -4321,9 +4908,13 @@ class Postdeploy(_messages.Message):
   Fields:
     actions: Optional. A sequence of Skaffold custom actions to invoke during
       execution of the postdeploy job.
+    tasks: Optional. The tasks that will run as a part of the postdeploy job.
+      The tasks are executed sequentially in the order specified. Only one of
+      `actions` or `tasks` can be specified.
   """
 
   actions = _messages.StringField(1, repeated=True)
+  tasks = _messages.MessageField('Task', 2, repeated=True)
 
 
 class PostdeployJob(_messages.Message):
@@ -4331,9 +4922,12 @@ class PostdeployJob(_messages.Message):
 
   Fields:
     actions: Output only. The custom actions that the postdeploy Job executes.
+    tasks: Output only. The tasks that are executed as part of the postdeploy
+      Job.
   """
 
   actions = _messages.StringField(1, repeated=True)
+  tasks = _messages.MessageField('Task', 2, repeated=True)
 
 
 class PostdeployJobRun(_messages.Message):
@@ -4369,7 +4963,7 @@ class PostdeployJobRun(_messages.Message):
       EXECUTION_FAILED: The postdeploy operation did not complete
         successfully; check Cloud Build logs.
       DEADLINE_EXCEEDED: The postdeploy job run did not complete within the
-        alloted time.
+        allotted time.
       CLOUD_BUILD_REQUEST_FAILED: Cloud Build failed to fulfill Cloud Deploy's
         request. See failure_message for additional details.
     """
@@ -4390,9 +4984,13 @@ class Predeploy(_messages.Message):
   Fields:
     actions: Optional. A sequence of Skaffold custom actions to invoke during
       execution of the predeploy job.
+    tasks: Optional. The tasks that will run as a part of the predeploy job.
+      The tasks are executed sequentially in the order specified. Only one of
+      `actions` or `tasks` can be specified.
   """
 
   actions = _messages.StringField(1, repeated=True)
+  tasks = _messages.MessageField('Task', 2, repeated=True)
 
 
 class PredeployJob(_messages.Message):
@@ -4400,9 +4998,12 @@ class PredeployJob(_messages.Message):
 
   Fields:
     actions: Output only. The custom actions that the predeploy Job executes.
+    tasks: Output only. The tasks that are executed as part of the predeploy
+      Job.
   """
 
   actions = _messages.StringField(1, repeated=True)
+  tasks = _messages.MessageField('Task', 2, repeated=True)
 
 
 class PredeployJobRun(_messages.Message):
@@ -4437,7 +5038,7 @@ class PredeployJobRun(_messages.Message):
       EXECUTION_FAILED: The predeploy operation did not complete successfully;
         check Cloud Build logs.
       DEADLINE_EXCEEDED: The predeploy job run did not complete within the
-        alloted time.
+        allotted time.
       CLOUD_BUILD_REQUEST_FAILED: Cloud Build failed to fulfill Cloud Deploy's
         request. See failure_message for additional details.
     """
@@ -4530,8 +5131,8 @@ class Release(_messages.Message):
       operation.
 
   Messages:
-    AnnotationsValue: User annotations. These attributes can only be set and
-      used by the user, and not by Cloud Deploy. See
+    AnnotationsValue: Optional. User annotations. These attributes can only be
+      set and used by the user, and not by Cloud Deploy. See
       https://google.aip.dev/128#annotations for more details such as format
       and size limitations.
     DeployParametersValue: Optional. The deploy parameters to use for all
@@ -4551,20 +5152,28 @@ class Release(_messages.Message):
 
   Fields:
     abandoned: Output only. Indicates whether this is an abandoned release.
-    annotations: User annotations. These attributes can only be set and used
-      by the user, and not by Cloud Deploy. See
+    annotations: Optional. User annotations. These attributes can only be set
+      and used by the user, and not by Cloud Deploy. See
       https://google.aip.dev/128#annotations for more details such as format
       and size limitations.
-    buildArtifacts: List of artifacts to pass through to Skaffold command.
+    buildArtifacts: Optional. List of artifacts to pass through to Skaffold
+      command.
     condition: Output only. Information around the state of the Release.
     createTime: Output only. Time at which the `Release` was created.
     customTargetTypeSnapshots: Output only. Snapshot of the custom target
       types referenced by the targets taken at release creation time.
     deliveryPipelineSnapshot: Output only. Snapshot of the parent pipeline
       taken at release creation time.
+    deployConfigPath: Optional. Filepath of the Deploy Config file inside of
+      the config URI. Only one of skaffold_config_path or deploy_config_path
+      can be set.
+    deployConfigUri: Optional. Cloud Storage URI of tar.gz archive containing
+      the release configuration with a Deploy Config file. Only one of
+      skaffold_config_uri or deploy_config_uri can be set.
     deployParameters: Optional. The deploy parameters to use for all targets
       in this release.
-    description: Description of the `Release`. Max length is 255 characters.
+    description: Optional. Description of the `Release`. Max length is 255
+      characters.
     etag: This checksum is computed by the server based on the value of other
       fields, and may be sent on update and delete requests to ensure the
       client has an up-to-date value before proceeding.
@@ -4576,16 +5185,16 @@ class Release(_messages.Message):
       letter or international character. * Each resource is limited to a
       maximum of 64 labels. Both keys and values are additionally constrained
       to be <= 128 bytes.
-    name: Optional. Name of the `Release`. Format is `projects/{project}/locat
-      ions/{location}/deliveryPipelines/{deliveryPipeline}/releases/{release}`
-      . The `release` component must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
+    name: Identifier. Name of the `Release`. Format is `projects/{project}/loc
+      ations/{location}/deliveryPipelines/{deliveryPipeline}/releases/{release
+      }`. The `release` component must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     renderEndTime: Output only. Time at which the render completed.
     renderStartTime: Output only. Time at which the render began.
     renderState: Output only. Current state of the render operation.
-    skaffoldConfigPath: Filepath of the Skaffold config inside of the config
-      URI.
-    skaffoldConfigUri: Cloud Storage URI of tar.gz archive containing Skaffold
-      configuration.
+    skaffoldConfigPath: Optional. Filepath of the Skaffold config inside of
+      the config URI.
+    skaffoldConfigUri: Optional. Cloud Storage URI of tar.gz archive
+      containing Skaffold configuration.
     skaffoldVersion: Optional. The Skaffold version to use when operating on
       this release, such as "1.20.0". Not all versions are valid; Cloud Deploy
       supports a specific set of versions. If unset, the most recent supported
@@ -4596,6 +5205,9 @@ class Release(_messages.Message):
       operation for that target.
     targetSnapshots: Output only. Snapshot of the targets taken at release
       creation time.
+    toolVersions: Optional. The tool versions to use for this release and all
+      subsequent operations involving this release. If unset, then it will
+      freeze the tool versions at the time of release creation.
     uid: Output only. Unique identifier of the `Release`.
   """
 
@@ -4616,9 +5228,10 @@ class Release(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AnnotationsValue(_messages.Message):
-    r"""User annotations. These attributes can only be set and used by the
-    user, and not by Cloud Deploy. See https://google.aip.dev/128#annotations
-    for more details such as format and size limitations.
+    r"""Optional. User annotations. These attributes can only be set and used
+    by the user, and not by Cloud Deploy. See
+    https://google.aip.dev/128#annotations for more details such as format and
+    size limitations.
 
     Messages:
       AdditionalProperty: An additional property for a AnnotationsValue
@@ -4758,34 +5371,55 @@ class Release(_messages.Message):
   createTime = _messages.StringField(5)
   customTargetTypeSnapshots = _messages.MessageField('CustomTargetType', 6, repeated=True)
   deliveryPipelineSnapshot = _messages.MessageField('DeliveryPipeline', 7)
-  deployParameters = _messages.MessageField('DeployParametersValue', 8)
-  description = _messages.StringField(9)
-  etag = _messages.StringField(10)
-  labels = _messages.MessageField('LabelsValue', 11)
-  name = _messages.StringField(12)
-  renderEndTime = _messages.StringField(13)
-  renderStartTime = _messages.StringField(14)
-  renderState = _messages.EnumField('RenderStateValueValuesEnum', 15)
-  skaffoldConfigPath = _messages.StringField(16)
-  skaffoldConfigUri = _messages.StringField(17)
-  skaffoldVersion = _messages.StringField(18)
-  targetArtifacts = _messages.MessageField('TargetArtifactsValue', 19)
-  targetRenders = _messages.MessageField('TargetRendersValue', 20)
-  targetSnapshots = _messages.MessageField('Target', 21, repeated=True)
-  uid = _messages.StringField(22)
+  deployConfigPath = _messages.StringField(8)
+  deployConfigUri = _messages.StringField(9)
+  deployParameters = _messages.MessageField('DeployParametersValue', 10)
+  description = _messages.StringField(11)
+  etag = _messages.StringField(12)
+  labels = _messages.MessageField('LabelsValue', 13)
+  name = _messages.StringField(14)
+  renderEndTime = _messages.StringField(15)
+  renderStartTime = _messages.StringField(16)
+  renderState = _messages.EnumField('RenderStateValueValuesEnum', 17)
+  skaffoldConfigPath = _messages.StringField(18)
+  skaffoldConfigUri = _messages.StringField(19)
+  skaffoldVersion = _messages.StringField(20)
+  targetArtifacts = _messages.MessageField('TargetArtifactsValue', 21)
+  targetRenders = _messages.MessageField('TargetRendersValue', 22)
+  targetSnapshots = _messages.MessageField('Target', 23, repeated=True)
+  toolVersions = _messages.MessageField('ToolVersions', 24)
+  uid = _messages.StringField(25)
 
 
 class ReleaseCondition(_messages.Message):
   r"""ReleaseCondition contains all conditions relevant to a Release.
 
   Fields:
+    dockerVersionSupportedCondition: Output only. Details around the support
+      state of the release's Docker version.
+    helmVersionSupportedCondition: Output only. Details around the support
+      state of the release's Helm version.
+    kptVersionSupportedCondition: Output only. Details around the support
+      state of the release's Kpt version.
+    kubectlVersionSupportedCondition: Output only. Details around the support
+      state of the release's Kubectl version.
+    kustomizeVersionSupportedCondition: Output only. Details around the
+      support state of the release's Kustomize version.
     releaseReadyCondition: Details around the Releases's overall status.
     skaffoldSupportedCondition: Details around the support state of the
       release's Skaffold version.
+    skaffoldVersionSupportedCondition: Output only. Details around the support
+      state of the release's Skaffold version.
   """
 
-  releaseReadyCondition = _messages.MessageField('ReleaseReadyCondition', 1)
-  skaffoldSupportedCondition = _messages.MessageField('SkaffoldSupportedCondition', 2)
+  dockerVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 1)
+  helmVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 2)
+  kptVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 3)
+  kubectlVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 4)
+  kustomizeVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 5)
+  releaseReadyCondition = _messages.MessageField('ReleaseReadyCondition', 6)
+  skaffoldSupportedCondition = _messages.MessageField('SkaffoldSupportedCondition', 7)
+  skaffoldVersionSupportedCondition = _messages.MessageField('ToolVersionSupportedCondition', 8)
 
 
 class ReleaseNotificationEvent(_messages.Message):
@@ -4930,10 +5564,13 @@ class RenderMetadata(_messages.Message):
     cloudRun: Output only. Metadata associated with rendering for Cloud Run.
     custom: Output only. Custom metadata provided by user-defined render
       operation.
+    kubernetes: Output only. Metadata associated with rendering for a
+      Kubernetes cluster (GKE or GKE Enterprise target).
   """
 
   cloudRun = _messages.MessageField('CloudRunRenderMetadata', 1)
   custom = _messages.MessageField('CustomMetadata', 2)
+  kubernetes = _messages.MessageField('KubernetesRenderMetadata', 3)
 
 
 class RepairPhase(_messages.Message):
@@ -5268,8 +5905,8 @@ class Rollout(_messages.Message):
     StateValueValuesEnum: Output only. Current state of the `Rollout`.
 
   Messages:
-    AnnotationsValue: User annotations. These attributes can only be set and
-      used by the user, and not by Cloud Deploy. See
+    AnnotationsValue: Optional. User annotations. These attributes can only be
+      set and used by the user, and not by Cloud Deploy. See
       https://google.aip.dev/128#annotations for more details such as format
       and size limitations.
     LabelsValue: Labels are attributes that can be set and used by both the
@@ -5284,8 +5921,8 @@ class Rollout(_messages.Message):
   Fields:
     activeRepairAutomationRun: Output only. The AutomationRun actively
       repairing the rollout.
-    annotations: User annotations. These attributes can only be set and used
-      by the user, and not by Cloud Deploy. See
+    annotations: Optional. User annotations. These attributes can only be set
+      and used by the user, and not by Cloud Deploy. See
       https://google.aip.dev/128#annotations for more details such as format
       and size limitations.
     approvalState: Output only. Approval state of the `Rollout`.
@@ -5303,8 +5940,8 @@ class Rollout(_messages.Message):
     deployingBuild: Output only. The resource name of the Cloud Build `Build`
       object that is used to deploy the Rollout. Format is
       `projects/{project}/locations/{location}/builds/{build}`.
-    description: Description of the `Rollout` for user purposes. Max length is
-      255 characters.
+    description: Optional. Description of the `Rollout` for user purposes. Max
+      length is 255 characters.
     enqueueTime: Output only. Time at which the `Rollout` was enqueued.
     etag: This checksum is computed by the server based on the value of other
       fields, and may be sent on update and delete requests to ensure the
@@ -5320,9 +5957,9 @@ class Rollout(_messages.Message):
       maximum of 64 labels. Both keys and values are additionally constrained
       to be <= 128 bytes.
     metadata: Output only. Metadata contains information about the rollout.
-    name: Optional. Name of the `Rollout`. Format is `projects/{project}/locat
-      ions/{location}/deliveryPipelines/{deliveryPipeline}/releases/{release}/
-      rollouts/{rollout}`. The `rollout` component must match
+    name: Identifier. Name of the `Rollout`. Format is `projects/{project}/loc
+      ations/{location}/deliveryPipelines/{deliveryPipeline}/releases/{release
+      }/rollouts/{rollout}`. The `rollout` component must match
       `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     phases: Output only. The phases that represent the workflows of this
       `Rollout`.
@@ -5364,7 +6001,7 @@ class Rollout(_messages.Message):
         deploy-service-account#required_permissions).
       EXECUTION_FAILED: The deploy operation did not complete successfully;
         check Cloud Build logs.
-      DEADLINE_EXCEEDED: Deployment did not complete within the alloted time.
+      DEADLINE_EXCEEDED: Deployment did not complete within the allotted time.
       RELEASE_FAILED: Release is in a failed state.
       RELEASE_ABANDONED: Release is abandoned.
       VERIFICATION_CONFIG_NOT_FOUND: No Skaffold verify configuration was
@@ -5416,9 +6053,10 @@ class Rollout(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AnnotationsValue(_messages.Message):
-    r"""User annotations. These attributes can only be set and used by the
-    user, and not by Cloud Deploy. See https://google.aip.dev/128#annotations
-    for more details such as format and size limitations.
+    r"""Optional. User annotations. These attributes can only be set and used
+    by the user, and not by Cloud Deploy. See
+    https://google.aip.dev/128#annotations for more details such as format and
+    size limitations.
 
     Messages:
       AdditionalProperty: An additional property for a AnnotationsValue
@@ -5640,7 +6278,8 @@ class RolloutUpdateEvent(_messages.Message):
 
     Values:
       ROLLOUT_UPDATE_TYPE_UNSPECIFIED: Rollout update type unspecified.
-      PENDING: rollout state updated to pending.
+      PENDING: Rollout state updated to pending (release has succeeded,
+        waiting on the rollout to start).
       PENDING_RELEASE: Rollout state updated to pending release.
       IN_PROGRESS: Rollout state updated to in progress.
       CANCELLING: Rollout state updated to cancelling.
@@ -5716,7 +6355,7 @@ class RouteDestinations(_messages.Message):
     propagateService: Optional. Whether to propagate the Kubernetes Service to
       the route destination clusters. The Service will always be deployed to
       the Target cluster even if the HTTPRoute is not. This option may be used
-      to facilitiate successful DNS lookup in the route destination clusters.
+      to facilitate successful DNS lookup in the route destination clusters.
       Can only be set to true if destinations are specified.
   """
 
@@ -5729,8 +6368,8 @@ class RuntimeConfig(_messages.Message):
   deployment strategy.
 
   Fields:
-    cloudRun: Cloud Run runtime configuration.
-    kubernetes: Kubernetes runtime configuration.
+    cloudRun: Optional. Cloud Run runtime configuration.
+    kubernetes: Optional. Kubernetes runtime configuration.
   """
 
   cloudRun = _messages.MessageField('CloudRunConfig', 1)
@@ -5742,8 +6381,8 @@ class SerialPipeline(_messages.Message):
   `DeliveryPipeline`.
 
   Fields:
-    stages: Each stage specifies configuration for a `Target`. The ordering of
-      this list defines the promotion flow.
+    stages: Optional. Each stage specifies configuration for a `Target`. The
+      ordering of this list defines the promotion flow.
   """
 
   stages = _messages.MessageField('Stage', 1, repeated=True)
@@ -5841,11 +6480,12 @@ class SkaffoldModules(_messages.Message):
   Fields:
     configs: Optional. The Skaffold Config modules to use from the specified
       source.
-    git: Remote git repository containing the Skaffold Config modules.
-    googleCloudBuildRepo: Cloud Build V2 repository containing the Skaffold
-      Config modules.
-    googleCloudStorage: Cloud Storage bucket containing the Skaffold Config
+    git: Optional. Remote git repository containing the Skaffold Config
       modules.
+    googleCloudBuildRepo: Optional. Cloud Build V2 repository containing the
+      Skaffold Config modules.
+    googleCloudStorage: Optional. Cloud Storage bucket containing the Skaffold
+      Config modules.
   """
 
   configs = _messages.StringField(1, repeated=True)
@@ -5920,12 +6560,12 @@ class Stage(_messages.Message):
   Fields:
     deployParameters: Optional. The deploy parameters to use for the target in
       this stage.
-    profiles: Skaffold profiles to use when rendering the manifest for this
-      stage's `Target`.
+    profiles: Optional. Skaffold profiles to use when rendering the manifest
+      for this stage's `Target`.
     strategy: Optional. The strategy to use for a `Rollout` to this stage.
-    targetId: The target_id to which this stage points. This field refers
-      exclusively to the last segment of a target name. For example, this
-      field would just be `my-target` (rather than
+    targetId: Optional. The target_id to which this stage points. This field
+      refers exclusively to the last segment of a target name. For example,
+      this field would just be `my-target` (rather than
       `projects/project/locations/location/targets/my-target`). The location
       of the `Target` is inferred to be the same as the location of the
       `DeliveryPipeline` that contains this `Stage`.
@@ -5941,16 +6581,22 @@ class Standard(_messages.Message):
   r"""Standard represents the standard deployment strategy.
 
   Fields:
+    analysis: Optional. Configuration for the analysis job. If this is not
+      configured, the analysis job will not be present.
     postdeploy: Optional. Configuration for the postdeploy job. If this is not
-      configured, postdeploy job will not be present.
+      configured, the postdeploy job will not be present.
     predeploy: Optional. Configuration for the predeploy job. If this is not
-      configured, predeploy job will not be present.
-    verify: Whether to verify a deployment.
+      configured, the predeploy job will not be present.
+    verify: Optional. Whether to verify a deployment via `skaffold verify`.
+    verifyConfig: Optional. Configuration for the verify job. Cannot be set if
+      `verify` is set to true.
   """
 
-  postdeploy = _messages.MessageField('Postdeploy', 1)
-  predeploy = _messages.MessageField('Predeploy', 2)
-  verify = _messages.BooleanField(3)
+  analysis = _messages.MessageField('Analysis', 1)
+  postdeploy = _messages.MessageField('Postdeploy', 2)
+  predeploy = _messages.MessageField('Predeploy', 3)
+  verify = _messages.BooleanField(4)
+  verifyConfig = _messages.MessageField('Verify', 5)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -6071,10 +6717,10 @@ class Strategy(_messages.Message):
   r"""Strategy contains deployment strategy information.
 
   Fields:
-    canary: Canary deployment strategy provides progressive percentage based
-      deployments to a Target.
-    standard: Standard deployment strategy executes a single deploy and allows
-      verifying the deployment.
+    canary: Optional. Canary deployment strategy provides progressive
+      percentage based deployments to a Target.
+    standard: Optional. Standard deployment strategy executes a single deploy
+      and allows verifying the deployment.
   """
 
   canary = _messages.MessageField('Canary', 1)
@@ -6133,13 +6779,13 @@ class Target(_messages.Message):
     etag: Optional. This checksum is computed by the server based on the value
       of other fields, and may be sent on update and delete requests to ensure
       the client has an up-to-date value before proceeding.
-    executionConfigs: Configurations for all execution that relates to this
-      `Target`. Each `ExecutionEnvironmentUsage` value may only be used in a
-      single configuration; using the same value multiple times is an error.
-      When one or more configurations are specified, they must include the
-      `RENDER` and `DEPLOY` `ExecutionEnvironmentUsage` values. When no
-      configurations are specified, execution will use the default specified
-      in `DefaultPool`.
+    executionConfigs: Optional. Configurations for all execution that relates
+      to this `Target`. Each `ExecutionEnvironmentUsage` value may only be
+      used in a single configuration; using the same value multiple times is
+      an error. When one or more configurations are specified, they must
+      include the `RENDER` and `DEPLOY` `ExecutionEnvironmentUsage` values.
+      When no configurations are specified, execution will use the default
+      specified in `DefaultPool`.
     gke: Optional. Information specifying a GKE Cluster.
     labels: Optional. Labels are attributes that can be set and used by both
       the user and by Cloud Deploy. Labels must meet the following
@@ -6150,7 +6796,7 @@ class Target(_messages.Message):
       resource is limited to a maximum of 64 labels. Both keys and values are
       additionally constrained to be <= 128 bytes.
     multiTarget: Optional. Information specifying a multiTarget.
-    name: Optional. Name of the `Target`. Format is
+    name: Identifier. Name of the `Target`. Format is
       `projects/{project}/locations/{location}/targets/{target}`. The `target`
       component must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`
     requireApproval: Optional. Whether or not the `Target` requires approval.
@@ -6310,12 +6956,15 @@ class TargetArtifact(_messages.Message):
     artifactUri: Output only. URI of a directory containing the artifacts.
       This contains deployment configuration used by Skaffold during a
       rollout, and all paths are relative to this location.
+    deployConfigPath: Output only. File path of the resolved Deploy Config for
+      the stable phase, relative to the URI. Only one of deploy_config_path or
+      skaffold_config_path will be set.
     manifestPath: Output only. File path of the rendered manifest relative to
-      the URI.
+      the URI for the stable phase.
     phaseArtifacts: Output only. Map from the phase ID to the phase artifacts
       for the `Target`.
     skaffoldConfigPath: Output only. File path of the resolved Skaffold
-      configuration relative to the URI.
+      configuration for the stable phase, relative to the URI.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
@@ -6345,9 +6994,10 @@ class TargetArtifact(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   artifactUri = _messages.StringField(1)
-  manifestPath = _messages.StringField(2)
-  phaseArtifacts = _messages.MessageField('PhaseArtifactsValue', 3)
-  skaffoldConfigPath = _messages.StringField(4)
+  deployConfigPath = _messages.StringField(2)
+  manifestPath = _messages.StringField(3)
+  phaseArtifacts = _messages.MessageField('PhaseArtifactsValue', 4)
+  skaffoldConfigPath = _messages.StringField(5)
 
 
 class TargetAttribute(_messages.Message):
@@ -6358,9 +7008,9 @@ class TargetAttribute(_messages.Message):
     LabelsValue: Target labels.
 
   Fields:
-    id: ID of the `Target`. The value of this field could be one of the
-      following: * The last segment of a target name * "*", all targets in a
-      location
+    id: Optional. ID of the `Target`. The value of this field could be one of
+      the following: * The last segment of a target name * "*", all targets in
+      a location
     labels: Target labels.
   """
 
@@ -6479,14 +7129,17 @@ class TargetRender(_messages.Message):
         successfully because the verification stanza required for verify was
         not found on the Skaffold configuration.
       CUSTOM_ACTION_NOT_FOUND: The render operation did not complete
-        successfully because the custom action required for predeploy or
-        postdeploy was not found in the Skaffold configuration. See
-        failure_message for additional details.
+        successfully because the custom action(s) required for Rollout jobs
+        were not found in the Skaffold configuration. See failure_message for
+        additional details.
       DEPLOYMENT_STRATEGY_NOT_SUPPORTED: Release failed during rendering
         because the release configuration is not supported with the specified
         deployment strategy.
       RENDER_FEATURE_NOT_SUPPORTED: The render operation had a feature
         configured that is not supported.
+      TASK_NOT_FOUND: The render operation did not complete successfully
+        because the task(s) required for Rollout jobs were not found in the
+        configuration file. See failure_message for additional details.
     """
     FAILURE_CAUSE_UNSPECIFIED = 0
     CLOUD_BUILD_UNAVAILABLE = 1
@@ -6496,6 +7149,7 @@ class TargetRender(_messages.Message):
     CUSTOM_ACTION_NOT_FOUND = 5
     DEPLOYMENT_STRATEGY_NOT_SUPPORTED = 6
     RENDER_FEATURE_NOT_SUPPORTED = 7
+    TASK_NOT_FOUND = 8
 
   class RenderingStateValueValuesEnum(_messages.Enum):
     r"""Output only. Current state of the render operation for this Target.
@@ -6560,6 +7214,23 @@ class TargetsTypeCondition(_messages.Message):
 
   errorDetails = _messages.StringField(1)
   status = _messages.BooleanField(2)
+
+
+class Task(_messages.Message):
+  r"""A Task represents a unit of work that is executed as part of a Job.
+
+  Fields:
+    config: Optional. This task is represented by either a task in the Deploy
+      Config or a custom action in the Skaffold Config.
+    container: Optional. This task is represented by a container that is
+      executed in the Cloud Build execution environment.
+    containersTask: Optional. This task is represented by a set of containers
+      that are executed in parallel in the Cloud Build execution environment.
+  """
+
+  config = _messages.MessageField('ConfigTask', 1)
+  container = _messages.MessageField('ContainerTask', 2)
+  containersTask = _messages.MessageField('ContainersTask', 3)
 
 
 class TerminateJobRunRequest(_messages.Message):
@@ -6708,8 +7379,91 @@ class TimedPromoteReleaseRule(_messages.Message):
   timeZone = _messages.StringField(6)
 
 
+class ToolVersionSupportedCondition(_messages.Message):
+  r"""ToolVersionSupportedCondition contains information about when support
+  for the release's version of a Tool ends.
+
+  Enums:
+    ToolVersionSupportStateValueValuesEnum: Output only. The Tool support
+      state for this release's version of the Tool.
+
+  Fields:
+    maintenanceModeTime: Output only. The time at which this release's version
+      of the Tool will enter maintenance mode.
+    status: Output only. True if the version of Tool used by this release is
+      supported.
+    supportExpirationTime: Output only. The time at which this release's
+      version of the Tool will no longer be supported.
+    toolVersionSupportState: Output only. The Tool support state for this
+      release's version of the Tool.
+  """
+
+  class ToolVersionSupportStateValueValuesEnum(_messages.Enum):
+    r"""Output only. The Tool support state for this release's version of the
+    Tool.
+
+    Values:
+      TOOL_VERSION_SUPPORT_STATE_UNSPECIFIED: Default value. This value is
+        unused.
+      TOOL_VERSION_SUPPORT_STATE_SUPPORTED: This Tool version is currently
+        supported.
+      TOOL_VERSION_SUPPORT_STATE_MAINTENANCE_MODE: This Tool version is in
+        maintenance mode.
+      TOOL_VERSION_SUPPORT_STATE_UNSUPPORTED: This Tool version is no longer
+        supported.
+    """
+    TOOL_VERSION_SUPPORT_STATE_UNSPECIFIED = 0
+    TOOL_VERSION_SUPPORT_STATE_SUPPORTED = 1
+    TOOL_VERSION_SUPPORT_STATE_MAINTENANCE_MODE = 2
+    TOOL_VERSION_SUPPORT_STATE_UNSUPPORTED = 3
+
+  maintenanceModeTime = _messages.StringField(1)
+  status = _messages.BooleanField(2)
+  supportExpirationTime = _messages.StringField(3)
+  toolVersionSupportState = _messages.EnumField('ToolVersionSupportStateValueValuesEnum', 4)
+
+
+class ToolVersions(_messages.Message):
+  r"""Details of ToolVersions for the release.
+
+  Fields:
+    docker: Optional. The docker version to use for Cloud Deploy operations.
+    helm: Optional. The helm version to use for Cloud Deploy operations.
+    kpt: Optional. The kpt version to use for Cloud Deploy operations.
+    kubectl: Optional. The kubectl version to use for Cloud Deploy operations.
+    kustomize: Optional. The kustomize version to use for Cloud Deploy
+      operations.
+    skaffold: Optional. The skaffold version to use for Cloud Deploy
+      operations.
+  """
+
+  docker = _messages.StringField(1)
+  helm = _messages.StringField(2)
+  kpt = _messages.StringField(3)
+  kubectl = _messages.StringField(4)
+  kustomize = _messages.StringField(5)
+  skaffold = _messages.StringField(6)
+
+
+class Verify(_messages.Message):
+  r"""Verify contains the verify job configuration information.
+
+  Fields:
+    tasks: Optional. The tasks that will run as a part of the verify job. The
+      tasks are executed sequentially in the order specified.
+  """
+
+  tasks = _messages.MessageField('Task', 1, repeated=True)
+
+
 class VerifyJob(_messages.Message):
-  r"""A verify Job."""
+  r"""A verify Job.
+
+  Fields:
+    tasks: Output only. The tasks that are executed as part of the verify Job.
+  """
+
+  tasks = _messages.MessageField('Task', 1, repeated=True)
 
 
 class VerifyJobRun(_messages.Message):
@@ -6732,6 +7486,8 @@ class VerifyJobRun(_messages.Message):
       be unspecified while the verify is in progress or if it succeeded.
     failureMessage: Output only. Additional information about the verify
       failure, if available.
+    metadata: Output only. Metadata containing information about the verify
+      `JobRun`.
   """
 
   class FailureCauseValueValuesEnum(_messages.Enum):
@@ -6747,7 +7503,7 @@ class VerifyJobRun(_messages.Message):
       EXECUTION_FAILED: The verify operation did not complete successfully;
         check Cloud Build logs.
       DEADLINE_EXCEEDED: The verify job run did not complete within the
-        alloted time.
+        allotted time.
       VERIFICATION_CONFIG_NOT_FOUND: No Skaffold verify configuration was
         found.
       CLOUD_BUILD_REQUEST_FAILED: Cloud Build failed to fulfill Cloud Deploy's
@@ -6765,6 +7521,18 @@ class VerifyJobRun(_messages.Message):
   eventLogPath = _messages.StringField(3)
   failureCause = _messages.EnumField('FailureCauseValueValuesEnum', 4)
   failureMessage = _messages.StringField(5)
+  metadata = _messages.MessageField('VerifyJobRunMetadata', 6)
+
+
+class VerifyJobRunMetadata(_messages.Message):
+  r"""VerifyJobRunMetadata contains metadata about the verify `JobRun`.
+
+  Fields:
+    custom: Output only. Custom metadata provided by user-defined verify
+      operation.
+  """
+
+  custom = _messages.MessageField('CustomMetadata', 1)
 
 
 class WeeklyWindow(_messages.Message):
@@ -6825,5 +7593,7 @@ encoding.AddCustomJsonFieldMapping(
     ClouddeployProjectsLocationsCustomTargetTypesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     ClouddeployProjectsLocationsDeliveryPipelinesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+encoding.AddCustomJsonFieldMapping(
+    ClouddeployProjectsLocationsDeployPoliciesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     ClouddeployProjectsLocationsTargetsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')

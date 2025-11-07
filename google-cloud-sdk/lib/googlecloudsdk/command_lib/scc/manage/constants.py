@@ -42,6 +42,7 @@ class CustomModuleType(StrEnum):
   ETD = 'eventThreatDetectionCustomModules'
   EFFECTIVE_ETD = 'effectiveEventThreatDetectionCustomModules'
   EFFECTIVE_SHA = 'effectiveSecurityHealthAnalyticsCustomModules'
+  BILLING_METADATA = 'billingMetadata'
 
 
 SERVICE_RESOURCE_PLURAL_NAME = 'securityCenterServices'
@@ -118,6 +119,19 @@ SUPPORTED_SERVICES = (
     SecurityCenterService('container-threat-detection', abbreviation='ctd'),
     SecurityCenterService('vm-threat-detection', abbreviation='vmtd'),
     SecurityCenterService('web-security-scanner', abbreviation='wss'),
+    SecurityCenterService('vm-threat-detection-aws', abbreviation='vmtd-aws'),
+    SecurityCenterService('cloud-run-threat-detection', abbreviation='crtd'),
+    SecurityCenterService('vm-manager', abbreviation='vmm'),
+    SecurityCenterService(
+        'ec2-vulnerability-assessment', abbreviation='ec2-va'
+    ),
+    SecurityCenterService(
+        'gce-vulnerability-assessment', abbreviation='gce-va'
+    ),
+    SecurityCenterService(
+        'azure-vulnerability-assessment', abbreviation='azure-va'
+    ),
+    SecurityCenterService('notebook-security-scanner', abbreviation='nss'),
 )
 
 SERVICE_INVENTORY: Dict[str, SecurityCenterService] = make_service_inventory(

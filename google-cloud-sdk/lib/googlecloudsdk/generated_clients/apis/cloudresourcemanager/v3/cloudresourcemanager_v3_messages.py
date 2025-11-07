@@ -165,6 +165,33 @@ class Binding(_messages.Message):
   role = _messages.StringField(3)
 
 
+class BooleanValue(_messages.Message):
+  r"""A boolean value that is used to set a single boolean setting.
+
+  Fields:
+    value: Required. The boolean value.
+  """
+
+  value = _messages.BooleanField(1)
+
+
+class Capability(_messages.Message):
+  r"""Representation of a Capability.
+
+  Fields:
+    name: Immutable. Identifier. The resource name of the capability. Must be
+      in the following form: *
+      `folders/{folder_id}/capabilities/{capability_name}` For example,
+      `folders/123/capabilities/app-management` Following are the allowed
+      {capability_name} values: * `app-management`
+    value: Required. The configured value of the capability at the given
+      parent resource.
+  """
+
+  name = _messages.StringField(1)
+  value = _messages.BooleanField(2)
+
+
 class ClearSettingRequest(_messages.Message):
   r"""The request for ClearSetting.
 
@@ -196,6 +223,36 @@ class CloudresourcemanagerEffectiveTagsListRequest(_messages.Message):
   parent = _messages.StringField(3)
 
 
+class CloudresourcemanagerFoldersCapabilitiesGetRequest(_messages.Message):
+  r"""A CloudresourcemanagerFoldersCapabilitiesGetRequest object.
+
+  Fields:
+    name: Required. The name of the capability to get. For example,
+      `folders/123/capabilities/app-management`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class CloudresourcemanagerFoldersCapabilitiesPatchRequest(_messages.Message):
+  r"""A CloudresourcemanagerFoldersCapabilitiesPatchRequest object.
+
+  Fields:
+    capability: A Capability resource to be passed as the request body.
+    name: Immutable. Identifier. The resource name of the capability. Must be
+      in the following form: *
+      `folders/{folder_id}/capabilities/{capability_name}` For example,
+      `folders/123/capabilities/app-management` Following are the allowed
+      {capability_name} values: * `app-management`
+    updateMask: Optional. The list of fields to update. Only
+      [Capability.value] can be updated.
+  """
+
+  capability = _messages.MessageField('Capability', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
 class CloudresourcemanagerFoldersDeleteRequest(_messages.Message):
   r"""A CloudresourcemanagerFoldersDeleteRequest object.
 
@@ -212,7 +269,7 @@ class CloudresourcemanagerFoldersEffectiveSettingsGetRequest(_messages.Message):
 
   Fields:
     name: Required. The name of the effective setting to get, example
-      projects/123/effectiveSettings/project-creator-roles.
+      projects/123/effectiveSettings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -289,7 +346,7 @@ class CloudresourcemanagerFoldersPatchRequest(_messages.Message):
 
   Fields:
     folder: A Folder resource to be passed as the request body.
-    name: Output only. The resource name of the folder. Its format is
+    name: Identifier. The resource name of the folder. Its format is
       `folders/{folder_id}`, for example: "folders/1234".
     updateMask: Required. Fields to be updated. Only the `display_name` can be
       updated.
@@ -359,7 +416,7 @@ class CloudresourcemanagerFoldersSettingsClearRequest(_messages.Message):
     clearSettingRequest: A ClearSettingRequest resource to be passed as the
       request body.
     name: Required. The name of the setting to clear, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   clearSettingRequest = _messages.MessageField('ClearSettingRequest', 1)
@@ -371,7 +428,7 @@ class CloudresourcemanagerFoldersSettingsGetRequest(_messages.Message):
 
   Fields:
     name: Required. The name of the setting to get, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -381,8 +438,6 @@ class CloudresourcemanagerFoldersSettingsListRequest(_messages.Message):
   r"""A CloudresourcemanagerFoldersSettingsListRequest object.
 
   Fields:
-    pageSize: The size of the page to be returned.
-    pageToken: A page token used to retrieve the next page.
     parent: Required. The name of the parent cloud resource. Must be in one of
       the following forms: * `projects/{project_number}`, e.g. `projects/123`
       * `projects/{project_id}`, e.g. `projects/project-id` *
@@ -390,9 +445,7 @@ class CloudresourcemanagerFoldersSettingsListRequest(_messages.Message):
       `organizations/{organization_id}`, e.g. `organizations/123`
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  parent = _messages.StringField(1, required=True)
 
 
 class CloudresourcemanagerFoldersSettingsPatchRequest(_messages.Message):
@@ -403,9 +456,9 @@ class CloudresourcemanagerFoldersSettingsPatchRequest(_messages.Message):
       forms: * `projects/{project_number}/settings/{setting_name}` *
       `folders/{folder_id}/settings/{setting_name}` *
       `organizations/{organization_id}/settings/{setting_name}` For example,
-      "projects/123/settings/project-creator-roles" Following are the allowed
-      {setting_name} values: * `project-creator-roles` * `folder-creator-
-      roles`
+      "projects/123/settings/iam.projectCreatorRoles" Following are the
+      allowed {setting_name} values: * `iam.projectCreatorRoles` *
+      `iam.folderCreatorRoles`
     setting: A Setting resource to be passed as the request body.
     updateMask: Optional. The list of fields to update. Only Setting.value can
       be updated.
@@ -553,6 +606,57 @@ class CloudresourcemanagerLiensListRequest(_messages.Message):
   parent = _messages.StringField(3)
 
 
+class CloudresourcemanagerLocationsEffectiveTagBindingCollectionsGetRequest(_messages.Message):
+  r"""A CloudresourcemanagerLocationsEffectiveTagBindingCollectionsGetRequest
+  object.
+
+  Fields:
+    name: Required. The full name of the EffectiveTagBindingCollection in
+      format: `locations/{location}/effectiveTagBindingCollections/{encoded-
+      full-resource-name}` where the encoded-full-resource-name is the UTF-8
+      encoded name of the resource the TagBindings are bound to. E.g. "locatio
+      ns/global/effectiveTagBindingCollections/%2f%2fcloudresourcemanager.goog
+      leapis.com%2fprojects%2f123"
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class CloudresourcemanagerLocationsTagBindingCollectionsGetRequest(_messages.Message):
+  r"""A CloudresourcemanagerLocationsTagBindingCollectionsGetRequest object.
+
+  Fields:
+    name: Required. The full name of the TagBindingCollection in format:
+      `locations/{location}/tagBindingCollections/{encoded-full-resource-
+      name}` where the enoded-full-resource-name is the UTF-8 encoded name of
+      the resource the TagBindings are bound to. E.g. "locations/global/tagBin
+      dingCollections/%2f%2fcloudresourcemanager.googleapis.com%2fprojects%2f1
+      23"
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class CloudresourcemanagerLocationsTagBindingCollectionsPatchRequest(_messages.Message):
+  r"""A CloudresourcemanagerLocationsTagBindingCollectionsPatchRequest object.
+
+  Fields:
+    name: Identifier. The name of the TagBindingCollection, following the
+      convention: `locations/{location}/tagBindingCollections/{encoded-full-
+      resource-name}` where the encoded-full-resource-name is the UTF-8
+      encoded name of the GCP resource the TagBindings are bound to. "location
+      s/global/tagBindingCollections/%2f%2fcloudresourcemanager.googleapis.com
+      %2fprojects%2f123"
+    tagBindingCollection: A TagBindingCollection resource to be passed as the
+      request body.
+    updateMask: Optional. An update mask to selectively update fields.
+  """
+
+  name = _messages.StringField(1, required=True)
+  tagBindingCollection = _messages.MessageField('TagBindingCollection', 2)
+  updateMask = _messages.StringField(3)
+
+
 class CloudresourcemanagerOperationsGetRequest(_messages.Message):
   r"""A CloudresourcemanagerOperationsGetRequest object.
 
@@ -568,7 +672,7 @@ class CloudresourcemanagerOrganizationsEffectiveSettingsGetRequest(_messages.Mes
 
   Fields:
     name: Required. The name of the effective setting to get, example
-      projects/123/effectiveSettings/project-creator-roles.
+      projects/123/effectiveSettings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -652,7 +756,7 @@ class CloudresourcemanagerOrganizationsSettingsClearRequest(_messages.Message):
     clearSettingRequest: A ClearSettingRequest resource to be passed as the
       request body.
     name: Required. The name of the setting to clear, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   clearSettingRequest = _messages.MessageField('ClearSettingRequest', 1)
@@ -664,7 +768,7 @@ class CloudresourcemanagerOrganizationsSettingsGetRequest(_messages.Message):
 
   Fields:
     name: Required. The name of the setting to get, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -674,8 +778,6 @@ class CloudresourcemanagerOrganizationsSettingsListRequest(_messages.Message):
   r"""A CloudresourcemanagerOrganizationsSettingsListRequest object.
 
   Fields:
-    pageSize: The size of the page to be returned.
-    pageToken: A page token used to retrieve the next page.
     parent: Required. The name of the parent cloud resource. Must be in one of
       the following forms: * `projects/{project_number}`, e.g. `projects/123`
       * `projects/{project_id}`, e.g. `projects/project-id` *
@@ -683,9 +785,7 @@ class CloudresourcemanagerOrganizationsSettingsListRequest(_messages.Message):
       `organizations/{organization_id}`, e.g. `organizations/123`
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  parent = _messages.StringField(1, required=True)
 
 
 class CloudresourcemanagerOrganizationsSettingsPatchRequest(_messages.Message):
@@ -696,9 +796,9 @@ class CloudresourcemanagerOrganizationsSettingsPatchRequest(_messages.Message):
       forms: * `projects/{project_number}/settings/{setting_name}` *
       `folders/{folder_id}/settings/{setting_name}` *
       `organizations/{organization_id}/settings/{setting_name}` For example,
-      "projects/123/settings/project-creator-roles" Following are the allowed
-      {setting_name} values: * `project-creator-roles` * `folder-creator-
-      roles`
+      "projects/123/settings/iam.projectCreatorRoles" Following are the
+      allowed {setting_name} values: * `iam.projectCreatorRoles` *
+      `iam.folderCreatorRoles`
     setting: A Setting resource to be passed as the request body.
     updateMask: Optional. The list of fields to update. Only Setting.value can
       be updated.
@@ -741,7 +841,7 @@ class CloudresourcemanagerProjectsEffectiveSettingsGetRequest(_messages.Message)
 
   Fields:
     name: Required. The name of the effective setting to get, example
-      projects/123/effectiveSettings/project-creator-roles.
+      projects/123/effectiveSettings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -890,7 +990,7 @@ class CloudresourcemanagerProjectsSettingsClearRequest(_messages.Message):
     clearSettingRequest: A ClearSettingRequest resource to be passed as the
       request body.
     name: Required. The name of the setting to clear, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   clearSettingRequest = _messages.MessageField('ClearSettingRequest', 1)
@@ -902,7 +1002,7 @@ class CloudresourcemanagerProjectsSettingsGetRequest(_messages.Message):
 
   Fields:
     name: Required. The name of the setting to get, example
-      projects/123/settings/project-creator-roles.
+      projects/123/settings/iam.projectCreatorRoles.
   """
 
   name = _messages.StringField(1, required=True)
@@ -912,8 +1012,6 @@ class CloudresourcemanagerProjectsSettingsListRequest(_messages.Message):
   r"""A CloudresourcemanagerProjectsSettingsListRequest object.
 
   Fields:
-    pageSize: The size of the page to be returned.
-    pageToken: A page token used to retrieve the next page.
     parent: Required. The name of the parent cloud resource. Must be in one of
       the following forms: * `projects/{project_number}`, e.g. `projects/123`
       * `projects/{project_id}`, e.g. `projects/project-id` *
@@ -921,9 +1019,7 @@ class CloudresourcemanagerProjectsSettingsListRequest(_messages.Message):
       `organizations/{organization_id}`, e.g. `organizations/123`
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  parent = _messages.StringField(1, required=True)
 
 
 class CloudresourcemanagerProjectsSettingsPatchRequest(_messages.Message):
@@ -934,9 +1030,9 @@ class CloudresourcemanagerProjectsSettingsPatchRequest(_messages.Message):
       forms: * `projects/{project_number}/settings/{setting_name}` *
       `folders/{folder_id}/settings/{setting_name}` *
       `organizations/{organization_id}/settings/{setting_name}` For example,
-      "projects/123/settings/project-creator-roles" Following are the allowed
-      {setting_name} values: * `project-creator-roles` * `folder-creator-
-      roles`
+      "projects/123/settings/iam.projectCreatorRoles" Following are the
+      allowed {setting_name} values: * `iam.projectCreatorRoles` *
+      `iam.folderCreatorRoles`
     setting: A Setting resource to be passed as the request body.
     updateMask: Optional. The list of fields to update. Only Setting.value can
       be updated.
@@ -1451,9 +1547,9 @@ class EffectiveSetting(_messages.Message):
       `projects/{project_number}/effectiveSettings/{effective_setting_name}` *
       `folders/{folder_id}/effectiveSettings/{effective_setting_name}` * `orga
       nizations/{organization_id}/effectiveSettings/{effective_setting_name}`
-      For example, "/projects/123/effectiveSettings/project-creator-roles"
-      Following are the allowed {effective_setting_name} values: * `project-
-      creator-roles` * `folder-creator-roles`
+      For example, "/projects/123/effectiveSettings/iam.projectCreatorRoles"
+      Following are the allowed {effective_setting_name} values: *
+      `iam.projectCreatorRoles` * `iam.folderCreatorRoles`
     value: Output only. The effective value of the setting at the given parent
       resource.
   """
@@ -1497,6 +1593,60 @@ class EffectiveTag(_messages.Message):
   tagKey = _messages.StringField(4)
   tagKeyParentName = _messages.StringField(5)
   tagValue = _messages.StringField(6)
+
+
+class EffectiveTagBindingCollection(_messages.Message):
+  r"""Represents a collection of effective tag bindings for a GCP resource.
+
+  Messages:
+    EffectiveTagsValue: Tag keys/values effectively bound to this resource,
+      specified in namespaced format. For example: "123/environment":
+      "production"
+
+  Fields:
+    effectiveTags: Tag keys/values effectively bound to this resource,
+      specified in namespaced format. For example: "123/environment":
+      "production"
+    fullResourceName: The full resource name of the resource the TagBindings
+      are bound to. E.g. `//cloudresourcemanager.googleapis.com/projects/123`
+    name: Identifier. The name of the EffectiveTagBindingCollection, following
+      the convention:
+      `locations/{location}/effectiveTagBindingCollections/{encoded-full-
+      resource-name}` where the encoded-full-resource-name is the UTF-8
+      encoded name of the GCP resource the TagBindings are bound to. E.g. "loc
+      ations/global/effectiveTagBindingCollections/%2f%2fcloudresourcemanager.
+      googleapis.com%2fprojects%2f123"
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class EffectiveTagsValue(_messages.Message):
+    r"""Tag keys/values effectively bound to this resource, specified in
+    namespaced format. For example: "123/environment": "production"
+
+    Messages:
+      AdditionalProperty: An additional property for a EffectiveTagsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type EffectiveTagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a EffectiveTagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  effectiveTags = _messages.MessageField('EffectiveTagsValue', 1)
+  fullResourceName = _messages.StringField(2)
+  name = _messages.StringField(3)
 
 
 class Empty(_messages.Message):
@@ -1560,6 +1710,9 @@ class Folder(_messages.Message):
       "marketing" Note: Currently this field is in Preview.
 
   Fields:
+    configuredCapabilities: Output only. Optional capabilities configured for
+      this folder (via UpdateCapability API). Example:
+      `folders/123/capabilities/app-management`.
     createTime: Output only. Timestamp when the folder was created.
     deleteTime: Output only. Timestamp when the folder was requested to be
       deleted.
@@ -1573,7 +1726,10 @@ class Folder(_messages.Message):
     etag: Output only. A checksum computed by the server based on the current
       value of the folder resource. This may be sent on update and delete
       requests to ensure the client has an up-to-date value before proceeding.
-    name: Output only. The resource name of the folder. Its format is
+    managementProject: Output only. Management Project associated with this
+      folder (if app-management capability is enabled). Example:
+      `projects/google-mp-123` OUTPUT ONLY.
+    name: Identifier. The resource name of the folder. Its format is
       `folders/{folder_id}`, for example: "folders/1234".
     parent: Required. The folder's parent's resource name. Updates to the
       folder's parent must be performed using MoveFolder.
@@ -1626,15 +1782,17 @@ class Folder(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  createTime = _messages.StringField(1)
-  deleteTime = _messages.StringField(2)
-  displayName = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  name = _messages.StringField(5)
-  parent = _messages.StringField(6)
-  state = _messages.EnumField('StateValueValuesEnum', 7)
-  tags = _messages.MessageField('TagsValue', 8)
-  updateTime = _messages.StringField(9)
+  configuredCapabilities = _messages.StringField(1, repeated=True)
+  createTime = _messages.StringField(2)
+  deleteTime = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  managementProject = _messages.StringField(6)
+  name = _messages.StringField(7)
+  parent = _messages.StringField(8)
+  state = _messages.EnumField('StateValueValuesEnum', 9)
+  tags = _messages.MessageField('TagsValue', 10)
+  updateTime = _messages.StringField(11)
 
 
 class FolderOperation(_messages.Message):
@@ -1702,6 +1860,8 @@ class FolderOperationError(_messages.Message):
         delete contains active resources.
       DELETED_FOLDER_HEIGHT_VIOLATION: The attempted action would violate the
         max deleted folder depth constraint.
+      FOLDER_TO_DELETE_CONFIGURED_CAPABILITY_VIOLATION: The folder being
+        deleted has a configured capability.
     """
     ERROR_TYPE_UNSPECIFIED = 0
     ACTIVE_FOLDER_HEIGHT_VIOLATION = 1
@@ -1713,6 +1873,7 @@ class FolderOperationError(_messages.Message):
     FOLDER_BEING_MOVED_VIOLATION = 7
     FOLDER_TO_DELETE_NON_EMPTY_VIOLATION = 8
     DELETED_FOLDER_HEIGHT_VIOLATION = 9
+    FOLDER_TO_DELETE_CONFIGURED_CAPABILITY_VIOLATION = 10
 
   errorMessageId = _messages.EnumField('ErrorMessageIdValueValuesEnum', 1)
 
@@ -1747,6 +1908,16 @@ class GetPolicyOptions(_messages.Message):
   """
 
   requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class Int64Value(_messages.Message):
+  r"""An int64 value that is used to set a single int64 setting.
+
+  Fields:
+    value: Required. The int64 value.
+  """
+
+  value = _messages.IntegerField(1)
 
 
 class Lien(_messages.Message):
@@ -1854,13 +2025,11 @@ class ListSettingsResponse(_messages.Message):
   r"""The response from ListSettings.
 
   Fields:
-    nextPageToken: A page token used to retrieve the next page.
     settings: A list of settings that are available at the specified Cloud
       resource.
   """
 
-  nextPageToken = _messages.StringField(1)
-  settings = _messages.MessageField('Setting', 2, repeated=True)
+  settings = _messages.MessageField('Setting', 1, repeated=True)
 
 
 class ListTagBindingsResponse(_messages.Message):
@@ -1919,9 +2088,7 @@ class ListTagValuesResponse(_messages.Message):
 
   Fields:
     nextPageToken: A pagination token returned from a previous call to
-      `ListTagValues` that indicates from where listing should continue. This
-      is currently not used, but the server may at any point start supplying a
-      valid token.
+      `ListTagValues` that indicates from where listing should continue.
     tagValues: A possibly paginated list of TagValues that are direct
       descendants of the specified parent TagKey.
   """
@@ -2238,6 +2405,10 @@ class Project(_messages.Message):
       "marketing" Note: Currently this field is in Preview.
 
   Fields:
+    configuredCapabilities: Output only. If this project is a Management
+      Project, list of capabilities configured on the parent folder. Note,
+      presence of any capability implies that this is a Management Project.
+      Example: `folders/123/capabilities/app-management`. OUTPUT ONLY.
     createTime: Output only. Creation time.
     deleteTime: Output only. The time at which this resource was requested for
       deletion.
@@ -2347,17 +2518,18 @@ class Project(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  createTime = _messages.StringField(1)
-  deleteTime = _messages.StringField(2)
-  displayName = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  name = _messages.StringField(6)
-  parent = _messages.StringField(7)
-  projectId = _messages.StringField(8)
-  state = _messages.EnumField('StateValueValuesEnum', 9)
-  tags = _messages.MessageField('TagsValue', 10)
-  updateTime = _messages.StringField(11)
+  configuredCapabilities = _messages.StringField(1, repeated=True)
+  createTime = _messages.StringField(2)
+  deleteTime = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  parent = _messages.StringField(8)
+  projectId = _messages.StringField(9)
+  state = _messages.EnumField('StateValueValuesEnum', 10)
+  tags = _messages.MessageField('TagsValue', 11)
+  updateTime = _messages.StringField(12)
 
 
 class ProjectCreationStatus(_messages.Message):
@@ -2460,9 +2632,9 @@ class Setting(_messages.Message):
       forms: * `projects/{project_number}/settings/{setting_name}` *
       `folders/{folder_id}/settings/{setting_name}` *
       `organizations/{organization_id}/settings/{setting_name}` For example,
-      "projects/123/settings/project-creator-roles" Following are the allowed
-      {setting_name} values: * `project-creator-roles` * `folder-creator-
-      roles`
+      "projects/123/settings/iam.projectCreatorRoles" Following are the
+      allowed {setting_name} values: * `iam.projectCreatorRoles` *
+      `iam.folderCreatorRoles`
     value: The configured value of the setting at the given parent resource.
   """
 
@@ -2630,8 +2802,8 @@ class StringSet(_messages.Message):
   strings are allowed in the string set.
 
   Fields:
-    values: The strings in the set. A string must always contain UTF-8 encoded
-      text and cannot be longer than 200 characters.
+    values: Required. The strings in the set. A string must always contain
+      UTF-8 encoded text and cannot be longer than 200 characters.
   """
 
   values = _messages.StringField(1, repeated=True)
@@ -2673,6 +2845,60 @@ class TagBinding(_messages.Message):
   parent = _messages.StringField(2)
   tagValue = _messages.StringField(3)
   tagValueNamespacedName = _messages.StringField(4)
+
+
+class TagBindingCollection(_messages.Message):
+  r"""Represents a collection of tags directly bound to a GCP resource.
+
+  Messages:
+    TagsValue: Tag keys/values directly bound to this resource, specified in
+      namespaced format. For example: "123/environment": "production"
+
+  Fields:
+    etag: Optional. A checksum based on the current bindings which can be
+      passed to prevent race conditions. This field is always set in server
+      responses.
+    fullResourceName: The full resource name of the resource the TagBindings
+      are bound to. E.g. `//cloudresourcemanager.googleapis.com/projects/123`
+    name: Identifier. The name of the TagBindingCollection, following the
+      convention: `locations/{location}/tagBindingCollections/{encoded-full-
+      resource-name}` where the encoded-full-resource-name is the UTF-8
+      encoded name of the GCP resource the TagBindings are bound to. "location
+      s/global/tagBindingCollections/%2f%2fcloudresourcemanager.googleapis.com
+      %2fprojects%2f123"
+    tags: Tag keys/values directly bound to this resource, specified in
+      namespaced format. For example: "123/environment": "production"
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Tag keys/values directly bound to this resource, specified in
+    namespaced format. For example: "123/environment": "production"
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  etag = _messages.StringField(1)
+  fullResourceName = _messages.StringField(2)
+  name = _messages.StringField(3)
+  tags = _messages.MessageField('TagsValue', 4)
 
 
 class TagHold(_messages.Message):
@@ -2724,6 +2950,9 @@ class TagKey(_messages.Message):
       formatting of this field. Purpose data cannot be changed once set.
 
   Fields:
+    allowedValuesRegex: Optional. Regular expression constraint for freeform
+      tag values. If present, it implicitly allows freeform values
+      (constrained by the regex).
     createTime: Output only. Creation time.
     description: Optional. User-assigned description of the TagKey. Must not
       exceed 256 characters. Read-write.
@@ -2750,7 +2979,7 @@ class TagKey(_messages.Message):
       of this field. Purpose data cannot be changed once set.
     shortName: Required. Immutable. The user friendly name for a TagKey. The
       short name should be unique for TagKeys within the same tag namespace.
-      The short name must be 1-63 characters, beginning and ending with an
+      The short name must be 1-256 characters, beginning and ending with an
       alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_),
       dots (.), and alphanumerics between.
     updateTime: Output only. Update time.
@@ -2809,16 +3038,17 @@ class TagKey(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  createTime = _messages.StringField(1)
-  description = _messages.StringField(2)
-  etag = _messages.StringField(3)
-  name = _messages.StringField(4)
-  namespacedName = _messages.StringField(5)
-  parent = _messages.StringField(6)
-  purpose = _messages.EnumField('PurposeValueValuesEnum', 7)
-  purposeData = _messages.MessageField('PurposeDataValue', 8)
-  shortName = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  allowedValuesRegex = _messages.StringField(1)
+  createTime = _messages.StringField(2)
+  description = _messages.StringField(3)
+  etag = _messages.StringField(4)
+  name = _messages.StringField(5)
+  namespacedName = _messages.StringField(6)
+  parent = _messages.StringField(7)
+  purpose = _messages.EnumField('PurposeValueValuesEnum', 8)
+  purposeData = _messages.MessageField('PurposeDataValue', 9)
+  shortName = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
 
 
 class TagValue(_messages.Message):
@@ -2842,7 +3072,7 @@ class TagValue(_messages.Message):
       Must be of the form `tagKeys/{tag_key_id}`.
     shortName: Required. Immutable. User-assigned short name for TagValue. The
       short name should be unique for TagValues within the same parent TagKey.
-      The short name must be 63 characters or less, beginning and ending with
+      The short name must be 256 characters or less, beginning and ending with
       an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores
       (_), dots (.), and alphanumerics between.
     updateTime: Output only. Update time.
@@ -2937,14 +3167,18 @@ class Value(_messages.Message):
   r"""The data in a setting value.
 
   Fields:
+    booleanValue: Defines this value as being a BooleanValue.
+    int64Value: Defines this value as being a Int64Value.
     stringMapValue: Defines this value as being a StringMap.
     stringSetValue: Defines this value as being a StringSet.
     stringValue: Defines this value as being a StringValue.
   """
 
-  stringMapValue = _messages.MessageField('StringMap', 1)
-  stringSetValue = _messages.MessageField('StringSet', 2)
-  stringValue = _messages.MessageField('StringValue', 3)
+  booleanValue = _messages.MessageField('BooleanValue', 1)
+  int64Value = _messages.MessageField('Int64Value', 2)
+  stringMapValue = _messages.MessageField('StringMap', 3)
+  stringSetValue = _messages.MessageField('StringSet', 4)
+  stringValue = _messages.MessageField('StringValue', 5)
 
 
 encoding.AddCustomJsonFieldMapping(

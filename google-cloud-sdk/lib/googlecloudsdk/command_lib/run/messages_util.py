@@ -19,6 +19,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from googlecloudsdk.api_lib.run import k8s_object
+from googlecloudsdk.core import log
+
 
 def GetSuccessMessageForMultiRegionSynchronousDeploy(service, regions):
   """Returns a user message for a successful synchronous deploy.
@@ -110,14 +113,20 @@ def GetStartDeployMessage(
       '[{{bold}}{resource}{{reset}}] in {ns_label} [{{bold}}{ns}{{reset}}]'
   )
   msg += conn_context.location_label
-
+  # For WorkerPools case resource_ref.Parent().Name() returns the region name
+  # which is not what we want.
+  ns = (
+      resource_ref.projectsId
+      if resource_kind_lower == 'worker pool'
+      else resource_ref.Parent().Name()
+  )
   return msg.format(
       operation=operation,
       operator=conn_context.operator,
       resource_kind=resource_kind_lower,
       ns_label=conn_context.ns_label,
       resource=resource_ref.Name(),
-      ns=resource_ref.Parent().Name(),
+      ns=ns,
   )
 
 
@@ -183,7 +192,7 @@ def GetExecutionCreatedMessage(release_track, execution):
 def _GetExecutionUiLink(execution):
   return (
       'https://console.cloud.google.com/run/jobs/executions/'
-      'details/{region}/{execution_name}/tasks?project={project}'
+      'details/{region}/{execution_name}?project={project}'
   ).format(
       region=execution.region,
       execution_name=execution.name,
@@ -213,27 +222,43 @@ def GetBuildEquivalentForSourceRunMessage(name, pack, source, subgroup=''):
   )
 
 
-def GetSuccessMessageForWorkerDeploy(worker, no_promote):
-  """Returns a user message for a successful synchronous deploy.
+def MaybeLogDefaultGpuTypeMessage(args, resource):
+  """Logs a user message for GPU type default value if it is not provided."""
+  gpu_set = 'gpu' in args and args.gpu
+  gpu_type_set = 'gpu_type' in args and args.gpu_type
+  if 'containers' in args and args.containers:
+    for _, container_args in args.containers.items():
+      if 'gpu' in container_args and container_args.gpu:
+        gpu_set = True
+  has_gpu_type = (
+      resource
+      and resource.template
+      and resource.template.node_selector
+      and resource.template.node_selector.get(k8s_object.GPU_TYPE_NODE_SELECTOR)
+  )
+  if gpu_set and not gpu_type_set and not has_gpu_type:
+    log.status.Print(
+        'No GPU type is provided, defaulting to nvidia-l4. To specify the'
+        ' GPU type use --gpu-type.'
+    )
 
-  TODO(b/322180968): Once Worker API is ready, replace Service related
-  references.
-  Args:
-    worker: googlecloudsdk.api_lib.run.service.Service, Deployed service for
-      which to build a success message.
-    no_promote: bool, whether the worker was deployed with --no-promote flag.
-  """
-  latest_ready = worker.status.latestReadyRevisionName
-  # Use lastCreatedRevisionName if --no-promote is set. This was due to a bug
-  # where the latestReadyRevisionName was not updated in time when traffic
-  # update was not needed in reconciliation steps.
-  latest_created = worker.status.latestCreatedRevisionName
-  msg = (
-      'Worker [{{bold}}{worker}{{reset}}] '
-      'revision [{{bold}}{rev}{{reset}}] '
-      'has been deployed.'
+
+def MaybeLogDefaultGpuTypeMessageForV2Resource(args, resource):
+  """Logs a user message for GPU type default value if it is not provided."""
+  gpu_set = 'gpu' in args and args.gpu
+  gpu_type_set = 'gpu_type' in args and args.gpu_type
+  if 'containers' in args and args.containers:
+    for _, container_args in args.containers.items():
+      if 'gpu' in container_args and container_args.gpu:
+        gpu_set = True
+  has_gpu_type = (
+      resource
+      and resource.template
+      and resource.template.node_selector
+      and resource.template.node_selector.accelerator
   )
-  return msg.format(
-      worker=worker.name,
-      rev=latest_created if no_promote else latest_ready,
-  )
+  if gpu_set and not gpu_type_set and not has_gpu_type:
+    log.status.Print(
+        'No GPU type is provided, defaulting to nvidia-l4. To specify the'
+        ' GPU type use --gpu-type.'
+    )

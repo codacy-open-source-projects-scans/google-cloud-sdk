@@ -56,6 +56,8 @@ class LoggingServiceV2AsyncClient:
 
     log_path = staticmethod(LoggingServiceV2Client.log_path)
     parse_log_path = staticmethod(LoggingServiceV2Client.parse_log_path)
+    log_view_path = staticmethod(LoggingServiceV2Client.log_view_path)
+    parse_log_view_path = staticmethod(LoggingServiceV2Client.parse_log_view_path)
     common_billing_account_path = staticmethod(LoggingServiceV2Client.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(LoggingServiceV2Client.parse_common_billing_account_path)
     common_folder_path = staticmethod(LoggingServiceV2Client.common_folder_path)
@@ -238,8 +240,8 @@ class LoggingServiceV2AsyncClient:
             timeout: Union[float, object] = gapic_v1.method.DEFAULT,
             metadata: Sequence[Tuple[str, str]] = (),
             ) -> None:
-        r"""Deletes all the log entries in a log for the \_Default Log
-        Bucket. The log reappears if it receives new entries. Log
+        r"""Deletes all the log entries in a log for the global \_Default
+        Log Bucket. The log reappears if it receives new entries. Log
         entries written shortly before the delete operation might not be
         deleted. Entries received after the delete operation with a
         timestamp before the operation will be deleted.

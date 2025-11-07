@@ -164,6 +164,9 @@ class Revision(proto.Message):
     configuration.  A Revision references a container image.
     Revisions are only created by updates to its parent Service.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         name (str):
             Output only. The unique name of this
@@ -212,12 +215,10 @@ class Revision(proto.Message):
             Stages <https://cloud.google.com/terms/launch-stages>`__.
             Cloud Run supports ``ALPHA``, ``BETA``, and ``GA``.
 
-            .. raw:: html
-
-                <p>Note that this value might not be what was used
-                as input. For example, if ALPHA was provided as input in the parent
-                resource, but only BETA and GA-level features are were, this field will be
-                BETA.
+            Note that this value might not be what was used as input.
+            For example, if ALPHA was provided as input in the parent
+            resource, but only BETA and GA-level features are were, this
+            field will be BETA.
         service (str):
             Output only. The name of the parent service.
         scaling (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.RevisionScaling):
@@ -288,6 +289,14 @@ class Revision(proto.Message):
             settings for the revision.
         node_selector (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.NodeSelector):
             The node selector for the revision.
+        gpu_zonal_redundancy_disabled (bool):
+            Optional. Output only. True if GPU zonal
+            redundancy is disabled on this revision.
+
+            This field is a member of `oneof`_ ``_gpu_zonal_redundancy_disabled``.
+        creator (str):
+            Output only. Email address of the
+            authenticated creator.
         etag (str):
             Output only. A system-generated fingerprint
             for this version of the resource. May be used to
@@ -436,6 +445,15 @@ class Revision(proto.Message):
         proto.MESSAGE,
         number=40,
         message=vendor_settings.NodeSelector,
+    )
+    gpu_zonal_redundancy_disabled: bool = proto.Field(
+        proto.BOOL,
+        number=48,
+        optional=True,
+    )
+    creator: str = proto.Field(
+        proto.STRING,
+        number=49,
     )
     etag: str = proto.Field(
         proto.STRING,

@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import datetime
 
 from apitools.base.py import encoding
+from apitools.base.py import exceptions as apitools_exceptions
 from googlecloudsdk.api_lib.ai import operations
 from googlecloudsdk.api_lib.ai.models import client as client_models
 from googlecloudsdk.api_lib.monitoring import metric
@@ -33,6 +34,7 @@ from googlecloudsdk.core import log
 from googlecloudsdk.core import properties
 from googlecloudsdk.core import requests
 from googlecloudsdk.core import resources
+from googlecloudsdk.core.console import console_io
 
 
 _MAX_LABEL_VALUE_LENGTH = 63
@@ -98,9 +100,7 @@ def _GetQuotaLimit(region, project, accelerator_type):
       'aiplatform.googleapis.com',
       _ACCELERATOR_TYPE_TO_QUOTA_ID_MAP[accelerator_type],
   )
-  # Skip the last item in the list because it only contains the list of
-  # supported region.
-  for region_info in accelerator_quota.dimensionsInfos[:-1]:
+  for region_info in accelerator_quota.dimensionsInfos:
     if region_info.applicableLocations[0] == region:
       return region_info.details.value or 0
   return 0
@@ -217,34 +217,51 @@ def GetDeployConfig(args, publisher_model):
     )
 
   deploy_config = None
-  if args.machine_type:
+  if args.machine_type or args.accelerator_type or args.container_image_uri:
     for deploy in multi_deploy:
-      if deploy.dedicatedResources.machineSpec.machineType == args.machine_type:
-        deploy_config = deploy
-        break
-    if deploy_config is None:
+      if (
+          (
+              args.machine_type
+              and deploy.dedicatedResources.machineSpec.machineType
+              != args.machine_type
+          )
+          or (
+              args.accelerator_type
+              and str(deploy.dedicatedResources.machineSpec.acceleratorType)
+              != args.accelerator_type.upper()
+          )
+          or (
+              args.container_image_uri
+              and deploy.containerSpec.imageUri != args.container_image_uri
+          )
+      ):
+        continue
+      deploy_config = deploy
+      break
+
+    if not deploy_config:
       raise core_exceptions.Error(
-          f'Machine type "{args.machine_type}" is not supported by the'
-          ' model. You can use the `gcloud ai model-garden models'
-          ' list-deployment-config` command to find the supported machine'
-          ' types.'
+          'The machine type, accelerator type and/or container image URI is not'
+          ' supported by the model. You can use `gcloud alpha/beta ai'
+          ' model-garden models list-deployment-config` command to find the'
+          ' supported configurations'
       )
+    log.status.Print('Using the selected deployment configuration:')
   else:
     # Default to use the first config.
     deploy_config = multi_deploy[0]
+    log.status.Print('Using the default deployment configuration:')
 
   machine_spec = deploy_config.dedicatedResources.machineSpec
-  log.status.Print(
-      'Using the {} deployment configuration:'.format(
-          'selected' if args.machine_type else 'default'
-      )
-  )
+  container_image_uri = deploy_config.containerSpec.imageUri
   if machine_spec.machineType:
     log.status.Print(f' Machine type: {machine_spec.machineType}')
   if machine_spec.acceleratorType:
     log.status.Print(f' Accelerator type: {machine_spec.acceleratorType}')
   if machine_spec.acceleratorCount:
     log.status.Print(f' Accelerator count: {machine_spec.acceleratorCount}')
+  if container_image_uri:
+    log.status.Print(f' Container image URI: {container_image_uri}')
   return deploy_config
 
 
@@ -264,7 +281,8 @@ def CheckAcceleratorQuota(
   quota_limit = _GetQuotaLimit(args.region, project, accelerator_type)
   if quota_limit < accelerator_count:
     raise core_exceptions.Error(
-        f'The project does not have enough quota for {accelerator_type} in'
+        'The project does not have enough quota for'
+        f' {_ACCELERATOR_TYPE_TP_QUOTA_METRIC_MAP[accelerator_type]} in'
         f' {args.region} to'
         f' deploy the model. The quota limit is {quota_limit} and you are'
         f' requesting for {accelerator_count}. Please'
@@ -275,7 +293,8 @@ def CheckAcceleratorQuota(
   current_usage = _GetQuotaUsage(args.region, project, accelerator_type)
   if current_usage + accelerator_count > quota_limit:
     raise core_exceptions.Error(
-        f'The project does not have enough quota for {accelerator_type} in'
+        'The project does not have enough quota for'
+        f' {_ACCELERATOR_TYPE_TP_QUOTA_METRIC_MAP[accelerator_type]} in'
         f' {args.region} to'
         f' deploy the model. The current usage is {current_usage} out of'
         f' {quota_limit} and you are'
@@ -458,4 +477,137 @@ def DeployModel(
       ' of the deployment long-running operation\n3) Use `gcloud ai'
       f' endpoints describe {endpoint_id} --region={args.region}` command'
       " to check the endpoint's metadata."
+  )
+
+
+def Deploy(
+    args, machine_spec, endpoint_name, model, operation_client, mg_client
+):
+  """Deploys the publisher model to a Vertex endpoint."""
+  try:
+    if machine_spec is not None:
+      machine_type = machine_spec.machineType
+      accelerator_type = machine_spec.acceleratorType
+      accelerator_count = machine_spec.acceleratorCount
+    else:
+      machine_type = None
+      accelerator_type = None
+      accelerator_count = None
+    deploy_op = mg_client.Deploy(
+        project=properties.VALUES.core.project.GetOrFail(),
+        location=args.region,
+        model=model,
+        accept_eula=args.accept_eula,
+        accelerator_type=accelerator_type,
+        accelerator_count=accelerator_count,
+        machine_type=machine_type,
+        endpoint_display_name=endpoint_name,
+        hugging_face_access_token=args.hugging_face_access_token,
+        spot=args.spot,
+        reservation_affinity=args.reservation_affinity,
+        use_dedicated_endpoint=args.use_dedicated_endpoint,
+        enable_fast_tryout=args.enable_fast_tryout,
+        container_image_uri=args.container_image_uri,
+        container_command=args.container_command,
+        container_args=args.container_args,
+        container_env_vars=args.container_env_vars,
+        container_ports=args.container_ports,
+        container_grpc_ports=args.container_grpc_ports,
+        container_predict_route=args.container_predict_route,
+        container_health_route=args.container_health_route,
+        container_deployment_timeout_seconds=args.container_deployment_timeout_seconds,
+        container_shared_memory_size_mb=args.container_shared_memory_size_mb,
+        container_startup_probe_exec=args.container_startup_probe_exec,
+        container_startup_probe_period_seconds=args.container_startup_probe_period_seconds,
+        container_startup_probe_timeout_seconds=args.container_startup_probe_timeout_seconds,
+        container_health_probe_exec=args.container_health_probe_exec,
+        container_health_probe_period_seconds=args.container_health_probe_period_seconds,
+        container_health_probe_timeout_seconds=args.container_health_probe_timeout_seconds,
+    )
+  except apitools_exceptions.HttpError as e:
+    # Keep prompting for HF token if the error is due to missing HF token.
+    if (
+        e.status_code == 400
+        and 'provide a valid Hugging Face access token' in e.content
+        and args.hugging_face_access_token is None
+    ):
+      while not args.hugging_face_access_token:
+        args.hugging_face_access_token = console_io.PromptPassword(
+            'Please enter your Hugging Face read access token: '
+        )
+      Deploy(
+          args,
+          machine_spec,
+          endpoint_name,
+          model,
+          operation_client,
+          mg_client,
+      )
+      return
+    elif e.status_code == 403 and 'EULA' in e.content:
+      log.status.Print(
+          'The End User License Agreement'
+          ' (EULA) of the model has not been accepted.'
+      )
+      publisher, model_id = args.model.split('@')[0].split('/')
+      try:
+        args.accept_eula = console_io.PromptContinue(
+            message=(
+                'The model can be deployed only if the EULA of the model has'
+                ' been'
+                ' accepted. You can view it at'
+                f' https://console.cloud.google.com/vertex-ai/publishers/{publisher}/model-garden/{model_id}):'
+            ),
+            prompt_string='Do you want to accept the EULA?',
+            default=False,
+            cancel_on_no=True,
+            cancel_string='EULA is not accepted.',
+            throw_if_unattended=True,
+        )
+      except console_io.Error:
+        raise core_exceptions.Error(
+            'Please accept the EULA using the `--accept-eula` flag.'
+        )
+      Deploy(
+          args,
+          machine_spec,
+          endpoint_name,
+          model,
+          operation_client,
+          mg_client,
+      )
+      return
+    else:
+      raise e
+
+  deploy_op_id = deploy_op.name.split('/')[-1]
+  log.status.Print(
+      'Deploying the model to the endpoint. To check the deployment'
+      ' status, you can try one of the following methods:\n1) Look for'
+      f' endpoint `{endpoint_name}` at the [Vertex AI] -> [Online'
+      ' prediction] tab in Cloud Console\n2) Use `gcloud ai operations'
+      f' describe {deploy_op_id} --region={args.region}` to find the status'
+      ' of the deployment long-running operation\n'
+  )
+  operations_util.WaitForOpMaybe(
+      operation_client,
+      deploy_op,
+      ParseOperation(deploy_op.name),
+      asynchronous=args.asynchronous,
+      max_wait_ms=3600000,  # 60 minutes
+  )
+
+
+def ParseOperation(operation_name):
+  """Parse operation resource to the operation reference object.
+
+  Args:
+    operation_name: The operation resource to wait on
+
+  Returns:
+    The operation reference object
+  """
+  return resources.REGISTRY.ParseRelativeName(
+      operation_name,
+      collection='aiplatform.projects.locations.operations',
   )

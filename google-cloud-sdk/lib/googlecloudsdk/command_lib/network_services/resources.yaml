@@ -5,8 +5,7 @@ project:
   - &project
     parameter_name: projectsId
     attribute_name: project
-    help: |
-      The project Id.
+    help: The project Id.
     property: core/project
 
 location:
@@ -17,8 +16,19 @@ location:
   - &location
     parameter_name: locationsId
     attribute_name: location
-    help: |
-      The location Id.
+    help: The location Id.
+
+operation:
+  name: operation
+  collection: networkservices.projects.locations.operations
+  attributes:
+  - *project
+  - *location
+  - &operation
+    parameter_name: operationsId
+    attribute_name: operation
+    help: Id of the operation.
+  disable_auto_completers: true
 
 httpFilter:
   name: http filter
@@ -200,6 +210,18 @@ multicastGroupDefinition:
     attribute_name: multicast_group_definition
     help: Id of the multicast group definition.
 
+multicastGroupRange:
+  name: multicast group range
+  collection: networkservices.projects.locations.multicastGroupRanges
+  request_id_field: multicastGroupRangeId
+  attributes:
+  - *project
+  - *location
+  - &multicastGroupRange
+    parameter_name: multicastGroupRangesId
+    attribute_name: multicast_group_range
+    help: Id of the multicast group range.
+
 multicastDomainActivation:
   name: multicast domain activation
   collection: networkservices.projects.locations.multicastDomainActivations
@@ -223,6 +245,18 @@ multicastGroup:
     parameter_name: multicastGroupsId
     attribute_name: multicast_group
     help: Id of the multicast group.
+
+multicastGroupRangeActivation:
+  name: multicast group range activation
+  collection: networkservices.projects.locations.multicastGroupRangeActivations
+  request_id_field: multicastGroupRangeActivationId
+  attributes:
+  - *project
+  - *location
+  - &multicastGroupRangeActivation
+    parameter_name: multicastGroupRangeActivationsId
+    attribute_name: multicast_group_range_activation
+    help: Id of the multicast group range activation.
 
 multicastConsumerAssociation:
   name: multicast consumer association

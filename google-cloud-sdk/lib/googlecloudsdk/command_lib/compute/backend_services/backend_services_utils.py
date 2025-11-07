@@ -18,14 +18,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-from apitools.base.py import encoding
+from typing import Any
 
+from apitools.base.py import encoding
 from googlecloudsdk.api_lib.compute.operations import poller
 from googlecloudsdk.api_lib.util import waiter
+from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope import exceptions
+from googlecloudsdk.command_lib.compute import reference_utils
 from googlecloudsdk.core import exceptions as core_exceptions
 from googlecloudsdk.core import log
 from googlecloudsdk.core import properties
+
+ReleaseTrack = base.ReleaseTrack
 
 
 class CacheKeyQueryStringException(core_exceptions.Error):
@@ -132,7 +137,7 @@ def IapHttpWarning():
           'Data sent from the Load Balancer to your VM will not be encrypted.')
 
 
-def _ValidateGroupMatchesArgs(args):
+def _ValidateGroupMatchesArgs(args, release_track=None):
   """Validate if the group arg is used with the correct group specific flags."""
   invalid_arg = None
   if args.instance_group:
@@ -140,22 +145,37 @@ def _ValidateGroupMatchesArgs(args):
       invalid_arg = '--max-rate-per-endpoint'
     elif args.max_connections_per_endpoint is not None:
       invalid_arg = '--max-connections-per-endpoint'
+    elif (
+        release_track == ReleaseTrack.ALPHA
+        or release_track == ReleaseTrack.BETA
+    ) and args.max_in_flight_requests_per_endpoint is not None:
+      invalid_arg = '--max-in-flight-requests-per-endpoint'
     if invalid_arg is not None:
       raise exceptions.InvalidArgumentException(
-          invalid_arg, 'cannot be set with --instance-group')
+          invalid_arg, 'cannot be set with --instance-group'
+      )
   elif args.network_endpoint_group:
     if args.max_rate_per_instance is not None:
       invalid_arg = '--max-rate-per-instance'
     elif args.max_connections_per_instance is not None:
       invalid_arg = '--max-connections-per-instance'
+    elif (
+        release_track == ReleaseTrack.ALPHA
+        or release_track == ReleaseTrack.BETA
+    ) and args.max_in_flight_requests_per_instance is not None:
+      invalid_arg = '--max-in-flight-requests-per-instance'
     if invalid_arg is not None:
       raise exceptions.InvalidArgumentException(
-          invalid_arg, 'cannot be set with --network-endpoint-group')
+          invalid_arg, 'cannot be set with --network-endpoint-group'
+      )
 
 
-def ValidateBalancingModeArgs(messages,
-                              add_or_update_backend_args,
-                              current_balancing_mode=None):
+def ValidateBalancingModeArgs(
+    messages,
+    add_or_update_backend_args,
+    current_balancing_mode=None,
+    release_track=None,
+):
   """Check whether the setup of the backend LB related fields is valid.
 
   Args:
@@ -165,14 +185,24 @@ def ValidateBalancingModeArgs(messages,
     current_balancing_mode: BalancingModeValueValuesEnum. The balancing mode of
       the existing backend, in case of update-backend command. Must be None
       otherwise.
+    release_track: The release track of the command.
   """
   balancing_mode_enum = messages.Backend.BalancingModeValueValuesEnum
   balancing_mode = current_balancing_mode
   if add_or_update_backend_args.balancing_mode:
     balancing_mode = balancing_mode_enum(
         add_or_update_backend_args.balancing_mode)
+  traffic_duration = None
+  traffic_duration_enum = None
+  if (
+      release_track == ReleaseTrack.ALPHA or release_track == ReleaseTrack.BETA
+  ) and add_or_update_backend_args.traffic_duration:
+    traffic_duration_enum = messages.Backend.TrafficDurationValueValuesEnum
+    traffic_duration = messages.Backend.TrafficDurationValueValuesEnum(
+        add_or_update_backend_args.traffic_duration
+    )
 
-  _ValidateGroupMatchesArgs(add_or_update_backend_args)
+  _ValidateGroupMatchesArgs(add_or_update_backend_args, release_track)
 
   invalid_arg = None
   if balancing_mode == balancing_mode_enum.RATE:
@@ -184,6 +214,27 @@ def ValidateBalancingModeArgs(messages,
       invalid_arg = '--max-connections-per-instance'
     elif add_or_update_backend_args.max_connections_per_endpoint is not None:
       invalid_arg = '--max-connections-per-endpoint'
+    if (
+        release_track == ReleaseTrack.ALPHA
+        or release_track == ReleaseTrack.BETA
+    ):
+      if add_or_update_backend_args.max_in_flight_requests is not None:
+        invalid_arg = '--max-in-flight-requests'
+      elif (
+          add_or_update_backend_args.max_in_flight_requests_per_instance
+          is not None
+      ):
+        invalid_arg = '--max-in-flight-requests-per-instance'
+      elif (
+          add_or_update_backend_args.max_in_flight_requests_per_endpoint
+          is not None
+      ):
+        invalid_arg = '--max-in-flight-requests-per-endpoint'
+      elif (
+          traffic_duration_enum is not None
+          and traffic_duration == traffic_duration_enum.LONG
+      ):
+        invalid_arg = '--traffic-duration=LONG'
 
     if invalid_arg is not None:
       raise exceptions.InvalidArgumentException(
@@ -197,6 +248,27 @@ def ValidateBalancingModeArgs(messages,
       invalid_arg = '--max-rate-per-instance'
     elif add_or_update_backend_args.max_rate_per_endpoint is not None:
       invalid_arg = '--max-rate-per-endpoint'
+    if (
+        release_track == ReleaseTrack.ALPHA
+        or release_track == ReleaseTrack.BETA
+    ):
+      if add_or_update_backend_args.max_in_flight_requests is not None:
+        invalid_arg = '--max-in-flight-requests'
+      elif (
+          add_or_update_backend_args.max_in_flight_requests_per_instance
+          is not None
+      ):
+        invalid_arg = '--max-in-flight-requests-per-instance'
+      elif (
+          add_or_update_backend_args.max_in_flight_requests_per_endpoint
+          is not None
+      ):
+        invalid_arg = '--max-in-flight-requests-per-endpoint'
+      elif (
+          traffic_duration_enum is not None
+          and traffic_duration == traffic_duration_enum.LONG
+      ):
+        invalid_arg = '--traffic-duration=LONG'
 
     if invalid_arg is not None:
       raise exceptions.InvalidArgumentException(
@@ -205,7 +277,30 @@ def ValidateBalancingModeArgs(messages,
     if add_or_update_backend_args.network_endpoint_group is not None:
       raise exceptions.InvalidArgumentException(
           '--network-endpoint-group',
-          'cannot be set with UTILIZATION balancing mode')
+          'cannot be set with UTILIZATION balancing mode',
+      )
+  elif (
+      release_track == ReleaseTrack.ALPHA or release_track == ReleaseTrack.BETA
+  ) and balancing_mode == balancing_mode_enum.IN_FLIGHT:
+    if add_or_update_backend_args.max_rate is not None:
+      invalid_arg = '--max-rate'
+    elif add_or_update_backend_args.max_rate_per_instance is not None:
+      invalid_arg = '--max-rate-per-instance'
+    elif add_or_update_backend_args.max_rate_per_endpoint is not None:
+      invalid_arg = '--max-rate-per-endpoint'
+    elif add_or_update_backend_args.max_connections is not None:
+      invalid_arg = '--max-connections'
+    elif add_or_update_backend_args.max_connections_per_instance is not None:
+      invalid_arg = '--max-connections-per-instance'
+    elif add_or_update_backend_args.max_connections_per_endpoint is not None:
+      invalid_arg = '--max-connections-per-endpoint'
+    elif traffic_duration != traffic_duration_enum.LONG:
+      invalid_arg = '--traffic-duration=TRAFFIC_DURATION_UNSPECIFIED/SHORT'
+
+    if invalid_arg is not None:
+      raise exceptions.InvalidArgumentException(
+          invalid_arg, 'cannot be set with IN_FLIGHT balancing mode'
+      )
 
 
 def UpdateCacheKeyPolicy(args, cache_key_policy):
@@ -753,10 +848,8 @@ def ApplyLogConfigArgs(
       messages.BackendService.ProtocolValueValuesEnum.SSL,
       messages.BackendService.ProtocolValueValuesEnum.UDP,
       messages.BackendService.ProtocolValueValuesEnum.UNSPECIFIED,
+      messages.BackendService.ProtocolValueValuesEnum.H2C,
   ]
-
-  if hasattr(messages.BackendService.ProtocolValueValuesEnum, 'H2C'):
-    valid_protocols.append(messages.BackendService.ProtocolValueValuesEnum.H2C)
 
   if logging_specified and backend_service.protocol not in valid_protocols:
     raise exceptions.InvalidArgumentException(
@@ -790,6 +883,52 @@ def ApplyLogConfigArgs(
     backend_service.logConfig = log_config
 
 
+def ApplyTlsSettingsArgs(
+    client: Any,
+    args: Any,
+    backend_service: Any,
+    project_name: str,
+    location: str,
+    release_track: str,
+) -> None:
+  """Applies the TlsSettings arguments to the specified backend service.
+
+  If there are no arguments related to TlsSettings, the backend service remains
+  unmodified.
+
+  Args:
+    client: The client used by gcloud.
+    args: The arguments passed to the gcloud command.
+    backend_service: The backend service proto message object.
+    project_name: The project name of the backend service.
+    location: The location of the backend service.
+    release_track: The release track of the backend service.
+  """
+  if hasattr(args, 'tls_settings') and args.tls_settings:
+    tls_settings = client.messages.BackendServiceTlsSettings()
+    for key, value in args.tls_settings.items():
+      if key == 'authenticationConfig':
+        tls_settings.authenticationConfig = (
+            reference_utils.BuildBackendAuthenticationConfigUrl(
+                project_name=project_name,
+                location=location,
+                bac_name=value,
+                release_track=release_track,
+            )
+        )
+      elif key == 'sni':
+        tls_settings.sni = value
+      else:
+        raise exceptions.InvalidArgumentException(
+            '--tls-settings', 'Invalid key: %s' % key
+        )
+    backend_service.tlsSettings = tls_settings
+  elif hasattr(args, 'identity') and args.identity:
+    tls_settings = client.messages.BackendServiceTlsSettings()
+    tls_settings.identity = args.identity
+    backend_service.tlsSettings = tls_settings
+
+
 def ApplyCustomMetrics(args, backend_service):
   """Applies the Custom Metrics argument to the backend service.
 
@@ -801,6 +940,83 @@ def ApplyCustomMetrics(args, backend_service):
     backend_service.customMetrics = args.custom_metrics
   if args.custom_metrics_file:
     backend_service.customMetrics = args.custom_metrics_file
+
+
+def IpPortDynamicForwarding(client, args, backend_service):
+  """Enables the Ip Port Dynamic Forwarding in the backend service.
+
+  Args:
+    client: The client used by gcloud.
+    args: The arguments passed to the gcloud command.
+    backend_service: The backend service object.
+  """
+
+  if args.ip_port_dynamic_forwarding:
+    dynamic_forwarding_config = (
+        client.messages.BackendServiceDynamicForwarding()
+    )
+    dynamic_forwarding_config.ipPortSelection = (
+        client.messages.BackendServiceDynamicForwardingIpPortSelection()
+    )
+    dynamic_forwarding_config.ipPortSelection.enabled = True
+    backend_service.dynamicForwarding = dynamic_forwarding_config
+
+
+def HasZonalAffinityArgs(args):
+  """Returns true if at least one of the zonal affinity args is defined.
+
+  Args:
+    args: The arguments passed to the gcloud command.
+  """
+  if args.IsSpecified('zonal_affinity_spillover') or args.IsSpecified(
+      'zonal_affinity_spillover_ratio'
+  ):
+    return True
+  else:
+    return False
+
+
+def ZonalAffinity(client, args, backend_service):
+  """Applies the Zonal Affinity related aguments in the backend service.
+
+  Args:
+    client: The client used by gcloud.
+    args: The arguments passed to the gcloud command.
+    backend_service: The backend service object.
+  """
+
+  if HasZonalAffinityArgs(args):
+    if backend_service.networkPassThroughLbTrafficPolicy is not None:
+      network_pass_through_lb_traffic_policy = encoding.CopyProtoMessage(
+          backend_service.networkPassThroughLbTrafficPolicy
+      )
+    else:
+      network_pass_through_lb_traffic_policy = (
+          client.messages.BackendServiceNetworkPassThroughLbTrafficPolicy()
+      )
+
+    if network_pass_through_lb_traffic_policy.zonalAffinity is not None:
+      zonal_affinity = encoding.CopyProtoMessage(
+          network_pass_through_lb_traffic_policy.zonalAffinity
+      )
+    else:
+      zonal_affinity = (
+          client.messages.BackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity()
+      )
+
+    if args.zonal_affinity_spillover:
+      zonal_affinity.spillover = client.messages.BackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity.SpilloverValueValuesEnum(
+          args.zonal_affinity_spillover
+      )
+
+    if args.zonal_affinity_spillover_ratio:
+      zonal_affinity.spilloverRatio = args.zonal_affinity_spillover_ratio
+
+    network_pass_through_lb_traffic_policy.zonalAffinity = zonal_affinity
+
+    backend_service.networkPassThroughLbTrafficPolicy = (
+        network_pass_through_lb_traffic_policy
+    )
 
 
 def SendGetRequest(client, backend_service_ref):

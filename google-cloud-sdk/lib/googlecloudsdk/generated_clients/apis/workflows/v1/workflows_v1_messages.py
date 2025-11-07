@@ -44,10 +44,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListWorkflowRevisionsResponse(_messages.Message):
@@ -432,8 +437,8 @@ class Workflow(_messages.Message):
       logging to apply to calls and call responses during executions of this
       workflow. If both the workflow and the execution specify a logging
       level, the execution level takes precedence.
-    ExecutionHistoryLevelValueValuesEnum: Optional. Describes the level of the
-      execution history feature to apply to this workflow.
+    ExecutionHistoryLevelValueValuesEnum: Optional. Describes the execution
+      history level to apply to this workflow.
     StateValueValuesEnum: Output only. State of the workflow deployment.
 
   Messages:
@@ -474,8 +479,8 @@ class Workflow(_messages.Message):
     description: Description of the workflow provided by the user. Must be at
       most 1000 Unicode characters long. This is a workflow-wide field and is
       not tied to a specific revision.
-    executionHistoryLevel: Optional. Describes the level of the execution
-      history feature to apply to this workflow.
+    executionHistoryLevel: Optional. Describes the execution history level to
+      apply to this workflow.
     labels: Labels associated with this workflow. Labels can contain at most
       64 entries. Keys and values can be no longer than 63 characters and can
       only contain lowercase letters, numeric characters, underscores, and
@@ -537,8 +542,8 @@ class Workflow(_messages.Message):
     LOG_NONE = 3
 
   class ExecutionHistoryLevelValueValuesEnum(_messages.Enum):
-    r"""Optional. Describes the level of the execution history feature to
-    apply to this workflow.
+    r"""Optional. Describes the execution history level to apply to this
+    workflow.
 
     Values:
       EXECUTION_HISTORY_LEVEL_UNSPECIFIED: The default/unset value.
@@ -676,6 +681,9 @@ class WorkflowsProjectsLocationsListRequest(_messages.Message):
   r"""A WorkflowsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -686,10 +694,11 @@ class WorkflowsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class WorkflowsProjectsLocationsOperationsDeleteRequest(_messages.Message):
@@ -720,12 +729,20 @@ class WorkflowsProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class WorkflowsProjectsLocationsWorkflowsCreateRequest(_messages.Message):

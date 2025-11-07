@@ -35,6 +35,7 @@ class Capability(enum.Enum):
   STORAGE_LAYOUT = 'STORAGE_LAYOUT'
   RESUMABLE_UPLOAD = 'RESUMABLE_UPLOAD'
   SLICED_DOWNLOAD = 'SLICED_DOWNLOAD'
+  APPENDABLE_UPLOAD = 'APPENDABLE_UPLOAD'
   # For daisy chain operations, the upload stream is not purely seekable.
   # For certain seek calls, we raise errors to avoid re-downloading the object.
   # We do not want the "seekable" method for the upload stream to always return
@@ -63,6 +64,7 @@ class UploadStrategy(enum.Enum):
   SIMPLE = 'simple'
   RESUMABLE = 'resumable'
   STREAMING = 'streaming'
+  APPENDABLE = 'appendable'
 
 
 class FieldsScope(enum.Enum):
@@ -728,6 +730,7 @@ class CloudApi(object):
       include_folders_as_prefixes=None,
       next_page_token=None,
       object_state=ObjectState.LIVE,
+      list_filter=None,
   ):
     """Lists objects (with metadata) and prefixes in a bucket.
 
@@ -747,6 +750,10 @@ class CloudApi(object):
         halt_on_empty_response was true and a halt warning is printed, it will
         contain a next_page_token the user can use to resume querying.
       object_state (ObjectState): What versions of an object to query.
+      list_filter (str|None): If provided, objects with matching
+        filters will be returned, The prefixes would still be returned
+        regardless of whether they match the specified filter, See
+        go/gcs-object-context-filtering for more details.
 
     Yields:
       Iterator over resource_reference.ObjectResource objects.
@@ -1271,6 +1278,8 @@ class CloudApi(object):
       object_globs,
       request_config,
       allow_overwrite=False,
+      created_after_time=None,
+      created_before_time=None,
       deleted_after_time=None,
       deleted_before_time=None,
   ):
@@ -1283,6 +1292,10 @@ class CloudApi(object):
       request_config (RequestConfig): Contains preconditions for API requests.
       allow_overwrite (bool): Allow overwriting live objects with soft-deleted
         versions.
+      created_after_time (datetime|None): Restore only objects created after
+        this time.
+      created_before_time (datetime|None): Restore only objects created before
+        this time.
       deleted_after_time (datetime|None): Restore only objects soft-deleted
         after this time.
       deleted_before_time (datetime|None): Restore only objects soft-deleted

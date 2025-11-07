@@ -13,15 +13,42 @@ from apitools.base.py import extra_types
 package = 'storagebatchoperations'
 
 
+class Bucket(_messages.Message):
+  r"""Describes configuration of a single bucket and its objects to be
+  transformed.
+
+  Fields:
+    bucket: Required. Bucket name for the objects to be transformed.
+    manifest: Specifies objects in a manifest file.
+    prefixList: Specifies objects matching a prefix set.
+  """
+
+  bucket = _messages.StringField(1)
+  manifest = _messages.MessageField('Manifest', 2)
+  prefixList = _messages.MessageField('PrefixList', 3)
+
+
+class BucketList(_messages.Message):
+  r"""Describes list of buckets and their objects to be transformed.
+
+  Fields:
+    buckets: Required. List of buckets and their objects to be transformed.
+      Currently, only one bucket configuration is supported. If multiple
+      buckets are specified, an error will be returned.
+  """
+
+  buckets = _messages.MessageField('Bucket', 1, repeated=True)
+
+
 class CancelJobRequest(_messages.Message):
   r"""Message for Job to Cancel
 
   Fields:
     requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request. Requests
-      with same `request_id` will ignored for least 60 minutes since the first
-      request. The request ID must be a valid UUID with the exception that
-      zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+      a unique request ID in case you need to retry your request. Requests
+      with same `request_id` will be ignored for at least 60 minutes since the
+      first request. The request ID must be a valid UUID with the exception
+      that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
   """
 
   requestId = _messages.StringField(1)
@@ -60,7 +87,9 @@ class DeleteObject(_messages.Message):
       already noncurrent will be skipped. This setting doesn't have any impact
       on the Soft Delete feature. All objects deleted by this service can be
       be restored for the duration of the Soft Delete retention duration if
-      enabled.
+      enabled. If enabled and the manifest doesn't specify an object's
+      generation, a GetObjectMetadata call (a Class B operation) will be made
+      to determine the live object generation.
   """
 
   permanentObjectDeletionEnabled = _messages.BooleanField(1)
@@ -220,27 +249,29 @@ class Job(_messages.Message):
     StateValueValuesEnum: Output only. State of the job.
 
   Fields:
+    bucketList: Specifies a list of buckets and their objects to be
+      transformed.
     completeTime: Output only. The time that the job was completed.
     counters: Output only. Information about the progress of the job.
     createTime: Output only. The time that the job was created.
     deleteObject: Delete objects.
     description: Optional. A description provided by the user for the job. Its
       max length is 1024 bytes when Unicode-encoded.
+    dryRun: Optional. If true, the job will run in dry run mode, returning the
+      total object count and, if the object configuration is a prefix list,
+      the bytes found from source. No transformations will be performed.
     errorSummaries: Output only. Summarizes errors encountered with sample
       error log entries.
-    manifest: Manifest specifies list of objects to be transformed.
+    loggingConfig: Optional. Logging configuration.
     name: Identifier. The resource name of the Job. job_id is unique within
-      the project and location, that is either set by the customer or defined
-      by the service. Format:
-      projects/{project}/locations/{location}/jobs/{job_id} . For example:
-      "projects/123456/locations/us-central1/jobs/job01".
-    prefixList: Specifies prefixes of objects to be transformed. Note:
-      `prefix_list` must belong to the same bucket.
-    putKmsKey: Update objects KMS key.
+      the project, that is either set by the customer or defined by the
+      service. Format: projects/{project}/locations/global/jobs/{job_id} . For
+      example: "projects/123456/locations/global/jobs/job01".
     putMetadata: Updates object metadata. Allows updating fixed-key and custom
       metadata and fixed-key metadata i.e. Cache-Control, Content-Disposition,
       Content-Encoding, Content-Language, Content-Type, Custom-Time.
     putObjectHold: Changes object hold status.
+    rewriteObject: Rewrite the object and updates metadata like KMS key.
     scheduleTime: Output only. The time that the job was scheduled.
     state: Output only. State of the job.
   """
@@ -261,20 +292,21 @@ class Job(_messages.Message):
     CANCELED = 3
     FAILED = 4
 
-  completeTime = _messages.StringField(1)
-  counters = _messages.MessageField('Counters', 2)
-  createTime = _messages.StringField(3)
-  deleteObject = _messages.MessageField('DeleteObject', 4)
-  description = _messages.StringField(5)
-  errorSummaries = _messages.MessageField('ErrorSummary', 6, repeated=True)
-  manifest = _messages.MessageField('Manifest', 7)
-  name = _messages.StringField(8)
-  prefixList = _messages.MessageField('PrefixList', 9)
-  putKmsKey = _messages.MessageField('PutKmsKey', 10)
+  bucketList = _messages.MessageField('BucketList', 1)
+  completeTime = _messages.StringField(2)
+  counters = _messages.MessageField('Counters', 3)
+  createTime = _messages.StringField(4)
+  deleteObject = _messages.MessageField('DeleteObject', 5)
+  description = _messages.StringField(6)
+  dryRun = _messages.BooleanField(7)
+  errorSummaries = _messages.MessageField('ErrorSummary', 8, repeated=True)
+  loggingConfig = _messages.MessageField('LoggingConfig', 9)
+  name = _messages.StringField(10)
   putMetadata = _messages.MessageField('PutMetadata', 11)
   putObjectHold = _messages.MessageField('PutObjectHold', 12)
-  scheduleTime = _messages.StringField(13)
-  state = _messages.EnumField('StateValueValuesEnum', 14)
+  rewriteObject = _messages.MessageField('RewriteObject', 13)
+  scheduleTime = _messages.StringField(14)
+  state = _messages.EnumField('StateValueValuesEnum', 15)
 
 
 class ListJobsResponse(_messages.Message):
@@ -311,10 +343,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -397,20 +434,96 @@ class Location(_messages.Message):
   name = _messages.StringField(5)
 
 
+class LoggingConfig(_messages.Message):
+  r"""Specifies the Cloud Logging behavior.
+
+  Enums:
+    LogActionStatesValueListEntryValuesEnum:
+    LogActionsValueListEntryValuesEnum:
+
+  Fields:
+    logActionStates: Required. States in which Action are logged.If empty, no
+      logs are generated.
+    logActions: Required. Specifies the actions to be logged.
+  """
+
+  class LogActionStatesValueListEntryValuesEnum(_messages.Enum):
+    r"""LogActionStatesValueListEntryValuesEnum enum type.
+
+    Values:
+      LOGGABLE_ACTION_STATE_UNSPECIFIED: Illegal value, to avoid allowing a
+        default.
+      SUCCEEDED: `LoggableAction` completed successfully. `SUCCEEDED` actions
+        are logged as INFO.
+      FAILED: `LoggableAction` terminated in an error state. `FAILED` actions
+        are logged as ERROR.
+    """
+    LOGGABLE_ACTION_STATE_UNSPECIFIED = 0
+    SUCCEEDED = 1
+    FAILED = 2
+
+  class LogActionsValueListEntryValuesEnum(_messages.Enum):
+    r"""LogActionsValueListEntryValuesEnum enum type.
+
+    Values:
+      LOGGABLE_ACTION_UNSPECIFIED: Illegal value, to avoid allowing a default.
+      TRANSFORM: The corresponding transform action in this job.
+    """
+    LOGGABLE_ACTION_UNSPECIFIED = 0
+    TRANSFORM = 1
+
+  logActionStates = _messages.EnumField('LogActionStatesValueListEntryValuesEnum', 1, repeated=True)
+  logActions = _messages.EnumField('LogActionsValueListEntryValuesEnum', 2, repeated=True)
+
+
 class Manifest(_messages.Message):
   r"""Describes list of objects to be transformed.
 
   Fields:
     manifestLocation: Required. `manifest_location` must contain the manifest
-      source file is a CSV file in a Google Cloud Storage bucket. Each row in
-      the file must include the object details i.e. ProjectId, BucketId and
-      Name. Generation may optionally be specified, when it is not specified
-      the live object is acted upon. `manifest_location` must be an absolute
-      path to the object. NOTE: All the objects must belong to the same
-      bucket. Format: gs://bucket_name/path/object_name.csv.
+      source file that is a CSV file in a Google Cloud Storage bucket. Each
+      row in the file must include the object details i.e. BucketId and Name.
+      Generation may optionally be specified. When it is not specified the
+      live object is acted upon. `manifest_location` should either be 1) An
+      absolute path to the object in the format of
+      `gs://bucket_name/path/file_name.csv`. 2) An absolute path with a single
+      wildcard character in the file name, for example
+      `gs://bucket_name/path/file_name*.csv`. If manifest location is
+      specified with a wildcard, objects in all manifest files matching the
+      pattern will be acted upon.
   """
 
   manifestLocation = _messages.StringField(1)
+
+
+class ObjectRetention(_messages.Message):
+  r"""Describes options for object retention update.
+
+  Enums:
+    RetentionModeValueValuesEnum: Required. The retention mode of the object.
+
+  Fields:
+    retainUntilTime: Required. The time when the object will be retained
+      until. UNSET will clear the retention. Must be specified in RFC 3339
+      format e.g. YYYY-MM-DD'T'HH:MM:SS.SS'Z' or YYYY-MM-DD'T'HH:MM:SS'Z'.
+    retentionMode: Required. The retention mode of the object.
+  """
+
+  class RetentionModeValueValuesEnum(_messages.Enum):
+    r"""Required. The retention mode of the object.
+
+    Values:
+      RETENTION_MODE_UNSPECIFIED: If set and retain_until_time is empty,
+        clears the retention.
+      LOCKED: Sets the retention mode to locked.
+      UNLOCKED: Sets the retention mode to unlocked.
+    """
+    RETENTION_MODE_UNSPECIFIED = 0
+    LOCKED = 1
+    UNLOCKED = 2
+
+  retainUntilTime = _messages.StringField(1)
+  retentionMode = _messages.EnumField('RetentionModeValueValuesEnum', 2)
 
 
 class Operation(_messages.Message):
@@ -529,65 +642,33 @@ class OperationMetadata(_messages.Message):
     createTime: Output only. The time the operation was created.
     endTime: Output only. The time the operation finished running.
     job: Output only. The Job associated with the operation.
-    jobDeprecated: Output only.
     operation: Output only. The unique operation resource name. Format:
-      projects/{project}/locations/{location}/operations/{operation}.
+      projects/{project}/locations/global/operations/{operation}.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have been
-      cancelled successfully have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      cancelled successfully have google.longrunning.Operation.error value
+      with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
   """
 
   apiVersion = _messages.StringField(1)
   createTime = _messages.StringField(2)
   endTime = _messages.StringField(3)
   job = _messages.MessageField('Job', 4)
-  jobDeprecated = _messages.StringField(5)
-  operation = _messages.StringField(6)
-  requestedCancellation = _messages.BooleanField(7)
-
-
-class Prefix(_messages.Message):
-  r"""Describes prefix of objects to be transformed.
-
-  Fields:
-    bucket: Required. Bucket name on which batch ops is being performed Note:
-      Only one bucket is supported for v1. For future versions we will extend
-      this to multi bucket.
-    objectPrefix: Optional. object must be in the `bucket`. * Supports full
-      object name * Supports prefix of the object name * Wildcards are not
-      supported * Supports empty string for all objects in a bucket.
-  """
-
-  bucket = _messages.StringField(1)
-  objectPrefix = _messages.StringField(2)
+  operation = _messages.StringField(5)
+  requestedCancellation = _messages.BooleanField(6)
 
 
 class PrefixList(_messages.Message):
   r"""Describes prefixes of objects to be transformed.
 
   Fields:
-    prefixes: Required. Prefixes of the objects to be transformed.
+    includedObjectPrefixes: Optional. Include prefixes of the objects to be
+      transformed. * Supports full object name * Supports prefix of the object
+      name * Wildcards are not supported * Supports empty string for all
+      objects in a bucket.
   """
 
-  prefixes = _messages.MessageField('Prefix', 1, repeated=True)
-
-
-class PutKmsKey(_messages.Message):
-  r"""Describes options for object KMS key update.
-
-  Fields:
-    kmsKey: Required. Resource name of the Cloud KMS key that will be used to
-      encrypt the object. The Cloud KMS key must be located in same location
-      as the object. Refer to
-      https://cloud.google.com/storage/docs/encryption/using-customer-managed-
-      keys#add-object-key for additional documentation. Format: projects/{proj
-      ect}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key} For
-      example: "projects/123456/locations/us-central1/keyRings/my-
-      keyring/cryptoKeys/my-key".
-  """
-
-  kmsKey = _messages.StringField(1)
+  includedObjectPrefixes = _messages.StringField(1, repeated=True)
 
 
 class PutMetadata(_messages.Message):
@@ -595,48 +676,61 @@ class PutMetadata(_messages.Message):
 
   Messages:
     CustomMetadataValue: Optional. Updates objects custom metadata. Adds or
-      sets individual custom metadata key value pairs on objects. Empty custom
-      metadata values are ignored. Existing custom metadata not specified with
-      this flag is not changed. Refer to documentation in
+      sets individual custom metadata key value pairs on objects. Keys that
+      are set with empty custom metadata values will have its value cleared.
+      Existing custom metadata not specified with this flag is not changed.
+      Refer to documentation in
       https://cloud.google.com/storage/docs/metadata#custom-metadata
 
   Fields:
     cacheControl: Optional. Updates objects Cache-Control fixed metadata.
-      Empty values are ignored. Additionally, the value for Custom-Time cannot
-      decrease. Refer to documentation in
+      Unset values will be ignored. Set empty values to clear the metadata.
+      Additionally, the value for Custom-Time cannot decrease. Refer to
+      documentation in
       https://cloud.google.com/storage/docs/metadata#caching_data.
     contentDisposition: Optional. Updates objects Content-Disposition fixed
-      metadata. Empty values will be ignored. Refer
-      https://cloud.google.com/storage/docs/metadata#content-disposition for
-      additional documentation.
+      metadata. Unset values will be ignored. Set empty values to clear the
+      metadata. Refer https://cloud.google.com/storage/docs/metadata#content-
+      disposition for additional documentation.
     contentEncoding: Optional. Updates objects Content-Encoding fixed
-      metadata. Empty values will be ignored. Refer to documentation in
+      metadata. Unset values will be ignored. Set empty values to clear the
+      metadata. Refer to documentation in
       https://cloud.google.com/storage/docs/metadata#content-encoding.
     contentLanguage: Optional. Updates objects Content-Language fixed
       metadata. Refer to ISO 639-1 language codes for typical values of this
-      metadata. Max length 100 characters. Empty values are ignored. Refer to
+      metadata. Max length 100 characters. Unset values will be ignored. Set
+      empty values to clear the metadata. Refer to documentation in
+      https://cloud.google.com/storage/docs/metadata#content-language.
+    contentType: Optional. Updates objects Content-Type fixed metadata. Unset
+      values will be ignored. Set empty values to clear the metadata. Refer to
       documentation in https://cloud.google.com/storage/docs/metadata#content-
-      language.
-    contentType: Optional. Updates objects Content-Type fixed metadata. Refer
-      to documentation in
-      https://cloud.google.com/storage/docs/metadata#content-type
+      type
     customMetadata: Optional. Updates objects custom metadata. Adds or sets
-      individual custom metadata key value pairs on objects. Empty custom
-      metadata values are ignored. Existing custom metadata not specified with
-      this flag is not changed. Refer to documentation in
-      https://cloud.google.com/storage/docs/metadata#custom-metadata
-    customTime: Optional. Updates objects Custom-Time fixed metadata. Empty
-      values are ignored. Refer to documentation in
-      https://cloud.google.com/storage/docs/metadata#custom-time.
+      individual custom metadata key value pairs on objects. Keys that are set
+      with empty custom metadata values will have its value cleared. Existing
+      custom metadata not specified with this flag is not changed. Refer to
+      documentation in https://cloud.google.com/storage/docs/metadata#custom-
+      metadata
+    customTime: Optional. Updates objects Custom-Time fixed metadata. Unset
+      values will be ignored. Set empty values to clear the metadata. Refer to
+      documentation in https://cloud.google.com/storage/docs/metadata#custom-
+      time.
+    objectRetention: Optional. Updates objects retention lock configuration.
+      Unset values will be ignored. Set empty values to clear the retention
+      for the object with existing `Unlocked` retention mode. Object with
+      existing `Locked` retention mode cannot be cleared or reduce
+      retain_until_time. Refer to documentation in
+      https://cloud.google.com/storage/docs/object-lock
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class CustomMetadataValue(_messages.Message):
     r"""Optional. Updates objects custom metadata. Adds or sets individual
-    custom metadata key value pairs on objects. Empty custom metadata values
-    are ignored. Existing custom metadata not specified with this flag is not
-    changed. Refer to documentation in
-    https://cloud.google.com/storage/docs/metadata#custom-metadata
+    custom metadata key value pairs on objects. Keys that are set with empty
+    custom metadata values will have its value cleared. Existing custom
+    metadata not specified with this flag is not changed. Refer to
+    documentation in https://cloud.google.com/storage/docs/metadata#custom-
+    metadata
 
     Messages:
       AdditionalProperty: An additional property for a CustomMetadataValue
@@ -666,6 +760,7 @@ class PutMetadata(_messages.Message):
   contentType = _messages.StringField(5)
   customMetadata = _messages.MessageField('CustomMetadataValue', 6)
   customTime = _messages.StringField(7)
+  objectRetention = _messages.MessageField('ObjectRetention', 8)
 
 
 class PutObjectHold(_messages.Message):
@@ -720,6 +815,24 @@ class PutObjectHold(_messages.Message):
 
   eventBasedHold = _messages.EnumField('EventBasedHoldValueValuesEnum', 1)
   temporaryHold = _messages.EnumField('TemporaryHoldValueValuesEnum', 2)
+
+
+class RewriteObject(_messages.Message):
+  r"""Describes options for object rewrite.
+
+  Fields:
+    kmsKey: Required. Resource name of the Cloud KMS key that will be used to
+      encrypt the object. The Cloud KMS key must be located in same location
+      as the object. Refer to
+      https://cloud.google.com/storage/docs/encryption/using-customer-managed-
+      keys#add-object-key for additional documentation. Format: projects/{proj
+      ect}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key} For
+      example: "projects/123456/locations/us-central1/keyRings/my-
+      keyring/cryptoKeys/my-key". The object will be rewritten and set with
+      the specified KMS key.
+  """
+
+  kmsKey = _messages.StringField(1)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -853,7 +966,7 @@ class StoragebatchoperationsProjectsLocationsJobsCancelRequest(_messages.Message
     cancelJobRequest: A CancelJobRequest resource to be passed as the request
       body.
     name: Required. The `name` of the job to cancel. Format:
-      projects/{project_id}/locations/{location_id}/jobs/{job_id}.
+      projects/{project_id}/locations/global/jobs/{job_id}.
   """
 
   cancelJobRequest = _messages.MessageField('CancelJobRequest', 1)
@@ -870,10 +983,10 @@ class StoragebatchoperationsProjectsLocationsJobsCreateRequest(_messages.Message
       include only characters available in DNS names, as defined by RFC-1123.
     parent: Required. Value for parent.
     requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request. Requests
-      with same `request_id` will ignored for least 60 minutes since the first
-      request. The request ID must be a valid UUID with the exception that
-      zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+      a unique request ID in case you need to retry your request. Requests
+      with same `request_id` will be ignored for at least 60 minutes since the
+      first request. The request ID must be a valid UUID with the exception
+      that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
   """
 
   job = _messages.MessageField('Job', 1)
@@ -887,12 +1000,12 @@ class StoragebatchoperationsProjectsLocationsJobsDeleteRequest(_messages.Message
 
   Fields:
     name: Required. The `name` of the job to delete. Format:
-      projects/{project_id}/locations/{location_id}/jobs/{job_id} .
+      projects/{project_id}/locations/global/jobs/{job_id} .
     requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request. Requests
-      with same `request_id` will ignored for least 60 minutes since the first
-      request. The request ID must be a valid UUID with the exception that
-      zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+      a unique request ID in case you need to retry your request. Requests
+      with same `request_id` will be ignored for at least 60 minutes since the
+      first request. The request ID must be a valid UUID with the exception
+      that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
   """
 
   name = _messages.StringField(1, required=True)
@@ -904,7 +1017,7 @@ class StoragebatchoperationsProjectsLocationsJobsGetRequest(_messages.Message):
 
   Fields:
     name: Required. `name` of the job to retrieve. Format:
-      projects/{project_id}/locations/{location_id}/jobs/{job_id} .
+      projects/{project_id}/locations/global/jobs/{job_id} .
   """
 
   name = _messages.StringField(1, required=True)
@@ -920,7 +1033,7 @@ class StoragebatchoperationsProjectsLocationsJobsListRequest(_messages.Message):
       create_time.
     pageSize: Optional. The list page size. default page size is 100.
     pageToken: Optional. The list page token.
-    parent: Required. Format: projects/{project_id}/locations/{location_id} .
+    parent: Required. Format: projects/{project_id}/locations/global.
   """
 
   filter = _messages.StringField(1)
@@ -934,6 +1047,9 @@ class StoragebatchoperationsProjectsLocationsListRequest(_messages.Message):
   r"""A StoragebatchoperationsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -944,10 +1060,11 @@ class StoragebatchoperationsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class StoragebatchoperationsProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -991,12 +1108,20 @@ class StoragebatchoperationsProjectsLocationsOperationsListRequest(_messages.Mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 encoding.AddCustomJsonFieldMapping(

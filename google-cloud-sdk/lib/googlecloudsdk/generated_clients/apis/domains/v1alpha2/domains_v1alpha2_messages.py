@@ -471,6 +471,9 @@ class DomainsProjectsLocationsListRequest(_messages.Message):
   r"""A DomainsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -481,10 +484,11 @@ class DomainsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class DomainsProjectsLocationsOperationsGetRequest(_messages.Message):
@@ -505,12 +509,20 @@ class DomainsProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class DomainsProjectsLocationsRegistrationsConfigureContactSettingsRequest(_messages.Message):
@@ -1072,8 +1084,8 @@ class GeoPolicyItem(_messages.Message):
       "southamerica-east1", "asia-east1", etc.
     rrdata: A string attribute.
     signatureRrdata: DNSSEC generated signatures for all the `rrdata` within
-      this item. If health checked targets are provided for DNSSEC enabled
-      zones, there's a restriction of 1 IP address per item.
+      this item. When using health-checked targets for DNSSEC-enabled zones,
+      you can only use at most one health-checked IP address per item.
   """
 
   healthCheckedTargets = _messages.MessageField('HealthCheckTargets', 1)
@@ -1154,7 +1166,8 @@ class GoogleDomainsDns(_messages.Message):
 class HealthCheckTargets(_messages.Message):
   r"""HealthCheckTargets describes endpoints to health-check when responding
   to Routing Policy queries. Only the healthy endpoints will be included in
-  the response.
+  the response. Set either `internal_load_balancer` or `external_endpoints`.
+  Do not set both.
 
   Fields:
     externalEndpoints: The Internet IP addresses to be health checked. The
@@ -1241,10 +1254,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListRegistrationsResponse(_messages.Message):
@@ -1810,44 +1828,45 @@ class Policy(_messages.Message):
 
 
 class PostalAddress(_messages.Message):
-  r"""Represents a postal address, e.g. for postal delivery or payments
-  addresses. Given a postal address, a postal service can deliver items to a
-  premise, P.O. Box or similar. It is not intended to model geographical
-  locations (roads, towns, mountains). In typical usage an address would be
-  created via user input or from importing existing data, depending on the
-  type of process. Advice on address input / editing: - Use an
-  internationalization-ready address widget such as
-  https://github.com/google/libaddressinput) - Users should not be presented
+  r"""Represents a postal address, such as for postal delivery or payments
+  addresses. With a postal address, a postal service can deliver items to a
+  premise, P.O. box, or similar. A postal address is not intended to model
+  geographical locations like roads, towns, or mountains. In typical usage, an
+  address would be created by user input or from importing existing data,
+  depending on the type of process. Advice on address input or editing: - Use
+  an internationalization-ready address widget such as
+  https://github.com/google/libaddressinput. - Users should not be presented
   with UI elements for input or editing of fields outside countries where that
-  field is used. For more guidance on how to use this schema, please see:
-  https://support.google.com/business/answer/6397478
+  field is used. For more guidance on how to use this schema, see:
+  https://support.google.com/business/answer/6397478.
 
   Fields:
     addressLines: Unstructured address lines describing the lower levels of an
-      address. Because values in address_lines do not have type information
-      and may sometimes contain multiple values in a single field (e.g.
-      "Austin, TX"), it is important that the line order is clear. The order
-      of address lines should be "envelope order" for the country/region of
-      the address. In places where this can vary (e.g. Japan),
-      address_language is used to make it explicit (e.g. "ja" for large-to-
-      small ordering and "ja-Latn" or "en" for small-to-large). This way, the
-      most specific line of an address can be selected based on the language.
-      The minimum permitted structural representation of an address consists
-      of a region_code with all remaining information placed in the
-      address_lines. It would be possible to format such an address very
-      approximately without geocoding, but no semantic reasoning could be made
-      about any of the address components until it was at least partially
-      resolved. Creating an address only containing a region_code and
-      address_lines, and then geocoding is the recommended way to handle
-      completely unstructured addresses (as opposed to guessing which parts of
-      the address should be localities or administrative areas).
+      address. Because values in `address_lines` do not have type information
+      and may sometimes contain multiple values in a single field (for
+      example, "Austin, TX"), it is important that the line order is clear.
+      The order of address lines should be "envelope order" for the country or
+      region of the address. In places where this can vary (for example,
+      Japan), `address_language` is used to make it explicit (for example,
+      "ja" for large-to-small ordering and "ja-Latn" or "en" for small-to-
+      large). In this way, the most specific line of an address can be
+      selected based on the language. The minimum permitted structural
+      representation of an address consists of a `region_code` with all
+      remaining information placed in the `address_lines`. It would be
+      possible to format such an address very approximately without geocoding,
+      but no semantic reasoning could be made about any of the address
+      components until it was at least partially resolved. Creating an address
+      only containing a `region_code` and `address_lines` and then geocoding
+      is the recommended way to handle completely unstructured addresses (as
+      opposed to guessing which parts of the address should be localities or
+      administrative areas).
     administrativeArea: Optional. Highest administrative subdivision which is
       used for postal addresses of a country or region. For example, this can
-      be a state, a province, an oblast, or a prefecture. Specifically, for
-      Spain this is the province and not the autonomous community (e.g.
-      "Barcelona" and not "Catalonia"). Many countries don't use an
-      administrative area in postal addresses. E.g. in Switzerland this should
-      be left unpopulated.
+      be a state, a province, an oblast, or a prefecture. For Spain, this is
+      the province and not the autonomous community (for example, "Barcelona"
+      and not "Catalonia"). Many countries don't use an administrative area in
+      postal addresses. For example, in Switzerland, this should be left
+      unpopulated.
     languageCode: Optional. BCP-47 language code of the contents of this
       address (if known). This is often the UI language of the input form or
       is expected to match one of the languages used in the address'
@@ -1857,15 +1876,15 @@ class PostalAddress(_messages.Message):
       related operations. If this value is not known, it should be omitted
       (rather than specifying a possibly incorrect default). Examples: "zh-
       Hant", "ja", "ja-Latn", "en".
-    locality: Optional. Generally refers to the city/town portion of the
+    locality: Optional. Generally refers to the city or town portion of the
       address. Examples: US city, IT comune, UK post town. In regions of the
       world where localities are not well defined or do not fit into this
-      structure well, leave locality empty and use address_lines.
+      structure well, leave `locality` empty and use `address_lines`.
     organization: Optional. The name of the organization at the address.
     postalCode: Optional. Postal code of the address. Not all countries use or
       require postal codes to be present, but where they are used, they may
-      trigger additional validation with other parts of the address (e.g.
-      state/zip validation in the U.S.A.).
+      trigger additional validation with other parts of the address (for
+      example, state or zip code validation in the United States).
     recipients: Optional. The recipient at the address. This field may, under
       certain circumstances, contain multiline information. For example, it
       might contain "care of" information.
@@ -1879,11 +1898,12 @@ class PostalAddress(_messages.Message):
       compatible with old revisions.
     sortingCode: Optional. Additional, country-specific, sorting code. This is
       not used in most regions. Where it is used, the value is either a string
-      like "CEDEX", optionally followed by a number (e.g. "CEDEX 7"), or just
-      a number alone, representing the "sector code" (Jamaica), "delivery area
-      indicator" (Malawi) or "post office indicator" (e.g. C\xf4te d'Ivoire).
+      like "CEDEX", optionally followed by a number (for example, "CEDEX 7"),
+      or just a number alone, representing the "sector code" (Jamaica),
+      "delivery area indicator" (Malawi) or "post office indicator" (C\xf4te
+      d'Ivoire).
     sublocality: Optional. Sublocality of the address. For example, this can
-      be neighborhoods, boroughs, districts.
+      be a neighborhood, borough, or district.
   """
 
   addressLines = _messages.StringField(1, repeated=True)
@@ -1930,8 +1950,9 @@ class RRSetRoutingPolicy(_messages.Message):
   Fields:
     geo: A GeoPolicy attribute.
     geoPolicy: A GeoPolicy attribute.
-    healthCheck: The selfLink attribute of the HealthCheck resource to use for
-      this RRSetRoutingPolicy.
+    healthCheck: The fully qualified URL of the HealthCheck to use for this
+      RRSetRoutingPolicy. Format this URL like `https://www.googleapis.com/com
+      pute/v1/projects/{project}/global/healthChecks/{healthCheck}`.
       https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks
     primaryBackup: A PrimaryBackupPolicy attribute.
     wrr: A WrrPolicy attribute.
@@ -2227,12 +2248,18 @@ class Registration(_messages.Message):
         If the configuration is incorrect, you must fix it. If the
         configuration is correct, either wait or call the ConfigureDnsSettings
         method to retry the registry validation.
+      AUTO_RENEWAL_UPDATE_NOT_EFFECTIVE: Due to SquareSpace's constraints, the
+        auto-renewal update you made may not be effective during a certain
+        period of time. Generally, the time period is 15 days before
+        expiration for generic TLD domains, and 15 days before expiration + 3
+        days after expiration for country-code TLD domains.
     """
     ISSUE_UNSPECIFIED = 0
     CONTACT_SUPPORT = 1
     UNVERIFIED_EMAIL = 2
     PROBLEM_WITH_BILLING = 3
     DNS_NOT_ACTIVATED = 4
+    AUTO_RENEWAL_UPDATE_NOT_EFFECTIVE = 5
 
   class ProviderValueValuesEnum(_messages.Enum):
     r"""Output only. Current domain management provider.
@@ -2844,8 +2871,8 @@ class WrrPolicyItem(_messages.Message):
       can be set.
     rrdata: A string attribute.
     signatureRrdata: DNSSEC generated signatures for all the `rrdata` within
-      this item. Note that if health checked targets are provided for DNSSEC
-      enabled zones, there's a restriction of 1 IP address per item.
+      this item. When using health-checked targets for DNSSEC-enabled zones,
+      you can only use at most one health-checked IP address per item.
     weight: The weight corresponding to this `WrrPolicyItem` object. When
       multiple `WrrPolicyItem` objects are configured, the probability of
       returning an `WrrPolicyItem` object's data is proportional to its weight

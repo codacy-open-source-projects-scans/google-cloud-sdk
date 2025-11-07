@@ -42,6 +42,7 @@ __protobuf__ = proto.module(
         'HTTPHeader',
         'TCPSocketAction',
         'GRPCAction',
+        'BuildInfo',
     },
 )
 
@@ -106,6 +107,14 @@ class Container(proto.Message):
         depends_on (MutableSequence[str]):
             Names of the containers that must start
             before this container.
+        base_image_uri (str):
+            Base image for this container. Only supported
+            for services. If set, it indicates that the
+            service is enrolled into automatic base image
+            update.
+        build_info (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.BuildInfo):
+            Output only. The build info of the container
+            image.
     """
 
     name: str = proto.Field(
@@ -162,6 +171,15 @@ class Container(proto.Message):
         proto.STRING,
         number=12,
     )
+    base_image_uri: str = proto.Field(
+        proto.STRING,
+        number=13,
+    )
+    build_info: 'BuildInfo' = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message='BuildInfo',
+    )
 
 
 class ResourceRequirements(proto.Message):
@@ -170,7 +188,8 @@ class ResourceRequirements(proto.Message):
 
     Attributes:
         limits (MutableMapping[str, str]):
-            Only ``memory`` and ``cpu`` keys in the map are supported.
+            Only ``memory``, ``cpu`` and ``nvidia.com/gpu`` keys in the
+            map are supported.
 
             .. raw:: html
 
@@ -180,6 +199,7 @@ class ResourceRequirements(proto.Message):
                 https://cloud.google.com/run/docs/configuring/cpu.
                   * For supported 'memory' values and syntax, go to
                  https://cloud.google.com/run/docs/configuring/memory-limits
+                 * The only supported 'nvidia.com/gpu' value is '1'.
         cpu_idle (bool):
             Determines whether CPU is only allocated
             during requests (true by default). However, if
@@ -335,6 +355,10 @@ class VolumeMount(proto.Message):
             available as ``/cloudsql/[instance]``. For more information
             on Cloud SQL volumes, visit
             https://cloud.google.com/sql/docs/mysql/connect-run
+        sub_path (str):
+            Optional. Path within the volume from which
+            the container's volume should be mounted.
+            Defaults to "" (volume's root).
     """
 
     name: str = proto.Field(
@@ -344,6 +368,10 @@ class VolumeMount(proto.Message):
     mount_path: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    sub_path: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
@@ -439,11 +467,11 @@ class SecretVolumeSource(proto.Message):
             secret is in a different project.
         items (MutableSequence[googlecloudsdk.generated_clients.gapic_clients.run_v2.types.VersionToPath]):
             If unspecified, the volume will expose a file whose name is
-            the secret, relative to VolumeMount.mount_path. If
-            specified, the key will be used as the version to fetch from
-            Cloud Secret Manager and the path will be the name of the
-            file exposed in the volume. When items are defined, they
-            must specify a path and a version.
+            the secret, relative to VolumeMount.mount_path +
+            VolumeMount.sub_path. If specified, the key will be used as
+            the version to fetch from Cloud Secret Manager and the path
+            will be the name of the file exposed in the volume. When
+            items are defined, they must specify a path and a version.
         default_mode (int):
             Integer representation of mode bits to use on created files
             by default. Must be a value between 0000 and 0777 (octal),
@@ -846,6 +874,28 @@ class GRPCAction(proto.Message):
         number=1,
     )
     service: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class BuildInfo(proto.Message):
+    r"""Build information of the image.
+
+    Attributes:
+        function_target (str):
+            Output only. Entry point of the function when
+            the image is a Cloud Run function.
+        source_location (str):
+            Output only. Source code location of the
+            image.
+    """
+
+    function_target: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    source_location: str = proto.Field(
         proto.STRING,
         number=2,
     )

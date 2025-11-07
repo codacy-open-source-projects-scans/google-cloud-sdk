@@ -15,14 +15,113 @@ from apitools.base.py import extra_types
 package = 'spanner'
 
 
+class AdaptMessageRequest(_messages.Message):
+  r"""Message sent by the client to the adapter.
+
+  Messages:
+    AttachmentsValue: Optional. Opaque request state passed by the client to
+      the server.
+
+  Fields:
+    attachments: Optional. Opaque request state passed by the client to the
+      server.
+    payload: Optional. Uninterpreted bytes from the underlying wire protocol.
+    protocol: Required. Identifier for the underlying wire protocol.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AttachmentsValue(_messages.Message):
+    r"""Optional. Opaque request state passed by the client to the server.
+
+    Messages:
+      AdditionalProperty: An additional property for a AttachmentsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type AttachmentsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AttachmentsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  attachments = _messages.MessageField('AttachmentsValue', 1)
+  payload = _messages.BytesField(2)
+  protocol = _messages.StringField(3)
+
+
+class AdaptMessageResponse(_messages.Message):
+  r"""Message sent by the adapter to the client.
+
+  Messages:
+    StateUpdatesValue: Optional. Opaque state updates to be applied by the
+      client.
+
+  Fields:
+    last: Optional. Indicates whether this is the last AdaptMessageResponse in
+      the stream. This field may be optionally set by the server. Clients
+      should not rely on this field being set in all cases.
+    payload: Optional. Uninterpreted bytes from the underlying wire protocol.
+    stateUpdates: Optional. Opaque state updates to be applied by the client.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class StateUpdatesValue(_messages.Message):
+    r"""Optional. Opaque state updates to be applied by the client.
+
+    Messages:
+      AdditionalProperty: An additional property for a StateUpdatesValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type StateUpdatesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a StateUpdatesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  last = _messages.BooleanField(1)
+  payload = _messages.BytesField(2)
+  stateUpdates = _messages.MessageField('StateUpdatesValue', 3)
+
+
+class AdapterSession(_messages.Message):
+  r"""A session in the Cloud Spanner Adapter API.
+
+  Fields:
+    name: Identifier. The name of the session. This is always system-assigned.
+  """
+
+  name = _messages.StringField(1)
+
+
 class AddSplitPointsRequest(_messages.Message):
   r"""The request for AddSplitPoints.
 
   Fields:
     initiator: Optional. A user-supplied tag associated with the split points.
-      For example, "intital_data_load", "special_event_1". Defaults to
+      For example, "initial_data_load", "special_event_1". Defaults to
       "CloudAddSplitPointsAPI" if not specified. The length of the tag must
-      not exceed 50 characters,else will be trimmed. Only valid UTF8
+      not exceed 50 characters, or else it is trimmed. Only valid UTF8
       characters are allowed.
     splitPoints: Required. The split points to add.
   """
@@ -65,11 +164,16 @@ class AutoscalingConfig(_messages.Message):
       them.
     autoscalingLimits: Required. Autoscaling limits for an instance.
     autoscalingTargets: Required. The autoscaling targets for an instance.
+    disableDownscaling: Optional. If disable_downscaling is true, the
+      autoscaler will not scale down the instance; it will only be able to
+      scale up. This setting will be applied to all replicas under the
+      instance.
   """
 
   asymmetricAutoscalingOptions = _messages.MessageField('AsymmetricAutoscalingOption', 1, repeated=True)
   autoscalingLimits = _messages.MessageField('AutoscalingLimits', 2)
   autoscalingTargets = _messages.MessageField('AutoscalingTargets', 3)
+  disableDownscaling = _messages.BooleanField(4)
 
 
 class AutoscalingConfigOverrides(_messages.Message):
@@ -85,10 +189,40 @@ class AutoscalingConfigOverrides(_messages.Message):
       specified, overrides the autoscaling target
       high_priority_cpu_utilization_percent in the top-level autoscaling
       configuration for the selected replicas.
+    autoscalingTargetTotalCpuUtilizationPercent: Optional. If specified,
+      overrides the autoscaling target `total_cpu_utilization_percent` in the
+      top-level autoscaling configuration for the selected replicas.
+    disableHighPriorityCpuAutoscaling: Optional. If true, disables high
+      priority CPU autoscaling for the selected replicas and ignores
+      high_priority_cpu_utilization_percent in the top-level autoscaling
+      configuration. When setting this field to true, setting
+      autoscaling_target_high_priority_cpu_utilization_percent field to a non-
+      zero value for the same replica is not supported. If false, the
+      autoscaling_target_high_priority_cpu_utilization_percent field in the
+      replica will be used if set to a non-zero value. Otherwise, the
+      high_priority_cpu_utilization_percent field in the top-level autoscaling
+      configuration will be used. Setting both
+      disable_high_priority_cpu_autoscaling and disable_total_cpu_autoscaling
+      to true for the same replica is not supported.
+    disableTotalCpuAutoscaling: Optional. If true, disables total CPU
+      autoscaling for the selected replicas and ignores
+      total_cpu_utilization_percent in the top-level autoscaling
+      configuration. When setting this field to true, setting
+      autoscaling_target_total_cpu_utilization_percent field to a non-zero
+      value for the same replica is not supported. If false, the
+      autoscaling_target_total_cpu_utilization_percent field in the replica
+      will be used if set to a non-zero value. Otherwise, the
+      total_cpu_utilization_percent field in the top-level autoscaling
+      configuration will be used. Setting both
+      disable_high_priority_cpu_autoscaling and disable_total_cpu_autoscaling
+      to true for the same replica is not supported.
   """
 
   autoscalingLimits = _messages.MessageField('AutoscalingLimits', 1)
   autoscalingTargetHighPriorityCpuUtilizationPercent = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  autoscalingTargetTotalCpuUtilizationPercent = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  disableHighPriorityCpuAutoscaling = _messages.BooleanField(4)
+  disableTotalCpuAutoscaling = _messages.BooleanField(5)
 
 
 class AutoscalingLimits(_messages.Message):
@@ -128,10 +262,20 @@ class AutoscalingTargets(_messages.Message):
       percentage that the autoscaler should be trying to achieve for the
       instance. This number is on a scale from 0 (no utilization) to 100 (full
       utilization). The valid range is [10, 99] inclusive.
+    totalCpuUtilizationPercent: Optional. The target total CPU utilization
+      percentage that the autoscaler should be trying to achieve for the
+      instance. This number is on a scale from 0 (no utilization) to 100 (full
+      utilization). The valid range is [10, 90] inclusive. If not specified or
+      set to 0, the autoscaler skips scaling based on total CPU utilization.
+      If both `high_priority_cpu_utilization_percent` and
+      `total_cpu_utilization_percent` are specified, the autoscaler provisions
+      the larger of the two required compute capacities to satisfy both
+      targets.
   """
 
   highPriorityCpuUtilizationPercent = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   storageUtilizationPercent = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  totalCpuUtilizationPercent = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class Backup(_messages.Message):
@@ -194,9 +338,9 @@ class Backup(_messages.Message):
       determine which backups are part of the same incremental backup chain.
       The ordering of backups in the chain can be determined by ordering the
       backup `version_time`.
-    instancePartitions: Output only. The instance partition(s) storing the
-      backup. This is the same as the list of the instance partition(s) that
-      the database had footprint in at the backup's `version_time`.
+    instancePartitions: Output only. The instance partition storing the
+      backup. This is the same as the list of the instance partitions that the
+      database recorded at the backup's `version_time`.
     maxExpireTime: Output only. The max allowed expiration time of the backup,
       with microseconds granularity. A backup's expiration time can be
       configured in multiple APIs: CreateBackup, UpdateBackup, CopyBackup.
@@ -321,9 +465,9 @@ class BackupSchedule(_messages.Message):
   a Spanner database.
 
   Fields:
-    encryptionConfig: Optional. The encryption configuration that will be used
-      to encrypt the backup. If this field is not specified, the backup will
-      use the same encryption configuration as the database.
+    encryptionConfig: Optional. The encryption configuration that is used to
+      encrypt the backup. If this field is not specified, the backup uses the
+      same encryption configuration as the database.
     fullBackupSpec: The schedule creates only full backups.
     incrementalBackupSpec: The schedule creates incremental backup chains.
     name: Identifier. Output only for the CreateBackupSchedule operation.
@@ -366,11 +510,11 @@ class BatchCreateSessionsRequest(_messages.Message):
 
   Fields:
     sessionCount: Required. The number of sessions to be created in this batch
-      call. The API may return fewer than the requested number of sessions. If
-      a specific number of sessions are desired, the client can make
-      additional calls to BatchCreateSessions (adjusting session_count as
-      necessary).
-    sessionTemplate: Parameters to be applied to each created session.
+      call. At least one session is created. The API can return fewer than the
+      requested number of sessions. If a specific number of sessions are
+      desired, the client can make additional calls to `BatchCreateSessions`
+      (adjusting session_count as necessary).
+    sessionTemplate: Parameters to apply to each created session.
   """
 
   sessionCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -391,18 +535,10 @@ class BatchWriteRequest(_messages.Message):
   r"""The request for BatchWrite.
 
   Fields:
-    excludeTxnFromChangeStreams: Optional. When
-      `exclude_txn_from_change_streams` is set to `true`: * Modifications from
-      all transactions in this batch write operation will not be recorded in
-      change streams with DDL option `allow_txn_exclusion=true` that are
-      tracking columns modified by these transactions. * Modifications from
-      all transactions in this batch write operation will be recorded in
-      change streams with DDL option `allow_txn_exclusion=false or not set`
-      that are tracking columns modified by these transactions. When
-      `exclude_txn_from_change_streams` is set to `false` or not set,
-      Modifications from all transactions in this batch write operation will
-      be recorded in all change streams that are tracking columns modified by
-      these transactions.
+    excludeTxnFromChangeStreams: Optional. If you don't set the
+      `exclude_txn_from_change_streams` option or if it's set to `false`, then
+      any change streams monitoring columns modified by transactions will
+      capture the updates made within that transaction.
     mutationGroups: Required. The groups of mutations to be applied.
     requestOptions: Common options for this request.
   """
@@ -434,14 +570,14 @@ class BeginTransactionRequest(_messages.Message):
 
   Fields:
     mutationKey: Optional. Required for read-write transactions on a
-      multiplexed session that commit mutations but do not perform any reads
-      or queries. Clients should randomly select one of the mutations from the
-      mutation set and send it as a part of this request.
+      multiplexed session that commit mutations but don't perform any reads or
+      queries. You must randomly select one of the mutations from the mutation
+      set and send it as a part of this request.
     options: Required. Options for the new transaction.
     requestOptions: Common options for this request. Priority is ignored for
-      this request. Setting the priority in this request_options struct will
-      not do anything. To set the priority for a transaction, set it on the
-      reads and writes that are part of this transaction instead.
+      this request. Setting the priority in this `request_options` struct
+      doesn't do anything. To set the priority for a transaction, set it on
+      the reads and writes that are part of this transaction instead.
   """
 
   mutationKey = _messages.MessageField('Mutation', 1)
@@ -571,6 +707,37 @@ class ChangeQuorumRequest(_messages.Message):
   quorumType = _messages.MessageField('QuorumType', 3)
 
 
+class ChangeStreamRecord(_messages.Message):
+  r"""Spanner Change Streams enable customers to capture and stream out
+  changes to their Spanner databases in real-time. A change stream can be
+  created with option partition_mode='IMMUTABLE_KEY_RANGE' or
+  partition_mode='MUTABLE_KEY_RANGE'. This message is only used in Change
+  Streams created with the option partition_mode='MUTABLE_KEY_RANGE'. Spanner
+  automatically creates a special Table-Valued Function (TVF) along with each
+  Change Streams. The function provides access to the change stream's records.
+  The function is named READ_ (where is the name of the change stream), and it
+  returns a table with only one column called ChangeRecord.
+
+  Fields:
+    dataChangeRecord: Data change record describing a data change for a change
+      stream partition.
+    heartbeatRecord: Heartbeat record describing a heartbeat for a change
+      stream partition.
+    partitionEndRecord: Partition end record describing a terminated change
+      stream partition.
+    partitionEventRecord: Partition event record describing key range changes
+      for a change stream partition.
+    partitionStartRecord: Partition start record describing a new change
+      stream partition.
+  """
+
+  dataChangeRecord = _messages.MessageField('DataChangeRecord', 1)
+  heartbeatRecord = _messages.MessageField('HeartbeatRecord', 2)
+  partitionEndRecord = _messages.MessageField('PartitionEndRecord', 3)
+  partitionEventRecord = _messages.MessageField('PartitionEventRecord', 4)
+  partitionStartRecord = _messages.MessageField('PartitionStartRecord', 5)
+
+
 class ChildLink(_messages.Message):
   r"""Metadata associated with a parent-child relationship appearing in a
   PlanNode.
@@ -595,29 +762,53 @@ class ChildLink(_messages.Message):
   variable = _messages.StringField(3)
 
 
+class ClientContext(_messages.Message):
+  r"""Container for various pieces of client-owned context attached to a
+  request.
+  """
+
+
+
+class ColumnMetadata(_messages.Message):
+  r"""Metadata for a column.
+
+  Fields:
+    isPrimaryKey: Indicates whether the column is a primary key column.
+    name: Name of the column.
+    ordinalPosition: Ordinal position of the column based on the original
+      table definition in the schema starting with a value of 1.
+    type: Type of the column.
+  """
+
+  isPrimaryKey = _messages.BooleanField(1)
+  name = _messages.StringField(2)
+  ordinalPosition = _messages.IntegerField(3)
+  type = _messages.MessageField('Type', 4)
+
+
 class CommitRequest(_messages.Message):
   r"""The request for Commit.
 
   Fields:
     maxCommitDelay: Optional. The amount of latency this request is configured
-      to incur in order to improve throughput. If this field is not set,
+      to incur in order to improve throughput. If this field isn't set,
       Spanner assumes requests are relatively latency sensitive and
       automatically determines an appropriate delay time. You can specify a
       commit delay value between 0 and 500 ms.
     mutations: The mutations to be executed when this transaction commits. All
       mutations are applied atomically, in the order they appear in this list.
     precommitToken: Optional. If the read-write transaction was executed on a
-      multiplexed session, the precommit token with the highest sequence
-      number received in this transaction attempt, should be included here.
-      Failing to do so will result in a FailedPrecondition error.
+      multiplexed session, then you must include the precommit token with the
+      highest sequence number received in this transaction attempt. Failing to
+      do so results in a `FailedPrecondition` error.
     requestOptions: Common options for this request.
     returnCommitStats: If `true`, then statistics related to the transaction
-      will be included in the CommitResponse. Default value is `false`.
+      is included in the CommitResponse. Default value is `false`.
     singleUseTransaction: Execute mutations in a temporary transaction. Note
       that unlike commit of a previously-started transaction, commit with a
       temporary transaction is non-idempotent. That is, if the `CommitRequest`
       is sent to Cloud Spanner more than once (for instance, due to retries in
-      the application, or in the transport library), it is possible that the
+      the application, or in the transport library), it's possible that the
       mutations are executed more than once. If this is undesirable, use
       BeginTransaction and Commit instead.
     transactionId: Commit a previously-started transaction.
@@ -636,17 +827,22 @@ class CommitResponse(_messages.Message):
   r"""The response for Commit.
 
   Fields:
-    commitStats: The statistics about this Commit. Not returned by default.
+    commitStats: The statistics about this `Commit`. Not returned by default.
       For more information, see CommitRequest.return_commit_stats.
     commitTimestamp: The Cloud Spanner timestamp at which the transaction
       committed.
-    precommitToken: If specified, transaction has not committed yet. Clients
-      must retry the commit with the new precommit token.
+    precommitToken: If specified, transaction has not committed yet. You must
+      retry the commit with the new precommit token.
+    snapshotTimestamp: If `TransactionOptions.isolation_level` is set to
+      `IsolationLevel.REPEATABLE_READ`, then the snapshot timestamp is the
+      timestamp at which all reads in the transaction ran. This timestamp is
+      never returned.
   """
 
   commitStats = _messages.MessageField('CommitStats', 1)
   commitTimestamp = _messages.StringField(2)
   precommitToken = _messages.MessageField('MultiplexedSessionPrecommitToken', 3)
+  snapshotTimestamp = _messages.StringField(4)
 
 
 class CommitStats(_messages.Message):
@@ -712,10 +908,15 @@ class CopyBackupEncryptionConfig(_messages.Message):
 
   Fields:
     encryptionType: Required. The encryption type of the backup.
-    kmsKeyName: Optional. The Cloud KMS key that will be used to protect the
-      backup. This field should be set only when encryption_type is
-      `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the form
-      `projects//locations//keyRings//cryptoKeys/`.
+    kmsKeyName: Optional. This field is maintained for backwards
+      compatibility. For new callers, we recommend using `kms_key_names` to
+      specify the KMS key. Only use `kms_key_name` if the location of the KMS
+      key matches the database instance's configuration (location) exactly.
+      For example, if the KMS location is in `us-central1` or `nam3`, then the
+      database instance must also be in `us-central1` or `nam3`. The Cloud KMS
+      key that is used to encrypt and decrypt the restored database. Set this
+      field only when encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values
+      are of the form `projects//locations//keyRings//cryptoKeys/`.
     kmsKeyNames: Optional. Specifies the KMS configuration for the one or more
       keys used to protect the backup. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`. KMS keys specified can be
@@ -743,7 +944,7 @@ class CopyBackupEncryptionConfig(_messages.Message):
       GOOGLE_DEFAULT_ENCRYPTION: Use Google default encryption.
       CUSTOMER_MANAGED_ENCRYPTION: Use customer managed encryption. If
         specified, either `kms_key_name` or `kms_key_names` must contain valid
-        Cloud KMS key(s).
+        Cloud KMS keys.
     """
     ENCRYPTION_TYPE_UNSPECIFIED = 0
     USE_CONFIG_DEFAULT_OR_BACKUP_ENCRYPTION = 1
@@ -819,10 +1020,15 @@ class CreateBackupEncryptionConfig(_messages.Message):
 
   Fields:
     encryptionType: Required. The encryption type of the backup.
-    kmsKeyName: Optional. The Cloud KMS key that will be used to protect the
-      backup. This field should be set only when encryption_type is
-      `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the form
-      `projects//locations//keyRings//cryptoKeys/`.
+    kmsKeyName: Optional. This field is maintained for backwards
+      compatibility. For new callers, we recommend using `kms_key_names` to
+      specify the KMS key. Only use `kms_key_name` if the location of the KMS
+      key matches the database instance's configuration (location) exactly.
+      For example, if the KMS location is in `us-central1` or `nam3`, then the
+      database instance must also be in `us-central1` or `nam3`. The Cloud KMS
+      key that is used to encrypt and decrypt the restored database. Set this
+      field only when encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values
+      are of the form `projects//locations//keyRings//cryptoKeys/`.
     kmsKeyNames: Optional. Specifies the KMS configuration for the one or more
       keys used to protect the backup. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
@@ -1064,16 +1270,48 @@ class CreateInstancePartitionRequest(_messages.Message):
 class CreateInstanceRequest(_messages.Message):
   r"""The request for CreateInstance.
 
+  Messages:
+    TagsValue: Optional. The resource tags that should be bound to the
+      instance upon creation.
+
   Fields:
     instance: Required. The instance to create. The name may be omitted, but
       if specified must be `/instances/`.
     instanceId: Required. The ID of the instance to create. Valid identifiers
       are of the form `a-z*[a-z0-9]` and must be between 2 and 64 characters
       in length.
+    tags: Optional. The resource tags that should be bound to the instance
+      upon creation.
   """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. The resource tags that should be bound to the instance upon
+    creation.
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   instance = _messages.MessageField('Instance', 1)
   instanceId = _messages.StringField(2)
+  tags = _messages.MessageField('TagsValue', 3)
 
 
 class CreateSessionRequest(_messages.Message):
@@ -1088,34 +1326,147 @@ class CreateSessionRequest(_messages.Message):
 
 class CrontabSpec(_messages.Message):
   r"""CrontabSpec can be used to specify the version time and frequency at
-  which the backup should be created.
+  which the backup is created.
 
   Fields:
-    creationWindow: Output only. Schedule backups will contain an externally
+    creationWindow: Output only. Scheduled backups contain an externally
       consistent copy of the database at the version time specified in
-      `schedule_spec.cron_spec`. However, Spanner may not initiate the
-      creation of the scheduled backups at that version time. Spanner will
-      initiate the creation of scheduled backups within the time window
+      `schedule_spec.cron_spec`. However, Spanner might not initiate the
+      creation of the scheduled backups at that version time. Spanner
+      initiates the creation of scheduled backups within the time window
       bounded by the version_time specified in `schedule_spec.cron_spec` and
       version_time + `creation_window`.
     text: Required. Textual representation of the crontab. User can customize
       the backup frequency and the backup version time using the cron
-      expression. The version time must be in UTC timzeone. The backup will
+      expression. The version time must be in UTC timezone. The backup will
       contain an externally consistent copy of the database at the version
-      time. Allowed frequencies are 12 hour, 1 day, 1 week and 1 month.
-      Examples of valid cron specifications: * `0 2/12 * * * ` : every 12
-      hours at (2, 14) hours past midnight in UTC. * `0 2,14 * * * ` : every
-      12 hours at (2,14) hours past midnight in UTC. * `0 2 * * * ` : once a
-      day at 2 past midnight in UTC. * `0 2 * * 0 ` : once a week every Sunday
-      at 2 past midnight in UTC. * `0 2 8 * * ` : once a month on 8th day at 2
-      past midnight in UTC.
+      time. Full backups must be scheduled a minimum of 12 hours apart and
+      incremental backups must be scheduled a minimum of 4 hours apart.
+      Examples of valid cron specifications: * `0 2/12 * * *` : every 12 hours
+      at (2, 14) hours past midnight in UTC. * `0 2,14 * * *` : every 12 hours
+      at (2, 14) hours past midnight in UTC. * `0 */4 * * *` : (incremental
+      backups only) every 4 hours at (0, 4, 8, 12, 16, 20) hours past midnight
+      in UTC. * `0 2 * * *` : once a day at 2 past midnight in UTC. * `0 2 * *
+      0` : once a week every Sunday at 2 past midnight in UTC. * `0 2 8 * *` :
+      once a month on 8th day at 2 past midnight in UTC.
     timeZone: Output only. The time zone of the times in `CrontabSpec.text`.
-      Currently only UTC is supported.
+      Currently, only UTC is supported.
   """
 
   creationWindow = _messages.StringField(1)
   text = _messages.StringField(2)
   timeZone = _messages.StringField(3)
+
+
+class DataChangeRecord(_messages.Message):
+  r"""A data change record contains a set of changes to a table with the same
+  modification type (insert, update, or delete) committed at the same commit
+  timestamp in one change stream partition for the same transaction. Multiple
+  data change records can be returned for the same transaction across multiple
+  change stream partitions.
+
+  Enums:
+    ModTypeValueValuesEnum: Describes the type of change.
+    ValueCaptureTypeValueValuesEnum: Describes the value capture type that was
+      specified in the change stream configuration when this change was
+      captured.
+
+  Fields:
+    columnMetadata: Provides metadata describing the columns associated with
+      the mods listed below.
+    commitTimestamp: Indicates the timestamp in which the change was
+      committed. DataChangeRecord.commit_timestamps,
+      PartitionStartRecord.start_timestamps,
+      PartitionEventRecord.commit_timestamps, and
+      PartitionEndRecord.end_timestamps can have the same value in the same
+      partition.
+    isLastRecordInTransactionInPartition: Indicates whether this is the last
+      record for a transaction in the current partition. Clients can use this
+      field to determine when all records for a transaction in the current
+      partition have been received.
+    isSystemTransaction: Indicates whether the transaction is a system
+      transaction. System transactions include those issued by time-to-live
+      (TTL), column backfill, etc.
+    modType: Describes the type of change.
+    mods: Describes the changes that were made.
+    numberOfPartitionsInTransaction: Indicates the number of partitions that
+      return data change records for this transaction. This value can be
+      helpful in assembling all records associated with a particular
+      transaction.
+    numberOfRecordsInTransaction: Indicates the number of data change records
+      that are part of this transaction across all change stream partitions.
+      This value can be used to assemble all the records associated with a
+      particular transaction.
+    recordSequence: Record sequence numbers are unique and monotonically
+      increasing (but not necessarily contiguous) for a specific timestamp
+      across record types in the same partition. To guarantee ordered
+      processing, the reader should process records (of potentially different
+      types) in record_sequence order for a specific timestamp in the same
+      partition. The record sequence number ordering across partitions is only
+      meaningful in the context of a specific transaction. Record sequence
+      numbers are unique across partitions for a specific transaction. Sort
+      the DataChangeRecords for the same server_transaction_id by
+      record_sequence to reconstruct the ordering of the changes within the
+      transaction.
+    serverTransactionId: Provides a globally unique string that represents the
+      transaction in which the change was committed. Multiple transactions can
+      have the same commit timestamp, but each transaction has a unique
+      server_transaction_id.
+    table: Name of the table affected by the change.
+    transactionTag: Indicates the transaction tag associated with this
+      transaction.
+    valueCaptureType: Describes the value capture type that was specified in
+      the change stream configuration when this change was captured.
+  """
+
+  class ModTypeValueValuesEnum(_messages.Enum):
+    r"""Describes the type of change.
+
+    Values:
+      MOD_TYPE_UNSPECIFIED: Not specified.
+      INSERT: Indicates data was inserted.
+      UPDATE: Indicates existing data was updated.
+      DELETE: Indicates existing data was deleted.
+    """
+    MOD_TYPE_UNSPECIFIED = 0
+    INSERT = 1
+    UPDATE = 2
+    DELETE = 3
+
+  class ValueCaptureTypeValueValuesEnum(_messages.Enum):
+    r"""Describes the value capture type that was specified in the change
+    stream configuration when this change was captured.
+
+    Values:
+      VALUE_CAPTURE_TYPE_UNSPECIFIED: Not specified.
+      OLD_AND_NEW_VALUES: Records both old and new values of the modified
+        watched columns.
+      NEW_VALUES: Records only new values of the modified watched columns.
+      NEW_ROW: Records new values of all watched columns, including modified
+        and unmodified columns.
+      NEW_ROW_AND_OLD_VALUES: Records the new values of all watched columns,
+        including modified and unmodified columns. Also records the old values
+        of the modified columns.
+    """
+    VALUE_CAPTURE_TYPE_UNSPECIFIED = 0
+    OLD_AND_NEW_VALUES = 1
+    NEW_VALUES = 2
+    NEW_ROW = 3
+    NEW_ROW_AND_OLD_VALUES = 4
+
+  columnMetadata = _messages.MessageField('ColumnMetadata', 1, repeated=True)
+  commitTimestamp = _messages.StringField(2)
+  isLastRecordInTransactionInPartition = _messages.BooleanField(3)
+  isSystemTransaction = _messages.BooleanField(4)
+  modType = _messages.EnumField('ModTypeValueValuesEnum', 5)
+  mods = _messages.MessageField('Mod', 6, repeated=True)
+  numberOfPartitionsInTransaction = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  numberOfRecordsInTransaction = _messages.IntegerField(8, variant=_messages.Variant.INT32)
+  recordSequence = _messages.StringField(9)
+  serverTransactionId = _messages.StringField(10)
+  table = _messages.StringField(11)
+  transactionTag = _messages.StringField(12)
+  valueCaptureType = _messages.EnumField('ValueCaptureTypeValueValuesEnum', 13)
 
 
 class Database(_messages.Message):
@@ -1222,6 +1573,32 @@ class Database(_messages.Message):
   versionRetentionPeriod = _messages.StringField(13)
 
 
+class DatabaseMoveConfig(_messages.Message):
+  r"""The configuration for each database in the target instance
+  configuration.
+
+  Fields:
+    databaseId: Required. The unique identifier of the database resource in
+      the Instance. For example, if the database uri is
+      `projects/foo/instances/bar/databases/baz`, then the id to supply here
+      is baz.
+    encryptionConfig: Optional. Encryption configuration to be used for the
+      database in the target configuration. The encryption configuration must
+      be specified for every database which currently uses CMEK encryption. If
+      a database currently uses Google-managed encryption and a target
+      encryption configuration is not specified, then the database defaults to
+      Google-managed encryption. If a database currently uses Google-managed
+      encryption and a target CMEK encryption is specified, the request is
+      rejected. If a database currently uses CMEK encryption, then a target
+      encryption configuration must be specified. You can't move a CMEK
+      database to a Google-managed encryption database using the MoveInstance
+      API.
+  """
+
+  databaseId = _messages.StringField(1)
+  encryptionConfig = _messages.MessageField('InstanceEncryptionConfig', 2)
+
+
 class DatabaseRole(_messages.Message):
   r"""A Cloud Spanner database role.
 
@@ -1240,15 +1617,15 @@ class DdlStatementActionInfo(_messages.Message):
   UpdateDatabaseDdl.
 
   Fields:
-    action: The action for the DDL statement, e.g. CREATE, ALTER, DROP, GRANT,
-      etc. This field is a non-empty string.
-    entityNames: The entity name(s) being operated on the DDL statement. E.g.
-      1. For statement "CREATE TABLE t1(...)", `entity_names` = ["t1"]. 2. For
-      statement "GRANT ROLE r1, r2 ...", `entity_names` = ["r1", "r2"]. 3. For
-      statement "ANALYZE", `entity_names` = [].
-    entityType: The entity type for the DDL statement, e.g. TABLE, INDEX,
-      VIEW, etc. This field can be empty string for some DDL statement, e.g.
-      for statement "ANALYZE", `entity_type` = "".
+    action: The action for the DDL statement, for example, CREATE, ALTER,
+      DROP, GRANT, etc. This field is a non-empty string.
+    entityNames: The entity names being operated on the DDL statement. For
+      example, 1. For statement "CREATE TABLE t1(...)", `entity_names` =
+      ["t1"]. 2. For statement "GRANT ROLE r1, r2 ...", `entity_names` =
+      ["r1", "r2"]. 3. For statement "ANALYZE", `entity_names` = [].
+    entityType: The entity type for the DDL statement, for example, TABLE,
+      INDEX, VIEW, etc. This field can be empty string for some DDL statement,
+      for example, for statement "ANALYZE", `entity_type` = "".
   """
 
   action = _messages.StringField(1)
@@ -1328,20 +1705,21 @@ class DiagnosticMessage(_messages.Message):
 
 
 class DirectedReadOptions(_messages.Message):
-  r"""The DirectedReadOptions can be used to indicate which replicas or
+  r"""The `DirectedReadOptions` can be used to indicate which replicas or
   regions should be used for non-transactional reads or queries.
-  DirectedReadOptions may only be specified for a read-only transaction,
-  otherwise the API will return an `INVALID_ARGUMENT` error.
+  `DirectedReadOptions` can only be specified for a read-only transaction,
+  otherwise the API returns an `INVALID_ARGUMENT` error.
 
   Fields:
-    excludeReplicas: Exclude_replicas indicates that specified replicas should
-      be excluded from serving requests. Spanner will not route requests to
-      the replicas in this list.
-    includeReplicas: Include_replicas indicates the order of replicas (as they
-      appear in this list) to process the request. If auto_failover_disabled
-      is set to true and all replicas are exhausted without finding a healthy
-      replica, Spanner will wait for a replica in the list to become
-      available, requests may fail due to `DEADLINE_EXCEEDED` errors.
+    excludeReplicas: `Exclude_replicas` indicates that specified replicas
+      should be excluded from serving requests. Spanner doesn't route requests
+      to the replicas in this list.
+    includeReplicas: `Include_replicas` indicates the order of replicas (as
+      they appear in this list) to process the request. If
+      `auto_failover_disabled` is set to `true` and all replicas are exhausted
+      without finding a healthy replica, Spanner waits for a replica in the
+      list to become available, requests might fail due to `DEADLINE_EXCEEDED`
+      errors.
   """
 
   excludeReplicas = _messages.MessageField('ExcludeReplicas', 1)
@@ -1443,22 +1821,22 @@ class ExecuteBatchDmlRequest(_messages.Message):
   r"""The request for ExecuteBatchDml.
 
   Fields:
-    lastStatements: Optional. If set to true, this request marks the end of
-      the transaction. The transaction should be committed or aborted after
-      these statements execute, and attempts to execute any other requests
-      against this transaction (including reads and queries) will be rejected.
-      Setting this option may cause some error reporting to be deferred until
-      commit time (e.g. validation of unique constraints). Given this,
-      successful execution of statements should not be assumed until a
-      subsequent Commit call completes successfully.
+    lastStatements: Optional. If set to `true`, this request marks the end of
+      the transaction. After these statements execute, you must commit or
+      abort the transaction. Attempts to execute any other requests against
+      this transaction (including reads and queries) are rejected. Setting
+      this option might cause some error reporting to be deferred until commit
+      time (for example, validation of unique constraints). Given this,
+      successful execution of statements shouldn't be assumed until a
+      subsequent `Commit` call completes successfully.
     requestOptions: Common options for this request.
     seqno: Required. A per-transaction sequence number used to identify this
       request. This field makes each request idempotent such that if the
-      request is received multiple times, at most one will succeed. The
-      sequence number must be monotonically increasing within the transaction.
-      If a request arrives for the first time with an out-of-order sequence
-      number, the transaction may be aborted. Replays of previously handled
-      requests will yield the same response as the first execution.
+      request is received multiple times, at most one succeeds. The sequence
+      number must be monotonically increasing within the transaction. If a
+      request arrives for the first time with an out-of-order sequence number,
+      the transaction might be aborted. Replays of previously handled requests
+      yield the same response as the first execution.
     statements: Required. The list of statements to execute in this batch.
       Statements are executed serially, such that the effects of statement `i`
       are visible to statement `i+1`. Each statement must be a DML statement.
@@ -1495,8 +1873,8 @@ class ExecuteBatchDmlResponse(_messages.Message):
   and fifth statements were not executed.
 
   Fields:
-    precommitToken: Optional. A precommit token will be included if the read-
-      write transaction is on a multiplexed session. The precommit token with
+    precommitToken: Optional. A precommit token is included if the read-write
+      transaction is on a multiplexed session. Pass the precommit token with
       the highest sequence number from this transaction attempt should be
       passed to the Commit request for this transaction.
     resultSets: One ResultSet for each statement in the request that ran
@@ -1522,10 +1900,10 @@ class ExecuteSqlRequest(_messages.Message):
       query_mode can only be set to QueryMode.NORMAL.
 
   Messages:
-    ParamTypesValue: It is not always possible for Cloud Spanner to infer the
+    ParamTypesValue: It isn't always possible for Cloud Spanner to infer the
       right SQL type from a JSON value. For example, values of type `BYTES`
       and values of type `STRING` both appear in params as JSON strings. In
-      these cases, `param_types` can be used to specify the exact SQL type for
+      these cases, you can use `param_types` to specify the exact SQL type for
       some or all of the SQL statement parameters. See the definition of Type
       for more information about SQL types.
     ParamsValue: Parameter names and values that bind to placeholders in the
@@ -1535,27 +1913,28 @@ class ExecuteSqlRequest(_messages.Message):
       specified at https://cloud.google.com/spanner/docs/lexical#identifiers.
       Parameters can appear anywhere that a literal value is expected. The
       same parameter name can be used more than once, for example: `"WHERE id
-      > @msg_id AND id < @msg_id + 100"` It is an error to execute a SQL
+      > @msg_id AND id < @msg_id + 100"` It's an error to execute a SQL
       statement with unbound parameters.
 
   Fields:
     dataBoostEnabled: If this is for a partitioned query and this field is set
       to `true`, the request is executed with Spanner Data Boost independent
-      compute resources. If the field is set to `true` but the request does
-      not set `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+      compute resources. If the field is set to `true` but the request doesn't
+      set `partition_token`, the API returns an `INVALID_ARGUMENT` error.
     directedReadOptions: Directed read options for this request.
-    lastStatement: Optional. If set to true, this statement marks the end of
-      the transaction. The transaction should be committed or aborted after
-      this statement executes, and attempts to execute any other requests
-      against this transaction (including reads and queries) will be rejected.
-      For DML statements, setting this option may cause some error reporting
-      to be deferred until commit time (e.g. validation of unique
-      constraints). Given this, successful execution of a DML statement should
-      not be assumed until a subsequent Commit call completes successfully.
-    paramTypes: It is not always possible for Cloud Spanner to infer the right
+    lastStatement: Optional. If set to `true`, this statement marks the end of
+      the transaction. After this statement executes, you must commit or abort
+      the transaction. Attempts to execute any other requests against this
+      transaction (including reads and queries) are rejected. For DML
+      statements, setting this option might cause some error reporting to be
+      deferred until commit time (for example, validation of unique
+      constraints). Given this, successful execution of a DML statement
+      shouldn't be assumed until a subsequent `Commit` call completes
+      successfully.
+    paramTypes: It isn't always possible for Cloud Spanner to infer the right
       SQL type from a JSON value. For example, values of type `BYTES` and
       values of type `STRING` both appear in params as JSON strings. In these
-      cases, `param_types` can be used to specify the exact SQL type for some
+      cases, you can use `param_types` to specify the exact SQL type for some
       or all of the SQL statement parameters. See the definition of Type for
       more information about SQL types.
     params: Parameter names and values that bind to placeholders in the SQL
@@ -1565,12 +1944,12 @@ class ExecuteSqlRequest(_messages.Message):
       https://cloud.google.com/spanner/docs/lexical#identifiers. Parameters
       can appear anywhere that a literal value is expected. The same parameter
       name can be used more than once, for example: `"WHERE id > @msg_id AND
-      id < @msg_id + 100"` It is an error to execute a SQL statement with
+      id < @msg_id + 100"` It's an error to execute a SQL statement with
       unbound parameters.
-    partitionToken: If present, results will be restricted to the specified
-      partition previously created using PartitionQuery(). There must be an
+    partitionToken: If present, results are restricted to the specified
+      partition previously created using `PartitionQuery`. There must be an
       exact match for the values of fields common to this message and the
-      PartitionQueryRequest message used to create this partition_token.
+      `PartitionQueryRequest` message used to create this `partition_token`.
     queryMode: Used to control the amount of debugging information returned in
       ResultSetStats. If partition_token is set, query_mode can only be set to
       QueryMode.NORMAL.
@@ -1584,12 +1963,12 @@ class ExecuteSqlRequest(_messages.Message):
       yielded this token.
     seqno: A per-transaction sequence number used to identify this request.
       This field makes each request idempotent such that if the request is
-      received multiple times, at most one will succeed. The sequence number
-      must be monotonically increasing within the transaction. If a request
-      arrives for the first time with an out-of-order sequence number, the
-      transaction may be aborted. Replays of previously handled requests will
-      yield the same response as the first execution. Required for DML
-      statements. Ignored for queries.
+      received multiple times, at most one succeeds. The sequence number must
+      be monotonically increasing within the transaction. If a request arrives
+      for the first time with an out-of-order sequence number, the transaction
+      can be aborted. Replays of previously handled requests yield the same
+      response as the first execution. Required for DML statements. Ignored
+      for queries.
     sql: Required. The SQL string.
     transaction: The transaction to use. For queries, if none is provided, the
       default is a temporary read-only transaction with strong concurrency.
@@ -1611,8 +1990,8 @@ class ExecuteSqlRequest(_messages.Message):
         execution statistics information.
       PROFILE: This mode returns the query plan, overall execution statistics,
         operator level execution statistics along with the results. This has a
-        performance overhead compared to the other modes. It is not
-        recommended to use this mode for production traffic.
+        performance overhead compared to the other modes. It isn't recommended
+        to use this mode for production traffic.
       WITH_STATS: This mode returns the overall (but not operator-level)
         execution statistics along with the results.
       WITH_PLAN_AND_STATS: This mode returns the query plan, overall (but not
@@ -1626,12 +2005,12 @@ class ExecuteSqlRequest(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParamTypesValue(_messages.Message):
-    r"""It is not always possible for Cloud Spanner to infer the right SQL
-    type from a JSON value. For example, values of type `BYTES` and values of
-    type `STRING` both appear in params as JSON strings. In these cases,
-    `param_types` can be used to specify the exact SQL type for some or all of
-    the SQL statement parameters. See the definition of Type for more
-    information about SQL types.
+    r"""It isn't always possible for Cloud Spanner to infer the right SQL type
+    from a JSON value. For example, values of type `BYTES` and values of type
+    `STRING` both appear in params as JSON strings. In these cases, you can
+    use `param_types` to specify the exact SQL type for some or all of the SQL
+    statement parameters. See the definition of Type for more information
+    about SQL types.
 
     Messages:
       AdditionalProperty: An additional property for a ParamTypesValue object.
@@ -1662,7 +2041,7 @@ class ExecuteSqlRequest(_messages.Message):
     https://cloud.google.com/spanner/docs/lexical#identifiers. Parameters can
     appear anywhere that a literal value is expected. The same parameter name
     can be used more than once, for example: `"WHERE id > @msg_id AND id <
-    @msg_id + 100"` It is an error to execute a SQL statement with unbound
+    @msg_id + 100"` It's an error to execute a SQL statement with unbound
     parameters.
 
     Messages:
@@ -1853,13 +2232,28 @@ class GetPolicyOptions(_messages.Message):
   requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
 
 
+class HeartbeatRecord(_messages.Message):
+  r"""A heartbeat record is returned as a progress indicator, when there are
+  no data changes or any other partition record types in the change stream
+  partition.
+
+  Fields:
+    timestamp: Indicates the timestamp at which the query has returned all the
+      records in the change stream partition with timestamp <= heartbeat
+      timestamp. The heartbeat timestamp will not be the same as the
+      timestamps of other record types in the same partition.
+  """
+
+  timestamp = _messages.StringField(1)
+
+
 class IncludeReplicas(_messages.Message):
-  r"""An IncludeReplicas contains a repeated set of ReplicaSelection which
+  r"""An `IncludeReplicas` contains a repeated set of `ReplicaSelection` which
   indicates the order in which replicas should be considered.
 
   Fields:
-    autoFailoverDisabled: If true, Spanner will not route requests to a
-      replica outside the include_replicas list when all of the specified
+    autoFailoverDisabled: If `true`, Spanner doesn't route requests to a
+      replica outside the <`include_replicas` list when all of the specified
       replicas are unavailable or unhealthy. Default value is `false`.
     replicaSelections: The directed read replica selector.
   """
@@ -2086,7 +2480,10 @@ class Instance(_messages.Message):
       number of nodes allocated to the instance. If autoscaling is enabled,
       `node_count` is treated as an `OUTPUT_ONLY` field and reflects the
       current number of nodes allocated to the instance. This might be zero in
-      API responses for instances that are not yet in the `READY` state. For
+      API responses for instances that are not yet in the `READY` state. If
+      the instance has varying node count across replicas (achieved by setting
+      `asymmetric_autoscaling_options` in the autoscaling configuration), the
+      `node_count` set here is the maximum node count across all replicas. For
       more information, see [Compute capacity, nodes, and processing
       units](https://cloud.google.com/spanner/docs/compute-capacity).
     processingUnits: The number of processing units allocated to this
@@ -2096,9 +2493,13 @@ class Instance(_messages.Message):
       instance. If autoscaling is enabled, `processing_units` is treated as an
       `OUTPUT_ONLY` field and reflects the current number of processing units
       allocated to the instance. This might be zero in API responses for
-      instances that are not yet in the `READY` state. For more information,
-      see [Compute capacity, nodes and processing
-      units](https://cloud.google.com/spanner/docs/compute-capacity).
+      instances that are not yet in the `READY` state. If the instance has
+      varying processing units per replica (achieved by setting
+      `asymmetric_autoscaling_options` in the autoscaling configuration), the
+      `processing_units` set here is the maximum processing units across all
+      replicas. For more information, see [Compute capacity, nodes and
+      processing units](https://cloud.google.com/spanner/docs/compute-
+      capacity).
     replicaComputeCapacity: Output only. Lists the compute capacity per
       ReplicaSelection. A replica selection identifies a set of replicas with
       common properties. Replicas identified by a ReplicaSelection are scaled
@@ -2528,6 +2929,37 @@ class InstanceConfig(_messages.Message):
   storageLimitPerProcessingUnit = _messages.IntegerField(15)
 
 
+class InstanceEncryptionConfig(_messages.Message):
+  r"""Encryption configuration for a Cloud Spanner database.
+
+  Fields:
+    kmsKeyName: Optional. This field is maintained for backwards
+      compatibility. For new callers, we recommend using `kms_key_names` to
+      specify the KMS key. Only use `kms_key_name` if the location of the KMS
+      key matches the database instance's configuration (location) exactly.
+      For example, if the KMS location is in `us-central1` or `nam3`, then the
+      database instance must also be in `us-central1` or `nam3`. The Cloud KMS
+      key that is used to encrypt and decrypt the restored database. Values
+      are of the form `projects//locations//keyRings//cryptoKeys/`.
+    kmsKeyNames: Optional. Specifies the KMS configuration for one or more
+      keys used to encrypt the database. Values are of the form
+      `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
+      `kms_key_names` must fully cover all regions of the database's instance
+      configuration. Some examples: * For regional (single-region) instance
+      configurations, specify a regional location KMS key. * For multi-region
+      instance configurations of type `GOOGLE_MANAGED`, either specify a
+      multi-region location KMS key or multiple regional location KMS keys
+      that cover all regions in the instance configuration. * For an instance
+      configuration of type `USER_MANAGED`, specify only regional location KMS
+      keys to cover each region in the instance configuration. Multi-region
+      location KMS keys aren't supported for `USER_MANAGED` type instance
+      configurations.
+  """
+
+  kmsKeyName = _messages.StringField(1)
+  kmsKeyNames = _messages.StringField(2, repeated=True)
+
+
 class InstanceOperationProgress(_messages.Message):
   r"""Encapsulates progress related information for a Cloud Spanner long
   running instance operations.
@@ -2553,6 +2985,10 @@ class InstancePartition(_messages.Message):
     StateValueValuesEnum: Output only. The current instance partition state.
 
   Fields:
+    autoscalingConfig: Optional. The autoscaling configuration. Autoscaling is
+      enabled if this field is set. When autoscaling is enabled, fields in
+      compute_capacity are treated as OUTPUT_ONLY fields and reflect the
+      current compute capacity allocated to the instance partition.
     config: Required. The name of the instance partition's configuration.
       Values are of the form `projects//instanceConfigs/`. See also
       InstanceConfig and ListInstanceConfigs.
@@ -2614,25 +3050,26 @@ class InstancePartition(_messages.Message):
     CREATING = 1
     READY = 2
 
-  config = _messages.StringField(1)
-  createTime = _messages.StringField(2)
-  displayName = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  name = _messages.StringField(5)
-  nodeCount = _messages.IntegerField(6, variant=_messages.Variant.INT32)
-  processingUnits = _messages.IntegerField(7, variant=_messages.Variant.INT32)
-  referencingBackups = _messages.StringField(8, repeated=True)
-  referencingDatabases = _messages.StringField(9, repeated=True)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
-  updateTime = _messages.StringField(11)
+  autoscalingConfig = _messages.MessageField('AutoscalingConfig', 1)
+  config = _messages.StringField(2)
+  createTime = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  name = _messages.StringField(6)
+  nodeCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  processingUnits = _messages.IntegerField(8, variant=_messages.Variant.INT32)
+  referencingBackups = _messages.StringField(9, repeated=True)
+  referencingDatabases = _messages.StringField(10, repeated=True)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  updateTime = _messages.StringField(12)
 
 
 class InstanceReplicaSelection(_messages.Message):
   r"""ReplicaSelection identifies replicas with common properties.
 
   Fields:
-    location: Required. Name of the location of the replicas (e.g., "us-
-      central1").
+    location: Required. Name of the location of the replicas (for example,
+      "us-central1").
   """
 
   location = _messages.StringField(1)
@@ -2964,10 +3401,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListScansResponse(_messages.Message):
@@ -3199,22 +3641,91 @@ class MetricMatrixRow(_messages.Message):
   cols = _messages.FloatField(1, repeated=True, variant=_messages.Variant.FLOAT)
 
 
+class Mod(_messages.Message):
+  r"""A mod describes all data changes in a watched table row.
+
+  Fields:
+    keys: Returns the value of the primary key of the modified row.
+    newValues: Returns the new values after the change for the modified
+      columns. Always empty for DELETE.
+    oldValues: Returns the old values before the change for the modified
+      columns. Always empty for INSERT, or if old values are not being
+      captured specified by value_capture_type.
+  """
+
+  keys = _messages.MessageField('ModValue', 1, repeated=True)
+  newValues = _messages.MessageField('ModValue', 2, repeated=True)
+  oldValues = _messages.MessageField('ModValue', 3, repeated=True)
+
+
+class ModValue(_messages.Message):
+  r"""Returns the value and associated metadata for a particular field of the
+  Mod.
+
+  Fields:
+    columnMetadataIndex: Index within the repeated column_metadata field, to
+      obtain the column metadata for the column that was modified.
+    value: The value of the column.
+  """
+
+  columnMetadataIndex = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  value = _messages.MessageField('extra_types.JsonValue', 2)
+
+
+class MoveInEvent(_messages.Message):
+  r"""Describes move-in of the key ranges into the change stream partition
+  identified by partition_token. To maintain processing the changes for a
+  particular key in timestamp order, the query processing the change stream
+  partition identified by partition_token should not advance beyond the
+  partition event record commit timestamp until the queries processing the
+  source change stream partitions have processed all change stream records
+  with timestamps <= the partition event record commit timestamp.
+
+  Fields:
+    sourcePartitionToken: An unique partition identifier describing the source
+      change stream partition that recorded changes for the key range that is
+      moving into this partition.
+  """
+
+  sourcePartitionToken = _messages.StringField(1)
+
+
 class MoveInstanceRequest(_messages.Message):
   r"""The request for MoveInstance.
 
   Fields:
     targetConfig: Required. The target instance configuration where to move
       the instance. Values are of the form `projects//instanceConfigs/`.
+    targetDatabaseMoveConfigs: Optional. The configuration for each database
+      in the target instance configuration.
   """
 
   targetConfig = _messages.StringField(1)
+  targetDatabaseMoveConfigs = _messages.MessageField('DatabaseMoveConfig', 2, repeated=True)
+
+
+class MoveOutEvent(_messages.Message):
+  r"""Describes move-out of the key ranges out of the change stream partition
+  identified by partition_token. To maintain processing the changes for a
+  particular key in timestamp order, the query processing the MoveOutEvent in
+  the partition identified by partition_token should inform the queries
+  processing the destination partitions that they can unblock and proceed
+  processing records past the commit_timestamp.
+
+  Fields:
+    destinationPartitionToken: An unique partition identifier describing the
+      destination change stream partition that will record changes for the key
+      range that is moving out of this partition.
+  """
+
+  destinationPartitionToken = _messages.StringField(1)
 
 
 class MultiplexedSessionPrecommitToken(_messages.Message):
   r"""When a read-write transaction is executed on a multiplexed session, this
-  precommit token is sent back to the client as a part of the [Transaction]
-  message in the BeginTransaction response and also as a part of the
-  [ResultSet] and [PartialResultSet] responses.
+  precommit token is sent back to the client as a part of the Transaction
+  message in the BeginTransaction response and also as a part of the ResultSet
+  and PartialResultSet responses.
 
   Fields:
     precommitToken: Opaque precommit token.
@@ -3421,12 +3932,15 @@ class PartialResultSet(_messages.Message):
     chunkedValue: If true, then the final value in values is chunked, and must
       be combined with more values from subsequent `PartialResultSet`s to
       obtain a complete field value.
+    last: Optional. Indicates whether this is the last `PartialResultSet` in
+      the stream. The server might optionally set this field. Clients
+      shouldn't rely on this field being set in all cases.
     metadata: Metadata about the result set, such as row type information.
       Only present in the first response.
-    precommitToken: Optional. A precommit token will be included if the read-
-      write transaction is on a multiplexed session. The precommit token with
-      the highest sequence number from this transaction attempt should be
-      passed to the Commit request for this transaction.
+    precommitToken: Optional. A precommit token is included if the read-write
+      transaction has multiplexed sessions enabled. Pass the precommit token
+      with the highest sequence number from this transaction attempt to the
+      Commit request for this transaction.
     resumeToken: Streaming calls might be interrupted for a variety of
       reasons, such as TCP connection loss. If this occurs, the stream of
       results can be resumed by re-sending the original request and including
@@ -3435,83 +3949,185 @@ class PartialResultSet(_messages.Message):
     stats: Query plan and execution statistics for the statement that produced
       this streaming result set. These can be requested by setting
       ExecuteSqlRequest.query_mode and are sent only once with the last
-      response in the stream. This field will also be present in the last
-      response for DML statements.
+      response in the stream. This field is also present in the last response
+      for DML statements.
     values: A streamed result set consists of a stream of values, which might
       be split into many `PartialResultSet` messages to accommodate large rows
       and/or large values. Every N complete values defines a row, where N is
       equal to the number of entries in metadata.row_type.fields. Most values
-      are encoded based on type as described here. It is possible that the
-      last value in values is "chunked", meaning that the rest of the value is
-      sent in subsequent `PartialResultSet`(s). This is denoted by the
+      are encoded based on type as described here. It's possible that the last
+      value in values is "chunked", meaning that the rest of the value is sent
+      in subsequent `PartialResultSet`(s). This is denoted by the
       chunked_value field. Two or more chunked values can be merged to form a
-      complete value as follows: * `bool/number/null`: cannot be chunked *
+      complete value as follows: * `bool/number/null`: can't be chunked *
       `string`: concatenate the strings * `list`: concatenate the lists. If
       the last element in a list is a `string`, `list`, or `object`, merge it
       with the first element in the next list by applying these rules
       recursively. * `object`: concatenate the (field name, field value)
       pairs. If a field name is duplicated, then apply these rules recursively
-      to merge the field values. Some examples of merging: # Strings are
-      concatenated. "foo", "bar" => "foobar" # Lists of non-strings are
-      concatenated. [2, 3], [4] => [2, 3, 4] # Lists are concatenated, but the
-      last and first elements are merged # because they are strings. ["a",
-      "b"], ["c", "d"] => ["a", "bc", "d"] # Lists are concatenated, but the
-      last and first elements are merged # because they are lists.
-      Recursively, the last and first elements # of the inner lists are merged
-      because they are strings. ["a", ["b", "c"]], [["d"], "e"] => ["a", ["b",
-      "cd"], "e"] # Non-overlapping object fields are combined. {"a": "1"},
-      {"b": "2"} => {"a": "1", "b": 2"} # Overlapping object fields are
-      merged. {"a": "1"}, {"a": "2"} => {"a": "12"} # Examples of merging
-      objects containing lists of strings. {"a": ["1"]}, {"a": ["2"]} => {"a":
-      ["12"]} For a more complete example, suppose a streaming SQL query is
-      yielding a result set whose rows contain a single string field. The
-      following `PartialResultSet`s might be yielded: { "metadata": { ... }
-      "values": ["Hello", "W"] "chunked_value": true "resume_token": "Af65..."
-      } { "values": ["orl"] "chunked_value": true } { "values": ["d"]
-      "resume_token": "Zx1B..." } This sequence of `PartialResultSet`s encodes
-      two rows, one containing the field value `"Hello"`, and a second
-      containing the field value `"World" = "W" + "orl" + "d"`. Not all
-      `PartialResultSet`s contain a `resume_token`. Execution can only be
-      resumed from a previously yielded `resume_token`. For the above sequence
-      of `PartialResultSet`s, resuming the query with `"resume_token":
-      "Af65..."` will yield results from the `PartialResultSet` with value
-      `["orl"]`.
+      to merge the field values. Some examples of merging: Strings are
+      concatenated. "foo", "bar" => "foobar" Lists of non-strings are
+      concatenated. [2, 3], [4] => [2, 3, 4] Lists are concatenated, but the
+      last and first elements are merged because they are strings. ["a", "b"],
+      ["c", "d"] => ["a", "bc", "d"] Lists are concatenated, but the last and
+      first elements are merged because they are lists. Recursively, the last
+      and first elements of the inner lists are merged because they are
+      strings. ["a", ["b", "c"]], [["d"], "e"] => ["a", ["b", "cd"], "e"] Non-
+      overlapping object fields are combined. {"a": "1"}, {"b": "2"} => {"a":
+      "1", "b": 2"} Overlapping object fields are merged. {"a": "1"}, {"a":
+      "2"} => {"a": "12"} Examples of merging objects containing lists of
+      strings. {"a": ["1"]}, {"a": ["2"]} => {"a": ["12"]} For a more complete
+      example, suppose a streaming SQL query is yielding a result set whose
+      rows contain a single string field. The following `PartialResultSet`s
+      might be yielded: { "metadata": { ... } "values": ["Hello", "W"]
+      "chunked_value": true "resume_token": "Af65..." } { "values": ["orl"]
+      "chunked_value": true } { "values": ["d"] "resume_token": "Zx1B..." }
+      This sequence of `PartialResultSet`s encodes two rows, one containing
+      the field value `"Hello"`, and a second containing the field value
+      `"World" = "W" + "orl" + "d"`. Not all `PartialResultSet`s contain a
+      `resume_token`. Execution can only be resumed from a previously yielded
+      `resume_token`. For the above sequence of `PartialResultSet`s, resuming
+      the query with `"resume_token": "Af65..."` yields results from the
+      `PartialResultSet` with value "orl".
   """
 
   chunkedValue = _messages.BooleanField(1)
-  metadata = _messages.MessageField('ResultSetMetadata', 2)
-  precommitToken = _messages.MessageField('MultiplexedSessionPrecommitToken', 3)
-  resumeToken = _messages.BytesField(4)
-  stats = _messages.MessageField('ResultSetStats', 5)
-  values = _messages.MessageField('extra_types.JsonValue', 6, repeated=True)
+  last = _messages.BooleanField(2)
+  metadata = _messages.MessageField('ResultSetMetadata', 3)
+  precommitToken = _messages.MessageField('MultiplexedSessionPrecommitToken', 4)
+  resumeToken = _messages.BytesField(5)
+  stats = _messages.MessageField('ResultSetStats', 6)
+  values = _messages.MessageField('extra_types.JsonValue', 7, repeated=True)
 
 
 class Partition(_messages.Message):
   r"""Information returned for each partition returned in a PartitionResponse.
 
   Fields:
-    partitionToken: This token can be passed to Read, StreamingRead,
-      ExecuteSql, or ExecuteStreamingSql requests to restrict the results to
-      those identified by this partition token.
+    partitionToken: This token can be passed to `Read`, `StreamingRead`,
+      `ExecuteSql`, or `ExecuteStreamingSql` requests to restrict the results
+      to those identified by this partition token.
   """
 
   partitionToken = _messages.BytesField(1)
 
 
-class PartitionOptions(_messages.Message):
-  r"""Options for a PartitionQueryRequest and PartitionReadRequest.
+class PartitionEndRecord(_messages.Message):
+  r"""A partition end record serves as a notification that the client should
+  stop reading the partition. No further records are expected to be retrieved
+  on it.
 
   Fields:
-    maxPartitions: **Note:** This hint is currently ignored by PartitionQuery
-      and PartitionRead requests. The desired maximum number of partitions to
-      return. For example, this may be set to the number of workers available.
-      The default for this option is currently 10,000. The maximum value is
-      currently 200,000. This is only a hint. The actual number of partitions
-      returned may be smaller or larger than this maximum count request.
+    endTimestamp: End timestamp at which the change stream partition is
+      terminated. All changes generated by this partition will have timestamps
+      <= end_timestamp. DataChangeRecord.commit_timestamps,
+      PartitionStartRecord.start_timestamps,
+      PartitionEventRecord.commit_timestamps, and
+      PartitionEndRecord.end_timestamps can have the same value in the same
+      partition. PartitionEndRecord is the last record returned for a
+      partition.
+    partitionToken: Unique partition identifier describing the terminated
+      change stream partition. partition_token is equal to the partition token
+      of the change stream partition currently queried to return this
+      PartitionEndRecord.
+    recordSequence: Record sequence numbers are unique and monotonically
+      increasing (but not necessarily contiguous) for a specific timestamp
+      across record types in the same partition. To guarantee ordered
+      processing, the reader should process records (of potentially different
+      types) in record_sequence order for a specific timestamp in the same
+      partition.
+  """
+
+  endTimestamp = _messages.StringField(1)
+  partitionToken = _messages.StringField(2)
+  recordSequence = _messages.StringField(3)
+
+
+class PartitionEventRecord(_messages.Message):
+  r"""A partition event record describes key range changes for a change stream
+  partition. The changes to a row defined by its primary key can be captured
+  in one change stream partition for a specific time range, and then be
+  captured in a different change stream partition for a different time range.
+  This movement of key ranges across change stream partitions is a reflection
+  of activities, such as Spanner's dynamic splitting and load balancing, etc.
+  Processing this event is needed if users want to guarantee processing of the
+  changes for any key in timestamp order. If time ordered processing of
+  changes for a primary key is not needed, this event can be ignored. To
+  guarantee time ordered processing for each primary key, if the event
+  describes move-ins, the reader of this partition needs to wait until the
+  readers of the source partitions have processed all records with timestamps
+  <= this PartitionEventRecord.commit_timestamp, before advancing beyond this
+  PartitionEventRecord. If the event describes move-outs, the reader can
+  notify the readers of the destination partitions that they can continue
+  processing.
+
+  Fields:
+    commitTimestamp: Indicates the commit timestamp at which the key range
+      change occurred. DataChangeRecord.commit_timestamps,
+      PartitionStartRecord.start_timestamps,
+      PartitionEventRecord.commit_timestamps, and
+      PartitionEndRecord.end_timestamps can have the same value in the same
+      partition.
+    moveInEvents: Set when one or more key ranges are moved into the change
+      stream partition identified by partition_token. Example: Two key ranges
+      are moved into partition (P1) from partition (P2) and partition (P3) in
+      a single transaction at timestamp T. The PartitionEventRecord returned
+      in P1 will reflect the move as: PartitionEventRecord { commit_timestamp:
+      T partition_token: "P1" move_in_events { source_partition_token: "P2" }
+      move_in_events { source_partition_token: "P3" } } The
+      PartitionEventRecord returned in P2 will reflect the move as:
+      PartitionEventRecord { commit_timestamp: T partition_token: "P2"
+      move_out_events { destination_partition_token: "P1" } } The
+      PartitionEventRecord returned in P3 will reflect the move as:
+      PartitionEventRecord { commit_timestamp: T partition_token: "P3"
+      move_out_events { destination_partition_token: "P1" } }
+    moveOutEvents: Set when one or more key ranges are moved out of the change
+      stream partition identified by partition_token. Example: Two key ranges
+      are moved out of partition (P1) to partition (P2) and partition (P3) in
+      a single transaction at timestamp T. The PartitionEventRecord returned
+      in P1 will reflect the move as: PartitionEventRecord { commit_timestamp:
+      T partition_token: "P1" move_out_events { destination_partition_token:
+      "P2" } move_out_events { destination_partition_token: "P3" } } The
+      PartitionEventRecord returned in P2 will reflect the move as:
+      PartitionEventRecord { commit_timestamp: T partition_token: "P2"
+      move_in_events { source_partition_token: "P1" } } The
+      PartitionEventRecord returned in P3 will reflect the move as:
+      PartitionEventRecord { commit_timestamp: T partition_token: "P3"
+      move_in_events { source_partition_token: "P1" } }
+    partitionToken: Unique partition identifier describing the partition this
+      event occurred on. partition_token is equal to the partition token of
+      the change stream partition currently queried to return this
+      PartitionEventRecord.
+    recordSequence: Record sequence numbers are unique and monotonically
+      increasing (but not necessarily contiguous) for a specific timestamp
+      across record types in the same partition. To guarantee ordered
+      processing, the reader should process records (of potentially different
+      types) in record_sequence order for a specific timestamp in the same
+      partition.
+  """
+
+  commitTimestamp = _messages.StringField(1)
+  moveInEvents = _messages.MessageField('MoveInEvent', 2, repeated=True)
+  moveOutEvents = _messages.MessageField('MoveOutEvent', 3, repeated=True)
+  partitionToken = _messages.StringField(4)
+  recordSequence = _messages.StringField(5)
+
+
+class PartitionOptions(_messages.Message):
+  r"""Options for a `PartitionQueryRequest` and `PartitionReadRequest`.
+
+  Fields:
+    maxPartitions: **Note:** This hint is currently ignored by
+      `PartitionQuery` and `PartitionRead` requests. The desired maximum
+      number of partitions to return. For example, this might be set to the
+      number of workers available. The default for this option is currently
+      10,000. The maximum value is currently 200,000. This is only a hint. The
+      actual number of partitions returned can be smaller or larger than this
+      maximum count request.
     partitionSizeBytes: **Note:** This hint is currently ignored by
-      PartitionQuery and PartitionRead requests. The desired data size for
+      `PartitionQuery` and `PartitionRead` requests. The desired data size for
       each partition generated. The default for this option is currently 1
-      GiB. This is only a hint. The actual size of each partition may be
+      GiB. This is only a hint. The actual size of each partition can be
       smaller or larger than this size request.
   """
 
@@ -3523,7 +4139,7 @@ class PartitionQueryRequest(_messages.Message):
   r"""The request for PartitionQuery
 
   Messages:
-    ParamTypesValue: It is not always possible for Cloud Spanner to infer the
+    ParamTypesValue: It isn't always possible for Cloud Spanner to infer the
       right SQL type from a JSON value. For example, values of type `BYTES`
       and values of type `STRING` both appear in params as JSON strings. In
       these cases, `param_types` can be used to specify the exact SQL type for
@@ -3535,11 +4151,11 @@ class PartitionQueryRequest(_messages.Message):
       names can contain letters, numbers, and underscores. Parameters can
       appear anywhere that a literal value is expected. The same parameter
       name can be used more than once, for example: `"WHERE id > @msg_id AND
-      id < @msg_id + 100"` It is an error to execute a SQL statement with
+      id < @msg_id + 100"` It's an error to execute a SQL statement with
       unbound parameters.
 
   Fields:
-    paramTypes: It is not always possible for Cloud Spanner to infer the right
+    paramTypes: It isn't always possible for Cloud Spanner to infer the right
       SQL type from a JSON value. For example, values of type `BYTES` and
       values of type `STRING` both appear in params as JSON strings. In these
       cases, `param_types` can be used to specify the exact SQL type for some
@@ -3551,29 +4167,29 @@ class PartitionQueryRequest(_messages.Message):
       contain letters, numbers, and underscores. Parameters can appear
       anywhere that a literal value is expected. The same parameter name can
       be used more than once, for example: `"WHERE id > @msg_id AND id <
-      @msg_id + 100"` It is an error to execute a SQL statement with unbound
+      @msg_id + 100"` It's an error to execute a SQL statement with unbound
       parameters.
     partitionOptions: Additional options that affect how many partitions are
       created.
     sql: Required. The query request to generate partitions for. The request
-      fails if the query is not root partitionable. For a query to be root
+      fails if the query isn't root partitionable. For a query to be root
       partitionable, it needs to satisfy a few conditions. For example, if the
       query execution plan contains a distributed union operator, then it must
       be the first operator in the plan. For more information about other
       conditions, see [Read data in parallel](https://cloud.google.com/spanner
       /docs/reads#read_data_in_parallel). The query request must not contain
       DML commands, such as `INSERT`, `UPDATE`, or `DELETE`. Use
-      `ExecuteStreamingSql` with a PartitionedDml transaction for large,
+      `ExecuteStreamingSql` with a `PartitionedDml` transaction for large,
       partition-friendly DML operations.
-    transaction: Read only snapshot transactions are supported, read/write and
-      single use transactions are not.
+    transaction: Read-only snapshot transactions are supported, read and write
+      and single-use transactions are not.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParamTypesValue(_messages.Message):
-    r"""It is not always possible for Cloud Spanner to infer the right SQL
-    type from a JSON value. For example, values of type `BYTES` and values of
-    type `STRING` both appear in params as JSON strings. In these cases,
+    r"""It isn't always possible for Cloud Spanner to infer the right SQL type
+    from a JSON value. For example, values of type `BYTES` and values of type
+    `STRING` both appear in params as JSON strings. In these cases,
     `param_types` can be used to specify the exact SQL type for some or all of
     the SQL query parameters. See the definition of Type for more information
     about SQL types.
@@ -3605,8 +4221,8 @@ class PartitionQueryRequest(_messages.Message):
     the parameter name (for example, `@firstName`). Parameter names can
     contain letters, numbers, and underscores. Parameters can appear anywhere
     that a literal value is expected. The same parameter name can be used more
-    than once, for example: `"WHERE id > @msg_id AND id < @msg_id + 100"` It
-    is an error to execute a SQL statement with unbound parameters.
+    than once, for example: `"WHERE id > @msg_id AND id < @msg_id + 100"` It's
+    an error to execute a SQL statement with unbound parameters.
 
     Messages:
       AdditionalProperty: An additional property for a ParamsValue object.
@@ -3647,7 +4263,7 @@ class PartitionReadRequest(_messages.Message):
     keySet: Required. `key_set` identifies the rows to be yielded. `key_set`
       names the primary keys of the rows in table to be yielded, unless index
       is present. If index is present, then key_set instead names index keys
-      in index. It is not an error for the `key_set` to name rows that do not
+      in index. It isn't an error for the `key_set` to name rows that don't
       exist in the database. Read yields nothing for nonexistent rows.
     partitionOptions: Additional options that affect how many partitions are
       created.
@@ -3674,6 +4290,33 @@ class PartitionResponse(_messages.Message):
 
   partitions = _messages.MessageField('Partition', 1, repeated=True)
   transaction = _messages.MessageField('Transaction', 2)
+
+
+class PartitionStartRecord(_messages.Message):
+  r"""A partition start record serves as a notification that the client should
+  schedule the partitions to be queried. PartitionStartRecord returns
+  information about one or more partitions.
+
+  Fields:
+    partitionTokens: Unique partition identifiers to be used in queries.
+    recordSequence: Record sequence numbers are unique and monotonically
+      increasing (but not necessarily contiguous) for a specific timestamp
+      across record types in the same partition. To guarantee ordered
+      processing, the reader should process records (of potentially different
+      types) in record_sequence order for a specific timestamp in the same
+      partition.
+    startTimestamp: Start timestamp at which the partitions should be queried
+      to return change stream records with timestamps >= start_timestamp.
+      DataChangeRecord.commit_timestamps,
+      PartitionStartRecord.start_timestamps,
+      PartitionEventRecord.commit_timestamps, and
+      PartitionEndRecord.end_timestamps can have the same value in the same
+      partition.
+  """
+
+  partitionTokens = _messages.StringField(1, repeated=True)
+  recordSequence = _messages.StringField(2)
+  startTimestamp = _messages.StringField(3)
 
 
 class PartitionedDml(_messages.Message):
@@ -3927,9 +4570,9 @@ class QueryOptions(_messages.Message):
       `latest` as a value instructs Cloud Spanner to use the latest generated
       statistics package. If not specified, Cloud Spanner uses the statistics
       package set at the database level options, or the latest package if the
-      database option is not set. The statistics package requested by the
-      query has to be exempt from garbage collection. This can be achieved
-      with the following DDL statement: ``` ALTER STATISTICS SET OPTIONS
+      database option isn't set. The statistics package requested by the query
+      has to be exempt from garbage collection. This can be achieved with the
+      following DDL statement: ```sql ALTER STATISTICS SET OPTIONS
       (allow_gc=false) ``` The list of available statistics packages can be
       queried from `INFORMATION_SCHEMA.SPANNER_STATISTICS`. Executing a SQL
       statement with an invalid optimizer statistics package or with a
@@ -3943,11 +4586,11 @@ class QueryOptions(_messages.Message):
       level options. Any other positive integer (from the list of supported
       optimizer versions) overrides the default optimizer version for query
       execution. The list of supported optimizer versions can be queried from
-      SPANNER_SYS.SUPPORTED_OPTIMIZER_VERSIONS. Executing a SQL statement with
-      an invalid optimizer version fails with an `INVALID_ARGUMENT` error. See
-      https://cloud.google.com/spanner/docs/query-optimizer/manage-query-
-      optimizer for more information on managing the query optimizer. The
-      `optimizer_version` statement hint has precedence over this setting.
+      `SPANNER_SYS.SUPPORTED_OPTIMIZER_VERSIONS`. Executing a SQL statement
+      with an invalid optimizer version fails with an `INVALID_ARGUMENT`
+      error. See https://cloud.google.com/spanner/docs/query-optimizer/manage-
+      query-optimizer for more information on managing the query optimizer.
+      The `optimizer_version` statement hint has precedence over this setting.
   """
 
   optimizerStatisticsPackage = _messages.StringField(1)
@@ -4048,7 +4691,7 @@ class ReadOnly(_messages.Message):
     readTimestamp: Executes all reads at the given timestamp. Unlike other
       modes, reads at a specific timestamp are repeatable; the same read at
       the same timestamp always returns the same data. If the timestamp is in
-      the future, the read will block until the specified timestamp, modulo
+      the future, the read is blocked until the specified timestamp, modulo
       the read's deadline. Useful for large scale consistent reads such as
       mapreduces, or for coordinating many reads against a consistent snapshot
       of the data. A timestamp in RFC3339 UTC \"Zulu\" format, accurate to
@@ -4074,19 +4717,20 @@ class ReadRequest(_messages.Message):
     LockHintValueValuesEnum: Optional. Lock Hint for the request, it can only
       be used with read-write transactions.
     OrderByValueValuesEnum: Optional. Order for the returned rows. By default,
-      Spanner will return result rows in primary key order except for
-      PartitionRead requests. For applications that do not require rows to be
+      Spanner returns result rows in primary key order except for
+      PartitionRead requests. For applications that don't require rows to be
       returned in primary key (`ORDER_BY_PRIMARY_KEY`) order, setting
       `ORDER_BY_NO_ORDER` option allows Spanner to optimize row retrieval,
-      resulting in lower latencies in certain cases (e.g. bulk point lookups).
+      resulting in lower latencies in certain cases (for example, bulk point
+      lookups).
 
   Fields:
     columns: Required. The columns of table to be returned for each row
       matching this request.
     dataBoostEnabled: If this is for a partitioned read and this field is set
       to `true`, the request is executed with Spanner Data Boost independent
-      compute resources. If the field is set to `true` but the request does
-      not set `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+      compute resources. If the field is set to `true` but the request doesn't
+      set `partition_token`, the API returns an `INVALID_ARGUMENT` error.
     directedReadOptions: Directed read options for this request.
     index: If non-empty, the name of an index on table. This index is used
       instead of the table primary key when interpreting key_set and sorting
@@ -4096,23 +4740,23 @@ class ReadRequest(_messages.Message):
       is present. If index is present, then key_set instead names index keys
       in index. If the partition_token field is empty, rows are yielded in
       table primary key order (if index is empty) or index key order (if index
-      is non-empty). If the partition_token field is not empty, rows will be
-      yielded in an unspecified order. It is not an error for the `key_set` to
-      name rows that do not exist in the database. Read yields nothing for
+      is non-empty). If the partition_token field isn't empty, rows are
+      yielded in an unspecified order. It isn't an error for the `key_set` to
+      name rows that don't exist in the database. Read yields nothing for
       nonexistent rows.
     limit: If greater than zero, only the first `limit` rows are yielded. If
-      `limit` is zero, the default is no limit. A limit cannot be specified if
+      `limit` is zero, the default is no limit. A limit can't be specified if
       `partition_token` is set.
     lockHint: Optional. Lock Hint for the request, it can only be used with
       read-write transactions.
-    orderBy: Optional. Order for the returned rows. By default, Spanner will
-      return result rows in primary key order except for PartitionRead
-      requests. For applications that do not require rows to be returned in
+    orderBy: Optional. Order for the returned rows. By default, Spanner
+      returns result rows in primary key order except for PartitionRead
+      requests. For applications that don't require rows to be returned in
       primary key (`ORDER_BY_PRIMARY_KEY`) order, setting `ORDER_BY_NO_ORDER`
       option allows Spanner to optimize row retrieval, resulting in lower
-      latencies in certain cases (e.g. bulk point lookups).
-    partitionToken: If present, results will be restricted to the specified
-      partition previously created using PartitionRead(). There must be an
+      latencies in certain cases (for example, bulk point lookups).
+    partitionToken: If present, results are restricted to the specified
+      partition previously created using `PartitionRead`. There must be an
       exact match for the values of fields common to this message and the
       PartitionReadRequest message used to create this partition_token.
     requestOptions: Common options for this request.
@@ -4131,8 +4775,8 @@ class ReadRequest(_messages.Message):
     write transactions.
 
     Values:
-      LOCK_HINT_UNSPECIFIED: Default value. LOCK_HINT_UNSPECIFIED is
-        equivalent to LOCK_HINT_SHARED.
+      LOCK_HINT_UNSPECIFIED: Default value. `LOCK_HINT_UNSPECIFIED` is
+        equivalent to `LOCK_HINT_SHARED`.
       LOCK_HINT_SHARED: Acquire shared locks. By default when you perform a
         read as part of a read-write transaction, Spanner acquires shared read
         locks, which allows other reads to still access the data until your
@@ -4157,8 +4801,8 @@ class ReadRequest(_messages.Message):
         try to act on the same data, they automatically get serialized. Each
         transaction waits its turn to acquire the lock and avoids getting into
         deadlock situations. Because the exclusive lock hint is just a hint,
-        it should not be considered equivalent to a mutex. In other words, you
-        should not use Spanner exclusive locks as a mutual exclusion mechanism
+        it shouldn't be considered equivalent to a mutex. In other words, you
+        shouldn't use Spanner exclusive locks as a mutual exclusion mechanism
         for the execution of code outside of Spanner. **Note:** Request
         exclusive locks judiciously because they block others from reading
         that data for the entire transaction, rather than just when the writes
@@ -4171,20 +4815,19 @@ class ReadRequest(_messages.Message):
     LOCK_HINT_EXCLUSIVE = 2
 
   class OrderByValueValuesEnum(_messages.Enum):
-    r"""Optional. Order for the returned rows. By default, Spanner will return
+    r"""Optional. Order for the returned rows. By default, Spanner returns
     result rows in primary key order except for PartitionRead requests. For
-    applications that do not require rows to be returned in primary key
+    applications that don't require rows to be returned in primary key
     (`ORDER_BY_PRIMARY_KEY`) order, setting `ORDER_BY_NO_ORDER` option allows
     Spanner to optimize row retrieval, resulting in lower latencies in certain
-    cases (e.g. bulk point lookups).
+    cases (for example, bulk point lookups).
 
     Values:
-      ORDER_BY_UNSPECIFIED: Default value. ORDER_BY_UNSPECIFIED is equivalent
-        to ORDER_BY_PRIMARY_KEY.
+      ORDER_BY_UNSPECIFIED: Default value. `ORDER_BY_UNSPECIFIED` is
+        equivalent to `ORDER_BY_PRIMARY_KEY`.
       ORDER_BY_PRIMARY_KEY: Read rows are returned in primary key order. In
         the event that this option is used in conjunction with the
-        `partition_token` field, the API will return an `INVALID_ARGUMENT`
-        error.
+        `partition_token` field, the API returns an `INVALID_ARGUMENT` error.
       ORDER_BY_NO_ORDER: Read rows are returned in any order.
     """
     ORDER_BY_UNSPECIFIED = 0
@@ -4224,14 +4867,23 @@ class ReadWrite(_messages.Message):
     r"""Read lock mode for the transaction.
 
     Values:
-      READ_LOCK_MODE_UNSPECIFIED: Default value. If the value is not
-        specified, the pessimistic read lock is used.
+      READ_LOCK_MODE_UNSPECIFIED: Default value. * If isolation level is
+        REPEATABLE_READ, then it is an error to specify `read_lock_mode`.
+        Locking semantics default to `OPTIMISTIC`. No validation checks are
+        done for reads, except to validate that the data that was served at
+        the snapshot time is unchanged at commit time in the following cases:
+        1. reads done as part of queries that use `SELECT FOR UPDATE` 2. reads
+        done as part of statements with a `LOCK_SCANNED_RANGES` hint 3. reads
+        done as part of DML statements * At all other isolation levels, if
+        `read_lock_mode` is the default value, then pessimistic read locks are
+        used.
       PESSIMISTIC: Pessimistic lock mode. Read locks are acquired immediately
-        on read.
+        on read. Semantics described only applies to SERIALIZABLE isolation.
       OPTIMISTIC: Optimistic lock mode. Locks for reads within the transaction
         are not acquired on read. Instead the locks are acquired on a commit
         to validate that read/queried data has not changed since the
-        transaction started.
+        transaction started. Semantics described only applies to SERIALIZABLE
+        isolation.
     """
     READ_LOCK_MODE_UNSPECIFIED = 0
     PESSIMISTIC = 1
@@ -4309,17 +4961,18 @@ class ReplicaSelection(_messages.Message):
   be one of the regions within the multi-region configuration of your
   database. * `type` - The type of the replica. Some examples of using
   replica_selectors are: * `location:us-east1` --> The "us-east1" replica(s)
-  of any available type will be used to process the request. *
-  `type:READ_ONLY` --> The "READ_ONLY" type replica(s) in nearest available
-  location will be used to process the request. * `location:us-east1
-  type:READ_ONLY` --> The "READ_ONLY" type replica(s) in location "us-east1"
-  will be used to process the request.
+  of any available type is used to process the request. * `type:READ_ONLY` -->
+  The "READ_ONLY" type replica(s) in the nearest available location are used
+  to process the request. * `location:us-east1 type:READ_ONLY` --> The
+  "READ_ONLY" type replica(s) in location "us-east1" is used to process the
+  request.
 
   Enums:
     TypeValueValuesEnum: The type of replica.
 
   Fields:
-    location: The location or region of the serving requests, e.g. "us-east1".
+    location: The location or region of the serving requests, for example,
+      "us-east1".
     type: The type of replica.
   """
 
@@ -4346,25 +4999,27 @@ class RequestOptions(_messages.Message):
     PriorityValueValuesEnum: Priority for the request.
 
   Fields:
+    clientContext: Optional. Optional context that may be needed for some
+      requests.
     priority: Priority for the request.
     requestTag: A per-request tag which can be applied to queries or reads,
-      used for statistics collection. Both request_tag and transaction_tag can
-      be specified for a read or query that belongs to a transaction. This
-      field is ignored for requests where it's not applicable (e.g.
-      CommitRequest). Legal characters for `request_tag` values are all
+      used for statistics collection. Both `request_tag` and `transaction_tag`
+      can be specified for a read or query that belongs to a transaction. This
+      field is ignored for requests where it's not applicable (for example,
+      `CommitRequest`). Legal characters for `request_tag` values are all
       printable characters (ASCII 32 - 126) and the length of a request_tag is
       limited to 50 characters. Values that exceed this limit are truncated.
-      Any leading underscore (_) characters will be removed from the string.
+      Any leading underscore (_) characters are removed from the string.
     transactionTag: A tag used for statistics collection about this
-      transaction. Both request_tag and transaction_tag can be specified for a
-      read or query that belongs to a transaction. The value of
+      transaction. Both `request_tag` and `transaction_tag` can be specified
+      for a read or query that belongs to a transaction. The value of
       transaction_tag should be the same for all requests belonging to the
       same transaction. If this request doesn't belong to any transaction,
-      transaction_tag will be ignored. Legal characters for `transaction_tag`
+      `transaction_tag` is ignored. Legal characters for `transaction_tag`
       values are all printable characters (ASCII 32 - 126) and the length of a
-      transaction_tag is limited to 50 characters. Values that exceed this
-      limit are truncated. Any leading underscore (_) characters will be
-      removed from the string.
+      `transaction_tag` is limited to 50 characters. Values that exceed this
+      limit are truncated. Any leading underscore (_) characters are removed
+      from the string.
   """
 
   class PriorityValueValuesEnum(_messages.Enum):
@@ -4382,9 +5037,10 @@ class RequestOptions(_messages.Message):
     PRIORITY_MEDIUM = 2
     PRIORITY_HIGH = 3
 
-  priority = _messages.EnumField('PriorityValueValuesEnum', 1)
-  requestTag = _messages.StringField(2)
-  transactionTag = _messages.StringField(3)
+  clientContext = _messages.MessageField('ClientContext', 1)
+  priority = _messages.EnumField('PriorityValueValuesEnum', 2)
+  requestTag = _messages.StringField(3)
+  transactionTag = _messages.StringField(4)
 
 
 class RestoreDatabaseEncryptionConfig(_messages.Message):
@@ -4396,10 +5052,15 @@ class RestoreDatabaseEncryptionConfig(_messages.Message):
 
   Fields:
     encryptionType: Required. The encryption type of the restored database.
-    kmsKeyName: Optional. The Cloud KMS key that will be used to
-      encrypt/decrypt the restored database. This field should be set only
-      when encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the
-      form `projects//locations//keyRings//cryptoKeys/`.
+    kmsKeyName: Optional. This field is maintained for backwards
+      compatibility. For new callers, we recommend using `kms_key_names` to
+      specify the KMS key. Only use `kms_key_name` if the location of the KMS
+      key matches the database instance's configuration (location) exactly.
+      For example, if the KMS location is in `us-central1` or `nam3`, then the
+      database instance must also be in `us-central1` or `nam3`. The Cloud KMS
+      key that is used to encrypt and decrypt the restored database. Set this
+      field only when encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values
+      are of the form `projects//locations//keyRings//cryptoKeys/`.
     kmsKeyNames: Optional. Specifies the KMS configuration for one or more
       keys used to encrypt the database. Values have the form
       `projects//locations//keyRings//cryptoKeys/`. The keys referenced by
@@ -4544,10 +5205,10 @@ class ResultSet(_messages.Message):
 
   Fields:
     metadata: Metadata about the result set, such as row type information.
-    precommitToken: Optional. A precommit token will be included if the read-
-      write transaction is on a multiplexed session. The precommit token with
-      the highest sequence number from this transaction attempt should be
-      passed to the Commit request for this transaction.
+    precommitToken: Optional. A precommit token is included if the read-write
+      transaction is on a multiplexed session. Pass the precommit token with
+      the highest sequence number from this transaction attempt to the Commit
+      request for this transaction.
     rows: Each element in `rows` is a row whose format is defined by
       metadata.row_type. The ith element in each row matches the ith field in
       metadata.row_type. Elements are encoded based on type as described here.
@@ -4556,7 +5217,7 @@ class ResultSet(_messages.Message):
       ExecuteSqlRequest.query_mode. DML statements always produce stats
       containing the number of rows modified, unless executed using the
       ExecuteSqlRequest.QueryMode.PLAN ExecuteSqlRequest.query_mode. Other
-      fields may or may not be populated, based on the
+      fields might or might not be populated, based on the
       ExecuteSqlRequest.query_mode.
   """
 
@@ -4617,7 +5278,7 @@ class ResultSetStats(_messages.Message):
       secs", "cpu_time": "1.19 secs" }
     rowCountExact: Standard DML returns an exact count of rows that were
       modified.
-    rowCountLowerBound: Partitioned DML does not offer exactly-once semantics,
+    rowCountLowerBound: Partitioned DML doesn't offer exactly-once semantics,
       so it returns a lower bound of the rows modified.
   """
 
@@ -4746,7 +5407,7 @@ class Session(_messages.Message):
 
   Fields:
     approximateLastUseTime: Output only. The approximate timestamp when the
-      session is last used. It is typically earlier than the actual last use
+      session is last used. It's typically earlier than the actual last use
       time.
     createTime: Output only. The timestamp when the session is created.
     creatorRole: The database role which created this session.
@@ -4757,10 +5418,10 @@ class Session(_messages.Message):
       `([a-z]([-a-z0-9]*[a-z0-9])?)?`. * No more than 64 labels can be
       associated with a given session. See https://goo.gl/xmQnxf for more
       information on and examples of labels.
-    multiplexed: Optional. If true, specifies a multiplexed session. Use a
-      multiplexed session for multiple, concurrent read-only operations. Don't
-      use them for read-write transactions, partitioned reads, or partitioned
-      queries. Use CreateSession to create multiplexed sessions. Don't use
+    multiplexed: Optional. If `true`, specifies a multiplexed session. Use a
+      multiplexed session for multiple, concurrent operations including any
+      combination of read-only and read-write transactions. Use
+      `sessions.create` to create multiplexed sessions. Don't use
       BatchCreateSessions to create a multiplexed session. You can't delete or
       list multiplexed sessions.
     name: Output only. The name of the session. This is always system-
@@ -4874,11 +5535,12 @@ class SingleRegionQuorum(_messages.Message):
   r"""Message type for a single-region quorum.
 
   Fields:
-    servingLocation: Required. The location of the serving region, e.g. "us-
-      central1". The location must be one of the regions within the dual-
-      region instance configuration of your database. The list of valid
-      locations is available using the GetInstanceConfig API. This should only
-      be used if you plan to change quorum to the single-region quorum type.
+    servingLocation: Required. The location of the serving region, for
+      example, "us-central1". The location must be one of the regions within
+      the dual-region instance configuration of your database. The list of
+      valid locations is available using the GetInstanceConfig API. This
+      should only be used if you plan to change quorum to the single-region
+      quorum type.
   """
 
   servingLocation = _messages.StringField(1)
@@ -5033,12 +5695,20 @@ class SpannerProjectsInstanceConfigsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstanceConfigsPatchRequest(_messages.Message):
@@ -5123,12 +5793,20 @@ class SpannerProjectsInstanceConfigsSsdCachesOperationsListRequest(_messages.Mes
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstanceConfigsSsdCachesPatchRequest(_messages.Message):
@@ -5239,9 +5917,15 @@ class SpannerProjectsInstancesBackupsCreateRequest(_messages.Message):
       `projects//instances//backups/`.
     encryptionConfig_encryptionType: Required. The encryption type of the
       backup.
-    encryptionConfig_kmsKeyName: Optional. The Cloud KMS key that will be used
-      to protect the backup. This field should be set only when
-      encryption_type is `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the form
+    encryptionConfig_kmsKeyName: Optional. This field is maintained for
+      backwards compatibility. For new callers, we recommend using
+      `kms_key_names` to specify the KMS key. Only use `kms_key_name` if the
+      location of the KMS key matches the database instance's configuration
+      (location) exactly. For example, if the KMS location is in `us-central1`
+      or `nam3`, then the database instance must also be in `us-central1` or
+      `nam3`. The Cloud KMS key that is used to encrypt and decrypt the
+      restored database. Set this field only when encryption_type is
+      `CUSTOMER_MANAGED_ENCRYPTION`. Values are of the form
       `projects//locations//keyRings//cryptoKeys/`.
     encryptionConfig_kmsKeyNames: Optional. Specifies the KMS configuration
       for the one or more keys used to protect the backup. Values are of the
@@ -5256,11 +5940,11 @@ class SpannerProjectsInstancesBackupsCreateRequest(_messages.Message):
       keys to cover each region in the instance configuration. Multi-region
       location KMS keys aren't supported for `USER_MANAGED` type instance
       configurations.
-    parent: Required. The name of the instance in which the backup will be
-      created. This must be the same instance that contains the database the
-      backup will be created from. The backup will be stored in the
-      location(s) specified in the instance configuration of this instance.
-      Values are of the form `projects//instances/`.
+    parent: Required. The name of the instance in which the backup is created.
+      This must be the same instance that contains the database the backup is
+      created from. The backup will be stored in the locations specified in
+      the instance configuration of this instance. Values are of the form
+      `projects//instances/`.
   """
 
   class EncryptionConfigEncryptionTypeValueValuesEnum(_messages.Enum):
@@ -5407,12 +6091,20 @@ class SpannerProjectsInstancesBackupsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstancesBackupsPatchRequest(_messages.Message):
@@ -5428,11 +6120,11 @@ class SpannerProjectsInstancesBackupsPatchRequest(_messages.Message):
       in the location(s) specified in the instance configuration of the
       instance containing the backup, identified by the prefix of the backup
       name of the form `projects//instances/`.
-    updateMask: Required. A mask specifying which fields (e.g. `expire_time`)
-      in the Backup resource should be updated. This mask is relative to the
-      Backup resource, not to the request message. The field mask must always
-      be specified; this prevents any future fields from being erased
-      accidentally by clients that do not know about them.
+    updateMask: Required. A mask specifying which fields (for example,
+      `expire_time`) in the backup resource should be updated. This mask is
+      relative to the backup resource, not to the request message. The field
+      mask must always be specified; this prevents any future fields from
+      being erased accidentally by clients that do not know about them.
   """
 
   backup = _messages.MessageField('Backup', 1)
@@ -5537,8 +6229,9 @@ class SpannerProjectsInstancesDatabasesAddSplitPointsRequest(_messages.Message):
   Fields:
     addSplitPointsRequest: A AddSplitPointsRequest resource to be passed as
       the request body.
-    database: Required. The database on whose tables/indexes split points are
-      to be added. Values are of the form `projects//instances//databases/`.
+    database: Required. The database on whose tables or indexes the split
+      points are to be added. Values are of the form
+      `projects//instances//databases/`.
   """
 
   addSplitPointsRequest = _messages.MessageField('AddSplitPointsRequest', 1)
@@ -5870,12 +6563,20 @@ class SpannerProjectsInstancesDatabasesOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstancesDatabasesPatchRequest(_messages.Message):
@@ -5910,6 +6611,33 @@ class SpannerProjectsInstancesDatabasesRestoreRequest(_messages.Message):
 
   parent = _messages.StringField(1, required=True)
   restoreDatabaseRequest = _messages.MessageField('RestoreDatabaseRequest', 2)
+
+
+class SpannerProjectsInstancesDatabasesSessionsAdaptMessageRequest(_messages.Message):
+  r"""A SpannerProjectsInstancesDatabasesSessionsAdaptMessageRequest object.
+
+  Fields:
+    adaptMessageRequest: A AdaptMessageRequest resource to be passed as the
+      request body.
+    name: Required. The database session in which the adapter request is
+      processed.
+  """
+
+  adaptMessageRequest = _messages.MessageField('AdaptMessageRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class SpannerProjectsInstancesDatabasesSessionsAdapterRequest(_messages.Message):
+  r"""A SpannerProjectsInstancesDatabasesSessionsAdapterRequest object.
+
+  Fields:
+    adapterSession: A AdapterSession resource to be passed as the request
+      body.
+    parent: Required. The database in which the new session is created.
+  """
+
+  adapterSession = _messages.MessageField('AdapterSession', 1)
+  parent = _messages.StringField(2, required=True)
 
 
 class SpannerProjectsInstancesDatabasesSessionsBatchCreateRequest(_messages.Message):
@@ -6371,12 +7099,20 @@ class SpannerProjectsInstancesInstancePartitionsOperationsListRequest(_messages.
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstancesInstancePartitionsPatchRequest(_messages.Message):
@@ -6481,12 +7217,20 @@ class SpannerProjectsInstancesOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpannerProjectsInstancesPatchRequest(_messages.Message):
@@ -6582,7 +7326,7 @@ class SpannerScansListRequest(_messages.Message):
 
 
 class SplitPoints(_messages.Message):
-  r"""The split points of a table/index.
+  r"""The split points of a table or an index.
 
   Fields:
     expireTime: Optional. The expiration timestamp of the split points. A
@@ -6591,7 +7335,7 @@ class SplitPoints(_messages.Message):
       specified.
     index: The index to split. If specified, the `table` field must refer to
       the index's base table.
-    keys: Required. The list of split keys, i.e., the split boundaries.
+    keys: Required. The list of split keys. In essence, the split boundaries.
     table: The table to split.
   """
 
@@ -6788,7 +7532,7 @@ class Statement(_messages.Message):
   r"""A single DML statement.
 
   Messages:
-    ParamTypesValue: It is not always possible for Cloud Spanner to infer the
+    ParamTypesValue: It isn't always possible for Cloud Spanner to infer the
       right SQL type from a JSON value. For example, values of type `BYTES`
       and values of type `STRING` both appear in params as JSON strings. In
       these cases, `param_types` can be used to specify the exact SQL type for
@@ -6800,11 +7544,11 @@ class Statement(_messages.Message):
       names can contain letters, numbers, and underscores. Parameters can
       appear anywhere that a literal value is expected. The same parameter
       name can be used more than once, for example: `"WHERE id > @msg_id AND
-      id < @msg_id + 100"` It is an error to execute a SQL statement with
+      id < @msg_id + 100"` It's an error to execute a SQL statement with
       unbound parameters.
 
   Fields:
-    paramTypes: It is not always possible for Cloud Spanner to infer the right
+    paramTypes: It isn't always possible for Cloud Spanner to infer the right
       SQL type from a JSON value. For example, values of type `BYTES` and
       values of type `STRING` both appear in params as JSON strings. In these
       cases, `param_types` can be used to specify the exact SQL type for some
@@ -6816,16 +7560,16 @@ class Statement(_messages.Message):
       contain letters, numbers, and underscores. Parameters can appear
       anywhere that a literal value is expected. The same parameter name can
       be used more than once, for example: `"WHERE id > @msg_id AND id <
-      @msg_id + 100"` It is an error to execute a SQL statement with unbound
+      @msg_id + 100"` It's an error to execute a SQL statement with unbound
       parameters.
     sql: Required. The DML string.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParamTypesValue(_messages.Message):
-    r"""It is not always possible for Cloud Spanner to infer the right SQL
-    type from a JSON value. For example, values of type `BYTES` and values of
-    type `STRING` both appear in params as JSON strings. In these cases,
+    r"""It isn't always possible for Cloud Spanner to infer the right SQL type
+    from a JSON value. For example, values of type `BYTES` and values of type
+    `STRING` both appear in params as JSON strings. In these cases,
     `param_types` can be used to specify the exact SQL type for some or all of
     the SQL statement parameters. See the definition of Type for more
     information about SQL types.
@@ -6857,8 +7601,8 @@ class Statement(_messages.Message):
     the parameter name (for example, `@firstName`). Parameter names can
     contain letters, numbers, and underscores. Parameters can appear anywhere
     that a literal value is expected. The same parameter name can be used more
-    than once, for example: `"WHERE id > @msg_id AND id < @msg_id + 100"` It
-    is an error to execute a SQL statement with unbound parameters.
+    than once, for example: `"WHERE id > @msg_id AND id < @msg_id + 100"` It's
+    an error to execute a SQL statement with unbound parameters.
 
     Messages:
       AdditionalProperty: An additional property for a ParamsValue object.
@@ -6981,7 +7725,7 @@ class Transaction(_messages.Message):
       ExecuteSql, Commit, or Rollback calls. Single-use read-only transactions
       do not have IDs, because single-use transactions do not support multiple
       requests.
-    precommitToken: A precommit token will be included in the response of a
+    precommitToken: A precommit token is included in the response of a
       BeginTransaction request if the read-write transaction is on a
       multiplexed session and a mutation_key was specified in the
       BeginTransaction. The precommit token with the highest sequence number
@@ -7000,224 +7744,31 @@ class Transaction(_messages.Message):
 
 
 class TransactionOptions(_messages.Message):
-  r"""Transactions: Each session can have at most one active transaction at a
-  time (note that standalone reads and queries use a transaction internally
-  and do count towards the one transaction limit). After the active
-  transaction is completed, the session can immediately be re-used for the
-  next transaction. It is not necessary to create a new session for each
-  transaction. Transaction modes: Cloud Spanner supports three transaction
-  modes: 1. Locking read-write. This type of transaction is the only way to
-  write data into Cloud Spanner. These transactions rely on pessimistic
-  locking and, if necessary, two-phase commit. Locking read-write transactions
-  may abort, requiring the application to retry. 2. Snapshot read-only.
-  Snapshot read-only transactions provide guaranteed consistency across
-  several reads, but do not allow writes. Snapshot read-only transactions can
-  be configured to read at timestamps in the past, or configured to perform a
-  strong read (where Spanner will select a timestamp such that the read is
-  guaranteed to see the effects of all transactions that have committed before
-  the start of the read). Snapshot read-only transactions do not need to be
-  committed. Queries on change streams must be performed with the snapshot
-  read-only transaction mode, specifying a strong read. See
-  TransactionOptions.ReadOnly.strong for more details. 3. Partitioned DML.
-  This type of transaction is used to execute a single Partitioned DML
-  statement. Partitioned DML partitions the key space and runs the DML
-  statement over each partition in parallel using separate, internal
-  transactions that commit independently. Partitioned DML transactions do not
-  need to be committed. For transactions that only read, snapshot read-only
-  transactions provide simpler semantics and are almost always faster. In
-  particular, read-only transactions do not take locks, so they do not
-  conflict with read-write transactions. As a consequence of not taking locks,
-  they also do not abort, so retry loops are not needed. Transactions may only
-  read-write data in a single database. They may, however, read-write data in
-  different tables within that database. Locking read-write transactions:
-  Locking transactions may be used to atomically read-modify-write data
-  anywhere in a database. This type of transaction is externally consistent.
-  Clients should attempt to minimize the amount of time a transaction is
-  active. Faster transactions commit with higher probability and cause less
-  contention. Cloud Spanner attempts to keep read locks active as long as the
-  transaction continues to do reads, and the transaction has not been
-  terminated by Commit or Rollback. Long periods of inactivity at the client
-  may cause Cloud Spanner to release a transaction's locks and abort it.
-  Conceptually, a read-write transaction consists of zero or more reads or SQL
-  statements followed by Commit. At any time before Commit, the client can
-  send a Rollback request to abort the transaction. Semantics: Cloud Spanner
-  can commit the transaction if all read locks it acquired are still valid at
-  commit time, and it is able to acquire write locks for all writes. Cloud
-  Spanner can abort the transaction for any reason. If a commit attempt
-  returns `ABORTED`, Cloud Spanner guarantees that the transaction has not
-  modified any user data in Cloud Spanner. Unless the transaction commits,
-  Cloud Spanner makes no guarantees about how long the transaction's locks
-  were held for. It is an error to use Cloud Spanner locks for any sort of
-  mutual exclusion other than between Cloud Spanner transactions themselves.
-  Retrying aborted transactions: When a transaction aborts, the application
-  can choose to retry the whole transaction again. To maximize the chances of
-  successfully committing the retry, the client should execute the retry in
-  the same session as the original attempt. The original session's lock
-  priority increases with each consecutive abort, meaning that each attempt
-  has a slightly better chance of success than the previous. Note that the
-  lock priority is preserved per session (not per transaction). Lock priority
-  is set by the first read or write in the first attempt of a read-write
-  transaction. If the application starts a new session to retry the whole
-  transaction, the transaction loses its original lock priority. Moreover, the
-  lock priority is only preserved if the transaction fails with an `ABORTED`
-  error. Under some circumstances (for example, many transactions attempting
-  to modify the same row(s)), a transaction can abort many times in a short
-  period before successfully committing. Thus, it is not a good idea to cap
-  the number of retries a transaction can attempt; instead, it is better to
-  limit the total amount of time spent retrying. Idle transactions: A
-  transaction is considered idle if it has no outstanding reads or SQL queries
-  and has not started a read or SQL query within the last 10 seconds. Idle
-  transactions can be aborted by Cloud Spanner so that they don't hold on to
-  locks indefinitely. If an idle transaction is aborted, the commit will fail
-  with error `ABORTED`. If this behavior is undesirable, periodically
-  executing a simple SQL query in the transaction (for example, `SELECT 1`)
-  prevents the transaction from becoming idle. Snapshot read-only
-  transactions: Snapshot read-only transactions provides a simpler method than
-  locking read-write transactions for doing several consistent reads. However,
-  this type of transaction does not support writes. Snapshot transactions do
-  not take locks. Instead, they work by choosing a Cloud Spanner timestamp,
-  then executing all reads at that timestamp. Since they do not acquire locks,
-  they do not block concurrent read-write transactions. Unlike locking read-
-  write transactions, snapshot read-only transactions never abort. They can
-  fail if the chosen read timestamp is garbage collected; however, the default
-  garbage collection policy is generous enough that most applications do not
-  need to worry about this in practice. Snapshot read-only transactions do not
-  need to call Commit or Rollback (and in fact are not permitted to do so). To
-  execute a snapshot transaction, the client specifies a timestamp bound,
-  which tells Cloud Spanner how to choose a read timestamp. The types of
-  timestamp bound are: - Strong (the default). - Bounded staleness. - Exact
-  staleness. If the Cloud Spanner database to be read is geographically
-  distributed, stale read-only transactions can execute more quickly than
-  strong or read-write transactions, because they are able to execute far from
-  the leader replica. Each type of timestamp bound is discussed in detail
-  below. Strong: Strong reads are guaranteed to see the effects of all
-  transactions that have committed before the start of the read. Furthermore,
-  all rows yielded by a single read are consistent with each other -- if any
-  part of the read observes a transaction, all parts of the read see the
-  transaction. Strong reads are not repeatable: two consecutive strong read-
-  only transactions might return inconsistent results if there are concurrent
-  writes. If consistency across reads is required, the reads should be
-  executed within a transaction or at an exact read timestamp. Queries on
-  change streams (see below for more details) must also specify the strong
-  read timestamp bound. See TransactionOptions.ReadOnly.strong. Exact
-  staleness: These timestamp bounds execute reads at a user-specified
-  timestamp. Reads at a timestamp are guaranteed to see a consistent prefix of
-  the global transaction history: they observe modifications done by all
-  transactions with a commit timestamp less than or equal to the read
-  timestamp, and observe none of the modifications done by transactions with a
-  larger commit timestamp. They will block until all conflicting transactions
-  that may be assigned commit timestamps <= the read timestamp have finished.
-  The timestamp can either be expressed as an absolute Cloud Spanner commit
-  timestamp or a staleness relative to the current time. These modes do not
-  require a "negotiation phase" to pick a timestamp. As a result, they execute
-  slightly faster than the equivalent boundedly stale concurrency modes. On
-  the other hand, boundedly stale reads usually return fresher results. See
-  TransactionOptions.ReadOnly.read_timestamp and
-  TransactionOptions.ReadOnly.exact_staleness. Bounded staleness: Bounded
-  staleness modes allow Cloud Spanner to pick the read timestamp, subject to a
-  user-provided staleness bound. Cloud Spanner chooses the newest timestamp
-  within the staleness bound that allows execution of the reads at the closest
-  available replica without blocking. All rows yielded are consistent with
-  each other -- if any part of the read observes a transaction, all parts of
-  the read see the transaction. Boundedly stale reads are not repeatable: two
-  stale reads, even if they use the same staleness bound, can execute at
-  different timestamps and thus return inconsistent results. Boundedly stale
-  reads execute in two phases: the first phase negotiates a timestamp among
-  all replicas needed to serve the read. In the second phase, reads are
-  executed at the negotiated timestamp. As a result of the two phase
-  execution, bounded staleness reads are usually a little slower than
-  comparable exact staleness reads. However, they are typically able to return
-  fresher results, and are more likely to execute at the closest replica.
-  Because the timestamp negotiation requires up-front knowledge of which rows
-  will be read, it can only be used with single-use read-only transactions.
-  See TransactionOptions.ReadOnly.max_staleness and
-  TransactionOptions.ReadOnly.min_read_timestamp. Old read timestamps and
-  garbage collection: Cloud Spanner continuously garbage collects deleted and
-  overwritten data in the background to reclaim storage space. This process is
-  known as "version GC". By default, version GC reclaims versions after they
-  are one hour old. Because of this, Cloud Spanner cannot perform reads at
-  read timestamps more than one hour in the past. This restriction also
-  applies to in-progress reads and/or SQL queries whose timestamp become too
-  old while executing. Reads and SQL queries with too-old read timestamps fail
-  with the error `FAILED_PRECONDITION`. You can configure and extend the
-  `VERSION_RETENTION_PERIOD` of a database up to a period as long as one week,
-  which allows Cloud Spanner to perform reads up to one week in the past.
-  Querying change Streams: A Change Stream is a schema object that can be
-  configured to watch data changes on the entire database, a set of tables, or
-  a set of columns in a database. When a change stream is created, Spanner
-  automatically defines a corresponding SQL Table-Valued Function (TVF) that
-  can be used to query the change records in the associated change stream
-  using the ExecuteStreamingSql API. The name of the TVF for a change stream
-  is generated from the name of the change stream: READ_. All queries on
-  change stream TVFs must be executed using the ExecuteStreamingSql API with a
-  single-use read-only transaction with a strong read-only timestamp_bound.
-  The change stream TVF allows users to specify the start_timestamp and
-  end_timestamp for the time range of interest. All change records within the
-  retention period is accessible using the strong read-only timestamp_bound.
-  All other TransactionOptions are invalid for change stream queries. In
-  addition, if TransactionOptions.read_only.return_read_timestamp is set to
-  true, a special value of 2^63 - 2 will be returned in the Transaction
-  message that describes the transaction, instead of a valid read timestamp.
-  This special value should be discarded and not used for any subsequent
-  queries. Please see https://cloud.google.com/spanner/docs/change-streams for
-  more details on how to query the change stream TVFs. Partitioned DML
-  transactions: Partitioned DML transactions are used to execute DML
-  statements with a different execution strategy that provides different, and
-  often better, scalability properties for large, table-wide operations than
-  DML in a ReadWrite transaction. Smaller scoped statements, such as an OLTP
-  workload, should prefer using ReadWrite transactions. Partitioned DML
-  partitions the keyspace and runs the DML statement on each partition in
-  separate, internal transactions. These transactions commit automatically
-  when complete, and run independently from one another. To reduce lock
-  contention, this execution strategy only acquires read locks on rows that
-  match the WHERE clause of the statement. Additionally, the smaller per-
-  partition transactions hold locks for less time. That said, Partitioned DML
-  is not a drop-in replacement for standard DML used in ReadWrite
-  transactions. - The DML statement must be fully-partitionable. Specifically,
-  the statement must be expressible as the union of many statements which each
-  access only a single row of the table. - The statement is not applied
-  atomically to all rows of the table. Rather, the statement is applied
-  atomically to partitions of the table, in independent transactions.
-  Secondary index rows are updated atomically with the base table rows. -
-  Partitioned DML does not guarantee exactly-once execution semantics against
-  a partition. The statement is applied at least once to each partition. It is
-  strongly recommended that the DML statement should be idempotent to avoid
-  unexpected results. For instance, it is potentially dangerous to run a
-  statement such as `UPDATE table SET column = column + 1` as it could be run
-  multiple times against some rows. - The partitions are committed
-  automatically - there is no support for Commit or Rollback. If the call
-  returns an error, or if the client issuing the ExecuteSql call dies, it is
-  possible that some rows had the statement executed on them successfully. It
-  is also possible that statement was never executed against other rows. -
-  Partitioned DML transactions may only contain the execution of a single DML
-  statement via ExecuteSql or ExecuteStreamingSql. - If any error is
-  encountered during the execution of the partitioned DML operation (for
-  instance, a UNIQUE INDEX violation, division by zero, or a value that cannot
-  be stored due to schema constraints), then the operation is stopped at that
-  point and an error is returned. It is possible that at this point, some
-  partitions have been committed (or even committed multiple times), and other
-  partitions have not been run at all. Given the above, Partitioned DML is
-  good fit for large, database-wide, operations that are idempotent, such as
-  deleting old rows from a very large table.
+  r"""Options to use for transactions.
+
+  Enums:
+    IsolationLevelValueValuesEnum: Isolation level for the transaction.
 
   Fields:
     excludeTxnFromChangeStreams: When `exclude_txn_from_change_streams` is set
-      to `true`: * Modifications from this transaction will not be recorded in
-      change streams with DDL option `allow_txn_exclusion=true` that are
-      tracking columns modified by these transactions. * Modifications from
-      this transaction will be recorded in change streams with DDL option
-      `allow_txn_exclusion=false or not set` that are tracking columns
-      modified by these transactions. When `exclude_txn_from_change_streams`
-      is set to `false` or not set, Modifications from this transaction will
-      be recorded in all change streams that are tracking columns modified by
-      these transactions. `exclude_txn_from_change_streams` may only be
-      specified for read-write or partitioned-dml transactions, otherwise the
-      API will return an `INVALID_ARGUMENT` error.
+      to `true`, it prevents read or write transactions from being tracked in
+      change streams. * If the DDL option `allow_txn_exclusion` is set to
+      `true`, then the updates made within this transaction aren't recorded in
+      the change stream. * If you don't set the DDL option
+      `allow_txn_exclusion` or if it's set to `false`, then the updates made
+      within this transaction are recorded in the change stream. When
+      `exclude_txn_from_change_streams` is set to `false` or not set,
+      modifications from this transaction are recorded in all change streams
+      that are tracking columns modified by these transactions. The
+      `exclude_txn_from_change_streams` option can only be specified for read-
+      write or partitioned DML transactions, otherwise the API returns an
+      `INVALID_ARGUMENT` error.
+    isolationLevel: Isolation level for the transaction.
     partitionedDml: Partitioned DML transaction. Authorization to begin a
       Partitioned DML transaction requires
       `spanner.databases.beginPartitionedDmlTransaction` permission on the
       `session` resource.
-    readOnly: Transaction will not write. Authorization to begin a read-only
+    readOnly: Transaction does not write. Authorization to begin a read-only
       transaction requires `spanner.databases.beginReadOnlyTransaction`
       permission on the `session` resource.
     readWrite: Transaction may write. Authorization to begin a read-write
@@ -7226,10 +7777,40 @@ class TransactionOptions(_messages.Message):
       the `session` resource.
   """
 
+  class IsolationLevelValueValuesEnum(_messages.Enum):
+    r"""Isolation level for the transaction.
+
+    Values:
+      ISOLATION_LEVEL_UNSPECIFIED: Default value. If the value is not
+        specified, the `SERIALIZABLE` isolation level is used.
+      SERIALIZABLE: All transactions appear as if they executed in a serial
+        order, even if some of the reads, writes, and other operations of
+        distinct transactions actually occurred in parallel. Spanner assigns
+        commit timestamps that reflect the order of committed transactions to
+        implement this property. Spanner offers a stronger guarantee than
+        serializability called external consistency. For more information, see
+        [TrueTime and external
+        consistency](https://cloud.google.com/spanner/docs/true-time-external-
+        consistency#serializability).
+      REPEATABLE_READ: All reads performed during the transaction observe a
+        consistent snapshot of the database, and the transaction is only
+        successfully committed in the absence of conflicts between its updates
+        and any concurrent updates that have occurred since that snapshot.
+        Consequently, in contrast to `SERIALIZABLE` transactions, only write-
+        write conflicts are detected in snapshot transactions. This isolation
+        level does not support read-only and partitioned DML transactions.
+        When `REPEATABLE_READ` is specified on a read-write transaction, the
+        locking semantics default to `OPTIMISTIC`.
+    """
+    ISOLATION_LEVEL_UNSPECIFIED = 0
+    SERIALIZABLE = 1
+    REPEATABLE_READ = 2
+
   excludeTxnFromChangeStreams = _messages.BooleanField(1)
-  partitionedDml = _messages.MessageField('PartitionedDml', 2)
-  readOnly = _messages.MessageField('ReadOnly', 3)
-  readWrite = _messages.MessageField('ReadWrite', 4)
+  isolationLevel = _messages.EnumField('IsolationLevelValueValuesEnum', 2)
+  partitionedDml = _messages.MessageField('PartitionedDml', 3)
+  readOnly = _messages.MessageField('ReadOnly', 4)
+  readWrite = _messages.MessageField('ReadWrite', 5)
 
 
 class TransactionSelector(_messages.Message):
@@ -7328,6 +7909,8 @@ class Type(_messages.Message):
         `P[n]Y[n]M[n]DT[n]H[n]M[n[.fraction]]S` where `n` is an integer. For
         example, `P1Y2M3DT4H5M6.5S` represents time duration of 1 year, 2
         months, 3 days, 4 hours, 5 minutes, and 6.5 seconds.
+      UUID: Encoded as `string`, in lower-case hexa-decimal format, as
+        described in RFC 9562, section 4.
     """
     TYPE_CODE_UNSPECIFIED = 0
     BOOL = 1
@@ -7345,6 +7928,7 @@ class Type(_messages.Message):
     PROTO = 13
     ENUM = 14
     INTERVAL = 15
+    UUID = 16
 
   class TypeAnnotationValueValuesEnum(_messages.Enum):
     r"""The TypeAnnotationCode that disambiguates SQL type that Spanner will
@@ -7366,10 +7950,14 @@ class Type(_messages.Message):
         of this type should be treated as PostgreSQL JSONB values. Currently
         this annotation is always needed for JSON when a client interacts with
         PostgreSQL-enabled Spanner databases.
+      PG_OID: PostgreSQL compatible OID type. This annotation can be used by a
+        client interacting with PostgreSQL-enabled Spanner database to specify
+        that a value should be treated using the semantics of the OID type.
     """
     TYPE_ANNOTATION_CODE_UNSPECIFIED = 0
     PG_NUMERIC = 1
     PG_JSONB = 2
+    PG_OID = 3
 
   arrayElementType = _messages.MessageField('Type', 1)
   code = _messages.EnumField('CodeValueValuesEnum', 2)
@@ -7397,8 +7985,9 @@ class UpdateDatabaseDdlMetadata(_messages.Message):
     statements: For an update this list contains all the statements. For an
       individual statement, this list contains only that statement.
     throttled: Output only. When true, indicates that the operation is
-      throttled e.g. due to resource constraints. When resources become
-      available the operation will resume and this field will be false again.
+      throttled, for example, due to resource constraints. When resources
+      become available the operation will resume and this field will be false
+      again.
   """
 
   actions = _messages.MessageField('DdlStatementActionInfo', 1, repeated=True)
@@ -7414,13 +8003,13 @@ class UpdateDatabaseDdlRequest(_messages.Message):
   necessarily all at once, to the database schema at some point (or points) in
   the future. The server checks that the statements are executable
   (syntactically valid, name tables that exist, etc.) before enqueueing them,
-  but they may still fail upon later execution (e.g., if a statement from
-  another batch of statements is applied first and it conflicts in some way,
-  or if there is some data-related problem like a `NULL` value in a column to
-  which `NOT NULL` would be added). If a statement fails, all subsequent
-  statements in the batch are automatically cancelled. Each batch of
-  statements is assigned a name which can be used with the Operations API to
-  monitor progress. See the operation_id field for more details.
+  but they may still fail upon later execution (for example, if a statement
+  from another batch of statements is applied first and it conflicts in some
+  way, or if there is some data-related problem like a `NULL` value in a
+  column to which `NOT NULL` would be added). If a statement fails, all
+  subsequent statements in the batch are automatically cancelled. Each batch
+  of statements is assigned a name which can be used with the Operations API
+  to monitor progress. See the operation_id field for more details.
 
   Fields:
     operationId: If empty, the new update request is assigned an

@@ -30,6 +30,7 @@ from googlecloudsdk.core import resources
 _API_VERSION_FOR_TRACK = {
     base.ReleaseTrack.ALPHA: 'v1alpha1',
     base.ReleaseTrack.BETA: 'v1beta1',
+    base.ReleaseTrack.GA: 'v1',
 }
 _API_NAME = 'networksecurity'
 
@@ -74,9 +75,10 @@ class Client:
 
   def CreateDeploymentGroup(
       self,
-      deployment_group_id,
-      parent,
-      network,
+      deployment_group_id: str,
+      parent: str,
+      network: str,
+      description: str,
       labels=None,
   ):
     """Calls the CreateDeploymentGroup API.
@@ -85,6 +87,7 @@ class Client:
       deployment_group_id: str, the id of the mirroring deployment group.
       parent: str, the parent resource name.
       network: str, the network used for all group deployments.
+      description: str, the description of the mirroring deployment group.
       labels: LabelsValue, optional labels as key-value pairs.
 
     Returns:
@@ -93,7 +96,9 @@ class Client:
     deployment_group = self.messages.MirroringDeploymentGroup(
         labels=labels,
         network=network,
+        description=description,
     )
+
     create_request = self.messages.NetworksecurityProjectsLocationsMirroringDeploymentGroupsCreateRequest(
         mirroringDeploymentGroup=deployment_group,
         mirroringDeploymentGroupId=deployment_group_id,
@@ -118,12 +123,14 @@ class Client:
   def UpdateDeploymentGroup(
       self,
       name,
+      description,
       update_fields,
   ):
     """Calls the UpdateDeploymentGroup API.
 
     Args:
       name: str, the name of the mirroring deployment group.
+      description: str, the description of the mirroring deployment group.
       update_fields: A dictionary of fields to update mapped to their new
         values.
 
@@ -132,7 +139,9 @@ class Client:
     """
     dg = self.messages.MirroringDeploymentGroup(
         labels=update_fields.get('labels', None),
+        description=description,
     )
+
     update_request = self.messages.NetworksecurityProjectsLocationsMirroringDeploymentGroupsPatchRequest(
         name=name,
         mirroringDeploymentGroup=dg,

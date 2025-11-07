@@ -30,8 +30,8 @@ class NoFieldsSpecifiedError(exceptions.Error):
   """Error when no fields were specified for a Patch operation."""
 
 
-class GoogleApiSourceAlreadyExistsInProjectError(exceptions.Error):
-  """Error when a GoogleApiSource already exists in the project."""
+class NoProjectSubscriptionsSpecifiedError(exceptions.Error):
+  """Error when no project subscriptions were specified."""
 
 
 def GetGoogleAPISourceURI(resource):
@@ -170,6 +170,8 @@ class GoogleApiSourceClientV1(base.EventarcClientBase):
       logging_config,
       crypto_key_name,
       labels,
+      organization_subscription,
+      project_subscriptions,
   ):
     logging_config_enum = None
     if logging_config is not None:
@@ -178,7 +180,7 @@ class GoogleApiSourceClientV1(base.EventarcClientBase):
               logging_config
           ),
       )
-    return self._messages.GoogleApiSource(
+    google_api_source = self._messages.GoogleApiSource(
         name=google_api_source_ref.RelativeName(),
         destination=destination_ref.RelativeName()
         if destination_ref is not None
@@ -187,9 +189,35 @@ class GoogleApiSourceClientV1(base.EventarcClientBase):
         cryptoKeyName=crypto_key_name,
         labels=labels,
     )
+    if organization_subscription is not None:
+      if organization_subscription:
+        google_api_source.organizationSubscription = (
+            self._messages.OrganizationSubscription(
+                enabled=True,
+            )
+        )
+      else:
+        google_api_source.organizationSubscription = (
+            self._messages.OrganizationSubscription(
+                enabled=False,
+            )
+        )
+    elif project_subscriptions:
+      google_api_source.projectSubscriptions = (
+          self._BuildProjectSubscriptionsList(project_subscriptions)
+      )
+    return google_api_source
 
   def BuildUpdateMask(
-      self, destination, logging_config, crypto_key, clear_crypto_key, labels
+      self,
+      destination,
+      logging_config,
+      crypto_key,
+      clear_crypto_key,
+      labels,
+      organization_subscription,
+      project_subscriptions,
+      clear_project_subscriptions,
   ):
     """Builds an update mask for updating a GoogleApiSource.
 
@@ -199,6 +227,11 @@ class GoogleApiSourceClientV1(base.EventarcClientBase):
       crypto_key: bool, whether to update the crypto key.
       clear_crypto_key: bool, whether to clear the crypto key.
       labels: bool, whether to update the labels.
+      organization_subscription: bool, whether to update the organization
+        subscription.
+      project_subscriptions: bool, whether to update the project subscriptions.
+      clear_project_subscriptions: bool, whether to clear the project
+        subscriptions.
 
     Returns:
       The update mask as a string.
@@ -216,27 +249,26 @@ class GoogleApiSourceClientV1(base.EventarcClientBase):
       update_mask.append('cryptoKeyName')
     if labels:
       update_mask.append('labels')
+    if organization_subscription:
+      update_mask.append('organizationSubscription')
+    if project_subscriptions or clear_project_subscriptions:
+      update_mask.append('projectSubscriptions')
 
     if not update_mask:
       raise NoFieldsSpecifiedError('Must specify at least one field to update.')
     return ','.join(update_mask)
 
-  def RaiseErrorIfGoogleApiSourceExists(self, project):
-    list_req = (
-        self._messages.EventarcProjectsLocationsGoogleApiSourcesListRequest(
-            parent=f'projects/{project}/locations/-'
-        )
-    )
-    response = self._service.List(list_req)
-    if getattr(response, 'googleApiSources'):
-      raise GoogleApiSourceAlreadyExistsInProjectError(
-          'A Google API source already exists in the project. Currently, only'
-          ' one Google API source per project is supported.'
-      )
-
   def LabelsValueClass(self):
     """Returns the labels value class."""
     return self._messages.GoogleApiSource.LabelsValue
+
+  def _BuildProjectSubscriptionsList(self, project_subscriptions):
+    if not project_subscriptions:
+      raise NoProjectSubscriptionsSpecifiedError(
+          'Must specify at least one project number or project ID in the'
+          ' project subscriptions.'
+      )
+    return self._messages.ProjectSubscriptions(list=list(project_subscriptions))
 
   @property
   def _resource_label_plural(self):

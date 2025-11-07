@@ -77,6 +77,14 @@ class TaskTemplate(proto.Message):
             Optional. VPC Access configuration to use for
             this Task. For more information, visit
             https://cloud.google.com/run/docs/configuring/connecting-vpc.
+        node_selector (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.NodeSelector):
+            Optional. The node selector for the task
+            template.
+        gpu_zonal_redundancy_disabled (bool):
+            Optional. True if GPU zonal redundancy is
+            disabled on this task template.
+
+            This field is a member of `oneof`_ ``_gpu_zonal_redundancy_disabled``.
     """
 
     containers: MutableSequence[k8s_min.Container] = proto.RepeatedField(
@@ -116,6 +124,16 @@ class TaskTemplate(proto.Message):
         proto.MESSAGE,
         number=8,
         message=vendor_settings.VpcAccess,
+    )
+    node_selector: vendor_settings.NodeSelector = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=vendor_settings.NodeSelector,
+    )
+    gpu_zonal_redundancy_disabled: bool = proto.Field(
+        proto.BOOL,
+        number=12,
+        optional=True,
     )
 
 

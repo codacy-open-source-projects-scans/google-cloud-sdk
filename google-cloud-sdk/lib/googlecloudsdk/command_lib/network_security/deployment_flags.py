@@ -64,6 +64,13 @@ def AddDeploymentResource(release_track, parser):
   return concept_parsers.ConceptParser([presentation_spec]).AddToParser(parser)
 
 
+def AddDescriptionArg(
+    parser, help_text="Description of the mirroring deployment"
+):
+  """Adds a resource argument for Google Cloud description."""
+  parser.add_argument("--description", required=False, help=help_text)
+
+
 def AddMaxWait(
     parser,
     default_max_wait,
@@ -186,7 +193,6 @@ def AddMirroringDeploymentGroupResource(release_track, parser):
           "Location of the {resource}.",
           parameter_name="locationsId",
           fallthroughs=[
-              deps.ArgFallthrough("--location"),
               deps.FullySpecifiedAnchorFallthrough(
                   [deps.ArgFallthrough(DEPLOYMENT_RESOURCE_COLLECTION)],
                   collection_info,

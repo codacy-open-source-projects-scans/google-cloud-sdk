@@ -14,9 +14,6 @@
 # limitations under the License.
 """Exceptions for cloud deploy libraries."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.calliope import exceptions as c_exceptions
 from googlecloudsdk.core import exceptions
@@ -87,6 +84,22 @@ class InvalidReleaseNameError(exceptions.Error):
 
 class CloudDeployConfigError(exceptions.Error):
   """Error raised for errors in the cloud deploy yaml config."""
+
+  @classmethod
+  def for_unnamed_manifest(cls, num, message):
+    return cls(f'Error parsing manifest #{num}: {message}')
+
+  @classmethod
+  def for_resource(cls, kind, name, message):
+    return cls(f'Error parsing {kind} "{name}": {message}')
+
+  @classmethod
+  def for_resource_field(cls, kind, name, field, message):
+    return cls(f'Error parsing {kind} "{name}" field "{field}": {message}')
+
+
+class ManifestTransformException(exceptions.Error):
+  """Error raised when a manifest transform fails due to a bug."""
 
 
 class ListRolloutsError(exceptions.Error):
@@ -168,7 +181,7 @@ class AutomationNameFormatError(exceptions.Error):
   def __init__(self, automation_name):
     super(AutomationNameFormatError, self).__init__(
         'Automation name {} in the configuration should be in the format'
-        'of pipeline_id/automation_id.'.format(automation_name)
+        ' of pipeline_id/automation_id.'.format(automation_name)
     )
 
 

@@ -29,6 +29,23 @@ def AddDescribeFlags(parser):
       help='The name of the reservation block.')
 
 
+def AddFullViewFlag(parser):
+  help_text = """\
+  The view type for the reservation block.
+  """
+  parser.add_argument(
+      '--full-view',
+      metavar='FULL_VIEW',
+      choices={
+          'BLOCK_VIEW_FULL': 'Full detailed view of the reservation block.',
+          'BLOCK_VIEW_BASIC': 'Basic default view of the reservation block.',
+      },
+      default='BLOCK_VIEW_UNSPECIFIED',
+      help=help_text,
+      required=False,
+  )
+
+
 def AddScopeFlags(parser):
   """Adds scope flag to the parser."""
   parser.add_argument(
@@ -36,19 +53,15 @@ def AddScopeFlags(parser):
       metavar='SCOPE',
       type=lambda x: x.lower(),
       choices={
-          'all': (
-              'Maintenance should be performed on all hosts in the reservation'
-              ' block.'
-          ),
+          'all': 'Perform maintenance on all hosts in the reservation block.',
           'running': (
-              'Maintenance should be performed only on the hosts in the '
-              ' reservation block which have running VMs.'
+              'Perform maintenance only on the hosts in the reservation block'
+              ' that have running VMs.'
           ),
           'unused': (
-              'Maintenance should be performed only on the hosts in the'
-              ' reservation block which have no running VMs.'
+              'Perform maintenance only on the hosts in the reservation block'
+              " that don't have running VMs."
           ),
       },
       help='The maintenance scope to set for the reservation block.',
   )
-

@@ -44,12 +44,13 @@ class ExportDataRequest(_messages.Message):
 
   Fields:
     destinationGcsBucket: Cloud Storage destination.
+    metadataOptions: Optional. The metadata options for the export data.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       will know to ignore the request if it has already been completed. The
       server will guarantee that for at least 60 minutes since the first
       request. For example, consider a situation where you make an initial
-      request and t he request times out. If you make the request again with
+      request and the request times out. If you make the request again with
       the same request ID, the server can check if original operation with the
       same request ID was received, and if so, will ignore the second request.
       This prevents clients from accidentally creating duplicate commitments.
@@ -66,9 +67,10 @@ class ExportDataRequest(_messages.Message):
   """
 
   destinationGcsBucket = _messages.MessageField('DestinationGcsBucket', 1)
-  requestId = _messages.StringField(2)
-  serviceAccount = _messages.StringField(3)
-  sourceParallelstore = _messages.MessageField('SourceParallelstore', 4)
+  metadataOptions = _messages.MessageField('TransferMetadataOptions', 2)
+  requestId = _messages.StringField(3)
+  serviceAccount = _messages.StringField(4)
+  sourceParallelstore = _messages.MessageField('SourceParallelstore', 5)
 
 
 class GoogleProtobufEmpty(_messages.Message):
@@ -85,12 +87,14 @@ class ImportDataRequest(_messages.Message):
 
   Fields:
     destinationParallelstore: Parallelstore destination.
+    metadataOptions: Optional. The transfer metadata options for the import
+      data.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       will know to ignore the request if it has already been completed. The
       server will guarantee that for at least 60 minutes since the first
       request. For example, consider a situation where you make an initial
-      request and t he request times out. If you make the request again with
+      request and the request times out. If you make the request again with
       the same request ID, the server can check if original operation with the
       same request ID was received, and if so, will ignore the second request.
       This prevents clients from accidentally creating duplicate commitments.
@@ -108,27 +112,32 @@ class ImportDataRequest(_messages.Message):
   """
 
   destinationParallelstore = _messages.MessageField('DestinationParallelstore', 1)
-  requestId = _messages.StringField(2)
-  serviceAccount = _messages.StringField(3)
-  sourceGcsBucket = _messages.MessageField('SourceGcsBucket', 4)
+  metadataOptions = _messages.MessageField('TransferMetadataOptions', 2)
+  requestId = _messages.StringField(3)
+  serviceAccount = _messages.StringField(4)
+  sourceGcsBucket = _messages.MessageField('SourceGcsBucket', 5)
 
 
 class Instance(_messages.Message):
   r"""A Parallelstore instance.
 
   Enums:
-    DirectoryStripeLevelValueValuesEnum: Optional. Stripe level for
+    DeploymentTypeValueValuesEnum: Optional. Immutable. The deployment type of
+      the instance. Allowed values are: * `SCRATCH`: the instance is a scratch
+      instance. * `PERSISTENT`: the instance is a persistent instance.
+    DirectoryStripeLevelValueValuesEnum: Optional. Immutable. Stripe level for
       directories. Allowed values are: * `DIRECTORY_STRIPE_LEVEL_MIN`:
       recommended when directories contain a small number of files. *
       `DIRECTORY_STRIPE_LEVEL_BALANCED`: balances performance for workloads
       involving a mix of small and large directories. *
       `DIRECTORY_STRIPE_LEVEL_MAX`: recommended for directories with a large
       number of files.
-    FileStripeLevelValueValuesEnum: Optional. Stripe level for files. Allowed
-      values are: * `FILE_STRIPE_LEVEL_MIN`: offers the best performance for
-      small size files. * `FILE_STRIPE_LEVEL_BALANCED`: balances performance
-      for workloads involving a mix of small and large files. *
-      `FILE_STRIPE_LEVEL_MAX`: higher throughput performance for larger files.
+    FileStripeLevelValueValuesEnum: Optional. Immutable. Stripe level for
+      files. Allowed values are: * `FILE_STRIPE_LEVEL_MIN`: offers the best
+      performance for small size files. * `FILE_STRIPE_LEVEL_BALANCED`:
+      balances performance for workloads involving a mix of small and large
+      files. * `FILE_STRIPE_LEVEL_MAX`: higher throughput performance for
+      larger files.
     StateValueValuesEnum: Output only. The instance state.
 
   Messages:
@@ -145,23 +154,27 @@ class Instance(_messages.Message):
       Gibibytes (GiB). Allowed values are between 12000 and 100000, in
       multiples of 4000; e.g., 12000, 16000, 20000, ...
     createTime: Output only. The time when the instance was created.
-    daosVersion: Output only. The version of DAOS software running in the
-      instance.
+    daosVersion: Output only. Deprecated: The version of DAOS software running
+      in the instance.
+    deploymentType: Optional. Immutable. The deployment type of the instance.
+      Allowed values are: * `SCRATCH`: the instance is a scratch instance. *
+      `PERSISTENT`: the instance is a persistent instance.
     description: Optional. The description of the instance. 2048 characters or
       less.
-    directoryStripeLevel: Optional. Stripe level for directories. Allowed
-      values are: * `DIRECTORY_STRIPE_LEVEL_MIN`: recommended when directories
-      contain a small number of files. * `DIRECTORY_STRIPE_LEVEL_BALANCED`:
-      balances performance for workloads involving a mix of small and large
-      directories. * `DIRECTORY_STRIPE_LEVEL_MAX`: recommended for directories
-      with a large number of files.
+    directoryStripeLevel: Optional. Immutable. Stripe level for directories.
+      Allowed values are: * `DIRECTORY_STRIPE_LEVEL_MIN`: recommended when
+      directories contain a small number of files. *
+      `DIRECTORY_STRIPE_LEVEL_BALANCED`: balances performance for workloads
+      involving a mix of small and large directories. *
+      `DIRECTORY_STRIPE_LEVEL_MAX`: recommended for directories with a large
+      number of files.
     effectiveReservedIpRange: Output only. Immutable. The ID of the IP address
       range being used by the instance's VPC network. This field is populated
       by the service and contains the value currently used by the service.
-    fileStripeLevel: Optional. Stripe level for files. Allowed values are: *
-      `FILE_STRIPE_LEVEL_MIN`: offers the best performance for small size
-      files. * `FILE_STRIPE_LEVEL_BALANCED`: balances performance for
-      workloads involving a mix of small and large files. *
+    fileStripeLevel: Optional. Immutable. Stripe level for files. Allowed
+      values are: * `FILE_STRIPE_LEVEL_MIN`: offers the best performance for
+      small size files. * `FILE_STRIPE_LEVEL_BALANCED`: balances performance
+      for workloads involving a mix of small and large files. *
       `FILE_STRIPE_LEVEL_MAX`: higher throughput performance for larger files.
     labels: Optional. Cloud Labels are a flexible and lightweight mechanism
       for organizing cloud resources into groups that reflect a customer's
@@ -181,12 +194,27 @@ class Instance(_messages.Message):
     updateTime: Output only. The time when the instance was updated.
   """
 
+  class DeploymentTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Immutable. The deployment type of the instance. Allowed
+    values are: * `SCRATCH`: the instance is a scratch instance. *
+    `PERSISTENT`: the instance is a persistent instance.
+
+    Values:
+      DEPLOYMENT_TYPE_UNSPECIFIED: Default Deployment Type It is equivalent to
+        SCRATCH
+      SCRATCH: Scratch
+      PERSISTENT: Persistent
+    """
+    DEPLOYMENT_TYPE_UNSPECIFIED = 0
+    SCRATCH = 1
+    PERSISTENT = 2
+
   class DirectoryStripeLevelValueValuesEnum(_messages.Enum):
-    r"""Optional. Stripe level for directories. Allowed values are: *
-    `DIRECTORY_STRIPE_LEVEL_MIN`: recommended when directories contain a small
-    number of files. * `DIRECTORY_STRIPE_LEVEL_BALANCED`: balances performance
-    for workloads involving a mix of small and large directories. *
-    `DIRECTORY_STRIPE_LEVEL_MAX`: recommended for directories with a large
+    r"""Optional. Immutable. Stripe level for directories. Allowed values are:
+    * `DIRECTORY_STRIPE_LEVEL_MIN`: recommended when directories contain a
+    small number of files. * `DIRECTORY_STRIPE_LEVEL_BALANCED`: balances
+    performance for workloads involving a mix of small and large directories.
+    * `DIRECTORY_STRIPE_LEVEL_MAX`: recommended for directories with a large
     number of files.
 
     Values:
@@ -202,7 +230,7 @@ class Instance(_messages.Message):
     DIRECTORY_STRIPE_LEVEL_MAX = 3
 
   class FileStripeLevelValueValuesEnum(_messages.Enum):
-    r"""Optional. Stripe level for files. Allowed values are: *
+    r"""Optional. Immutable. Stripe level for files. Allowed values are: *
     `FILE_STRIPE_LEVEL_MIN`: offers the best performance for small size files.
     * `FILE_STRIPE_LEVEL_BALANCED`: balances performance for workloads
     involving a mix of small and large files. * `FILE_STRIPE_LEVEL_MAX`:
@@ -230,6 +258,8 @@ class Instance(_messages.Message):
       DELETING: The instance is being deleted.
       FAILED: The instance is not usable.
       UPGRADING: The instance is being upgraded.
+      REPAIRING: The instance is being repaired. This should only be used by
+        instances using the `PERSISTENT` deployment type.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -237,6 +267,7 @@ class Instance(_messages.Message):
     DELETING = 3
     FAILED = 4
     UPGRADING = 5
+    REPAIRING = 6
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -270,16 +301,17 @@ class Instance(_messages.Message):
   capacityGib = _messages.IntegerField(2)
   createTime = _messages.StringField(3)
   daosVersion = _messages.StringField(4)
-  description = _messages.StringField(5)
-  directoryStripeLevel = _messages.EnumField('DirectoryStripeLevelValueValuesEnum', 6)
-  effectiveReservedIpRange = _messages.StringField(7)
-  fileStripeLevel = _messages.EnumField('FileStripeLevelValueValuesEnum', 8)
-  labels = _messages.MessageField('LabelsValue', 9)
-  name = _messages.StringField(10)
-  network = _messages.StringField(11)
-  reservedIpRange = _messages.StringField(12)
-  state = _messages.EnumField('StateValueValuesEnum', 13)
-  updateTime = _messages.StringField(14)
+  deploymentType = _messages.EnumField('DeploymentTypeValueValuesEnum', 5)
+  description = _messages.StringField(6)
+  directoryStripeLevel = _messages.EnumField('DirectoryStripeLevelValueValuesEnum', 7)
+  effectiveReservedIpRange = _messages.StringField(8)
+  fileStripeLevel = _messages.EnumField('FileStripeLevelValueValuesEnum', 9)
+  labels = _messages.MessageField('LabelsValue', 10)
+  name = _messages.StringField(11)
+  network = _messages.StringField(12)
+  reservedIpRange = _messages.StringField(13)
+  state = _messages.EnumField('StateValueValuesEnum', 14)
+  updateTime = _messages.StringField(15)
 
 
 class ListInstancesResponse(_messages.Message):
@@ -317,10 +349,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -565,7 +602,7 @@ class ParallelstoreProjectsLocationsInstancesCreateRequest(_messages.Message):
       will know to ignore the request if it has already been completed. The
       server will guarantee that for at least 60 minutes since the first
       request. For example, consider a situation where you make an initial
-      request and t he request times out. If you make the request again with
+      request and the request times out. If you make the request again with
       the same request ID, the server can check if original operation with the
       same request ID was received, and if so, will ignore the second request.
       This prevents clients from accidentally creating duplicate commitments.
@@ -589,7 +626,7 @@ class ParallelstoreProjectsLocationsInstancesDeleteRequest(_messages.Message):
       will know to ignore the request if it has already been completed. The
       server will guarantee that for at least 60 minutes after the first
       request. For example, consider a situation where you make an initial
-      request and t he request times out. If you make the request again with
+      request and the request times out. If you make the request again with
       the same request ID, the server can check if original operation with the
       same request ID was received, and if so, will ignore the second request.
       This prevents clients from accidentally creating duplicate commitments.
@@ -674,7 +711,7 @@ class ParallelstoreProjectsLocationsInstancesPatchRequest(_messages.Message):
       will know to ignore the request if it has already been completed. The
       server will guarantee that for at least 60 minutes since the first
       request. For example, consider a situation where you make an initial
-      request and t he request times out. If you make the request again with
+      request and the request times out. If you make the request again with
       the same request ID, the server can check if original operation with the
       same request ID was received, and if so, will ignore the second request.
       This prevents clients from accidentally creating duplicate commitments.
@@ -697,6 +734,9 @@ class ParallelstoreProjectsLocationsListRequest(_messages.Message):
   r"""A ParallelstoreProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -707,10 +747,11 @@ class ParallelstoreProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ParallelstoreProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -754,12 +795,53 @@ class ParallelstoreProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class ReconciliationOperationMetadata(_messages.Message):
+  r"""Operation metadata returned by the CLH during resource state
+  reconciliation.
+
+  Enums:
+    ExclusiveActionValueValuesEnum: Excluisive action returned by the CLH.
+
+  Fields:
+    deleteResource: DEPRECATED. Use exclusive_action instead.
+    exclusiveAction: Excluisive action returned by the CLH.
+  """
+
+  class ExclusiveActionValueValuesEnum(_messages.Enum):
+    r"""Excluisive action returned by the CLH.
+
+    Values:
+      UNKNOWN_REPAIR_ACTION: Unknown repair action.
+      DELETE: The resource has to be deleted. When using this bit, the CLH
+        should fail the operation. DEPRECATED. Instead use DELETE_RESOURCE
+        OperationSignal in SideChannel.
+      RETRY: This resource could not be repaired but the repair should be
+        tried again at a later time. This can happen if there is a dependency
+        that needs to be resolved first- e.g. if a parent resource must be
+        repaired before a child resource.
+    """
+    UNKNOWN_REPAIR_ACTION = 0
+    DELETE = 1
+    RETRY = 2
+
+  deleteResource = _messages.BooleanField(1)
+  exclusiveAction = _messages.EnumField('ExclusiveActionValueValuesEnum', 2)
 
 
 class SourceGcsBucket(_messages.Message):
@@ -896,6 +978,63 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class TransferMetadataOptions(_messages.Message):
+  r"""Transfer metadata options for the instance.
+
+  Enums:
+    GidValueValuesEnum: Optional. The GID preservation behavior.
+    ModeValueValuesEnum: Optional. The mode preservation behavior.
+    UidValueValuesEnum: Optional. The UID preservation behavior.
+
+  Fields:
+    gid: Optional. The GID preservation behavior.
+    mode: Optional. The mode preservation behavior.
+    uid: Optional. The UID preservation behavior.
+  """
+
+  class GidValueValuesEnum(_messages.Enum):
+    r"""Optional. The GID preservation behavior.
+
+    Values:
+      GID_UNSPECIFIED: default is GID_NUMBER_PRESERVE.
+      GID_SKIP: Do not preserve GID during a transfer job.
+      GID_NUMBER_PRESERVE: Preserve GID that is in number format during a
+        transfer job.
+    """
+    GID_UNSPECIFIED = 0
+    GID_SKIP = 1
+    GID_NUMBER_PRESERVE = 2
+
+  class ModeValueValuesEnum(_messages.Enum):
+    r"""Optional. The mode preservation behavior.
+
+    Values:
+      MODE_UNSPECIFIED: default is MODE_PRESERVE.
+      MODE_SKIP: Do not preserve mode during a transfer job.
+      MODE_PRESERVE: Preserve mode during a transfer job.
+    """
+    MODE_UNSPECIFIED = 0
+    MODE_SKIP = 1
+    MODE_PRESERVE = 2
+
+  class UidValueValuesEnum(_messages.Enum):
+    r"""Optional. The UID preservation behavior.
+
+    Values:
+      UID_UNSPECIFIED: default is UID_NUMBER_PRESERVE.
+      UID_SKIP: Do not preserve UID during a transfer job.
+      UID_NUMBER_PRESERVE: Preserve UID that is in number format during a
+        transfer job.
+    """
+    UID_UNSPECIFIED = 0
+    UID_SKIP = 1
+    UID_NUMBER_PRESERVE = 2
+
+  gid = _messages.EnumField('GidValueValuesEnum', 1)
+  mode = _messages.EnumField('ModeValueValuesEnum', 2)
+  uid = _messages.EnumField('UidValueValuesEnum', 3)
 
 
 encoding.AddCustomJsonFieldMapping(

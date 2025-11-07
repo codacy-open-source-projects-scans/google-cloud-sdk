@@ -14,6 +14,206 @@ from apitools.base.py import extra_types
 package = 'developerconnect'
 
 
+class AccountConnector(_messages.Message):
+  r"""AccountConnector encapsulates what a platform administrator needs to
+  configure for users to connect to the service providers, which includes,
+  among other fields, the OAuth client ID, client secret, and authorization
+  and token endpoints.
+
+  Messages:
+    AnnotationsValue: Optional. Allows users to store small amounts of
+      arbitrary data.
+    LabelsValue: Optional. Labels as key value pairs
+
+  Fields:
+    annotations: Optional. Allows users to store small amounts of arbitrary
+      data.
+    createTime: Output only. The timestamp when the accountConnector was
+      created.
+    etag: Optional. This checksum is computed by the server based on the value
+      of other fields, and may be sent on update and delete requests to ensure
+      the client has an up-to-date value before proceeding.
+    labels: Optional. Labels as key value pairs
+    name: Identifier. The resource name of the accountConnector, in the format
+      `projects/{project}/locations/{location}/accountConnectors/{account_conn
+      ector_id}`.
+    oauthStartUri: Output only. Start OAuth flow by clicking on this URL.
+    providerOauthConfig: Provider OAuth config.
+    updateTime: Output only. The timestamp when the accountConnector was
+      updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AnnotationsValue(_messages.Message):
+    r"""Optional. Allows users to store small amounts of arbitrary data.
+
+    Messages:
+      AdditionalProperty: An additional property for a AnnotationsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type AnnotationsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AnnotationsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels as key value pairs
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  annotations = _messages.MessageField('AnnotationsValue', 1)
+  createTime = _messages.StringField(2)
+  etag = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  name = _messages.StringField(5)
+  oauthStartUri = _messages.StringField(6)
+  providerOauthConfig = _messages.MessageField('ProviderOAuthConfig', 7)
+  updateTime = _messages.StringField(8)
+
+
+class AppHubService(_messages.Message):
+  r"""AppHubService represents the App Hub Service.
+
+  Fields:
+    apphubService: Required. Output only. Immutable. The name of the App Hub
+      Service. Format: `projects/{project}/locations/{location}/applications/{
+      application}/services/{service}`.
+    criticality: Output only. The criticality of the App Hub Service.
+    environment: Output only. The environment of the App Hub Service.
+  """
+
+  apphubService = _messages.StringField(1)
+  criticality = _messages.StringField(2)
+  environment = _messages.StringField(3)
+
+
+class AppHubWorkload(_messages.Message):
+  r"""AppHubWorkload represents the App Hub Workload.
+
+  Fields:
+    criticality: Output only. The criticality of the App Hub Workload.
+    environment: Output only. The environment of the App Hub Workload.
+    workload: Required. Output only. Immutable. The name of the App Hub
+      Workload. Format: `projects/{project}/locations/{location}/applications/
+      {application}/workloads/{workload}`.
+  """
+
+  criticality = _messages.StringField(1)
+  environment = _messages.StringField(2)
+  workload = _messages.StringField(3)
+
+
+class ArtifactConfig(_messages.Message):
+  r"""The artifact config of the artifact that is deployed.
+
+  Fields:
+    googleArtifactAnalysis: Optional. Set if the artifact metadata is stored
+      in Artifact analysis.
+    googleArtifactRegistry: Optional. Set if the artifact is stored in
+      Artifact registry.
+    uri: Required. Immutable. The URI of the artifact that is deployed. e.g.
+      `us-docker.pkg.dev/my-project/my-repo/image`. The URI does not include
+      the tag / digest because it captures a lineage of artifacts.
+  """
+
+  googleArtifactAnalysis = _messages.MessageField('GoogleArtifactAnalysis', 1)
+  googleArtifactRegistry = _messages.MessageField('GoogleArtifactRegistry', 2)
+  uri = _messages.StringField(3)
+
+
+class BitbucketCloudConfig(_messages.Message):
+  r"""Configuration for connections to an instance of Bitbucket Cloud.
+
+  Fields:
+    authorizerCredential: Required. An access token with the minimum
+      `repository`, `pullrequest` and `webhook` scope access. It can either be
+      a workspace, project or repository access token. This is needed to
+      create webhooks. It's recommended to use a system account to generate
+      these credentials.
+    readAuthorizerCredential: Required. An access token with the minimum
+      `repository` access. It can either be a workspace, project or repository
+      access token. It's recommended to use a system account to generate the
+      credentials.
+    webhookSecretSecretVersion: Required. Immutable. SecretManager resource
+      containing the webhook secret used to verify webhook events, formatted
+      as `projects/*/secrets/*/versions/*`. This is used to validate and
+      create webhooks.
+    workspace: Required. The Bitbucket Cloud Workspace ID to be connected to
+      Google Cloud Platform.
+  """
+
+  authorizerCredential = _messages.MessageField('UserCredential', 1)
+  readAuthorizerCredential = _messages.MessageField('UserCredential', 2)
+  webhookSecretSecretVersion = _messages.StringField(3)
+  workspace = _messages.StringField(4)
+
+
+class BitbucketDataCenterConfig(_messages.Message):
+  r"""Configuration for connections to an instance of Bitbucket Data Center.
+
+  Fields:
+    authorizerCredential: Required. An http access token with the minimum
+      `Repository admin` scope access. This is needed to create webhooks. It's
+      recommended to use a system account to generate these credentials.
+    hostUri: Required. The URI of the Bitbucket Data Center host this
+      connection is for.
+    readAuthorizerCredential: Required. An http access token with the minimum
+      `Repository read` access. It's recommended to use a system account to
+      generate the credentials.
+    serverVersion: Output only. Version of the Bitbucket Data Center server
+      running on the `host_uri`.
+    serviceDirectoryConfig: Optional. Configuration for using Service
+      Directory to privately connect to a Bitbucket Data Center instance. This
+      should only be set if the Bitbucket Data Center is hosted on-premises
+      and not reachable by public internet. If this field is left empty, calls
+      to the Bitbucket Data Center will be made over the public internet.
+    sslCaCertificate: Optional. SSL certificate authority to trust when making
+      requests to Bitbucket Data Center.
+    webhookSecretSecretVersion: Required. Immutable. SecretManager resource
+      containing the webhook secret used to verify webhook events, formatted
+      as `projects/*/secrets/*/versions/*`. This is used to validate webhooks.
+  """
+
+  authorizerCredential = _messages.MessageField('UserCredential', 1)
+  hostUri = _messages.StringField(2)
+  readAuthorizerCredential = _messages.MessageField('UserCredential', 3)
+  serverVersion = _messages.StringField(4)
+  serviceDirectoryConfig = _messages.MessageField('ServiceDirectoryConfig', 5)
+  sslCaCertificate = _messages.StringField(6)
+  webhookSecretSecretVersion = _messages.StringField(7)
+
+
 class Connection(_messages.Message):
   r"""Message describing Connection object
 
@@ -25,6 +225,10 @@ class Connection(_messages.Message):
   Fields:
     annotations: Optional. Allows clients to store small amounts of arbitrary
       data.
+    bitbucketCloudConfig: Configuration for connections to an instance of
+      Bitbucket Clouds.
+    bitbucketDataCenterConfig: Configuration for connections to an instance of
+      Bitbucket Data Center.
     createTime: Output only. [Output only] Create timestamp
     cryptoKeyConfig: Optional. The crypto key configuration. This field is
       used by the Customer-Managed Encryption Keys (CMEK) feature.
@@ -35,6 +239,9 @@ class Connection(_messages.Message):
     etag: Optional. This checksum is computed by the server based on the value
       of other fields, and may be sent on update and delete requests to ensure
       the client has an up-to-date value before proceeding.
+    gitProxyConfig: Optional. Configuration for the git proxy feature.
+      Enabling the git proxy allows clients to perform git operations on the
+      repositories linked in the connection.
     githubConfig: Configuration for connections to github.com.
     githubEnterpriseConfig: Configuration for connections to an instance of
       GitHub Enterprise.
@@ -47,8 +254,7 @@ class Connection(_messages.Message):
       `projects/{project}/locations/{location}/connections/{connection_id}`.
     reconciling: Output only. Set to true when the connection is being set up
       or updated in the background.
-    uid: Output only. A system-assigned unique identifier for a the
-      GitRepositoryLink.
+    uid: Output only. A system-assigned unique identifier for the Connection.
     updateTime: Output only. [Output only] Update timestamp
   """
 
@@ -102,21 +308,24 @@ class Connection(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   annotations = _messages.MessageField('AnnotationsValue', 1)
-  createTime = _messages.StringField(2)
-  cryptoKeyConfig = _messages.MessageField('CryptoKeyConfig', 3)
-  deleteTime = _messages.StringField(4)
-  disabled = _messages.BooleanField(5)
-  etag = _messages.StringField(6)
-  githubConfig = _messages.MessageField('GitHubConfig', 7)
-  githubEnterpriseConfig = _messages.MessageField('GitHubEnterpriseConfig', 8)
-  gitlabConfig = _messages.MessageField('GitLabConfig', 9)
-  gitlabEnterpriseConfig = _messages.MessageField('GitLabEnterpriseConfig', 10)
-  installationState = _messages.MessageField('InstallationState', 11)
-  labels = _messages.MessageField('LabelsValue', 12)
-  name = _messages.StringField(13)
-  reconciling = _messages.BooleanField(14)
-  uid = _messages.StringField(15)
-  updateTime = _messages.StringField(16)
+  bitbucketCloudConfig = _messages.MessageField('BitbucketCloudConfig', 2)
+  bitbucketDataCenterConfig = _messages.MessageField('BitbucketDataCenterConfig', 3)
+  createTime = _messages.StringField(4)
+  cryptoKeyConfig = _messages.MessageField('CryptoKeyConfig', 5)
+  deleteTime = _messages.StringField(6)
+  disabled = _messages.BooleanField(7)
+  etag = _messages.StringField(8)
+  gitProxyConfig = _messages.MessageField('GitProxyConfig', 9)
+  githubConfig = _messages.MessageField('GitHubConfig', 10)
+  githubEnterpriseConfig = _messages.MessageField('GitHubEnterpriseConfig', 11)
+  gitlabConfig = _messages.MessageField('GitLabConfig', 12)
+  gitlabEnterpriseConfig = _messages.MessageField('GitLabEnterpriseConfig', 13)
+  installationState = _messages.MessageField('InstallationState', 14)
+  labels = _messages.MessageField('LabelsValue', 15)
+  name = _messages.StringField(16)
+  reconciling = _messages.BooleanField(17)
+  uid = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
 
 
 class CryptoKeyConfig(_messages.Message):
@@ -130,6 +339,232 @@ class CryptoKeyConfig(_messages.Message):
   """
 
   keyReference = _messages.StringField(1)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsCreateRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsCreateRequest
+  object.
+
+  Fields:
+    accountConnector: A AccountConnector resource to be passed as the request
+      body.
+    accountConnectorId: Required. The ID to use for the AccountConnector,
+      which will become the final component of the AccountConnector's resource
+      name. Its format should adhere to https://google.aip.dev/122#resource-
+      id-segments Names must be unique per-project per-location.
+    parent: Required. Location resource name as the account_connector's
+      parent.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes since the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  accountConnector = _messages.MessageField('AccountConnector', 1)
+  accountConnectorId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  validateOnly = _messages.BooleanField(5)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsDeleteRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsDeleteRequest
+  object.
+
+  Fields:
+    etag: Optional. The current etag of the AccountConnectorn. If an etag is
+      provided and does not match the current etag of the AccountConnector,
+      deletion will be blocked and an ABORTED error will be returned.
+    force: Optional. If set to true, any Users from this AccountConnector will
+      also be deleted. (Otherwise, the request will only work if the
+      AccountConnector has no Users.)
+    name: Required. Name of the resource
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  etag = _messages.StringField(1)
+  force = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  validateOnly = _messages.BooleanField(5)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsGetRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsGetRequest object.
+
+  Fields:
+    name: Required. Name of the resource
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsListRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsListRequest object.
+
+  Fields:
+    filter: Optional. Filtering results
+    orderBy: Optional. Hint for how to order the results
+    pageSize: Optional. Requested page size. Server may return fewer items
+      than requested. If unspecified, server will pick an appropriate default.
+    pageToken: Optional. A token identifying a page of results the server
+      should return.
+    parent: Required. Parent value for ListAccountConnectorsRequest
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsPatchRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsPatchRequest object.
+
+  Fields:
+    accountConnector: A AccountConnector resource to be passed as the request
+      body.
+    allowMissing: Optional. If set to true, and the accountConnector is not
+      found a new accountConnector will be created. In this situation
+      `update_mask` is ignored. The creation will succeed only if the input
+      accountConnector has all the necessary
+    name: Identifier. The resource name of the accountConnector, in the format
+      `projects/{project}/locations/{location}/accountConnectors/{account_conn
+      ector_id}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes since the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. The list of fields to be updated.
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  accountConnector = _messages.MessageField('AccountConnector', 1)
+  allowMissing = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  updateMask = _messages.StringField(5)
+  validateOnly = _messages.BooleanField(6)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsUsersDeleteRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsUsersDeleteRequest
+  object.
+
+  Fields:
+    etag: Optional. This checksum is computed by the server based on the value
+      of other fields, and may be sent on update and delete requests to ensure
+      the client has an up-to-date value before proceeding.
+    name: Required. Name of the resource
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  etag = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  validateOnly = _messages.BooleanField(4)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsUsersDeleteSelfRequest(_messages.Message):
+  r"""A
+  DeveloperconnectProjectsLocationsAccountConnectorsUsersDeleteSelfRequest
+  object.
+
+  Fields:
+    name: Required. Name of the AccountConnector resource
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsUsersFetchAccessTokenRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsUsersFetchAccessToke
+  nRequest object.
+
+  Fields:
+    accountConnector: Required. The resource name of the AccountConnector in
+      the format `projects/*/locations/*/accountConnectors/*`.
+    fetchAccessTokenRequest: A FetchAccessTokenRequest resource to be passed
+      as the request body.
+  """
+
+  accountConnector = _messages.StringField(1, required=True)
+  fetchAccessTokenRequest = _messages.MessageField('FetchAccessTokenRequest', 2)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsUsersFetchSelfRequest(_messages.Message):
+  r"""A
+  DeveloperconnectProjectsLocationsAccountConnectorsUsersFetchSelfRequest
+  object.
+
+  Fields:
+    name: Required. Name of the AccountConnector resource
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DeveloperconnectProjectsLocationsAccountConnectorsUsersListRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsAccountConnectorsUsersListRequest
+  object.
+
+  Fields:
+    filter: Optional. Filtering results
+    orderBy: Optional. Hint for how to order the results
+    pageSize: Optional. Requested page size. Server may return fewer items
+      than requested. If unspecified, server will pick an appropriate default.
+    pageToken: Optional. A token identifying a page of results the server
+      should return.
+    parent: Required. Parent value for ListUsersRequest
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
 
 
 class DeveloperconnectProjectsLocationsConnectionsCreateRequest(_messages.Message):
@@ -396,6 +831,37 @@ class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksListRequest(
   parent = _messages.StringField(5, required=True)
 
 
+class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessBitbucketCloudWebhookRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessB
+  itbucketCloudWebhookRequest object.
+
+  Fields:
+    name: Required. The GitRepositoryLink where the webhook will be received.
+      Format: `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
+    processBitbucketCloudWebhookRequest: A ProcessBitbucketCloudWebhookRequest
+      resource to be passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  processBitbucketCloudWebhookRequest = _messages.MessageField('ProcessBitbucketCloudWebhookRequest', 2)
+
+
+class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessBitbucketDataCenterWebhookRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessB
+  itbucketDataCenterWebhookRequest object.
+
+  Fields:
+    name: Required. The GitRepositoryLink where the webhook will be received.
+      Format: `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
+    processBitbucketDataCenterWebhookRequest: A
+      ProcessBitbucketDataCenterWebhookRequest resource to be passed as the
+      request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  processBitbucketDataCenterWebhookRequest = _messages.MessageField('ProcessBitbucketDataCenterWebhookRequest', 2)
+
+
 class DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessGitLabEnterpriseWebhookRequest(_messages.Message):
   r"""A DeveloperconnectProjectsLocationsConnectionsGitRepositoryLinksProcessG
   itLabEnterpriseWebhookRequest object.
@@ -505,6 +971,121 @@ class DeveloperconnectProjectsLocationsConnectionsProcessGitHubEnterpriseWebhook
   processGitHubEnterpriseWebhookRequest = _messages.MessageField('ProcessGitHubEnterpriseWebhookRequest', 2)
 
 
+class DeveloperconnectProjectsLocationsInsightsConfigsCreateRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsInsightsConfigsCreateRequest object.
+
+  Fields:
+    insightsConfig: A InsightsConfig resource to be passed as the request
+      body.
+    insightsConfigId: Required. ID of the requesting InsightsConfig.
+    parent: Required. Value for parent.
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  insightsConfig = _messages.MessageField('InsightsConfig', 1)
+  insightsConfigId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  validateOnly = _messages.BooleanField(4)
+
+
+class DeveloperconnectProjectsLocationsInsightsConfigsDeleteRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsInsightsConfigsDeleteRequest object.
+
+  Fields:
+    etag: Optional. This checksum is computed by the server based on the value
+      of other fields, and may be sent on update and delete requests to ensure
+      the client has an up-to-date value before proceeding.
+    name: Required. Value for parent.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  etag = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  validateOnly = _messages.BooleanField(4)
+
+
+class DeveloperconnectProjectsLocationsInsightsConfigsGetRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsInsightsConfigsGetRequest object.
+
+  Fields:
+    name: Required. Name of the resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DeveloperconnectProjectsLocationsInsightsConfigsListRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsInsightsConfigsListRequest object.
+
+  Fields:
+    filter: Optional. Filtering results. See https://google.aip.dev/160 for
+      more details. Filter string, adhering to the rules in
+      https://google.aip.dev/160. List only InsightsConfigs matching the
+      filter. If filter is empty, all InsightsConfigs are listed.
+    orderBy: Optional. Hint for how to order the results.
+    pageSize: Optional. Requested page size. Server may return fewer items
+      than requested. If unspecified, server will pick an appropriate default.
+    pageToken: Optional. A token identifying a page of results the server
+      should return.
+    parent: Required. Parent value for ListInsightsConfigsRequest.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class DeveloperconnectProjectsLocationsInsightsConfigsPatchRequest(_messages.Message):
+  r"""A DeveloperconnectProjectsLocationsInsightsConfigsPatchRequest object.
+
+  Fields:
+    allowMissing: Optional. If set to true, and the insightsConfig is not
+      found a new insightsConfig will be created. In this situation
+      `update_mask` is ignored. The creation will succeed only if the input
+      insightsConfig has all the necessary information (e.g a github_config
+      with both user_oauth_token and installation_id properties).
+    insightsConfig: A InsightsConfig resource to be passed as the request
+      body.
+    name: Identifier. The name of the InsightsConfig. Format:
+      projects/{project}/locations/{location}/insightsConfigs/{insightsConfig}
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    validateOnly: Optional. If set, validate the request, but do not actually
+      post it.
+  """
+
+  allowMissing = _messages.BooleanField(1)
+  insightsConfig = _messages.MessageField('InsightsConfig', 2)
+  name = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  validateOnly = _messages.BooleanField(5)
+
+
 class Empty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
@@ -512,6 +1093,41 @@ class Empty(_messages.Message):
   Bar(google.protobuf.Empty) returns (google.protobuf.Empty); }
   """
 
+
+
+class ExchangeError(_messages.Message):
+  r"""Message for representing an error from exchanging OAuth tokens.
+
+  Fields:
+    code: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2 - error
+    description: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2 -
+      error_description
+  """
+
+  code = _messages.StringField(1)
+  description = _messages.StringField(2)
+
+
+class FetchAccessTokenRequest(_messages.Message):
+  r"""Message for fetching an OAuth access token."""
+
+
+class FetchAccessTokenResponse(_messages.Message):
+  r"""Message for responding to getting an OAuth access token.
+
+  Fields:
+    exchangeError: The error resulted from exchanging OAuth tokens from the
+      service provider.
+    expirationTime: Expiration timestamp. Can be empty if unknown or non-
+      expiring.
+    scopes: The scopes of the access token.
+    token: The token content.
+  """
+
+  exchangeError = _messages.MessageField('ExchangeError', 1)
+  expirationTime = _messages.StringField(2)
+  scopes = _messages.StringField(3, repeated=True)
+  token = _messages.StringField(4)
 
 
 class FetchGitHubInstallationsResponse(_messages.Message):
@@ -594,6 +1210,21 @@ class FetchReadWriteTokenResponse(_messages.Message):
   token = _messages.StringField(3)
 
 
+class GKEWorkload(_messages.Message):
+  r"""GKEWorkload represents the Google Kubernetes Engine runtime.
+
+  Fields:
+    cluster: Required. Immutable. The name of the GKE cluster. Format:
+      `projects/{project}/locations/{location}/clusters/{cluster}`.
+    deployment: Output only. The name of the GKE deployment. Format: `projects
+      /{project}/locations/{location}/clusters/{cluster}/namespaces/{namespace
+      }/deployments/{deployment}`.
+  """
+
+  cluster = _messages.StringField(1)
+  deployment = _messages.StringField(2)
+
+
 class GitHubConfig(_messages.Message):
   r"""Configuration for connections to github.com.
 
@@ -621,10 +1252,12 @@ class GitHubConfig(_messages.Message):
       GIT_HUB_APP_UNSPECIFIED: GitHub App not specified.
       DEVELOPER_CONNECT: The Developer Connect GitHub Application.
       FIREBASE: The Firebase GitHub Application.
+      GEMINI_CODE_ASSIST: The Gemini Code Assist Application.
     """
     GIT_HUB_APP_UNSPECIFIED = 0
     DEVELOPER_CONNECT = 1
     FIREBASE = 2
+    GEMINI_CODE_ASSIST = 3
 
   appInstallationId = _messages.IntegerField(1)
   authorizerCredential = _messages.MessageField('OAuthCredential', 2)
@@ -731,6 +1364,18 @@ class GitLabEnterpriseConfig(_messages.Message):
   webhookSecretSecretVersion = _messages.StringField(7)
 
 
+class GitProxyConfig(_messages.Message):
+  r"""The git proxy configuration.
+
+  Fields:
+    enabled: Optional. Setting this to true allows the git proxy to be used
+      for performing git operations on the repositories linked in the
+      connection.
+  """
+
+  enabled = _messages.BooleanField(1)
+
+
 class GitRepositoryLink(_messages.Message):
   r"""Message describing the GitRepositoryLink object
 
@@ -748,12 +1393,15 @@ class GitRepositoryLink(_messages.Message):
     etag: Optional. This checksum is computed by the server based on the value
       of other fields, and may be sent on update and delete requests to ensure
       the client has an up-to-date value before proceeding.
+    gitProxyUri: Output only. URI to access the linked repository through the
+      Git Proxy. This field is only populated if the git proxy is enabled for
+      the connection.
     labels: Optional. Labels as key value pairs
     name: Identifier. Resource name of the repository, in the format
       `projects/*/locations/*/connections/*/gitRepositoryLinks/*`.
     reconciling: Output only. Set to true when the connection is being set up
       or updated in the background.
-    uid: Output only. A system-assigned unique identifier for a the
+    uid: Output only. A system-assigned unique identifier for the
       GitRepositoryLink.
     updateTime: Output only. [Output only] Update timestamp
     webhookId: Output only. External ID of the webhook created for the
@@ -814,12 +1462,48 @@ class GitRepositoryLink(_messages.Message):
   createTime = _messages.StringField(3)
   deleteTime = _messages.StringField(4)
   etag = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  name = _messages.StringField(7)
-  reconciling = _messages.BooleanField(8)
-  uid = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
-  webhookId = _messages.StringField(11)
+  gitProxyUri = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  reconciling = _messages.BooleanField(9)
+  uid = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
+  webhookId = _messages.StringField(12)
+
+
+class GoogleArtifactAnalysis(_messages.Message):
+  r"""Google Artifact Analysis configurations.
+
+  Fields:
+    projectId: Required. The project id of the project where the provenance is
+      stored.
+  """
+
+  projectId = _messages.StringField(1)
+
+
+class GoogleArtifactRegistry(_messages.Message):
+  r"""Google Artifact Registry configurations.
+
+  Fields:
+    artifactRegistryPackage: Required. Immutable. The name of the artifact
+      registry package.
+    projectId: Required. The host project of Artifact Registry.
+  """
+
+  artifactRegistryPackage = _messages.StringField(1)
+  projectId = _messages.StringField(2)
+
+
+class GoogleCloudRun(_messages.Message):
+  r"""GoogleCloudRun represents the Cloud Run runtime.
+
+  Fields:
+    serviceUri: Required. Immutable. The name of the Cloud Run service.
+      Format: `projects/{project}/locations/{location}/services/{service}`.
+  """
+
+  serviceUri = _messages.StringField(1)
 
 
 class HttpBody(_messages.Message):
@@ -881,6 +1565,129 @@ class HttpBody(_messages.Message):
   contentType = _messages.StringField(1)
   data = _messages.BytesField(2)
   extensions = _messages.MessageField('ExtensionsValueListEntry', 3, repeated=True)
+
+
+class InsightsConfig(_messages.Message):
+  r"""The InsightsConfig resource is the core configuration object to capture
+  events from your Software Development Lifecycle. It acts as the central hub
+  for managing how Developer connect understands your application, its runtime
+  environments, and the artifacts deployed within them.
+
+  Enums:
+    StateValueValuesEnum: Optional. Output only. The state of the
+      InsightsConfig.
+
+  Messages:
+    AnnotationsValue: Optional. User specified annotations. See
+      https://google.aip.dev/148#annotations for more details such as format
+      and size limitations.
+    LabelsValue: Optional. Set of labels associated with an InsightsConfig.
+
+  Fields:
+    annotations: Optional. User specified annotations. See
+      https://google.aip.dev/148#annotations for more details such as format
+      and size limitations.
+    appHubApplication: Optional. The name of the App Hub Application. Format:
+      projects/{project}/locations/{location}/applications/{application}
+    artifactConfigs: Optional. The artifact configurations of the artifacts
+      that are deployed.
+    createTime: Output only. Create timestamp.
+    errors: Output only. Any errors that occurred while setting up the
+      InsightsConfig. Each error will be in the format: `field_name:
+      error_message`, e.g. GetAppHubApplication: Permission denied while
+      getting App Hub application. Please grant permissions to the P4SA.
+    labels: Optional. Set of labels associated with an InsightsConfig.
+    name: Identifier. The name of the InsightsConfig. Format:
+      projects/{project}/locations/{location}/insightsConfigs/{insightsConfig}
+    reconciling: Output only. Reconciling
+      (https://google.aip.dev/128#reconciliation). Set to true if the current
+      state of InsightsConfig does not match the user's intended state, and
+      the service is actively updating the resource to reconcile them. This
+      can happen due to user-triggered updates or system actions like failover
+      or maintenance.
+    runtimeConfigs: Output only. The runtime configurations where the
+      application is deployed.
+    state: Optional. Output only. The state of the InsightsConfig.
+    updateTime: Output only. Update timestamp.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Optional. Output only. The state of the InsightsConfig.
+
+    Values:
+      STATE_UNSPECIFIED: No state specified.
+      PENDING: The InsightsConfig is pending application discovery/runtime
+        discovery.
+      COMPLETE: The initial discovery process is complete.
+      ERROR: The InsightsConfig is in an error state.
+    """
+    STATE_UNSPECIFIED = 0
+    PENDING = 1
+    COMPLETE = 2
+    ERROR = 3
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AnnotationsValue(_messages.Message):
+    r"""Optional. User specified annotations. See
+    https://google.aip.dev/148#annotations for more details such as format and
+    size limitations.
+
+    Messages:
+      AdditionalProperty: An additional property for a AnnotationsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type AnnotationsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AnnotationsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Set of labels associated with an InsightsConfig.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  annotations = _messages.MessageField('AnnotationsValue', 1)
+  appHubApplication = _messages.StringField(2)
+  artifactConfigs = _messages.MessageField('ArtifactConfig', 3, repeated=True)
+  createTime = _messages.StringField(4)
+  errors = _messages.MessageField('Status', 5, repeated=True)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  reconciling = _messages.BooleanField(8)
+  runtimeConfigs = _messages.MessageField('RuntimeConfig', 9, repeated=True)
+  state = _messages.EnumField('StateValueValuesEnum', 10)
+  updateTime = _messages.StringField(11)
 
 
 class Installation(_messages.Message):
@@ -950,6 +1757,21 @@ class LinkableGitRepository(_messages.Message):
   cloneUri = _messages.StringField(1)
 
 
+class ListAccountConnectorsResponse(_messages.Message):
+  r"""Message for response to listing AccountConnectors
+
+  Fields:
+    accountConnectors: The list of AccountConnectors
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    unreachable: Locations that could not be reached.
+  """
+
+  accountConnectors = _messages.MessageField('AccountConnector', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
 class ListConnectionsResponse(_messages.Message):
   r"""Message for response to listing Connections
 
@@ -978,6 +1800,36 @@ class ListGitRepositoryLinksResponse(_messages.Message):
   gitRepositoryLinks = _messages.MessageField('GitRepositoryLink', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListInsightsConfigsResponse(_messages.Message):
+  r"""Request for response to listing InsightsConfigs.
+
+  Fields:
+    insightsConfigs: The list of InsightsConfigs.
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    unreachable: Locations that could not be reached.
+  """
+
+  insightsConfigs = _messages.MessageField('InsightsConfig', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListUsersResponse(_messages.Message):
+  r"""Message for response to listing Users
+
+  Fields:
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    unreachable: Locations that could not be reached.
+    users: The list of Users
+  """
+
+  nextPageToken = _messages.StringField(1)
+  unreachable = _messages.StringField(2, repeated=True)
+  users = _messages.MessageField('User', 3, repeated=True)
 
 
 class OAuthCredential(_messages.Message):
@@ -1130,6 +1982,28 @@ class OperationMetadata(_messages.Message):
   verb = _messages.StringField(7)
 
 
+class ProcessBitbucketCloudWebhookRequest(_messages.Message):
+  r"""RPC request object accepted by the ProcessBitbucketCloudWebhook RPC
+  method.
+
+  Fields:
+    body: Required. HTTP request body.
+  """
+
+  body = _messages.MessageField('HttpBody', 1)
+
+
+class ProcessBitbucketDataCenterWebhookRequest(_messages.Message):
+  r"""RPC request object accepted by the ProcessBitbucketDataCenterWebhook RPC
+  method.
+
+  Fields:
+    body: Required. HTTP request body.
+  """
+
+  body = _messages.MessageField('HttpBody', 1)
+
+
 class ProcessGitHubEnterpriseWebhookRequest(_messages.Message):
   r"""RPC request object accepted by the ProcessGitHubEnterpriseWebhook RPC
   method.
@@ -1160,6 +2034,92 @@ class ProcessGitLabWebhookRequest(_messages.Message):
   """
 
   body = _messages.MessageField('HttpBody', 1)
+
+
+class ProviderOAuthConfig(_messages.Message):
+  r"""ProviderOAuthConfig is the OAuth config for a provider.
+
+  Enums:
+    SystemProviderIdValueValuesEnum: Immutable. Developer Connect provided
+      OAuth.
+
+  Fields:
+    scopes: Required. User selected scopes to apply to the Oauth config In the
+      event of changing scopes, user records under AccountConnector will be
+      deleted and users will re-auth again.
+    systemProviderId: Immutable. Developer Connect provided OAuth.
+  """
+
+  class SystemProviderIdValueValuesEnum(_messages.Enum):
+    r"""Immutable. Developer Connect provided OAuth.
+
+    Values:
+      SYSTEM_PROVIDER_UNSPECIFIED: No system provider specified.
+      GITHUB: GitHub provider. Scopes can be found at
+        https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-
+        for-oauth-apps#available-scopes
+      GITLAB: GitLab provider. Scopes can be found at
+        https://docs.gitlab.com/user/profile/personal_access_tokens/#personal-
+        access-token-scopes
+      GOOGLE: Google provider. Recommended scopes:
+        "https://www.googleapis.com/auth/drive.readonly",
+        "https://www.googleapis.com/auth/documents.readonly"
+      SENTRY: Sentry provider. Scopes can be found at
+        https://docs.sentry.io/api/permissions/
+      ROVO: Rovo provider. Must select the "rovo" scope.
+      NEW_RELIC: New Relic provider. No scopes are allowed.
+      DATASTAX: Datastax provider. No scopes are allowed.
+      DYNATRACE: Dynatrace provider.
+    """
+    SYSTEM_PROVIDER_UNSPECIFIED = 0
+    GITHUB = 1
+    GITLAB = 2
+    GOOGLE = 3
+    SENTRY = 4
+    ROVO = 5
+    NEW_RELIC = 6
+    DATASTAX = 7
+    DYNATRACE = 8
+
+  scopes = _messages.StringField(1, repeated=True)
+  systemProviderId = _messages.EnumField('SystemProviderIdValueValuesEnum', 2)
+
+
+class RuntimeConfig(_messages.Message):
+  r"""RuntimeConfig represents the runtimes where the application is deployed.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the Runtime.
+
+  Fields:
+    appHubService: Output only. App Hub Service.
+    appHubWorkload: Output only. App Hub Workload.
+    gkeWorkload: Output only. Google Kubernetes Engine runtime.
+    googleCloudRun: Output only. Cloud Run runtime.
+    state: Output only. The state of the Runtime.
+    uri: Required. Immutable. The URI of the runtime configuration. For GKE,
+      this is the cluster name. For Cloud Run, this is the service name.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the Runtime.
+
+    Values:
+      STATE_UNSPECIFIED: No state specified.
+      LINKED: The runtime configuration has been linked to the InsightsConfig.
+      UNLINKED: The runtime configuration has been unlinked to the
+        InsightsConfig.
+    """
+    STATE_UNSPECIFIED = 0
+    LINKED = 1
+    UNLINKED = 2
+
+  appHubService = _messages.MessageField('AppHubService', 1)
+  appHubWorkload = _messages.MessageField('AppHubWorkload', 2)
+  gkeWorkload = _messages.MessageField('GKEWorkload', 3)
+  googleCloudRun = _messages.MessageField('GoogleCloudRun', 4)
+  state = _messages.EnumField('StateValueValuesEnum', 5)
+  uri = _messages.StringField(6)
 
 
 class ServiceDirectoryConfig(_messages.Message):
@@ -1286,6 +2246,26 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class User(_messages.Message):
+  r"""User represents a user connected to the service providers through a
+  AccountConnector.
+
+  Fields:
+    createTime: Output only. The timestamp when the user was created.
+    displayName: Output only. Developer Connect automatically converts user
+      identity to some human readable description, e.g., email address.
+    lastTokenRequestTime: Output only. The timestamp when the token was last
+      requested.
+    name: Identifier. Resource name of the user, in the format
+      `projects/*/locations/*/accountConnectors/*/users/*`.
+  """
+
+  createTime = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  lastTokenRequestTime = _messages.StringField(3)
+  name = _messages.StringField(4)
 
 
 class UserCredential(_messages.Message):

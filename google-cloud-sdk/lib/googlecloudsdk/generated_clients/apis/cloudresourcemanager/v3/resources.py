@@ -34,6 +34,16 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  FOLDERS_CAPABILITIES = (
+      'folders.capabilities',
+      '{+name}',
+      {
+          '':
+              'folders/{foldersId}/capabilities/{capabilitiesId}',
+      },
+      ['name'],
+      True
+  )
   FOLDERS_EFFECTIVESETTINGS = (
       'folders.effectiveSettings',
       '{+name}',
@@ -60,6 +70,35 @@ class Collections(enum.Enum):
       {
           '':
               'liens/{liensId}',
+      },
+      ['name'],
+      True
+  )
+  LOCATIONS = (
+      'locations',
+      'locations/{locationsId}',
+      {},
+      ['locationsId'],
+      True
+  )
+  LOCATIONS_EFFECTIVETAGBINDINGCOLLECTIONS = (
+      'locations.effectiveTagBindingCollections',
+      '{+name}',
+      {
+          '':
+              'locations/{locationsId}/effectiveTagBindingCollections/'
+              '{effectiveTagBindingCollectionsId}',
+      },
+      ['name'],
+      True
+  )
+  LOCATIONS_TAGBINDINGCOLLECTIONS = (
+      'locations.tagBindingCollections',
+      '{+name}',
+      {
+          '':
+              'locations/{locationsId}/tagBindingCollections/'
+              '{tagBindingCollectionsId}',
       },
       ['name'],
       True

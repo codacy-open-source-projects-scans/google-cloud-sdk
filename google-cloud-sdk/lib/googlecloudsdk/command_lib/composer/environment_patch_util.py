@@ -57,7 +57,7 @@ def _ConstructAirflowDatabaseRetentionDaysPatch(airflow_database_retention_days,
         )
     )
   return (
-      'config.data_retention_configuration.airflow_metadata_retention_config',
+      'config.data_retention_config.airflow_metadata_retention_config',
       messages.Environment(config=config),
   )
 
@@ -559,7 +559,7 @@ def _ConstructVpcConnectivityPatch(
   if disable_vpc_connectivity:
     update_mask = 'config.node_config.network,config.node_config.subnetwork'
   elif network_attachment:
-    update_mask = 'config.node_config.network_attachment'
+    update_mask = 'config.node_config.composer_network_attachment'
     node_config.composerNetworkAttachment = network_attachment
   elif network and subnetwork:
     update_mask = 'config.node_config.network,config.node_config.subnetwork'

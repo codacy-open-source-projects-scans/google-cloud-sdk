@@ -33,7 +33,7 @@ skip_os_adaptation:
   type: bool
   action: store_true
   default: null
-  processor: googlecloudsdk.command_lib.migration.vms.hooks:GetSkipOsAdaptationTransform
+  processor: googlecloudsdk.command_lib.migration.vms.image_import.hooks:GetSkipOsAdaptationTransform
   help_text: |
     If true, skip OS adaptation. Default false.
 
@@ -56,8 +56,31 @@ license_type:
   help_text: |
     The license to use post migration.
 
+boot_conversion:
+  arg_name: boot-conversion
+  api_field: imageImport.machineImageTargetDefaults.osAdaptationParameters.bootConversion
+  required: false
+  help_text: |
+    This property will trigger an internal process which will convert the
+    image from using the existing boot option to another.
+    The size of the boot disk might be increased to allow the conversion.
+    Currently only support BIOS_TO_EFI.
+
+adaptation_modifiers:
+  arg_name: adaptation-modifiers
+  processor: googlecloudsdk.command_lib.migration.vms.image_import.hooks:ProcessAdaptationModifiers
+  required: false
+  help_text: |
+    A map of flags to pass to the OS adaptation process.
+    The actual value depends on the modifier and can also be empty.
+    e.g. --adaptation-flags=flag1=value1,flag2
+
+rootfs_uuid:
+  arg_name: rootfs-uuid
+  help_text: |
+    Identifies the file system to adapt.
+
 description:
-  api_field: imageImport.machineImageTargetDefaults.description
   arg_name: description
   required: false
   help_text: |

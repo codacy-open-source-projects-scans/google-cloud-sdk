@@ -23,158 +23,21 @@ class AdminSettings(_messages.Message):
   allowedEmailDomains = _messages.StringField(1, repeated=True)
 
 
-class AuditConfig(_messages.Message):
-  r"""Specifies the audit configuration for a service. The configuration
-  determines which permission types are logged, and what identities, if any,
-  are exempted from logging. An AuditConfig must have one or more
-  AuditLogConfigs. If there are AuditConfigs for both `allServices` and a
-  specific service, the union of the two AuditConfigs is used for that
-  service: the log_types specified in each AuditConfig are enabled, and the
-  exempted_members in each AuditLogConfig are exempted. Example Policy with
-  multiple AuditConfigs: { "audit_configs": [ { "service": "allServices",
-  "audit_log_configs": [ { "log_type": "DATA_READ", "exempted_members": [
-  "user:jose@example.com" ] }, { "log_type": "DATA_WRITE" }, { "log_type":
-  "ADMIN_READ" } ] }, { "service": "sampleservice.googleapis.com",
-  "audit_log_configs": [ { "log_type": "DATA_READ" }, { "log_type":
-  "DATA_WRITE", "exempted_members": [ "user:aliya@example.com" ] } ] } ] } For
-  sampleservice, this policy enables DATA_READ, DATA_WRITE and ADMIN_READ
-  logging. It also exempts `jose@example.com` from DATA_READ logging, and
-  `aliya@example.com` from DATA_WRITE logging.
-
-  Fields:
-    auditLogConfigs: The configuration for logging of each type of permission.
-    service: Specifies a service that will be enabled for audit logging. For
-      example, `storage.googleapis.com`, `cloudsql.googleapis.com`.
-      `allServices` is a special value that covers all services.
-  """
-
-  auditLogConfigs = _messages.MessageField('AuditLogConfig', 1, repeated=True)
-  service = _messages.StringField(2)
-
-
-class AuditLogConfig(_messages.Message):
-  r"""Provides the configuration for logging a type of permissions. Example: {
-  "audit_log_configs": [ { "log_type": "DATA_READ", "exempted_members": [
-  "user:jose@example.com" ] }, { "log_type": "DATA_WRITE" } ] } This enables
-  'DATA_READ' and 'DATA_WRITE' logging, while exempting jose@example.com from
-  DATA_READ logging.
-
-  Enums:
-    LogTypeValueValuesEnum: The log type that this config enables.
-
-  Fields:
-    exemptedMembers: Specifies the identities that do not cause logging for
-      this type of permission. Follows the same format of Binding.members.
-    logType: The log type that this config enables.
-  """
-
-  class LogTypeValueValuesEnum(_messages.Enum):
-    r"""The log type that this config enables.
-
-    Values:
-      LOG_TYPE_UNSPECIFIED: Default case. Should never be this.
-      ADMIN_READ: Admin reads. Example: CloudIAM getIamPolicy
-      DATA_WRITE: Data writes. Example: CloudSQL Users create
-      DATA_READ: Data reads. Example: CloudSQL Users list
-    """
-    LOG_TYPE_UNSPECIFIED = 0
-    ADMIN_READ = 1
-    DATA_WRITE = 2
-    DATA_READ = 3
-
-  exemptedMembers = _messages.StringField(1, repeated=True)
-  logType = _messages.EnumField('LogTypeValueValuesEnum', 2)
-
-
-class Binding(_messages.Message):
-  r"""Associates `members`, or principals, with a `role`.
-
-  Fields:
-    condition: The condition that is associated with this binding. If the
-      condition evaluates to `true`, then this binding applies to the current
-      request. If the condition evaluates to `false`, then this binding does
-      not apply to the current request. However, a different role binding
-      might grant the same role to one or more of the principals in this
-      binding. To learn which resources support conditions in their IAM
-      policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    members: Specifies the principals requesting access for a Google Cloud
-      resource. `members` can have the following values: * `allUsers`: A
-      special identifier that represents anyone who is on the internet; with
-      or without a Google account. * `allAuthenticatedUsers`: A special
-      identifier that represents anyone who is authenticated with a Google
-      account or a service account. Does not include identities that come from
-      external identity providers (IdPs) through identity federation. *
-      `user:{emailid}`: An email address that represents a specific Google
-      account. For example, `alice@example.com` . *
-      `serviceAccount:{emailid}`: An email address that represents a Google
-      service account. For example, `my-other-
-      app@appspot.gserviceaccount.com`. *
-      `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
-      An identifier for a [Kubernetes service
-      account](https://cloud.google.com/kubernetes-engine/docs/how-
-      to/kubernetes-service-accounts). For example, `my-
-      project.svc.id.goog[my-namespace/my-kubernetes-sa]`. *
-      `group:{emailid}`: An email address that represents a Google group. For
-      example, `admins@example.com`. * `domain:{domain}`: The G Suite domain
-      (primary) that represents all the users of that domain. For example,
-      `google.com` or `example.com`. * `principal://iam.googleapis.com/locatio
-      ns/global/workforcePools/{pool_id}/subject/{subject_attribute_value}`: A
-      single identity in a workforce identity pool. * `principalSet://iam.goog
-      leapis.com/locations/global/workforcePools/{pool_id}/group/{group_id}`:
-      All workforce identities in a group. * `principalSet://iam.googleapis.co
-      m/locations/global/workforcePools/{pool_id}/attribute.{attribute_name}/{
-      attribute_value}`: All workforce identities with a specific attribute
-      value. * `principalSet://iam.googleapis.com/locations/global/workforcePo
-      ols/{pool_id}/*`: All identities in a workforce identity pool. * `princi
-      pal://iam.googleapis.com/projects/{project_number}/locations/global/work
-      loadIdentityPools/{pool_id}/subject/{subject_attribute_value}`: A single
-      identity in a workload identity pool. * `principalSet://iam.googleapis.c
-      om/projects/{project_number}/locations/global/workloadIdentityPools/{poo
-      l_id}/group/{group_id}`: A workload identity pool group. * `principalSet
-      ://iam.googleapis.com/projects/{project_number}/locations/global/workloa
-      dIdentityPools/{pool_id}/attribute.{attribute_name}/{attribute_value}`:
-      All identities in a workload identity pool with a certain attribute. * `
-      principalSet://iam.googleapis.com/projects/{project_number}/locations/gl
-      obal/workloadIdentityPools/{pool_id}/*`: All identities in a workload
-      identity pool. * `deleted:user:{emailid}?uid={uniqueid}`: An email
-      address (plus unique identifier) representing a user that has been
-      recently deleted. For example,
-      `alice@example.com?uid=123456789012345678901`. If the user is recovered,
-      this value reverts to `user:{emailid}` and the recovered user retains
-      the role in the binding. *
-      `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
-      (plus unique identifier) representing a service account that has been
-      recently deleted. For example, `my-other-
-      app@appspot.gserviceaccount.com?uid=123456789012345678901`. If the
-      service account is undeleted, this value reverts to
-      `serviceAccount:{emailid}` and the undeleted service account retains the
-      role in the binding. * `deleted:group:{emailid}?uid={uniqueid}`: An
-      email address (plus unique identifier) representing a Google group that
-      has been recently deleted. For example,
-      `admins@example.com?uid=123456789012345678901`. If the group is
-      recovered, this value reverts to `group:{emailid}` and the recovered
-      group retains the role in the binding. * `deleted:principal://iam.google
-      apis.com/locations/global/workforcePools/{pool_id}/subject/{subject_attr
-      ibute_value}`: Deleted single identity in a workforce identity pool. For
-      example, `deleted:principal://iam.googleapis.com/locations/global/workfo
-      rcePools/my-pool-id/subject/my-subject-attribute-value`.
-    role: Role that is assigned to the list of `members`, or principals. For
-      example, `roles/viewer`, `roles/editor`, or `roles/owner`. For an
-      overview of the IAM roles and permissions, see the [IAM
-      documentation](https://cloud.google.com/iam/docs/roles-overview). For a
-      list of the available pre-defined roles, see
-      [here](https://cloud.google.com/iam/docs/understanding-roles).
-  """
-
-  condition = _messages.MessageField('Expr', 1)
-  members = _messages.StringField(2, repeated=True)
-  role = _messages.StringField(3)
-
-
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
+
+
+class ControlledEgressConfig(_messages.Message):
+  r"""Controlled egress configuration.
+
+  Fields:
+    egressFqdns: Optional. List of fully qualified domain names to be added to
+      the allowlist for outbound traffic.
+    marketplaceEnabled: Optional. Whether marketplace is enabled.
+  """
+
+  egressFqdns = _messages.StringField(1, repeated=True)
+  marketplaceEnabled = _messages.BooleanField(2)
 
 
 class CustomDomain(_messages.Message):
@@ -294,6 +157,41 @@ class EncryptionConfig(_messages.Message):
   kmsKeyState = _messages.EnumField('KmsKeyStateValueValuesEnum', 3)
 
 
+class EntityKey(_messages.Message):
+  r"""A unique identifier for an entity in the Cloud Identity Groups API. An
+  entity can represent either a group with an optional `namespace` or a user
+  without a `namespace`. The combination of `id` and `namespace` must be
+  unique; however, the same `id` can be used with different `namespace`s.
+
+  Fields:
+    id: The ID of the entity. For Google-managed entities, the `id` should be
+      the email address of an existing group or user. Email addresses need to
+      adhere to [name guidelines for users and
+      groups](https://support.google.com/a/answer/9193374). For external-
+      identity-mapped entities, the `id` must be a string conforming to the
+      Identity Source's requirements. Must be unique within a `namespace`.
+    namespace: The namespace in which the entity exists. If not specified, the
+      `EntityKey` represents a Google-managed entity such as a Google user or
+      a Google Group. If specified, the `EntityKey` represents an external-
+      identity-mapped group. The namespace must correspond to an identity
+      source created in Admin Console and must be in the form of
+      `identitysources/{identity_source}`.
+  """
+
+  id = _messages.StringField(1)
+  namespace = _messages.StringField(2)
+
+
+class ExpiryDetail(_messages.Message):
+  r"""The `MembershipRole` expiry details.
+
+  Fields:
+    expireTime: The time at which the `MembershipRole` will expire.
+  """
+
+  expireTime = _messages.StringField(1)
+
+
 class ExportEncryptionConfig(_messages.Message):
   r"""Configuration for Encryption - e.g. CMEK.
 
@@ -373,42 +271,6 @@ class ExportMetadataEncryptionKey(_messages.Message):
   version = _messages.StringField(2)
 
 
-class Expr(_messages.Message):
-  r"""Represents a textual expression in the Common Expression Language (CEL)
-  syntax. CEL is a C-like expression language. The syntax and semantics of CEL
-  are documented at https://github.com/google/cel-spec. Example (Comparison):
-  title: "Summary size limit" description: "Determines if a summary is less
-  than 100 chars" expression: "document.summary.size() < 100" Example
-  (Equality): title: "Requestor is owner" description: "Determines if
-  requestor is the document owner" expression: "document.owner ==
-  request.auth.claims.email" Example (Logic): title: "Public documents"
-  description: "Determine whether the document should be publicly visible"
-  expression: "document.type != 'private' && document.type != 'internal'"
-  Example (Data Manipulation): title: "Notification string" description:
-  "Create a notification string with a timestamp." expression: "'New message
-  received at ' + string(document.create_time)" The exact variables and
-  functions that may be referenced within an expression are determined by the
-  service that evaluates it. See the service documentation for additional
-  information.
-
-  Fields:
-    description: Optional. Description of the expression. This is a longer
-      text which describes the expression, e.g. when hovered over it in a UI.
-    expression: Textual representation of an expression in Common Expression
-      Language syntax.
-    location: Optional. String indicating the location of the expression for
-      error reporting, e.g. a file name and a position in the file.
-    title: Optional. Title for the expression, i.e. a short string describing
-      its purpose. This can be used e.g. in UIs which allow to enter the
-      expression.
-  """
-
-  description = _messages.StringField(1)
-  expression = _messages.StringField(2)
-  location = _messages.StringField(3)
-  title = _messages.StringField(4)
-
-
 class GeminiAiConfig(_messages.Message):
   r"""Information for Gemini AI setup for a Looker instance.
 
@@ -437,19 +299,24 @@ class Instance(_messages.Message):
   r"""A Looker instance.
 
   Enums:
+    ClassTypeValueValuesEnum: Optional. Storage class of the instance.
     PlatformEditionValueValuesEnum: Platform edition.
     StateValueValuesEnum: Output only. The state of the instance.
     TierValueValuesEnum: Optional. Tier
 
   Fields:
     adminSettings: Looker Instance Admin settings.
+    classType: Optional. Storage class of the instance.
     consumerNetwork: Network name in the consumer project. Format:
       `projects/{project}/global/networks/{network}`. Note that the consumer
       network may be in a different GCP project than the consumer project that
       is hosting the Looker Instance.
+    controlledEgressConfig: Optional. Controlled egress configuration.
+    controlledEgressEnabled: Optional. Whether controlled egress is enabled on
+      the Looker instance.
     createTime: Output only. The time when the Looker instance provisioning
       was first requested.
-    customDomain: A CustomDomain attribute.
+    customDomain: Custom domain configuration for the instance.
     denyMaintenancePeriod: Maintenance denial period for this instance.
     egressPublicIp: Output only. Public Egress IP (IPv4).
     encryptionConfig: Encryption configuration (CMEK). Only set if CMEK has
@@ -472,6 +339,7 @@ class Instance(_messages.Message):
     name: Output only. Format:
       `projects/{project}/locations/{location}/instances/{instance}`.
     oauthConfig: Looker instance OAuth login settings.
+    periodicExportConfig: Optional. Configuration for periodic export.
     platformEdition: Platform edition.
     privateIpEnabled: Whether private IP is enabled on the Looker instance.
     pscConfig: Optional. PSC configuration. Used when `psc_enabled` is true.
@@ -482,12 +350,26 @@ class Instance(_messages.Message):
     reservedRange: Name of a reserved IP address range within the
       Instance.consumer_network, to be used for private services access
       connection. May or may not be specified in a create request.
+    satisfiesPzi: Output only. Reserved for future use.
+    satisfiesPzs: Output only. Reserved for future use.
     state: Output only. The state of the instance.
     tier: Optional. Tier
     updateTime: Output only. The time when the Looker instance was last
       updated.
     userMetadata: Optional. User metadata.
   """
+
+  class ClassTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Storage class of the instance.
+
+    Values:
+      CLASS_TYPE_UNSPECIFIED: Unspecified storage class.
+      R1: Filestore.
+      P1: PD SSD.
+    """
+    CLASS_TYPE_UNSPECIFIED = 0
+    R1 = 1
+    P1 = 2
 
   class PlatformEditionValueValuesEnum(_messages.Enum):
     r"""Platform edition.
@@ -502,6 +384,9 @@ class Instance(_messages.Message):
       LOOKER_CORE_NONPROD_STANDARD_ANNUAL: Nonprod Subscription Standard.
       LOOKER_CORE_NONPROD_ENTERPRISE_ANNUAL: Nonprod Subscription Enterprise.
       LOOKER_CORE_NONPROD_EMBED_ANNUAL: Nonprod Subscription Embed.
+      LOOKER_CORE_TRIAL_STANDARD: Trial Standard.
+      LOOKER_CORE_TRIAL_ENTERPRISE: Trial Enterprise.
+      LOOKER_CORE_TRIAL_EMBED: Trial Embed.
     """
     PLATFORM_EDITION_UNSPECIFIED = 0
     LOOKER_CORE_TRIAL = 1
@@ -512,6 +397,9 @@ class Instance(_messages.Message):
     LOOKER_CORE_NONPROD_STANDARD_ANNUAL = 6
     LOOKER_CORE_NONPROD_ENTERPRISE_ANNUAL = 7
     LOOKER_CORE_NONPROD_EMBED_ANNUAL = 8
+    LOOKER_CORE_TRIAL_STANDARD = 9
+    LOOKER_CORE_TRIAL_ENTERPRISE = 10
+    LOOKER_CORE_TRIAL_EMBED = 11
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The state of the instance.
@@ -556,35 +444,41 @@ class Instance(_messages.Message):
     XL = 5
 
   adminSettings = _messages.MessageField('AdminSettings', 1)
-  consumerNetwork = _messages.StringField(2)
-  createTime = _messages.StringField(3)
-  customDomain = _messages.MessageField('CustomDomain', 4)
-  denyMaintenancePeriod = _messages.MessageField('DenyMaintenancePeriod', 5)
-  egressPublicIp = _messages.StringField(6)
-  encryptionConfig = _messages.MessageField('EncryptionConfig', 7)
-  fipsEnabled = _messages.BooleanField(8)
-  geminiAiConfig = _messages.MessageField('GeminiAiConfig', 9)
-  geminiEnabled = _messages.BooleanField(10)
-  ingressPrivateIp = _messages.StringField(11)
-  ingressPublicIp = _messages.StringField(12)
-  lastDenyMaintenancePeriod = _messages.MessageField('DenyMaintenancePeriod', 13)
-  linkedLspProjectNumber = _messages.IntegerField(14)
-  lookerUri = _messages.StringField(15)
-  lookerVersion = _messages.StringField(16)
-  maintenanceSchedule = _messages.MessageField('MaintenanceSchedule', 17)
-  maintenanceWindow = _messages.MessageField('MaintenanceWindow', 18)
-  name = _messages.StringField(19)
-  oauthConfig = _messages.MessageField('OAuthConfig', 20)
-  platformEdition = _messages.EnumField('PlatformEditionValueValuesEnum', 21)
-  privateIpEnabled = _messages.BooleanField(22)
-  pscConfig = _messages.MessageField('PscConfig', 23)
-  pscEnabled = _messages.BooleanField(24)
-  publicIpEnabled = _messages.BooleanField(25)
-  reservedRange = _messages.StringField(26)
-  state = _messages.EnumField('StateValueValuesEnum', 27)
-  tier = _messages.EnumField('TierValueValuesEnum', 28)
-  updateTime = _messages.StringField(29)
-  userMetadata = _messages.MessageField('UserMetadata', 30)
+  classType = _messages.EnumField('ClassTypeValueValuesEnum', 2)
+  consumerNetwork = _messages.StringField(3)
+  controlledEgressConfig = _messages.MessageField('ControlledEgressConfig', 4)
+  controlledEgressEnabled = _messages.BooleanField(5)
+  createTime = _messages.StringField(6)
+  customDomain = _messages.MessageField('CustomDomain', 7)
+  denyMaintenancePeriod = _messages.MessageField('DenyMaintenancePeriod', 8)
+  egressPublicIp = _messages.StringField(9)
+  encryptionConfig = _messages.MessageField('EncryptionConfig', 10)
+  fipsEnabled = _messages.BooleanField(11)
+  geminiAiConfig = _messages.MessageField('GeminiAiConfig', 12)
+  geminiEnabled = _messages.BooleanField(13)
+  ingressPrivateIp = _messages.StringField(14)
+  ingressPublicIp = _messages.StringField(15)
+  lastDenyMaintenancePeriod = _messages.MessageField('DenyMaintenancePeriod', 16)
+  linkedLspProjectNumber = _messages.IntegerField(17)
+  lookerUri = _messages.StringField(18)
+  lookerVersion = _messages.StringField(19)
+  maintenanceSchedule = _messages.MessageField('MaintenanceSchedule', 20)
+  maintenanceWindow = _messages.MessageField('MaintenanceWindow', 21)
+  name = _messages.StringField(22)
+  oauthConfig = _messages.MessageField('OAuthConfig', 23)
+  periodicExportConfig = _messages.MessageField('PeriodicExportConfig', 24)
+  platformEdition = _messages.EnumField('PlatformEditionValueValuesEnum', 25)
+  privateIpEnabled = _messages.BooleanField(26)
+  pscConfig = _messages.MessageField('PscConfig', 27)
+  pscEnabled = _messages.BooleanField(28)
+  publicIpEnabled = _messages.BooleanField(29)
+  reservedRange = _messages.StringField(30)
+  satisfiesPzi = _messages.BooleanField(31)
+  satisfiesPzs = _messages.BooleanField(32)
+  state = _messages.EnumField('StateValueValuesEnum', 33)
+  tier = _messages.EnumField('TierValueValuesEnum', 34)
+  updateTime = _messages.StringField(35)
+  userMetadata = _messages.MessageField('UserMetadata', 36)
 
 
 class InstanceBackup(_messages.Message):
@@ -679,10 +573,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -800,32 +699,6 @@ class LookerProjectsLocationsInstancesBackupsDeleteRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
-class LookerProjectsLocationsInstancesBackupsGetIamPolicyRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesBackupsGetIamPolicyRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
 class LookerProjectsLocationsInstancesBackupsGetRequest(_messages.Message):
   r"""A LookerProjectsLocationsInstancesBackupsGetRequest object.
 
@@ -854,39 +727,6 @@ class LookerProjectsLocationsInstancesBackupsListRequest(_messages.Message):
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   parent = _messages.StringField(4, required=True)
-
-
-class LookerProjectsLocationsInstancesBackupsSetIamPolicyRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesBackupsSetIamPolicyRequest object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
-      request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
-
-
-class LookerProjectsLocationsInstancesBackupsTestIamPermissionsRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesBackupsTestIamPermissionsRequest
-  object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy detail is being
-      requested. See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
-      passed as the request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
 
 
 class LookerProjectsLocationsInstancesCreateRequest(_messages.Message):
@@ -930,32 +770,6 @@ class LookerProjectsLocationsInstancesExportRequest(_messages.Message):
 
   exportInstanceRequest = _messages.MessageField('ExportInstanceRequest', 1)
   name = _messages.StringField(2, required=True)
-
-
-class LookerProjectsLocationsInstancesGetIamPolicyRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesGetIamPolicyRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
 
 
 class LookerProjectsLocationsInstancesGetRequest(_messages.Message):
@@ -1016,6 +830,20 @@ class LookerProjectsLocationsInstancesPatchRequest(_messages.Message):
   updateMask = _messages.StringField(3)
 
 
+class LookerProjectsLocationsInstancesProxySearchDirectGroupsRequest(_messages.Message):
+  r"""A LookerProjectsLocationsInstancesProxySearchDirectGroupsRequest object.
+
+  Fields:
+    name: Required. Format:
+      `projects/{project}/locations/{location}/instances/{instance}`.
+    proxySearchDirectGroupsRequest: A ProxySearchDirectGroupsRequest resource
+      to be passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  proxySearchDirectGroupsRequest = _messages.MessageField('ProxySearchDirectGroupsRequest', 2)
+
+
 class LookerProjectsLocationsInstancesRestartRequest(_messages.Message):
   r"""A LookerProjectsLocationsInstancesRestartRequest object.
 
@@ -1044,42 +872,13 @@ class LookerProjectsLocationsInstancesRestoreRequest(_messages.Message):
   restoreInstanceRequest = _messages.MessageField('RestoreInstanceRequest', 2)
 
 
-class LookerProjectsLocationsInstancesSetIamPolicyRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesSetIamPolicyRequest object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
-      request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
-
-
-class LookerProjectsLocationsInstancesTestIamPermissionsRequest(_messages.Message):
-  r"""A LookerProjectsLocationsInstancesTestIamPermissionsRequest object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy detail is being
-      requested. See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
-      passed as the request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
-
-
 class LookerProjectsLocationsListRequest(_messages.Message):
   r"""A LookerProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1090,10 +889,11 @@ class LookerProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class LookerProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -1137,12 +937,20 @@ class LookerProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class MaintenanceSchedule(_messages.Message):
@@ -1194,6 +1002,83 @@ class MaintenanceWindow(_messages.Message):
 
   dayOfWeek = _messages.EnumField('DayOfWeekValueValuesEnum', 1)
   startTime = _messages.MessageField('TimeOfDay', 2)
+
+
+class MembershipRelation(_messages.Message):
+  r"""Message containing membership relation.
+
+  Messages:
+    LabelsValue: One or more label entries that apply to the Group. Currently
+      supported labels contain a key with an empty value.
+
+  Fields:
+    description: An extended description to help users determine the purpose
+      of a `Group`.
+    displayName: The display name of the `Group`.
+    group: The [resource
+      name](https://cloud.google.com/apis/design/resource_names) of the
+      `Group`. Shall be of the form `groups/{group_id}`.
+    groupKey: The `EntityKey` of the `Group`.
+    labels: One or more label entries that apply to the Group. Currently
+      supported labels contain a key with an empty value.
+    membership: The [resource
+      name](https://cloud.google.com/apis/design/resource_names) of the
+      `Membership`. Shall be of the form
+      `groups/{group_id}/memberships/{membership_id}`.
+    roles: The `MembershipRole`s that apply to the `Membership`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""One or more label entries that apply to the Group. Currently supported
+    labels contain a key with an empty value.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  description = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  group = _messages.StringField(3)
+  groupKey = _messages.MessageField('EntityKey', 4)
+  labels = _messages.MessageField('LabelsValue', 5)
+  membership = _messages.StringField(6)
+  roles = _messages.MessageField('MembershipRole', 7, repeated=True)
+
+
+class MembershipRole(_messages.Message):
+  r"""A membership role within the Cloud Identity Groups API. A
+  `MembershipRole` defines the privileges granted to a `Membership`.
+
+  Fields:
+    expiryDetail: The expiry details of the `MembershipRole`. Expiry details
+      are only supported for `MEMBER` `MembershipRoles`. May be set if `name`
+      is `MEMBER`. Must not be set if `name` is any other value.
+    name: The name of the `MembershipRole`. Must be one of `OWNER`, `MANAGER`,
+      `MEMBER`.
+    restrictionEvaluations: Evaluations of restrictions applied to parent
+      group on this membership.
+  """
+
+  expiryDetail = _messages.MessageField('ExpiryDetail', 1)
+  name = _messages.StringField(2)
+  restrictionEvaluations = _messages.MessageField('RestrictionEvaluations', 3)
 
 
 class OAuthConfig(_messages.Message):
@@ -1344,82 +1229,42 @@ class OperationMetadata(_messages.Message):
   verb = _messages.StringField(7)
 
 
-class Policy(_messages.Message):
-  r"""An Identity and Access Management (IAM) policy, which specifies access
-  controls for Google Cloud resources. A `Policy` is a collection of
-  `bindings`. A `binding` binds one or more `members`, or principals, to a
-  single `role`. Principals can be user accounts, service accounts, Google
-  groups, and domains (such as G Suite). A `role` is a named list of
-  permissions; each `role` can be an IAM predefined role or a user-created
-  custom role. For some types of Google Cloud resources, a `binding` can also
-  specify a `condition`, which is a logical expression that allows access to a
-  resource only if the expression evaluates to `true`. A condition can add
-  constraints based on attributes of the request, the resource, or both. To
-  learn which resources support conditions in their IAM policies, see the [IAM
-  documentation](https://cloud.google.com/iam/help/conditions/resource-
-  policies). **JSON example:** ``` { "bindings": [ { "role":
-  "roles/resourcemanager.organizationAdmin", "members": [
-  "user:mike@example.com", "group:admins@example.com", "domain:google.com",
-  "serviceAccount:my-project-id@appspot.gserviceaccount.com" ] }, { "role":
-  "roles/resourcemanager.organizationViewer", "members": [
-  "user:eve@example.com" ], "condition": { "title": "expirable access",
-  "description": "Does not grant access after Sep 2020", "expression":
-  "request.time < timestamp('2020-10-01T00:00:00.000Z')", } } ], "etag":
-  "BwWWja0YfJA=", "version": 3 } ``` **YAML example:** ``` bindings: -
-  members: - user:mike@example.com - group:admins@example.com -
-  domain:google.com - serviceAccount:my-project-id@appspot.gserviceaccount.com
-  role: roles/resourcemanager.organizationAdmin - members: -
-  user:eve@example.com role: roles/resourcemanager.organizationViewer
-  condition: title: expirable access description: Does not grant access after
-  Sep 2020 expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
-  etag: BwWWja0YfJA= version: 3 ``` For a description of IAM and its features,
-  see the [IAM documentation](https://cloud.google.com/iam/docs/).
+class PeriodicExportConfig(_messages.Message):
+  r"""Configuration for periodic export.
 
   Fields:
-    auditConfigs: Specifies cloud audit logging configuration for this policy.
-    bindings: Associates a list of `members`, or principals, with a `role`.
-      Optionally, may specify a `condition` that determines how and when the
-      `bindings` are applied. Each of the `bindings` must contain at least one
-      principal. The `bindings` in a `Policy` can refer to up to 1,500
-      principals; up to 250 of these principals can be Google groups. Each
-      occurrence of a principal counts towards these limits. For example, if
-      the `bindings` grant 50 different roles to `user:alice@example.com`, and
-      not to any other principal, then you can add another 1,450 principals to
-      the `bindings` in the `Policy`.
-    etag: `etag` is used for optimistic concurrency control as a way to help
-      prevent simultaneous updates of a policy from overwriting each other. It
-      is strongly suggested that systems make use of the `etag` in the read-
-      modify-write cycle to perform policy updates in order to avoid race
-      conditions: An `etag` is returned in the response to `getIamPolicy`, and
-      systems are expected to put that etag in the request to `setIamPolicy`
-      to ensure that their change will be applied to the same version of the
-      policy. **Important:** If you use IAM Conditions, you must include the
-      `etag` field whenever you call `setIamPolicy`. If you omit this field,
-      then IAM allows you to overwrite a version `3` policy with a version `1`
-      policy, and all of the conditions in the version `3` policy are lost.
-    version: Specifies the format of the policy. Valid values are `0`, `1`,
-      and `3`. Requests that specify an invalid value are rejected. Any
-      operation that affects conditional role bindings must specify version
-      `3`. This requirement applies to the following operations: * Getting a
-      policy that includes a conditional role binding * Adding a conditional
-      role binding to a policy * Changing a conditional role binding in a
-      policy * Removing any role binding, with or without a condition, from a
-      policy that includes conditions **Important:** If you use IAM
-      Conditions, you must include the `etag` field whenever you call
-      `setIamPolicy`. If you omit this field, then IAM allows you to overwrite
-      a version `3` policy with a version `1` policy, and all of the
-      conditions in the version `3` policy are lost. If a policy does not
-      include any conditions, operations on that policy may specify any valid
-      version or leave the field unset. To learn which resources support
-      conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
+    gcsUri: Required. Cloud Storage bucket URI for periodic export. Format:
+      gs://{bucket_name}
+    kmsKey: Required. Name of the CMEK key in KMS. Format: projects/{project}/
+      locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}
+    startTime: Required. Time in UTC to start the periodic export job.
   """
 
-  auditConfigs = _messages.MessageField('AuditConfig', 1, repeated=True)
-  bindings = _messages.MessageField('Binding', 2, repeated=True)
-  etag = _messages.BytesField(3)
-  version = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  gcsUri = _messages.StringField(1)
+  kmsKey = _messages.StringField(2)
+  startTime = _messages.MessageField('TimeOfDay', 3)
+
+
+class ProxySearchDirectGroupsRequest(_messages.Message):
+  r"""Request wrapper for proxy to Groups API SearchDirectGroups
+
+  Fields:
+    groupsApiOauthToken: Required. OAuth token to use with the Groups API
+    searchDirectGroupsRequest: Required. request to Groups API
+  """
+
+  groupsApiOauthToken = _messages.StringField(1)
+  searchDirectGroupsRequest = _messages.MessageField('SearchDirectGroupsRequest', 2)
+
+
+class ProxySearchDirectGroupsResponse(_messages.Message):
+  r"""Response wrapper for proxy to Groups API SearchDirectGroups
+
+  Fields:
+    searchDirectGroupsResponse: response from Groups API
+  """
+
+  searchDirectGroupsResponse = _messages.MessageField('SearchDirectGroupsResponse', 1)
 
 
 class PscConfig(_messages.Message):
@@ -1455,6 +1300,99 @@ class RestoreInstanceRequest(_messages.Message):
   backup = _messages.StringField(1)
 
 
+class RestrictionEvaluation(_messages.Message):
+  r"""The evaluated state of this restriction.
+
+  Enums:
+    StateValueValuesEnum: Output only. The current state of the restriction
+
+  Fields:
+    state: Output only. The current state of the restriction
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The current state of the restriction
+
+    Values:
+      STATE_UNSPECIFIED: Default. Should not be used.
+      COMPLIANT: The member adheres to the parent group's restriction.
+      FORWARD_COMPLIANT: The group-group membership might be currently
+        violating some parent group's restriction but in future, it will never
+        allow any new member in the child group which can violate parent
+        group's restriction.
+      NON_COMPLIANT: The member violates the parent group's restriction.
+      EVALUATING: The state of the membership is under evaluation.
+    """
+    STATE_UNSPECIFIED = 0
+    COMPLIANT = 1
+    FORWARD_COMPLIANT = 2
+    NON_COMPLIANT = 3
+    EVALUATING = 4
+
+  state = _messages.EnumField('StateValueValuesEnum', 1)
+
+
+class RestrictionEvaluations(_messages.Message):
+  r"""Evaluations of restrictions applied to parent group on this membership.
+
+  Fields:
+    memberRestrictionEvaluation: Evaluation of the member restriction applied
+      to this membership. Empty if the user lacks permission to view the
+      restriction evaluation.
+  """
+
+  memberRestrictionEvaluation = _messages.MessageField('RestrictionEvaluation', 1)
+
+
+class SearchDirectGroupsRequest(_messages.Message):
+  r"""The request message for MembershipsService.SearchDirectGroups.
+
+  Fields:
+    orderBy: The ordering of membership relation for the display name or email
+      in the response. The syntax for this field can be found at
+      https://cloud.google.com/apis/design/design_patterns#sorting_order.
+      Example: Sort by the ascending display name: order_by="group_name" or
+      order_by="group_name asc". Sort by the descending display name:
+      order_by="group_name desc". Sort by the ascending group key:
+      order_by="group_key" or order_by="group_key asc". Sort by the descending
+      group key: order_by="group_key desc".
+    pageSize: The default page size is 200 (max 1000).
+    pageToken: The `next_page_token` value returned from a previous list
+      request, if any
+    parent: [Resource
+      name](https://cloud.google.com/apis/design/resource_names) of the group
+      to search transitive memberships in. Format: groups/{group_id}, where
+      group_id is always '-' as this API will search across all groups for a
+      given member.
+    query: Required. A CEL expression that MUST include member specification
+      AND label(s). Users can search on label attributes of groups. CONTAINS
+      match ('in') is supported on labels. Identity-mapped groups are uniquely
+      identified by both a `member_key_id` and a `member_key_namespace`, which
+      requires an additional query input: `member_key_namespace`. Example
+      query: `member_key_id == 'member_key_id_value' && 'label_value' in
+      labels`
+  """
+
+  orderBy = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4)
+  query = _messages.StringField(5)
+
+
+class SearchDirectGroupsResponse(_messages.Message):
+  r"""The response message for MembershipsService.SearchDirectGroups.
+
+  Fields:
+    memberships: List of direct groups satisfying the query.
+    nextPageToken: Token to retrieve the next page of results, or empty if
+      there are no more results available for listing.
+  """
+
+  memberships = _messages.MessageField('MembershipRelation', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class ServiceAttachment(_messages.Message):
   r"""Service attachment configuration.
 
@@ -1463,8 +1401,13 @@ class ServiceAttachment(_messages.Message):
 
   Fields:
     connectionStatus: Output only. Connection status.
-    localFqdn: Required. Fully qualified domain name that will be used in the
+    failureReason: Output only. Reason the service attachment creation failed.
+      This value will only be populated if the service attachment encounters
+      an issue during provisioning.
+    localFqdn: Optional. Fully qualified domain name that will be used in the
       private DNS record created for the service attachment.
+    localFqdns: Optional. List of fully qualified domain names that will be
+      used in the private DNS record created for the service attachment.
     targetServiceAttachmentUri: Required. URI of the service attachment to
       connect to. Format: projects/{project}/regions/{region}/serviceAttachmen
       ts/{service_attachment}
@@ -1493,25 +1436,10 @@ class ServiceAttachment(_messages.Message):
     CLOSED = 5
 
   connectionStatus = _messages.EnumField('ConnectionStatusValueValuesEnum', 1)
-  localFqdn = _messages.StringField(2)
-  targetServiceAttachmentUri = _messages.StringField(3)
-
-
-class SetIamPolicyRequest(_messages.Message):
-  r"""Request message for `SetIamPolicy` method.
-
-  Fields:
-    policy: REQUIRED: The complete policy to be applied to the `resource`. The
-      size of the policy is limited to a few 10s of KB. An empty policy is a
-      valid policy but certain Google Cloud services (such as Projects) might
-      reject them.
-    updateMask: OPTIONAL: A FieldMask specifying which fields of the policy to
-      modify. Only the fields in the mask will be modified. If no mask is
-      provided, the following default mask is used: `paths: "bindings, etag"`
-  """
-
-  policy = _messages.MessageField('Policy', 1)
-  updateMask = _messages.StringField(2)
+  failureReason = _messages.StringField(2)
+  localFqdn = _messages.StringField(3)
+  localFqdns = _messages.StringField(4, repeated=True)
+  targetServiceAttachmentUri = _messages.StringField(5)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -1628,30 +1556,6 @@ class Status(_messages.Message):
   message = _messages.StringField(3)
 
 
-class TestIamPermissionsRequest(_messages.Message):
-  r"""Request message for `TestIamPermissions` method.
-
-  Fields:
-    permissions: The set of permissions to check for the `resource`.
-      Permissions with wildcards (such as `*` or `storage.*`) are not allowed.
-      For more information see [IAM
-      Overview](https://cloud.google.com/iam/docs/overview#permissions).
-  """
-
-  permissions = _messages.StringField(1, repeated=True)
-
-
-class TestIamPermissionsResponse(_messages.Message):
-  r"""Response message for `TestIamPermissions` method.
-
-  Fields:
-    permissions: A subset of `TestPermissionsRequest.permissions` that the
-      caller is allowed.
-  """
-
-  permissions = _messages.StringField(1, repeated=True)
-
-
 class TimeOfDay(_messages.Message):
   r"""Represents a time of day. The date and time zone are either not
   significant or are specified elsewhere. An API may choose to allow leap
@@ -1699,7 +1603,3 @@ encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_1', '1')
 encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_2', '2')
-encoding.AddCustomJsonFieldMapping(
-    LookerProjectsLocationsInstancesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
-encoding.AddCustomJsonFieldMapping(
-    LookerProjectsLocationsInstancesBackupsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')

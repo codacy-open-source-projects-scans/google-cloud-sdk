@@ -115,6 +115,9 @@ class ArtifactregistryProjectsLocationsListRequest(_messages.Message):
   r"""A ArtifactregistryProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -125,10 +128,11 @@ class ArtifactregistryProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ArtifactregistryProjectsLocationsOperationsGetRequest(_messages.Message):
@@ -231,6 +235,21 @@ class ArtifactregistryProjectsLocationsRepositoriesAttachmentsListRequest(_messa
   parent = _messages.StringField(4, required=True)
 
 
+class ArtifactregistryProjectsLocationsRepositoriesCopyRepositoryRequest(_messages.Message):
+  r"""A ArtifactregistryProjectsLocationsRepositoriesCopyRepositoryRequest
+  object.
+
+  Fields:
+    copyRepositoryRequest: A CopyRepositoryRequest resource to be passed as
+      the request body.
+    destinationRepository: Required. Repository to copy to. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+  """
+
+  copyRepositoryRequest = _messages.MessageField('CopyRepositoryRequest', 1)
+  destinationRepository = _messages.StringField(2, required=True)
+
+
 class ArtifactregistryProjectsLocationsRepositoriesCreateRequest(_messages.Message):
   r"""A ArtifactregistryProjectsLocationsRepositoriesCreateRequest object.
 
@@ -300,6 +319,21 @@ class ArtifactregistryProjectsLocationsRepositoriesDockerImagesListRequest(_mess
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
   parent = _messages.StringField(5, required=True)
+
+
+class ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest(_messages.Message):
+  r"""A ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest
+  object.
+
+  Fields:
+    exportArtifactRequest: A ExportArtifactRequest resource to be passed as
+      the request body.
+    repository: Required. The repository of the artifact to export. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+  """
+
+  exportArtifactRequest = _messages.MessageField('ExportArtifactRequest', 1)
+  repository = _messages.StringField(2, required=True)
 
 
 class ArtifactregistryProjectsLocationsRepositoriesFilesDeleteRequest(_messages.Message):
@@ -1336,8 +1370,9 @@ class BatchDeleteVersionsRequest(_messages.Message):
   r"""The request to delete multiple versions across a repository.
 
   Fields:
-    names: Required. The names of the versions to delete. A maximum of 10000
-      versions can be deleted in a batch.
+    names: Required. The names of the versions to delete. The maximum number
+      of versions deleted per batch is determined by the service and is
+      dependent on the available resources in the region.
     validateOnly: If true, the request is performed without deleting data,
       following AIP-163.
   """
@@ -1532,6 +1567,68 @@ class CommonRemoteRepository(_messages.Message):
   uri = _messages.StringField(1)
 
 
+class CopyRepositoryMetadata(_messages.Message):
+  r"""The metadata for a copy repository long running operation, to understand
+  the progress of the repo copy.
+
+  Fields:
+    copyStartTime: The time that the request was received, and the time we
+      will copy from. Artifacts pushed after this time will not be copied.
+    destinationRepository: Repository being copied to. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+    packagesCopiedCount: The total number of packages successfully copied.
+    sourceRepository: Repository being copied from. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+    totalPackagesCount: The total number of packages in the repository.
+    totalVersionsCount: The total number of versions in the repository. You
+      can use this field to calculate the progress of the repository copy:
+      Progress % = (versions_copied_count / total_versions_count) * 100
+    versionsCopiedCount: The total number of versions successfully copied.
+  """
+
+  copyStartTime = _messages.StringField(1)
+  destinationRepository = _messages.StringField(2)
+  packagesCopiedCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  sourceRepository = _messages.StringField(4)
+  totalPackagesCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  totalVersionsCount = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  versionsCopiedCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+
+
+class CopyRepositoryRequest(_messages.Message):
+  r"""The request for copying from another repository.
+
+  Fields:
+    sourceRepository: Required. Repository to copy from. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+  """
+
+  sourceRepository = _messages.StringField(1)
+
+
+class CopyRepositoryResponse(_messages.Message):
+  r"""The response for copying from another repository.
+
+  Fields:
+    copyStartTime: The time that the request was received, and the time we
+      will copy from. Artifacts pushed after this time will not be copied.
+    destinationRepository: Repository copied to. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+    packagesCopiedCount: The total number of packages successfully copied.
+      This equals the number of packages in the source repository.
+    sourceRepository: Repository copied from. Format:
+      projects/{project}/locations/{location}/repositories/{repository}
+    versionsCopiedCount: The total number of versions successfully copied.
+      This equals the number of versions in the source repository.
+  """
+
+  copyStartTime = _messages.StringField(1)
+  destinationRepository = _messages.StringField(2)
+  packagesCopiedCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  sourceRepository = _messages.StringField(4)
+  versionsCopiedCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+
+
 class DockerImage(_messages.Message):
   r"""DockerImage represents a docker artifact. The following fields are
   returned as untyped metadata in the Version resource, using camelcase keys
@@ -1539,14 +1636,16 @@ class DockerImage(_messages.Message):
 
   Fields:
     artifactType: ArtifactType type of this image, e.g.
-      application/vnd.example+type". If the `subject` is set and no
-      `artifactType `is given, the `mediaType` will be considered as the
+      "application/vnd.example+type". If the `subject` is set and no
+      `artifactType` is given, the `mediaType` will be considered as the
       `artifactType`. This field is returned as the `metadata.artifactType`
       field in the Version resource.
     buildTime: The time this image was built. This field is returned as the
       'metadata.buildTime' field in the Version resource. The build time is
       returned to the client as an RFC 3339 string, which can be easily used
       with the JavaScript Date constructor.
+    imageManifests: Optional. For multi-arch images (manifest lists), this
+      field contains the list of image manifests.
     imageSizeBytes: Calculated size of the image. This field is returned as
       the 'metadata.imageSizeBytes' field in the Version resource.
     mediaType: Media type of this image, e.g.
@@ -1554,7 +1653,7 @@ class DockerImage(_messages.Message):
       returned as the 'metadata.mediaType' field in the Version resource.
     name: Required. registry_location, project_id, repository_name and image
       id forms a unique image
-      name:`projects//locations//repository//dockerImages/`. For example,
+      name:`projects//locations//repositories//dockerImages/`. For example,
       "projects/test-project/locations/us-west4/repositories/test-
       repo/dockerImages/ nginx@sha256:e9954c1fc875017be1c3e36eca16be2d9e9bccc4
       bf072163515467d6a823c7cf", where "us-west4" is the registry_location,
@@ -1573,14 +1672,15 @@ class DockerImage(_messages.Message):
 
   artifactType = _messages.StringField(1)
   buildTime = _messages.StringField(2)
-  imageSizeBytes = _messages.IntegerField(3)
-  mediaType = _messages.StringField(4)
-  name = _messages.StringField(5)
-  subjectDigest = _messages.StringField(6)
-  tags = _messages.StringField(7, repeated=True)
-  updateTime = _messages.StringField(8)
-  uploadTime = _messages.StringField(9)
-  uri = _messages.StringField(10)
+  imageManifests = _messages.MessageField('ImageManifest', 3, repeated=True)
+  imageSizeBytes = _messages.IntegerField(4)
+  mediaType = _messages.StringField(5)
+  name = _messages.StringField(6)
+  subjectDigest = _messages.StringField(7)
+  tags = _messages.StringField(8, repeated=True)
+  updateTime = _messages.StringField(9)
+  uploadTime = _messages.StringField(10)
+  uri = _messages.StringField(11)
 
 
 class DockerRepository(_messages.Message):
@@ -1637,6 +1737,63 @@ class Empty(_messages.Message):
   Bar(google.protobuf.Empty) returns (google.protobuf.Empty); }
   """
 
+
+
+class ExportArtifactMetadata(_messages.Message):
+  r"""The LRO metadata for exporting an artifact.
+
+  Fields:
+    exportedFiles: The exported artifact files.
+  """
+
+  exportedFiles = _messages.MessageField('ExportedFile', 1, repeated=True)
+
+
+class ExportArtifactRequest(_messages.Message):
+  r"""The request for exporting an artifact to a destination.
+
+  Fields:
+    gcsPath: The Cloud Storage path to export the artifact to. Should start
+      with the bucket name, and optionally have a directory path. Examples:
+      `dst_bucket`, `dst_bucket/sub_dir`. Existing objects with the same path
+      will be overwritten.
+    sourceTag: The artifact tag to export. Format:projects/{project}/locations
+      /{location}/repositories/{repository}/packages/{package}/tags/{tag}
+    sourceVersion: The artifact version to export. Format: projects/{project}/
+      locations/{location}/repositories/{repository}/packages/{package}/versio
+      ns/{version}
+  """
+
+  gcsPath = _messages.StringField(1)
+  sourceTag = _messages.StringField(2)
+  sourceVersion = _messages.StringField(3)
+
+
+class ExportArtifactResponse(_messages.Message):
+  r"""The response for exporting an artifact to a destination.
+
+  Fields:
+    exportedVersion: The exported version. Should be the same as the request
+      version with fingerprint resource name.
+  """
+
+  exportedVersion = _messages.MessageField('Version', 1)
+
+
+class ExportedFile(_messages.Message):
+  r"""The exported artifact file.
+
+  Fields:
+    gcsObjectPath: Cloud Storage Object path of the exported file. Examples:
+      `dst_bucket/file1`, `dst_bucket/sub_dir/file1`
+    hashes: The hashes of the file content.
+    name: Name of the exported artifact file. Format:
+      `projects/p1/locations/us/repositories/repo1/files/file1`
+  """
+
+  gcsObjectPath = _messages.StringField(1)
+  hashes = _messages.MessageField('Hash', 2, repeated=True)
+  name = _messages.StringField(3)
 
 
 class Expr(_messages.Message):
@@ -2079,6 +2236,37 @@ class Hash(_messages.Message):
 
   type = _messages.EnumField('TypeValueValuesEnum', 1)
   value = _messages.BytesField(2)
+
+
+class ImageManifest(_messages.Message):
+  r"""Details of a single image manifest within a multi-arch image.
+
+  Fields:
+    architecture: Optional. The CPU architecture of the image. Values are
+      provided by the Docker client and are not validated by Artifact
+      Registry. Example values include "amd64", "arm64", "ppc64le", "s390x",
+      "riscv64", "mips64le", etc.
+    digest: Optional. The manifest digest, in the format "sha256:".
+    mediaType: Optional. The media type of the manifest, e.g.,
+      "application/vnd.docker.distribution.manifest.v2+json"
+    os: Optional. The operating system of the image. Values are provided by
+      the Docker client and are not validated by Artifact Registry. Example
+      values include "linux", "windows", "darwin", "aix", etc.
+    osFeatures: Optional. The required OS features for the image, for example
+      on Windows `win32k`.
+    osVersion: Optional. The OS version of the image, for example on Windows
+      `10.0.14393.1066`.
+    variant: Optional. The variant of the CPU in the image, for example `v7`
+      to specify ARMv7 when architecture is `arm`.
+  """
+
+  architecture = _messages.StringField(1)
+  digest = _messages.StringField(2)
+  mediaType = _messages.StringField(3)
+  os = _messages.StringField(4)
+  osFeatures = _messages.StringField(5, repeated=True)
+  osVersion = _messages.StringField(6)
+  variant = _messages.StringField(7)
 
 
 class ImportAptArtifactsErrorInfo(_messages.Message):
@@ -3092,12 +3280,14 @@ class RemoteRepositoryConfig(_messages.Message):
       to avoid making a HEAD/GET request to validate a remote repo and any
       supplied upstream credentials.
     dockerRepository: Specific settings for a Docker remote repository.
+    enableIngestionAttestation: Optional. option to generate a signed
+      ingestion attestation for externally pulled files in remote
+      repositories.
     goRepository: Specific settings for a Go remote repository.
     mavenRepository: Specific settings for a Maven remote repository.
     npmRepository: Specific settings for an Npm remote repository.
     pythonRepository: Specific settings for a Python remote repository.
     remoteType: A RemoteTypeValueValuesEnum attribute.
-    rubyRepository: Specific settings for a Ruby remote repository.
     serviceDirectoryConfig: A ServiceDirectoryConfig attribute.
     upstreamCredentials: Optional. The credentials used to access the remote
       repository.
@@ -3111,10 +3301,13 @@ class RemoteRepositoryConfig(_messages.Message):
       REMOTE_TYPE_UNSPECIFIED: <no description>
       MIRROR: <no description>
       CACHE_LAYER: <no description>
+      SHARED_CACHE: SHARED_CACHE defines shared cache remote repository
+        subtype.
     """
     REMOTE_TYPE_UNSPECIFIED = 0
     MIRROR = 1
     CACHE_LAYER = 2
+    SHARED_CACHE = 3
 
   aptRepository = _messages.MessageField('AptRepository', 1)
   commonRepository = _messages.MessageField('CommonRemoteRepository', 2)
@@ -3122,12 +3315,12 @@ class RemoteRepositoryConfig(_messages.Message):
   description = _messages.StringField(4)
   disableUpstreamValidation = _messages.BooleanField(5)
   dockerRepository = _messages.MessageField('DockerRepository', 6)
-  goRepository = _messages.MessageField('GoRepository', 7)
-  mavenRepository = _messages.MessageField('MavenRepository', 8)
-  npmRepository = _messages.MessageField('NpmRepository', 9)
-  pythonRepository = _messages.MessageField('PythonRepository', 10)
-  remoteType = _messages.EnumField('RemoteTypeValueValuesEnum', 11)
-  rubyRepository = _messages.MessageField('RubyRepository', 12)
+  enableIngestionAttestation = _messages.BooleanField(7)
+  goRepository = _messages.MessageField('GoRepository', 8)
+  mavenRepository = _messages.MessageField('MavenRepository', 9)
+  npmRepository = _messages.MessageField('NpmRepository', 10)
+  pythonRepository = _messages.MessageField('PythonRepository', 11)
+  remoteType = _messages.EnumField('RemoteTypeValueValuesEnum', 12)
   serviceDirectoryConfig = _messages.MessageField('ServiceDirectoryConfig', 13)
   upstreamCredentials = _messages.MessageField('UpstreamCredentials', 14)
   yumRepository = _messages.MessageField('YumRepository', 15)
@@ -3188,10 +3381,8 @@ class Repository(_messages.Message):
     registryUri: Output only. The repository endpoint, for example: `us-
       docker.pkg.dev/my-proj/my-repo`.
     remoteRepositoryConfig: Configuration specific for a Remote Repository.
-    satisfiesPzi: Output only. If set, the repository satisfies physical zone
-      isolation.
-    satisfiesPzs: Output only. If set, the repository satisfies physical zone
-      separation.
+    satisfiesPzi: Output only. Whether or not this repository satisfies PZI.
+    satisfiesPzs: Output only. Whether or not this repository satisfies PZS.
     sbomConfig: Optional. Config and state for sbom generation for resources
       within this Repository.
     sizeBytes: Output only. The size, in bytes, of all artifact storage in
@@ -3219,6 +3410,7 @@ class Repository(_messages.Message):
       GO: Go package format.
       GENERIC: Generic package format.
       RUBY: Ruby package format.
+      CONDA: Conda package format.
     """
     FORMAT_UNSPECIFIED = 0
     DOCKER = 1
@@ -3232,6 +3424,7 @@ class Repository(_messages.Message):
     GO = 9
     GENERIC = 10
     RUBY = 11
+    CONDA = 12
 
   class ModeValueValuesEnum(_messages.Enum):
     r"""Optional. The mode of the repository.
@@ -3331,30 +3524,6 @@ class Repository(_messages.Message):
   updateTime = _messages.StringField(20)
   virtualRepositoryConfig = _messages.MessageField('VirtualRepositoryConfig', 21)
   vulnerabilityScanningConfig = _messages.MessageField('VulnerabilityScanningConfig', 22)
-
-
-class RubyRepository(_messages.Message):
-  r"""Configuration for a Ruby remote repository.
-
-  Enums:
-    PublicRepositoryValueValuesEnum: One of the publicly available Ruby
-      repositories.
-
-  Fields:
-    publicRepository: One of the publicly available Ruby repositories.
-  """
-
-  class PublicRepositoryValueValuesEnum(_messages.Enum):
-    r"""One of the publicly available Ruby repositories.
-
-    Values:
-      PUBLIC_REPOSITORY_UNSPECIFIED: Unspecified repository
-      RUBYGEMS: RubyGems.
-    """
-    PUBLIC_REPOSITORY_UNSPECIFIED = 0
-    RUBYGEMS = 1
-
-  publicRepository = _messages.EnumField('PublicRepositoryValueValuesEnum', 1)
 
 
 class SbomConfig(_messages.Message):
@@ -3681,8 +3850,9 @@ class UploadGenericArtifactRequest(_messages.Message):
     versionId: The ID of the version of the generic artifact. If the version
       does not exist, a new version will be created. The version_id must start
       and end with a letter or number, can only contain lowercase letters,
-      numbers, hyphens and periods, i.e. [a-z0-9-.] and cannot exceed a total
-      of 128 characters. Creating a version called `latest` is not allowed.
+      numbers, the following characters [-.+~:], i.e.[a-z0-9-.+~:] and cannot
+      exceed a total of 128 characters. Creating a version called `latest` is
+      not allowed.
   """
 
   filename = _messages.StringField(1)
@@ -3886,6 +4056,9 @@ class Version(_messages.Message):
     createTime: The time when the version was created.
     description: Optional. Description of the version, as specified in its
       metadata.
+    fingerprints: Output only. Immutable reference for the version, calculated
+      based on the version's content. Currently we only support dirsum_sha256
+      hash algorithm. Additional hash algorithms may be added in the future.
     metadata: Output only. Repository-specific Metadata stored against this
       version. The fields returned are defined by the underlying repository-
       specific resource. Currently, the resources could be: DockerImage
@@ -3952,10 +4125,11 @@ class Version(_messages.Message):
   annotations = _messages.MessageField('AnnotationsValue', 1)
   createTime = _messages.StringField(2)
   description = _messages.StringField(3)
-  metadata = _messages.MessageField('MetadataValue', 4)
-  name = _messages.StringField(5)
-  relatedTags = _messages.MessageField('Tag', 6, repeated=True)
-  updateTime = _messages.StringField(7)
+  fingerprints = _messages.MessageField('Hash', 4, repeated=True)
+  metadata = _messages.MessageField('MetadataValue', 5)
+  name = _messages.StringField(6)
+  relatedTags = _messages.MessageField('Tag', 7, repeated=True)
+  updateTime = _messages.StringField(8)
 
 
 class VirtualRepositoryConfig(_messages.Message):
@@ -3996,7 +4170,8 @@ class VulnerabilityScanningConfig(_messages.Message):
 
     Values:
       ENABLEMENT_CONFIG_UNSPECIFIED: Not set. This will be treated as
-        INHERITED.
+        INHERITED for Docker repositories and DISABLED for non-Docker
+        repositories.
       INHERITED: Scanning is Enabled, but dependent on API enablement.
       DISABLED: No automatic vulnerability scanning will be performed for this
         repository.
@@ -4016,11 +4191,14 @@ class VulnerabilityScanningConfig(_messages.Message):
       SCANNING_DISABLED: Vulnerability scanning is disabled for this
         repository.
       SCANNING_ACTIVE: Vulnerability scanning is active for this repository.
+      ACTIVE_VIA_SCC: Vulnerability scanning is active for this repository via
+        SCC entitlement.
     """
     ENABLEMENT_STATE_UNSPECIFIED = 0
     SCANNING_UNSUPPORTED = 1
     SCANNING_DISABLED = 2
     SCANNING_ACTIVE = 3
+    ACTIVE_VIA_SCC = 4
 
   enablementConfig = _messages.EnumField('EnablementConfigValueValuesEnum', 1)
   enablementState = _messages.EnumField('EnablementStateValueValuesEnum', 2)

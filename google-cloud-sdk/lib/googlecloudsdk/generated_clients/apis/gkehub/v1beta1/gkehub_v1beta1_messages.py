@@ -111,6 +111,11 @@ class Authority(_messages.Message):
       format (RFC 7517). When this field is set, OIDC discovery will NOT be
       performed on `issuer`, and instead OIDC tokens will be validated using
       this field.
+    scopeTenancyIdentityProvider: Optional. Output only. The identity provider
+      for the scope-tenancy workload identity pool.
+    scopeTenancyWorkloadIdentityPool: Optional. Output only. The name of the
+      scope-tenancy workload identity pool. This pool is set in the fleet-
+      level feature.
     workloadIdentityPool: Output only. The name of the workload identity pool
       in which `issuer` will be recognized. There is a single Workload
       Identity Pool per Hub that is shared between all Memberships that belong
@@ -122,7 +127,9 @@ class Authority(_messages.Message):
   identityProvider = _messages.StringField(1)
   issuer = _messages.StringField(2)
   oidcJwks = _messages.BytesField(3)
-  workloadIdentityPool = _messages.StringField(4)
+  scopeTenancyIdentityProvider = _messages.StringField(4)
+  scopeTenancyWorkloadIdentityPool = _messages.StringField(5)
+  workloadIdentityPool = _messages.StringField(6)
 
 
 class AuthorizationLoggingOptions(_messages.Message):
@@ -372,8 +379,10 @@ class Condition(_messages.Message):
         CREDS_TYPE_EMERGENCY is supported. It is not permitted to grant access
         based on the *absence* of a credentials type, so the conditions can
         only be used in a "positive" context (e.g., ALLOW/IN or DENY/NOT_IN).
-      CREDS_ASSERTION: EXPERIMENTAL -- DO NOT USE. The conditions can only be
-        used in a "positive" context (e.g., ALLOW/IN or DENY/NOT_IN).
+      CREDS_ASSERTION: Properties of the credentials supplied with this
+        request. See http://go/rpcsp-credential-assertions?polyglot=rpcsp-v1-0
+        The conditions can only be used in a "positive" context (e.g.,
+        ALLOW/IN or DENY/NOT_IN).
     """
     NO_ATTR = 0
     AUTHORITY = 1
@@ -568,12 +577,15 @@ class EdgeCluster(_messages.Message):
   r"""EdgeCluster contains information specific to Google Edge Clusters.
 
   Fields:
+    clusterVersion: Output only. The product version of the Edge Cluster, e.g.
+      "1.8.0".
     resourceLink: Immutable. Self-link of the GCP resource for the Edge
       Cluster. For example: //edgecontainer.googleapis.com/projects/my-
       project/locations/us-west1-a/clusters/my-cluster
   """
 
-  resourceLink = _messages.StringField(1)
+  clusterVersion = _messages.StringField(1)
+  resourceLink = _messages.StringField(2)
 
 
 class Empty(_messages.Message):
@@ -692,6 +704,9 @@ class GkehubProjectsLocationsListRequest(_messages.Message):
   r"""A GkehubProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -704,11 +719,12 @@ class GkehubProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  includeUnrevealedLocations = _messages.BooleanField(2)
-  name = _messages.StringField(3, required=True)
-  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(5)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  includeUnrevealedLocations = _messages.BooleanField(3)
+  name = _messages.StringField(4, required=True)
+  pageSize = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(6)
 
 
 class GkehubProjectsLocationsMembershipsCreateRequest(_messages.Message):
@@ -1015,12 +1031,20 @@ class GkehubProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class GoogleRpcStatus(_messages.Message):
@@ -1179,10 +1203,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListReferencesRequest(_messages.Message):
@@ -1319,9 +1348,16 @@ class Membership(_messages.Message):
     ClusterTierValueValuesEnum: Output only. The tier of the cluster.
     InfrastructureTypeValueValuesEnum: Optional. The infrastructure type this
       Membership is running on.
+    MembershipTypeValueValuesEnum: Output only. The type of the membership.
 
   Messages:
-    LabelsValue: Optional. GCP labels for this membership.
+    LabelsValue: Optional. GCP labels for this membership. These labels are
+      not leveraged by multi-cluster features, instead, we prefer cluster
+      labels, which can be set on GKE cluster or other cluster types.
+    PlatformLabelsValue: Output only. The labels of the cluster, coming from
+      the platform api For example, a GKE cluster object labels are replicated
+      here. This field is used by multi-cluster features as the source of
+      labels and they ignore the membership labels (the `labels` field)
 
   Fields:
     authority: Optional. How to identify workloads from this Membership. See
@@ -1341,12 +1377,15 @@ class Membership(_messages.Message):
       set to the UID of the `kube-system` namespace object.
     infrastructureType: Optional. The infrastructure type this Membership is
       running on.
-    labels: Optional. GCP labels for this membership.
+    labels: Optional. GCP labels for this membership. These labels are not
+      leveraged by multi-cluster features, instead, we prefer cluster labels,
+      which can be set on GKE cluster or other cluster types.
     lastConnectionTime: Output only. For clusters using Connect, the timestamp
       of the most recent connection established with Google Cloud. This time
       is updated every several minutes, not continuously. For clusters that do
       not use GKE Connect, or that have never connected successfully, this
       field will be unset.
+    membershipType: Output only. The type of the membership.
     monitoringConfig: Optional. The monitoring config information for this
       membership.
     name: Output only. The full, unique name of this Membership resource in
@@ -1356,6 +1395,10 @@ class Membership(_messages.Message):
       case alphanumeric characters or `-` 3. It must start and end with an
       alphanumeric character Which can be expressed as the regex:
       `[a-z0-9]([-a-z0-9]*[a-z0-9])?`, with a maximum length of 63 characters.
+    platformLabels: Output only. The labels of the cluster, coming from the
+      platform api For example, a GKE cluster object labels are replicated
+      here. This field is used by multi-cluster features as the source of
+      labels and they ignore the membership labels (the `labels` field)
     state: Output only. State of the Membership resource.
     uniqueId: Output only. Google-generated UUID for this resource. This is
       unique across all Membership resources. If a Membership resource is
@@ -1392,9 +1435,22 @@ class Membership(_messages.Message):
     ON_PREM = 1
     MULTI_CLOUD = 2
 
+  class MembershipTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The type of the membership.
+
+    Values:
+      MEMBERSHIP_TYPE_UNSPECIFIED: The MembershipType is not set.
+      LIGHTWEIGHT: The membership supports only lightweight compatible
+        features.
+    """
+    MEMBERSHIP_TYPE_UNSPECIFIED = 0
+    LIGHTWEIGHT = 1
+
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
-    r"""Optional. GCP labels for this membership.
+    r"""Optional. GCP labels for this membership. These labels are not
+    leveraged by multi-cluster features, instead, we prefer cluster labels,
+    which can be set on GKE cluster or other cluster types.
 
     Messages:
       AdditionalProperty: An additional property for a LabelsValue object.
@@ -1416,6 +1472,34 @@ class Membership(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class PlatformLabelsValue(_messages.Message):
+    r"""Output only. The labels of the cluster, coming from the platform api
+    For example, a GKE cluster object labels are replicated here. This field
+    is used by multi-cluster features as the source of labels and they ignore
+    the membership labels (the `labels` field)
+
+    Messages:
+      AdditionalProperty: An additional property for a PlatformLabelsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type PlatformLabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a PlatformLabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   authority = _messages.MessageField('Authority', 1)
   clusterTier = _messages.EnumField('ClusterTierValueValuesEnum', 2)
   createTime = _messages.StringField(3)
@@ -1426,11 +1510,13 @@ class Membership(_messages.Message):
   infrastructureType = _messages.EnumField('InfrastructureTypeValueValuesEnum', 8)
   labels = _messages.MessageField('LabelsValue', 9)
   lastConnectionTime = _messages.StringField(10)
-  monitoringConfig = _messages.MessageField('MonitoringConfig', 11)
-  name = _messages.StringField(12)
-  state = _messages.MessageField('MembershipState', 13)
-  uniqueId = _messages.StringField(14)
-  updateTime = _messages.StringField(15)
+  membershipType = _messages.EnumField('MembershipTypeValueValuesEnum', 11)
+  monitoringConfig = _messages.MessageField('MonitoringConfig', 12)
+  name = _messages.StringField(13)
+  platformLabels = _messages.MessageField('PlatformLabelsValue', 14)
+  state = _messages.MessageField('MembershipState', 15)
+  uniqueId = _messages.StringField(16)
+  updateTime = _messages.StringField(17)
 
 
 class MembershipEndpoint(_messages.Message):
@@ -1900,8 +1986,11 @@ class ResourceOptions(_messages.Message):
       connect_resources. Defaults to the latest GKE Connect version. The
       version must be a currently supported version, obsolete versions will be
       rejected.
-    k8sVersion: Optional. Major version of the Kubernetes cluster. This is
-      only used to determine which version to use for the
+    k8sGitVersion: Optional. Git version of the Kubernetes cluster. This is
+      only used to gate the Connect Agent migration to svc.id.goog on GDC-SO
+      1.33.100 patch and above.
+    k8sVersion: Optional. Major and minor version of the Kubernetes cluster.
+      This is only used to determine which version to use for the
       CustomResourceDefinition resources, `apiextensions/v1beta1`
       or`apiextensions/v1`.
     v1beta1Crd: Optional. Use `apiextensions/v1beta1` instead of
@@ -1910,8 +1999,9 @@ class ResourceOptions(_messages.Message):
   """
 
   connectVersion = _messages.StringField(1)
-  k8sVersion = _messages.StringField(2)
-  v1beta1Crd = _messages.BooleanField(3)
+  k8sGitVersion = _messages.StringField(2)
+  k8sVersion = _messages.StringField(3)
+  v1beta1Crd = _messages.BooleanField(4)
 
 
 class Rule(_messages.Message):
@@ -1933,7 +2023,7 @@ class Rule(_messages.Message):
       the PRINCIPAL/AUTHORITY_SELECTOR is in none of the entries. The format
       for in and not_in entries can be found at in the Local IAM documentation
       (see go/local-iam#features).
-    permissions: A permission is a string of form '..' (e.g.,
+    permissions: A permission is a string of form `..` (e.g.,
       'storage.buckets.list'). A value of '*' matches all permissions, and a
       verb part of '*' (e.g., 'storage.buckets.*') matches all verbs.
   """

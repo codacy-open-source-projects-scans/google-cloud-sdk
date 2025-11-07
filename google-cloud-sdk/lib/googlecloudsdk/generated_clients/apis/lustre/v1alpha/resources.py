@@ -18,7 +18,7 @@ import enum
 
 
 BASE_URL = 'https://lustre.googleapis.com/v1alpha/'
-DOCS_URL = 'go/managedlustre'
+DOCS_URL = 'https://cloud.google.com/managed-lustre/'
 
 
 class Collections(enum.Enum):
@@ -61,6 +61,20 @@ class Collections(enum.Enum):
               '{operationsId}',
       },
       ['name'],
+      True
+  )
+  PROJECTS_NETWORKS = (
+      'projects.networks',
+      'projects/{projectsId}/global/networks/{networksId}',
+      {},
+      ['projectsId', 'networksId'],
+      True
+  )
+  PROJECTS_SERVICEACCOUNTS = (
+      'projects.serviceAccounts',
+      'projects/{projectsId}/serviceAccounts/{serviceAccountsId}',
+      {},
+      ['projectsId', 'serviceAccountsId'],
       True
   )
 

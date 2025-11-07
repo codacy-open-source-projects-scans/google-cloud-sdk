@@ -31,17 +31,39 @@ import six
 
 
 IMAGE_URL_MAP = {
-    'base-image': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/base:latest',
-    'clion': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/clion:latest',
-    'codeoss': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest',
-    'codeoss-cuda': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/code-oss-cuda:latest',
-    'goland': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/goland:latest',
-    'intellij': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/intellij-ultimate:latest',
-    'phpstorm': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest',
-    'pycharm': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/pycharm:latest',
-    'rider': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/rider:latest',
-    'rubymine': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/rubymine:latest',
-    'webstorm': '{location}-docker.pkg.dev/cloud-workstations-images/predefined/webstorm:latest',
+    'base-image': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/base:latest'
+    ),
+    'clion': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/clion:latest'
+    ),
+    'codeoss': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest'
+    ),
+    'codeoss-cuda': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/code-oss-cuda:latest'
+    ),
+    'goland': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/goland:latest'
+    ),
+    'intellij': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/intellij-ultimate:latest'
+    ),
+    'phpstorm': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest'
+    ),
+    'pycharm': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/pycharm:latest'
+    ),
+    'rider': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/rider:latest'
+    ),
+    'rubymine': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/rubymine:latest'
+    ),
+    'webstorm': (
+        '{location}-docker.pkg.dev/cloud-workstations-images/predefined/webstorm:latest'
+    ),
 }
 
 BOOST_CONFIG_MAP = {
@@ -50,6 +72,13 @@ BOOST_CONFIG_MAP = {
     'pool-size': 'poolSize',
     'boot-disk-size': 'bootDiskSizeGb',
     'enable-nested-virtualization': 'enableNestedVirtualization',
+    'reservation-affinity': 'reservationAffinity',
+}
+
+RESERVATION_AFFINITY_MAP = {
+    'key': 'key',
+    'consume-reservation-type': 'consumeReservationType',
+    'values': 'values',
 }
 
 
@@ -138,13 +167,13 @@ class Configs:
           )
       ]
       config.host.gceInstance.accelerators = accelerators
-    if (
-        self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA)
-        and args.allow_unauthenticated_cors_preflight_requests
-    ):
-      config.httpOptions = self.messages.HttpOptions(
-          allowedUnauthenticatedCorsPreflightRequests=True
-      )
+
+    if self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA):
+      config.httpOptions = self.messages.HttpOptions()
+      if args.allow_unauthenticated_cors_preflight_requests:
+        config.httpOptions.allowedUnauthenticatedCorsPreflightRequests = True
+      if args.disable_localhost_replacement:
+        config.httpOptions.disableLocalhostReplacement = True
 
     if (
         self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA)
@@ -160,36 +189,76 @@ class Configs:
                     count=boost_config.get('accelerator-count', 0),
                 )
             ]
+          elif key == 'reservation-affinity':
+            desired_reservation_affinity = (
+                self.messages.ReservationAffinity()
+            )
+            for key, value in boost_config.get(
+                'reservation-affinity', {}
+            ).items():
+              if key == 'consume-reservation-type':
+                value = self.messages.ReservationAffinity.ConsumeReservationTypeValueValuesEnum(
+                    value
+                )
+              setattr(
+                  desired_reservation_affinity,
+                  RESERVATION_AFFINITY_MAP.get(key),
+                  value,
+              )
+            desired_boost_config.reservationAffinity = (
+                desired_reservation_affinity
+            )
           else:
             setattr(desired_boost_config, BOOST_CONFIG_MAP.get(key), value)
         config.host.gceInstance.boostConfigs.append(desired_boost_config)
 
+    if (
+        self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA)
+        and args.reservation_affinity
+    ):
+      desired_reservation_affinity = self.messages.ReservationAffinity()
+      for key, value in args.reservation_affinity.items():
+        if key == 'consume-reservation-type':
+          value = self.messages.ReservationAffinity.ConsumeReservationTypeValueValuesEnum(
+              value
+          )
+        setattr(
+            desired_reservation_affinity,
+            RESERVATION_AFFINITY_MAP.get(key),
+            value,
+        )
+      config.host.gceInstance.reservationAffinity = (
+          desired_reservation_affinity
+      )
+
     if args.allowed_ports:
       for port_range in args.allowed_ports:
-        desired_allowed_ports = self.messages.PortRange()
+        desired_port_range = self.messages.PortRange()
         for key, value in port_range.items():
-          setattr(desired_allowed_ports, key, value)
-        config.allowedPorts.append(desired_allowed_ports)
+          setattr(desired_port_range, key, value)
+        config.allowedPorts.append(desired_port_range)
 
     # Persistent directory
-    pd = self.messages.PersistentDirectory()
-    pd.mountPath = '/home'
-    if args.pd_reclaim_policy == 'retain':
-      reclaim_policy = (
-          self.messages.GceRegionalPersistentDisk.ReclaimPolicyValueValuesEnum.RETAIN
-      )
-    else:
-      reclaim_policy = (
-          self.messages.GceRegionalPersistentDisk.ReclaimPolicyValueValuesEnum.DELETE
-      )
+    if not args.no_persistent_storage:
+      pd = self.messages.PersistentDirectory()
+      pd.mountPath = '/home'
+      if args.pd_reclaim_policy == 'retain':
+        reclaim_policy = (
+            self.messages.GceRegionalPersistentDisk.ReclaimPolicyValueValuesEnum.RETAIN
+        )
+      else:
+        reclaim_policy = (
+            self.messages.GceRegionalPersistentDisk.ReclaimPolicyValueValuesEnum.DELETE
+        )
 
-    pd.gcePd = self.messages.GceRegionalPersistentDisk(
-        sizeGb=args.pd_disk_size,
-        fsType='ext4',
-        diskType=args.pd_disk_type,
-        reclaimPolicy=reclaim_policy,
-    )
-    config.persistentDirectories.append(pd)
+      pd.gcePd = self.messages.GceRegionalPersistentDisk(
+          sizeGb=0 if args.pd_source_snapshot else args.pd_disk_size,
+          fsType='' if args.pd_source_snapshot else 'ext4',
+          diskType=args.pd_disk_type,
+          reclaimPolicy=reclaim_policy,
+          sourceSnapshot=args.pd_source_snapshot,
+      )
+      config.persistentDirectories.append(pd)
 
     # Ephemeral directory
     if args.ephemeral_directory:
@@ -304,6 +373,10 @@ class Configs:
 
     config = self.messages.WorkstationConfig()
     config.name = config_name
+    get_req = self.messages.WorkstationsProjectsLocationsWorkstationClustersWorkstationConfigsGetRequest(
+        name=config_name
+    )
+    old_config = self._service.Get(get_req)
     update_mask = []
 
     if args.IsSpecified('idle_timeout'):
@@ -329,26 +402,25 @@ class Configs:
       config.maxUsableWorkstations = args.max_usable_workstations_count
       update_mask.append('max_usable_workstations')
 
-    if (
-        self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA)
-        and args.allow_unauthenticated_cors_preflight_requests
-    ):
-      config.httpOptions = self.messages.HttpOptions(
-          allowedUnauthenticatedCorsPreflightRequests=True
-      )
-      update_mask.append(
-          'http_options.allowed_unauthenticated_cors_preflight_requests'
-      )
-    if (
-        self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA)
-        and args.disallow_unauthenticated_cors_preflight_requests
-    ):
-      config.httpOptions = self.messages.HttpOptions(
-          allowedUnauthenticatedCorsPreflightRequests=False
-      )
-      update_mask.append(
-          'http_options.allowed_unauthenticated_cors_preflight_requests'
-      )
+    if self.api_version != VERSION_MAP.get(base.ReleaseTrack.GA):
+      config.httpOptions = self.messages.HttpOptions()
+      if args.allow_unauthenticated_cors_preflight_requests:
+        config.httpOptions.allowedUnauthenticatedCorsPreflightRequests = True
+        update_mask.append(
+            'http_options.allowed_unauthenticated_cors_preflight_requests'
+        )
+      if args.disallow_unauthenticated_cors_preflight_requests:
+        config.httpOptions.allowedUnauthenticatedCorsPreflightRequests = False
+        update_mask.append(
+            'http_options.allowed_unauthenticated_cors_preflight_requests'
+        )
+
+      if args.enable_localhost_replacement:
+        config.httpOptions.disableLocalhostReplacement = False
+        update_mask.append('http_options.disable_localhost_replacement')
+      if args.disable_localhost_replacement:
+        config.httpOptions.disableLocalhostReplacement = True
+        update_mask.append('http_options.disable_localhost_replacement')
 
     # GCE Instance Config
     config.host = self.messages.Host()
@@ -356,6 +428,25 @@ class Configs:
     if args.IsSpecified('machine_type'):
       config.host.gceInstance.machineType = args.machine_type
       update_mask.append('host.gce_instance.machine_type')
+
+    if self.api_version != VERSION_MAP.get(
+        base.ReleaseTrack.GA
+    ) and args.IsSpecified('reservation_affinity'):
+      desired_reservation_affinity = self.messages.ReservationAffinity()
+      for key, value in args.reservation_affinity.items():
+        if key == 'consume-reservation-type':
+          value = self.messages.ReservationAffinity.ConsumeReservationTypeValueValuesEnum(
+              value
+          )
+        setattr(
+            desired_reservation_affinity,
+            RESERVATION_AFFINITY_MAP.get(key),
+            value,
+        )
+      config.host.gceInstance.reservationAffinity = (
+          desired_reservation_affinity
+      )
+      update_mask.append('host.gce_instance.reservation_affinity')
 
     if args.IsSpecified('service_account'):
       config.host.gceInstance.serviceAccount = args.service_account
@@ -476,16 +567,33 @@ class Configs:
                     count=boost_config['accelerator-count'],
                 )
             ]
+          elif key == 'reservation-affinity':
+            desired_reservation_affinity = self.messages.ReservationAffinity()
+            for key, value in boost_config['reservation-affinity'].items():
+              if key == 'consume-reservation-type':
+                value = self.messages.ReservationAffinity.ConsumeReservationTypeValueValuesEnum(
+                    value
+                )
+              setattr(
+                  desired_reservation_affinity,
+                  RESERVATION_AFFINITY_MAP.get(key),
+                  value,
+              )
+            desired_boost_config.reservationAffinity = (
+                desired_reservation_affinity
+            )
           else:
             setattr(desired_boost_config, BOOST_CONFIG_MAP.get(key), value)
         config.host.gceInstance.boostConfigs.append(desired_boost_config)
       update_mask.append('host.gce_instance.boost_configs')
 
-    if args.allowed_ports:
+    if args.IsSpecified('allowed_ports'):
+      config.allowedPorts = []
       for port_range in args.allowed_ports:
-        desired_allowed_ports = self.messages.PortRange()
+        desired_port_range = self.messages.PortRange()
         for key, value in port_range.items():
-          setattr(desired_allowed_ports, key, value)
+          setattr(desired_port_range, key, value)
+        config.allowedPorts.append(desired_port_range)
       update_mask.append('allowed_ports')
 
     # Container
@@ -525,6 +633,28 @@ class Configs:
     if args.IsSpecified('container_run_as_user'):
       config.container.runAsUser = args.container_run_as_user
       update_mask.append('container.run_as_user')
+
+    if args.IsSpecified('pd_disk_type') or args.IsSpecified('pd_disk_size'):
+      config.persistentDirectories = old_config.persistentDirectories
+      if not old_config.persistentDirectories:
+        config.persistentDirectories = [self.messages.PersistentDirectory()]
+
+      config.persistentDirectories[0].gcePd = (
+          self.messages.GceRegionalPersistentDisk(
+              sizeGb=args.pd_disk_size, diskType=args.pd_disk_type
+          )
+      )
+      update_mask.append('persistent_directories')
+    elif args.IsSpecified('pd_source_snapshot'):
+      config.persistentDirectories = old_config.persistentDirectories
+      if not old_config.persistentDirectories:
+        config.persistentDirectories = [self.messages.PersistentDirectory()]
+      config.persistentDirectories[0].gcePd = (
+          self.messages.GceRegionalPersistentDisk(
+              sizeGb=0, fsType='', sourceSnapshot=args.pd_source_snapshot
+          )
+      )
+      update_mask.append('persistent_directories')
 
     if args.IsSpecified('vm_tags'):
       tags_val = self.messages.GceInstance.VmTagsValue()

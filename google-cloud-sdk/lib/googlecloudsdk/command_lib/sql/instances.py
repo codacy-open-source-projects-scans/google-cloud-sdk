@@ -33,6 +33,7 @@ from googlecloudsdk.core import execution_utils
 from googlecloudsdk.core import log
 from googlecloudsdk.core import properties
 from googlecloudsdk.core.console import console_io
+import six
 
 DEFAULT_RELEASE_TRACK = base.ReleaseTrack.GA
 
@@ -40,7 +41,7 @@ DEFAULT_RELEASE_TRACK = base.ReleaseTrack.GA
 STORAGE_TYPE_MAPPING = {
     'HDD': 'PD_HDD',
     'SSD': 'PD_SSD',
-    'HDB': 'HYPERDISK_BALANCED',
+    'HYPERDISK_BALANCED': 'HYPERDISK_BALANCED',
 }
 
 
@@ -207,11 +208,27 @@ def _ParseEdition(sql_messages, edition):
   return None
 
 
+def _ParseInstanceType(sql_messages, instance_type):
+  if instance_type:
+    return sql_messages.DatabaseInstance.InstanceTypeValueValuesEnum.lookup_by_name(
+        instance_type.replace('-', '_').upper()
+    )
+  return None
+
+
 # The caller must make sure that the connector_enforcement is specified.
 def _ParseConnectorEnforcement(sql_messages, connector_enforcement):
   return (
       sql_messages.Settings.ConnectorEnforcementValueValuesEnum.lookup_by_name(
           connector_enforcement.upper()
+      )
+  )
+
+
+def _ParseDataApiAccess(sql_messages, data_api_access):
+  return (
+      sql_messages.Settings.DataApiAccessValueValuesEnum.lookup_by_name(
+          data_api_access.upper()
       )
   )
 
@@ -295,6 +312,13 @@ def _ShowFailoverReplicaDeprecationWarning():
   )
 
 
+def _ShowAcceleratedReplicaModeWarning():
+  log.warning(
+      'Enabling accelerated replica mode on a replica may cause it to be '
+      'recreated in the event of an unplanned restart.'
+  )
+
+
 class _BaseInstances(object):
   """Common utility functions for sql instance commands."""
 
@@ -333,6 +357,8 @@ class _BaseInstances(object):
       args.follow_gae_app = None
     if 'pricing_plan' not in args:
       args.pricing_plan = 'PER_USE'
+    if not args.IsKnownAndSpecified('replication'):
+      args.replication = None
 
     settings = sql_messages.Settings(
         kind='sql#settings',
@@ -430,6 +456,22 @@ class _BaseInstances(object):
         settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
       settings.ipConfiguration.pscConfig.allowedConsumerProjects = []
 
+    if args.IsKnownAndSpecified('psc_network_attachment_uri'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      if not settings.ipConfiguration.pscConfig:
+        settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
+      settings.ipConfiguration.pscConfig.networkAttachmentUri = (
+          args.psc_network_attachment_uri
+      )
+
+    if args.IsKnownAndSpecified('clear_psc_network_attachment_uri'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      if not settings.ipConfiguration.pscConfig:
+        settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
+      settings.ipConfiguration.pscConfig.networkAttachmentUri = ''
+
     if args.deletion_protection is not None:
       settings.deletionProtectionEnabled = args.deletion_protection
 
@@ -438,7 +480,7 @@ class _BaseInstances(object):
           sql_messages, args.connector_enforcement
       )
 
-    if args.recreate_replicas_on_primary_crash is not None:
+    if args.IsKnownAndSpecified('recreate_replicas_on_primary_crash'):
       settings.recreateReplicasOnPrimaryCrash = (
           args.recreate_replicas_on_primary_crash
       )
@@ -471,8 +513,60 @@ class _BaseInstances(object):
           sql_messages, args.server_ca_mode
       )
 
+    if args.retain_backups_on_delete is not None:
+      settings.retainBackupsOnDelete = args.retain_backups_on_delete
+
+    if args.IsKnownAndSpecified('enable_auto_upgrade_minor_version'):
+      settings.autoUpgradeEnabled = True
+
+    if args.IsKnownAndSpecified('server_ca_pool'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      settings.ipConfiguration.serverCaPool = args.server_ca_pool
+    # Customers can set `--server-ca-pool=''` to explicitly clear the
+    # server_ca_pool field.
+    if args.IsKnownAndSpecified('server_ca_pool') and args.server_ca_pool:
+      if (
+          settings.ipConfiguration.serverCaMode
+          != sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
+      ):
+        raise sql_exceptions.ArgumentError(
+            '`--server-ca-pool` can only be specified when the server CA mode'
+            ' is CUSTOMER_MANAGED_CAS_CA.'
+        )
+    elif (
+        settings.ipConfiguration
+        and settings.ipConfiguration.serverCaMode
+        == sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
+    ):
+      raise exceptions.RequiredArgumentException(
+          '--server-ca-pool',
+          (
+              'To create an instance with server CA mode '
+              'CUSTOMER_MANAGED_CAS_CA, [--server-ca-pool] must be '
+              'specified.'
+          ),
+      )
+
+    if args.IsKnownAndSpecified('custom_subject_alternative_names'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      settings.ipConfiguration.customSubjectAlternativeNames = (
+          args.custom_subject_alternative_names
+      )
+
+    if args.IsKnownAndSpecified('clear_custom_subject_alternative_names'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      settings.ipConfiguration.customSubjectAlternativeNames = []
+
     # BETA args.
     if IsBetaOrNewer(release_track):
+      if args.IsSpecified('data_api_access'):
+        settings.dataApiAccess = _ParseDataApiAccess(
+            sql_messages, args.data_api_access
+        )
+
       if args.IsSpecified('storage_auto_increase_limit'):
         # Resize limit should be settable if the original instance has resize
         # turned on, or if the instance to be created has resize flag.
@@ -499,46 +593,18 @@ class _BaseInstances(object):
             args.replication_lag_max_seconds_for_recreate
         )
 
-      if args.IsKnownAndSpecified('server_ca_pool'):
-        if not settings.ipConfiguration:
-          settings.ipConfiguration = sql_messages.IpConfiguration()
-        settings.ipConfiguration.serverCaPool = args.server_ca_pool
-        if (
-            settings.ipConfiguration.serverCaMode
-            != sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
-        ):
-          raise sql_exceptions.ArgumentError(
-              '`--server-ca-pool` can only be specified when the server CA mode'
-              ' is CUSTOMER_MANAGED_CAS_CA.'
+      if args.IsKnownAndSpecified('enable_db_aligned_atomic_writes'):
+        if not settings.dbAlignedAtomicWritesConfig:
+          settings.dbAlignedAtomicWritesConfig = (
+              sql_messages.DbAlignedAtomicWritesConfig()
           )
-      elif (
-          settings.ipConfiguration
-          and settings.ipConfiguration.serverCaMode
-          == sql_messages.IpConfiguration.ServerCaModeValueValuesEnum.CUSTOMER_MANAGED_CAS_CA
-      ):
-        raise exceptions.RequiredArgumentException(
-            '--server-ca-pool',
-            (
-                'To create an instance with server CA mode '
-                'CUSTOMER_MANAGED_CAS_CA, [--server-ca-pool] must be '
-                'specified.'
-            ),
+        settings.dbAlignedAtomicWritesConfig.dbAlignedAtomicWrites = (
+            args.enable_db_aligned_atomic_writes
         )
 
-      if args.IsKnownAndSpecified('custom_subject_alternative_names'):
-        if not settings.ipConfiguration:
-          settings.ipConfiguration = sql_messages.IpConfiguration()
-        settings.ipConfiguration.customSubjectAlternativeNames = (
-            args.custom_subject_alternative_names
-        )
-
-      if args.IsKnownAndSpecified('clear_custom_subject_alternative_names'):
-        if not settings.ipConfiguration:
-          settings.ipConfiguration = sql_messages.IpConfiguration()
-        settings.ipConfiguration.customSubjectAlternativeNames = []
-
-      if args.retain_backups_on_delete is not None:
-        settings.retainBackupsOnDelete = args.retain_backups_on_delete
+      if args.IsKnownAndSpecified('enable_accelerated_replica_mode'):
+        _ShowAcceleratedReplicaModeWarning()
+        settings.acceleratedReplicaMode = args.enable_accelerated_replica_mode
 
     return settings
 
@@ -566,13 +632,15 @@ class _BaseInstances(object):
         enable_point_in_time_recovery=args.enable_point_in_time_recovery,
         retained_backups_count=args.retained_backups_count,
         retained_transaction_log_days=args.retained_transaction_log_days,
+        patch_request=False,
     )
     if backup_configuration:
       cls.AddBackupConfigToSettings(settings, backup_configuration)
 
-    settings.databaseFlags = reducers.DatabaseFlags(
-        sql_messages, original_settings, database_flags=args.database_flags
-    )
+    if args and args.IsKnownAndSpecified('database_flags'):
+      settings.databaseFlags = reducers.DatabaseFlags(
+          sql_messages, original_settings, database_flags=args.database_flags
+      )
 
     settings.maintenanceWindow = reducers.MaintenanceWindow(
         sql_messages,
@@ -611,20 +679,25 @@ class _BaseInstances(object):
           sql_messages, STORAGE_TYPE_MAPPING.get(args.storage_type)
       )
 
-    if args.active_directory_domain is not None:
-      settings.activeDirectoryConfig = reducers.ActiveDirectoryConfig(
-          sql_messages, args.active_directory_domain
-      )
-
-    settings.passwordValidationPolicy = reducers.PasswordPolicy(
+    settings.activeDirectoryConfig = reducers.ActiveDirectoryConfig(
         sql_messages,
-        password_policy_min_length=args.password_policy_min_length,
-        password_policy_complexity=args.password_policy_complexity,
-        password_policy_reuse_interval=args.password_policy_reuse_interval,
-        password_policy_disallow_username_substring=args.password_policy_disallow_username_substring,
-        password_policy_password_change_interval=args.password_policy_password_change_interval,
-        enable_password_policy=args.enable_password_policy,
+        domain=args.active_directory_domain,
+        mode=args.active_directory_mode,
+        dns_servers=args.active_directory_dns_servers,
+        admin_credential_secret_key=args.active_directory_secret_manager_key,
+        organizational_unit=args.active_directory_organizational_unit,
     )
+
+    if args.IsKnownAndSpecified('password_policy_min_length'):
+      settings.passwordValidationPolicy = reducers.PasswordPolicy(
+          sql_messages,
+          password_policy_min_length=args.password_policy_min_length,
+          password_policy_complexity=args.password_policy_complexity,
+          password_policy_reuse_interval=args.password_policy_reuse_interval,
+          password_policy_disallow_username_substring=args.password_policy_disallow_username_substring,
+          password_policy_password_change_interval=args.password_policy_password_change_interval,
+          enable_password_policy=args.enable_password_policy,
+      )
 
     settings.sqlServerAuditConfig = reducers.SqlServerAuditConfig(
         sql_messages,
@@ -636,7 +709,10 @@ class _BaseInstances(object):
     if args.time_zone is not None:
       settings.timeZone = args.time_zone
 
-    if args.threads_per_core is not None:
+    if (
+        args.IsKnownAndSpecified('threads_per_core')
+        and args.threads_per_core is not None
+    ):
       settings.advancedMachineFeatures = sql_messages.AdvancedMachineFeatures()
       settings.advancedMachineFeatures.threadsPerCore = args.threads_per_core
 
@@ -648,6 +724,41 @@ class _BaseInstances(object):
       settings.ipConfiguration.pscConfig.pscAutoConnections = (
           reducers.PscAutoConnections(sql_messages, args.psc_auto_connections)
       )
+    final_backup_configuration = reducers.FinalBackupConfiguration(
+        sql_messages,
+        instance,
+        final_backup_enabled=args.final_backup,
+        final_backup_retention_days=args.final_backup_retention_days,
+    )
+    if final_backup_configuration:
+      cls.AddFinalBackupConfigToSettings(settings, final_backup_configuration)
+
+    # MCP settings.
+    if args.IsKnownAndSpecified(
+        'enable_connection_pooling'
+    ) or args.IsKnownAndSpecified('connection_pool_flags'):
+      mcp_config = reducers.ConnectionPoolConfig(
+          sql_messages,
+          enable_connection_pooling=args.enable_connection_pooling,
+          connection_pool_flags=args.connection_pool_flags,
+          clear_connection_pool_flags=None,
+          current_config=None,
+      )
+      if mcp_config is not None:
+        settings.connectionPoolConfig = mcp_config
+
+    read_pool_auto_scale_config = reducers.ReadPoolAutoScaleConfig(
+        sql_messages,
+        auto_scale_enabled=args.auto_scale_enabled,
+        auto_scale_min_node_count=args.auto_scale_min_node_count,
+        auto_scale_max_node_count=args.auto_scale_max_node_count,
+        auto_scale_target_metrics=args.auto_scale_target_metrics,
+        auto_scale_disable_scale_in=args.auto_scale_disable_scale_in,
+        auto_scale_in_cooldown_seconds=args.auto_scale_in_cooldown_seconds,
+        auto_scale_out_cooldown_seconds=args.auto_scale_out_cooldown_seconds,
+    )
+    if read_pool_auto_scale_config is not None:
+      settings.readPoolAutoScaleConfig = read_pool_auto_scale_config
 
     # BETA args.
     if IsBetaOrNewer(release_track):
@@ -660,23 +771,12 @@ class _BaseInstances(object):
           settings.ipConfiguration = sql_messages.IpConfiguration()
         settings.ipConfiguration.allocatedIpRange = args.allocated_ip_range_name
 
-      # MCP settings.
-      mcp_config = reducers.ConnectionPoolConfig(
+      db_aligned_atomic_writes_config = reducers.DbAlignedAtomicWritesConfig(
           sql_messages,
-          enable_connection_pooling=args.enable_connection_pooling,
-          connection_pooling_pool_mode=args.connection_pooling_pool_mode,
-          connection_pooling_pool_size=args.connection_pooling_pool_size,
-          connection_pooling_max_client_connections=args.connection_pooling_max_client_connections,
-          connection_pooling_client_idle_timeout=args.connection_pooling_client_idle_timeout,
-          connection_pooling_server_idle_timeout=args.connection_pooling_server_idle_timeout,
-          connection_pooling_query_wait_timeout=args.connection_pooling_query_wait_timeout,
+          db_aligned_atomic_writes=args.enable_db_aligned_atomic_writes,
       )
-      if mcp_config is not None:
-        settings.connectionPoolConfig = mcp_config
-
-    # ALPHA args.
-    if _IsAlpha(release_track):
-      pass
+      if db_aligned_atomic_writes_config is not None:
+        settings.dbAlignedAtomicWritesConfig = db_aligned_atomic_writes_config
 
     return settings
 
@@ -719,17 +819,19 @@ class _BaseInstances(object):
         enable_point_in_time_recovery=args.enable_point_in_time_recovery,
         retained_backups_count=args.retained_backups_count,
         retained_transaction_log_days=args.retained_transaction_log_days,
+        patch_request=True,
     )
 
     if backup_configuration:
       cls.AddBackupConfigToSettings(settings, backup_configuration)
 
-    settings.databaseFlags = reducers.DatabaseFlags(
-        sql_messages,
-        original_settings,
-        database_flags=args.database_flags,
-        clear_database_flags=args.clear_database_flags,
-    )
+    if args and args.IsKnownAndSpecified('database_flags'):
+      settings.databaseFlags = reducers.DatabaseFlags(
+          sql_messages,
+          original_settings,
+          database_flags=args.database_flags,
+          clear_database_flags=args.clear_database_flags,
+      )
 
     settings.maintenanceWindow = reducers.MaintenanceWindow(
         sql_messages,
@@ -767,10 +869,14 @@ class _BaseInstances(object):
         insights_config_query_plans_per_minute=args.insights_config_query_plans_per_minute,
     )
 
-    if args.active_directory_domain is not None:
-      settings.activeDirectoryConfig = reducers.ActiveDirectoryConfig(
-          sql_messages, args.active_directory_domain
-      )
+    settings.activeDirectoryConfig = reducers.ActiveDirectoryConfig(
+        sql_messages,
+        domain=args.active_directory_domain,
+        mode=args.active_directory_mode,
+        dns_servers=args.active_directory_dns_servers,
+        admin_credential_secret_key=args.active_directory_secret_manager_key,
+        organizational_unit=args.active_directory_organizational_unit,
+    )
 
     settings.passwordValidationPolicy = reducers.PasswordPolicy(
         sql_messages,
@@ -796,6 +902,55 @@ class _BaseInstances(object):
     if args.time_zone is not None:
       settings.timeZone = args.time_zone
 
+    final_backup_configuration = reducers.FinalBackupConfiguration(
+        sql_messages,
+        instance,
+        final_backup_enabled=args.final_backup,
+        final_backup_retention_days=args.final_backup_retention_days,
+    )
+    if final_backup_configuration:
+      cls.AddFinalBackupConfigToSettings(settings, final_backup_configuration)
+
+    # MCP settings.
+    updated_config = reducers.ConnectionPoolConfig(
+        sql_messages,
+        enable_connection_pooling=args.enable_connection_pooling,
+        connection_pool_flags=args.connection_pool_flags,
+        clear_connection_pool_flags=args.clear_connection_pool_flags,
+        current_config=original_settings.connectionPoolConfig,
+    )
+    if updated_config is not None:
+      settings.connectionPoolConfig = updated_config
+
+    if args.IsKnownAndSpecified('psc_auto_connections'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      if not settings.ipConfiguration.pscConfig:
+        settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
+      settings.ipConfiguration.pscConfig.pscAutoConnections = (
+          reducers.PscAutoConnections(sql_messages, args.psc_auto_connections)
+      )
+    if args.IsKnownAndSpecified('clear_psc_auto_connections'):
+      if not settings.ipConfiguration:
+        settings.ipConfiguration = sql_messages.IpConfiguration()
+      if not settings.ipConfiguration.pscConfig:
+        settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
+      settings.ipConfiguration.pscConfig.pscAutoConnections = []
+
+    read_pool_auto_scale_config = reducers.ReadPoolAutoScaleConfig(
+        sql_messages,
+        auto_scale_enabled=args.auto_scale_enabled,
+        auto_scale_min_node_count=args.auto_scale_min_node_count,
+        auto_scale_max_node_count=args.auto_scale_max_node_count,
+        auto_scale_target_metrics=args.auto_scale_target_metrics,
+        auto_scale_disable_scale_in=args.auto_scale_disable_scale_in,
+        auto_scale_in_cooldown_seconds=args.auto_scale_in_cooldown_seconds,
+        auto_scale_out_cooldown_seconds=args.auto_scale_out_cooldown_seconds,
+        current_config=original_settings.readPoolAutoScaleConfig,
+    )
+    if read_pool_auto_scale_config is not None:
+      settings.readPoolAutoScaleConfig = read_pool_auto_scale_config
+
     # BETA args.
     if IsBetaOrNewer(release_track):
       labels_diff = labels_util.ExplicitNullificationDiff.FromUpdateArgs(args)
@@ -812,36 +967,15 @@ class _BaseInstances(object):
           settings.ipConfiguration = sql_messages.IpConfiguration()
         settings.ipConfiguration.allocatedIpRange = args.allocated_ip_range_name
 
-      if args.IsKnownAndSpecified('psc_auto_connections'):
-        if not settings.ipConfiguration:
-          settings.ipConfiguration = sql_messages.IpConfiguration()
-        if not settings.ipConfiguration.pscConfig:
-          settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
-        settings.ipConfiguration.pscConfig.pscAutoConnections = (
-            reducers.PscAutoConnections(
-                sql_messages, args.psc_auto_connections
-            )
+      if args.IsKnownAndSpecified('unc_mappings'):
+        settings.uncMappings = reducers.UncMappings(
+            sql_messages,
+            unc_mappings=args.unc_mappings,
+            clear_unc_mappings=args.clear_unc_mappings,
         )
-      if args.IsKnownAndSpecified('clear_psc_auto_connections'):
-        if not settings.ipConfiguration:
-          settings.ipConfiguration = sql_messages.IpConfiguration()
-        if not settings.ipConfiguration.pscConfig:
-          settings.ipConfiguration.pscConfig = sql_messages.PscConfig()
-        settings.ipConfiguration.pscConfig.pscAutoConnections = []
-
-      # MCP settings.
-      updated_config = reducers.ConnectionPoolConfig(
-          sql_messages,
-          enable_connection_pooling=args.enable_connection_pooling,
-          connection_pooling_pool_mode=args.connection_pooling_pool_mode,
-          connection_pooling_pool_size=args.connection_pooling_pool_size,
-          connection_pooling_max_client_connections=args.connection_pooling_max_client_connections,
-          connection_pooling_client_idle_timeout=args.connection_pooling_client_idle_timeout,
-          connection_pooling_server_idle_timeout=args.connection_pooling_server_idle_timeout,
-          connection_pooling_query_wait_timeout=args.connection_pooling_query_wait_timeout,
-      )
-      if updated_config is not None:
-        settings.connectionPoolConfig = updated_config
+    # ALPHA args.
+    if _IsAlpha(release_track):
+      pass
 
     return settings
 
@@ -903,8 +1037,12 @@ class _BaseInstances(object):
     instance_resource.databaseVersion = ParseDatabaseVersion(
         sql_messages, args.database_version
     )
-    instance_resource.masterInstanceName = args.master_instance_name
-    instance_resource.rootPassword = args.root_password
+
+    if args.IsKnownAndSpecified('master_instance_name'):
+      instance_resource.masterInstanceName = args.master_instance_name
+
+    if args.IsKnownAndSpecified('root_password'):
+      instance_resource.rootPassword = args.root_password
 
     # BETA: Set the host port and return early if external master instance.
     if IsBetaOrNewer(release_track) and args.IsSpecified('source_ip_address'):
@@ -918,7 +1056,12 @@ class _BaseInstances(object):
         sql_messages, args, original, release_track
     )
 
-    if args.master_instance_name:
+    if args.IsKnownAndSpecified('enforce_new_sql_network_architecture'):
+      instance_resource.sqlNetworkArchitecture = (
+          sql_messages.DatabaseInstance.SqlNetworkArchitectureValueValuesEnum.NEW_NETWORK_ARCHITECTURE
+      )
+
+    if args.IsKnownAndSpecified('master_instance_name'):
       replication = (
           sql_messages.Settings.ReplicationTypeValueValuesEnum.ASYNCHRONOUS
       )
@@ -947,10 +1090,10 @@ class _BaseInstances(object):
       replication = (
           sql_messages.Settings.ReplicationTypeValueValuesEnum.SYNCHRONOUS
       )
-    if not args.replication:
+    if not args.IsKnownAndSpecified('replication'):
       instance_resource.settings.replicationType = replication
 
-    if args.failover_replica_name:
+    if args.IsKnownAndSpecified('failover_replica_name'):
       _ShowFailoverReplicaDeprecationWarning()
       instance_resource.failoverReplica = (
           sql_messages.DatabaseInstance.FailoverReplicaValue(
@@ -1012,6 +1155,25 @@ class _BaseInstances(object):
       )
       instance_resource.diskEncryptionConfiguration = config
 
+    tags = getattr(args, 'tags')
+    if tags is not None:
+      instance_resource.tags = sql_messages.DatabaseInstance.TagsValue(
+          additionalProperties=[
+              sql_messages.DatabaseInstance.TagsValue.AdditionalProperty(
+                  key=tag,
+                  value=value,
+              )
+              for tag, value in six.iteritems(tags)
+          ]
+      )
+
+    if args.IsKnownAndSpecified('instance_type'):
+      instance_resource.instanceType = _ParseInstanceType(
+          sql_messages, args.instance_type
+      )
+    if args.IsKnownAndSpecified('node_count'):
+      instance_resource.nodeCount = args.node_count
+
     return instance_resource
 
   @classmethod
@@ -1042,6 +1204,10 @@ class _BaseInstances(object):
       instance_resource.sqlNetworkArchitecture = (
           sql_messages.DatabaseInstance.SqlNetworkArchitectureValueValuesEnum.NEW_NETWORK_ARCHITECTURE
       )
+    if args.enforce_new_sql_network_architecture:
+      instance_resource.sqlNetworkArchitecture = (
+          sql_messages.DatabaseInstance.SqlNetworkArchitectureValueValuesEnum.NEW_NETWORK_ARCHITECTURE
+      )
 
     if args.IsKnownAndSpecified('switch_transaction_logs_to_cloud_storage'):
       instance_resource.switchTransactionLogsToCloudStorageEnabled = (
@@ -1060,21 +1226,36 @@ class _BaseInstances(object):
     ):
       api_util.InstancesV1Beta4.PrintAndConfirmSimulatedMaintenanceEvent()
 
+    if IsBetaOrNewer(release_track) and args.IsSpecified(
+        'reconcile_psa_networking'
+    ):
+      if instance_resource.settings.ipConfiguration is None:
+        instance_resource.settings.ipConfiguration = (
+            sql_messages.IpConfiguration()
+        )
+      instance_resource.settings.ipConfiguration.privateNetwork = (
+          original.settings.ipConfiguration.privateNetwork
+      )
+
     if args.IsKnownAndSpecified('failover_dr_replica_name'):
       replication_cluster = sql_messages.ReplicationCluster()
-      replication_cluster.failoverDrReplicaName = (
-          args.failover_dr_replica_name
-      )
+      replication_cluster.failoverDrReplicaName = args.failover_dr_replica_name
       instance_resource.replicationCluster = replication_cluster
     if args.IsKnownAndSpecified('clear_failover_dr_replica_name'):
       if instance_resource.replicationCluster is not None:
         instance_resource.replicationCluster.ClearFailoverDrReplicaName()
 
-    if IsBetaOrNewer(release_track):
-      if args.IsKnownAndSpecified('include_replicas_for_major_version_upgrade'):
-        instance_resource.includeReplicasForMajorVersionUpgrade = (
-            args.include_replicas_for_major_version_upgrade
-        )
+    if args.IsKnownAndSpecified('include_replicas_for_major_version_upgrade'):
+      instance_resource.includeReplicasForMajorVersionUpgrade = (
+          args.include_replicas_for_major_version_upgrade
+      )
+
+    if args.IsKnownAndSpecified('instance_type'):
+      instance_resource.instanceType = _ParseInstanceType(
+          sql_messages, args.instance_type
+      )
+    if args.IsKnownAndSpecified('node_count'):
+      instance_resource.nodeCount = args.node_count
 
     return instance_resource
 
@@ -1090,6 +1271,10 @@ class InstancesV1Beta4(_BaseInstances):
   @staticmethod
   def AddBackupConfigToSettings(settings, backup_config):
     settings.backupConfiguration = backup_config
+
+  @staticmethod
+  def AddFinalBackupConfigToSettings(settings, final_backup_config):
+    settings.finalBackupConfig = final_backup_config
 
   @staticmethod
   def SetIpConfigurationEnabled(settings, assign_ip):

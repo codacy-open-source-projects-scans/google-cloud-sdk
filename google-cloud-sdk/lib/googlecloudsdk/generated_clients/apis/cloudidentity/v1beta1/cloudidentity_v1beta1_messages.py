@@ -858,6 +858,10 @@ class CloudidentityDevicesDeviceUsersLookupRequest(_messages.Message):
     androidId: Android Id returned by [Settings.Secure#ANDROID_ID](https://dev
       eloper.android.com/reference/android/provider/Settings.Secure.html#ANDRO
       ID_ID).
+    iosDeviceId: Optional. The partner-specified device identifier assigned to
+      the iOS device that initiated the Lookup API call. This string must
+      match the value of the iosDeviceId key in the app config dictionary
+      provided to Google Workspace apps.
     pageSize: The maximum number of DeviceUsers to return. If unspecified, at
       most 20 DeviceUsers will be returned. The maximum value is 20; values
       above 20 will be coerced to 20.
@@ -867,6 +871,9 @@ class CloudidentityDevicesDeviceUsersLookupRequest(_messages.Message):
       that provided the page token.
     parent: Must be set to "devices/-/deviceUsers" to search across all
       DeviceUser belonging to the user.
+    partner: Optional. The partner ID of the calling iOS app. This string must
+      match the value of the partner key within the app configuration
+      dictionary provided to Google Workspace apps.
     rawResourceId: Raw Resource Id used by Google Endpoint Verification. If
       the user is enrolled into Google Endpoint Verification, this id will be
       saved as the 'device_resource_id' field in the following platform
@@ -880,11 +887,13 @@ class CloudidentityDevicesDeviceUsersLookupRequest(_messages.Message):
   """
 
   androidId = _messages.StringField(1)
-  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(3)
-  parent = _messages.StringField(4, required=True)
-  rawResourceId = _messages.StringField(5)
-  userId = _messages.StringField(6)
+  iosDeviceId = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  partner = _messages.StringField(6)
+  rawResourceId = _messages.StringField(7)
+  userId = _messages.StringField(8)
 
 
 class CloudidentityDevicesDeviceUsersWipeRequest(_messages.Message):
@@ -1184,7 +1193,7 @@ class CloudidentityGroupsMembershipsGetMembershipGraphRequest(_messages.Message)
       to search transitive memberships in. Format: `groups/{group_id}`, where
       `group_id` is the unique ID assigned to the Group to which the
       Membership belongs to. group_id can be a wildcard collection id "-".
-      When a group_id is specified, the membership graph will be constrained
+      When `group_id` is specified, the membership graph will be constrained
       to paths between the member (defined in the query) and the parent. If a
       wildcard collection is provided, all membership paths connected to the
       member will be returned.
@@ -1305,7 +1314,7 @@ class CloudidentityGroupsMembershipsSearchDirectGroupsRequest(_messages.Message)
       group key: order_by="group_key desc".
     pageSize: The default page size is 200 (max 1000).
     pageToken: The next_page_token value returned from a previous list
-      request, if any
+      request, if any.
     parent: [Resource
       name](https://cloud.google.com/apis/design/resource_names) of the group
       to search transitive memberships in. Format: groups/{group_id}, where
@@ -1332,7 +1341,7 @@ class CloudidentityGroupsMembershipsSearchTransitiveGroupsRequest(_messages.Mess
 
   Fields:
     pageSize: The default page size is 200 (max 1000).
-    pageToken: The next_page_token value returned from a previous list
+    pageToken: The `next_page_token` value returned from a previous list
       request, if any.
     parent: [Resource
       name](https://cloud.google.com/apis/design/resource_names) of the group
@@ -1350,7 +1359,7 @@ class CloudidentityGroupsMembershipsSearchTransitiveGroupsRequest(_messages.Mess
       within a particular customer, e.g. `parent ==
       'customers/{customer_id}'`. The `customer_id` must begin with "C" (for
       example, 'C046psxkn'). This filtering is only supported for Admins with
-      groups read permissons on the input customer. Example query:
+      groups read permissions on the input customer. Example query:
       `member_key_id == 'member_key_id_value' && in labels && parent ==
       'customers/C046psxkn'`
   """
@@ -1472,6 +1481,78 @@ class CloudidentityGroupsUpdateSecuritySettingsRequest(_messages.Message):
 
   name = _messages.StringField(1, required=True)
   securitySettings = _messages.MessageField('SecuritySettings', 2)
+  updateMask = _messages.StringField(3)
+
+
+class CloudidentityInboundOidcSsoProfilesDeleteRequest(_messages.Message):
+  r"""A CloudidentityInboundOidcSsoProfilesDeleteRequest object.
+
+  Fields:
+    name: Required. The [resource
+      name](https://cloud.google.com/apis/design/resource_names) of the
+      InboundOidcSsoProfile to delete. Format:
+      `inboundOidcSsoProfiles/{sso_profile_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class CloudidentityInboundOidcSsoProfilesGetRequest(_messages.Message):
+  r"""A CloudidentityInboundOidcSsoProfilesGetRequest object.
+
+  Fields:
+    name: Required. The [resource
+      name](https://cloud.google.com/apis/design/resource_names) of the
+      InboundOidcSsoProfile to get. Format:
+      `inboundOidcSsoProfiles/{sso_profile_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class CloudidentityInboundOidcSsoProfilesListRequest(_messages.Message):
+  r"""A CloudidentityInboundOidcSsoProfilesListRequest object.
+
+  Fields:
+    filter: A [Common Expression Language](https://github.com/google/cel-spec)
+      expression to filter the results. The only supported filter is filtering
+      by customer. For example: `customer=="customers/C0123abc"`. Omitting the
+      filter or specifying a filter of `customer=="customers/my_customer"`
+      will return the profiles for the customer that the caller (authenticated
+      user) belongs to. Specifying a filter of `customer==""` will return the
+      global shared OIDC profiles.
+    pageSize: The maximum number of InboundOidcSsoProfiles to return. The
+      service may return fewer than this value. If omitted (or defaulted to
+      zero) the server will use a sensible default. This default may change
+      over time. The maximum allowed value is 100. Requests with page_size
+      greater than that will be silently interpreted as having this maximum
+      value.
+    pageToken: A page token, received from a previous
+      `ListInboundOidcSsoProfiles` call. Provide this to retrieve the
+      subsequent page. When paginating, all other parameters provided to
+      `ListInboundOidcSsoProfiles` must match the call that provided the page
+      token.
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+
+
+class CloudidentityInboundOidcSsoProfilesPatchRequest(_messages.Message):
+  r"""A CloudidentityInboundOidcSsoProfilesPatchRequest object.
+
+  Fields:
+    inboundOidcSsoProfile: A InboundOidcSsoProfile resource to be passed as
+      the request body.
+    name: Output only. [Resource
+      name](https://cloud.google.com/apis/design/resource_names) of the OIDC
+      SSO profile.
+    updateMask: Required. The list of fields to be updated.
+  """
+
+  inboundOidcSsoProfile = _messages.MessageField('InboundOidcSsoProfile', 1)
+  name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
 
 
@@ -1737,6 +1818,17 @@ class CloudidentityOrgUnitsMembershipsMoveRequest(_messages.Message):
   name = _messages.StringField(2, required=True)
 
 
+class CloudidentityPoliciesDeleteRequest(_messages.Message):
+  r"""A CloudidentityPoliciesDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the policy to retrieve. Format:
+      "policies/{policy}".
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
 class CloudidentityPoliciesGetRequest(_messages.Message):
   r"""A CloudidentityPoliciesGetRequest object.
 
@@ -1753,23 +1845,24 @@ class CloudidentityPoliciesListRequest(_messages.Message):
 
   Fields:
     filter: Optional. A CEL expression for filtering the results. Policies can
-      be filtered by application with this expression: setting.name =
-      'settings/gmail.*' Policies can be filtered by setting type with this
-      expression: setting.name = '*.service_status' A maximum of one of the
-      above setting.name clauses can be used. Policies can be filtered by
-      customer with this expression: customer = "customers/{customer}" Where
+      be filtered by application with this expression:
+      setting.type.matches('^settings/gmail\\..*$') Policies can be filtered
+      by setting type with this expression:
+      setting.type.matches('^.*\\.service_status$') A maximum of one of the
+      above setting.type clauses can be used. Policies can be filtered by
+      customer with this expression: customer == "customers/{customer}" Where
       `customer` is the `id` from the [Admin SDK `Customer`
       resource](https://developers.google.com/admin-
       sdk/directory/reference/rest/v1/customers). You may use
       `customers/my_customer` to specify your own organization. When no
       customer is mentioned it will be default to customers/my_customer. A
       maximum of one customer clause can be used. The above clauses can only
-      be combined together in a single filter expression with the AND
+      be combined together in a single filter expression with the `&&`
       operator.
     pageSize: Optional. The maximum number of results to return. The service
-      may return fewer than this value. If omitted (or defaulted to zero) the
-      server will default to 50. The maximum allowed value is 100, though
-      requests with page_size greater than that will be interpreted as 100.
+      can return fewer than this number. If omitted or set to 0, the default
+      is 50 results per page. The maximum allowed value is 100. `page_size`
+      values greater than 100 default to 100.
     pageToken: Optional. The pagination token received from a prior call to
       PoliciesService.ListPolicies to retrieve the next page of results. When
       paginating, all other parameters provided to `ListPoliciesRequest` must
@@ -1801,6 +1894,20 @@ class CreateDeviceRequest(_messages.Message):
 
   customer = _messages.StringField(1)
   device = _messages.MessageField('Device', 2)
+
+
+class CreateInboundOidcSsoProfileOperationMetadata(_messages.Message):
+  r"""LRO response metadata for
+  InboundOidcSsoProfilesService.CreateInboundOidcSsoProfile.
+
+  Fields:
+    state: State of this Operation Will be "awaiting-multi-party-approval"
+      when the operation is deferred due to the target customer having enabled
+      [Multi-party approval for sensitive
+      actions](https://support.google.com/a/answer/13790448).
+  """
+
+  state = _messages.StringField(1)
 
 
 class CreateInboundSamlSsoProfileOperationMetadata(_messages.Message):
@@ -1845,6 +1952,13 @@ class DeleteIdpCredentialOperationMetadata(_messages.Message):
 
 
 
+class DeleteInboundOidcSsoProfileOperationMetadata(_messages.Message):
+  r"""LRO response metadata for
+  InboundOidcSsoProfilesService.DeleteInboundOidcSsoProfile.
+  """
+
+
+
 class DeleteInboundSamlSsoProfileOperationMetadata(_messages.Message):
   r"""LRO response metadata for
   InboundSamlSsoProfilesService.DeleteInboundSamlSsoProfile.
@@ -1862,7 +1976,10 @@ class DeleteInboundSsoAssignmentOperationMetadata(_messages.Message):
 class Device(_messages.Message):
   r"""A Device within the Cloud Identity Devices API. Represents a Device
   known to Google Cloud, independent of the device ownership, type, and
-  whether it is assigned or in use by a user.
+  whether it is assigned or in use by a user. Important: Device API scopes
+  require that you use domain-wide delegation to access the API. For more
+  information, see [Set up the Devices
+  API](https://cloud.google.com/identity/docs/how-to/setup-devices).
 
   Enums:
     ClientTypesValueListEntryValuesEnum:
@@ -2906,7 +3023,10 @@ class GoogleAppsCloudidentityDevicesV1Device(_messages.Message):
     name: Output only. [Resource
       name](https://cloud.google.com/apis/design/resource_names) of the Device
       in format: `devices/{device}`, where device is the unique id assigned to
-      the Device.
+      the Device. Important: Device API scopes require that you use domain-
+      wide delegation to access the API. For more information, see [Set up the
+      Devices API](https://cloud.google.com/identity/docs/how-to/setup-
+      devices).
     networkOperator: Output only. Mobile or network operator of device, if
       available.
     osVersion: Output only. OS version of the device. Example: Android 8.1.0.
@@ -3249,8 +3369,8 @@ class Group(_messages.Message):
 
   Messages:
     LabelsValue: Required. One or more label entries that apply to the Group.
-      Currently supported labels contain a key with an empty value. Google
-      Groups are the default type of group and have a label with a key of
+      Labels contain a key with an empty value. Google Groups are the default
+      type of group and have a label with a key of
       `cloudidentity.googleapis.com/groups.discussion_forum` and an empty
       value. Existing Google Groups can have an additional label with a key of
       `cloudidentity.googleapis.com/groups.security` and an empty value added
@@ -3258,7 +3378,11 @@ class Group(_messages.Message):
       removed once added.** Dynamic groups have a label with a key of
       `cloudidentity.googleapis.com/groups.dynamic`. Identity-mapped groups
       for Cloud Search have a label with a key of `system/groups/external` and
-      an empty value.
+      an empty value. Google Groups can be
+      [locked](https://support.google.com/a?p=locked-groups). To lock a group,
+      add a label with a key of `cloudidentity.googleapis.com/groups.locked`
+      and an empty value. Doing so locks the group. To unlock the group,
+      remove this label.
 
   Fields:
     additionalGroupKeys: Output only. Additional group keys associated with
@@ -3271,8 +3395,8 @@ class Group(_messages.Message):
       status.
     groupKey: Required. The `EntityKey` of the `Group`.
     labels: Required. One or more label entries that apply to the Group.
-      Currently supported labels contain a key with an empty value. Google
-      Groups are the default type of group and have a label with a key of
+      Labels contain a key with an empty value. Google Groups are the default
+      type of group and have a label with a key of
       `cloudidentity.googleapis.com/groups.discussion_forum` and an empty
       value. Existing Google Groups can have an additional label with a key of
       `cloudidentity.googleapis.com/groups.security` and an empty value added
@@ -3280,7 +3404,11 @@ class Group(_messages.Message):
       removed once added.** Dynamic groups have a label with a key of
       `cloudidentity.googleapis.com/groups.dynamic`. Identity-mapped groups
       for Cloud Search have a label with a key of `system/groups/external` and
-      an empty value.
+      an empty value. Google Groups can be
+      [locked](https://support.google.com/a?p=locked-groups). To lock a group,
+      add a label with a key of `cloudidentity.googleapis.com/groups.locked`
+      and an empty value. Doing so locks the group. To unlock the group,
+      remove this label.
     name: Output only. The [resource
       name](https://cloud.google.com/apis/design/resource_names) of the
       `Group`. Shall be of the form `groups/{group_id}`.
@@ -3297,9 +3425,9 @@ class Group(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
-    r"""Required. One or more label entries that apply to the Group. Currently
-    supported labels contain a key with an empty value. Google Groups are the
-    default type of group and have a label with a key of
+    r"""Required. One or more label entries that apply to the Group. Labels
+    contain a key with an empty value. Google Groups are the default type of
+    group and have a label with a key of
     `cloudidentity.googleapis.com/groups.discussion_forum` and an empty value.
     Existing Google Groups can have an additional label with a key of
     `cloudidentity.googleapis.com/groups.security` and an empty value added to
@@ -3307,7 +3435,11 @@ class Group(_messages.Message):
     removed once added.** Dynamic groups have a label with a key of
     `cloudidentity.googleapis.com/groups.dynamic`. Identity-mapped groups for
     Cloud Search have a label with a key of `system/groups/external` and an
-    empty value.
+    empty value. Google Groups can be
+    [locked](https://support.google.com/a?p=locked-groups). To lock a group,
+    add a label with a key of `cloudidentity.googleapis.com/groups.locked` and
+    an empty value. Doing so locks the group. To unlock the group, remove this
+    label.
 
     Messages:
       AdditionalProperty: An additional property for a LabelsValue object.
@@ -3429,6 +3561,29 @@ class IdpCredential(_messages.Message):
   updateTime = _messages.StringField(4)
 
 
+class InboundOidcSsoProfile(_messages.Message):
+  r"""An [OIDC](https://openid.net/developers/how-connect-works/) federation
+  between a Google enterprise customer and an OIDC identity provider.
+
+  Fields:
+    customer: Immutable. The customer. For example: `customers/C0123abc`.
+    displayName: Human-readable name of the OIDC SSO profile.
+    idpConfig: OIDC identity provider configuration.
+    name: Output only. [Resource
+      name](https://cloud.google.com/apis/design/resource_names) of the OIDC
+      SSO profile.
+    rpConfig: OIDC relying party (RP) configuration for this OIDC SSO profile.
+      These are the RP details provided by Google that should be configured on
+      the corresponding identity provider.
+  """
+
+  customer = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  idpConfig = _messages.MessageField('OidcIdpConfig', 3)
+  name = _messages.StringField(4)
+  rpConfig = _messages.MessageField('OidcRpConfig', 5)
+
+
 class InboundSamlSsoProfile(_messages.Message):
   r"""A [SAML 2.0](https://www.oasis-open.org/standards#samlv2.0) federation
   between a Google enterprise customer and a SAML identity provider.
@@ -3463,6 +3618,8 @@ class InboundSsoAssignment(_messages.Message):
     name: Output only. [Resource
       name](https://cloud.google.com/apis/design/resource_names) of the
       Inbound SSO Assignment.
+    oidcSsoInfo: OpenID Connect SSO details. Must be set if and only if
+      `sso_mode` is set to `OIDC_SSO`.
     rank: Must be zero (which is the default value so it can be omitted) for
       assignments with `target_org_unit` set and must be greater-than-or-
       equal-to one for assignments with `target_group` set.
@@ -3485,6 +3642,8 @@ class InboundSsoAssignment(_messages.Message):
       SSO_OFF: Disable SSO for the targeted users.
       SAML_SSO: Use an external SAML Identity Provider for SSO for the
         targeted users.
+      OIDC_SSO: Use an external OIDC Identity Provider for SSO for the
+        targeted users.
       DOMAIN_WIDE_SAML_IF_ENABLED: Use the domain-wide SAML Identity Provider
         for the targeted users if one is configured; otherwise, this is
         equivalent to `SSO_OFF`. Note that this will also be equivalent to
@@ -3495,16 +3654,18 @@ class InboundSsoAssignment(_messages.Message):
     SSO_MODE_UNSPECIFIED = 0
     SSO_OFF = 1
     SAML_SSO = 2
-    DOMAIN_WIDE_SAML_IF_ENABLED = 3
+    OIDC_SSO = 3
+    DOMAIN_WIDE_SAML_IF_ENABLED = 4
 
   customer = _messages.StringField(1)
   name = _messages.StringField(2)
-  rank = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  samlSsoInfo = _messages.MessageField('SamlSsoInfo', 4)
-  signInBehavior = _messages.MessageField('SignInBehavior', 5)
-  ssoMode = _messages.EnumField('SsoModeValueValuesEnum', 6)
-  targetGroup = _messages.StringField(7)
-  targetOrgUnit = _messages.StringField(8)
+  oidcSsoInfo = _messages.MessageField('OidcSsoInfo', 3)
+  rank = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  samlSsoInfo = _messages.MessageField('SamlSsoInfo', 5)
+  signInBehavior = _messages.MessageField('SignInBehavior', 6)
+  ssoMode = _messages.EnumField('SsoModeValueValuesEnum', 7)
+  targetGroup = _messages.StringField(8)
+  targetOrgUnit = _messages.StringField(9)
 
 
 class IsInvitableUserResponse(_messages.Message):
@@ -3581,6 +3742,20 @@ class ListIdpCredentialsResponse(_messages.Message):
   """
 
   idpCredentials = _messages.MessageField('IdpCredential', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class ListInboundOidcSsoProfilesResponse(_messages.Message):
+  r"""Response of the InboundOidcSsoProfilesService.ListInboundOidcSsoProfiles
+  method.
+
+  Fields:
+    inboundOidcSsoProfiles: List of InboundOidcSsoProfiles.
+    nextPageToken: A token, which can be sent as `page_token` to retrieve the
+      next page. If this field is omitted, there are no subsequent pages.
+  """
+
+  inboundOidcSsoProfiles = _messages.MessageField('InboundOidcSsoProfile', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
 
 
@@ -3862,8 +4037,8 @@ class MembershipAdjacencyList(_messages.Message):
   Fields:
     edges: Each edge contains information about the member that belongs to
       this group. Note: Fields returned here will help identify the specific
-      Membership resource (e.g name, preferred_member_key and role), but may
-      not be a comprehensive list of all fields.
+      Membership resource (e.g `name`, `preferred_member_key` and `role`), but
+      may not be a comprehensive list of all fields.
     group: Resource name of the group that the members belong to.
   """
 
@@ -4034,6 +4209,51 @@ class MoveOrgMembershipRequest(_messages.Message):
 
   customer = _messages.StringField(1)
   destinationOrgUnit = _messages.StringField(2)
+
+
+class OidcIdpConfig(_messages.Message):
+  r"""OIDC IDP (identity provider) configuration.
+
+  Fields:
+    changePasswordUri: The **Change Password URL** of the identity provider.
+      Users will be sent to this URL when changing their passwords at
+      `myaccount.google.com`. This takes precedence over the change password
+      URL configured at customer-level. Must use `HTTPS`.
+    issuerUri: Required. The Issuer identifier for the IdP. Must be a URL. The
+      discovery URL will be derived from this as described in Section 4 of
+      [the OIDC specification](https://openid.net/specs/openid-connect-
+      discovery-1_0.html).
+  """
+
+  changePasswordUri = _messages.StringField(1)
+  issuerUri = _messages.StringField(2)
+
+
+class OidcRpConfig(_messages.Message):
+  r"""OIDC RP (relying party) configuration.
+
+  Fields:
+    clientId: OAuth2 client ID for OIDC.
+    clientSecret: Input only. OAuth2 client secret for OIDC.
+    redirectUris: Output only. The URL(s) that this client may use in
+      authentication requests.
+  """
+
+  clientId = _messages.StringField(1)
+  clientSecret = _messages.StringField(2)
+  redirectUris = _messages.StringField(3, repeated=True)
+
+
+class OidcSsoInfo(_messages.Message):
+  r"""Details that are applicable when `sso_mode` is set to `OIDC_SSO`.
+
+  Fields:
+    inboundOidcSsoProfile: Required. Name of the `InboundOidcSsoProfile` to
+      use. Must be of the form
+      `inboundOidcSsoProfiles/{inbound_oidc_sso_profile}`.
+  """
+
+  inboundOidcSsoProfile = _messages.StringField(1)
 
 
 class Operation(_messages.Message):
@@ -4257,8 +4477,8 @@ class PolicyQuery(_messages.Message):
       that contain the corresponding value(s) as the query to make the query
       easier to use.
     sortOrder: Output only. The decimal sort order of this PolicyQuery. The
-      value is relative to all other policies with the same setting type
-      within the whole customer. (there are no duplicates within this set).
+      value is relative to all other policies with the same setting type for
+      the customer. (There are no duplicates within this set).
   """
 
   group = _messages.StringField(1)
@@ -4652,6 +4872,20 @@ class TransitiveMembershipRole(_messages.Message):
   """
 
   role = _messages.StringField(1)
+
+
+class UpdateInboundOidcSsoProfileOperationMetadata(_messages.Message):
+  r"""LRO response metadata for
+  InboundOidcSsoProfilesService.UpdateInboundOidcSsoProfile.
+
+  Fields:
+    state: State of this Operation Will be "awaiting-multi-party-approval"
+      when the operation is deferred due to the target customer having enabled
+      [Multi-party approval for sensitive
+      actions](https://support.google.com/a/answer/13790448).
+  """
+
+  state = _messages.StringField(1)
 
 
 class UpdateInboundSamlSsoProfileOperationMetadata(_messages.Message):

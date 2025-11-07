@@ -73,11 +73,13 @@ def FirewallPolicyArgument(required=False, plural=False, operation=None):
 
 def FirewallPolicyAssociationsArgument(required=False, plural=False):
   return compute_flags.ResourceArgument(
-      name='name',
-      resource_name='association',
-      completer=FirewallPoliciesCompleter,
+      name='--firewall-policy',
+      resource_name='firewall policy',
       plural=plural,
       required=required,
+      short_help=(
+          'Short name or ID of the firewall policy ID of the association.'
+      ),
       global_collection='compute.firewallPolicies',
   )
 
@@ -148,6 +150,17 @@ def AddArgsCloneRules(parser):
       help=(
           'Organization in which the organization firewall policy to copy the'
           ' rules to. Must be set if firewall-policy is short name.'
+      ),
+  )
+
+
+def AddArgsForceStartProgressiveRollout(parser):
+  """Adds the argument for firewall policy force start progressive rollout."""
+  parser.add_argument(
+      '--organization',
+      help=(
+          'Organization in which the organization firewall policy to start the'
+          ' rollout of resides. Must be set if firewall-policy is short name.'
       ),
   )
 
@@ -426,9 +439,9 @@ def AddArgsCreateAssociation(parser):
 def AddArgsDeleteAssociation(parser):
   """Adds the arguments of association deletion."""
   parser.add_argument(
-      '--firewall-policy',
-      required=True,
-      help='Short name or ID of the firewall policy ID of the association.',
+      'name',
+      metavar='NAME',
+      help='Name of the association to delete.',
   )
 
   parser.add_argument(
@@ -519,7 +532,7 @@ def AddSrcRegionCodes(parser, support_network_scopes=False):
   if support_network_scopes:
     help_text += (
         'Cannot be specified when the source network'
-        ' scope is NON_INTERNET, VPC_NETWORK or INTRA_VPC. '
+        ' type is NON_INTERNET, VPC_NETWORK or INTRA_VPC. '
     )
   parser.add_argument(
       '--src-region-codes',
@@ -538,7 +551,7 @@ def AddDestRegionCodes(parser, support_network_scopes=False):
   )
   if support_network_scopes:
     help_text += (
-        'Cannot be specified when the source network scope is NON_INTERNET. '
+        'Cannot be specified when the source network type is NON_INTERNET. '
     )
   parser.add_argument(
       '--dest-region-codes',
@@ -561,7 +574,7 @@ def AddSrcThreatIntelligence(parser, support_network_scopes=False):
     text_help = (
         'Source Threat Intelligence lists to match for this rule. '
         'Can only be specified if DIRECTION is `ingress`. Cannot be specified'
-        ' when the source network scope is NON_INTERNET, VPC_NETWORK or'
+        ' when the source network type is NON_INTERNET, VPC_NETWORK or'
         ' INTRA_VPC. '
         'The available lists can be found here: '
         'https://cloud.google.com/vpc/docs/firewall-policies-rule-details#threat-intelligence-fw-policy.'
@@ -587,7 +600,7 @@ def AddDestThreatIntelligence(parser, support_network_scopes=False):
     text_help = (
         'Destination Threat Intelligence lists to match for this rule. '
         'Can only be specified if DIRECTION is `egress`. Cannot be specified'
-        ' when source network scope is NON_INTERNET. '
+        ' when source network type is NON_INTERNET. '
         'The available lists can be found here: '
         'https://cloud.google.com/vpc/docs/firewall-policies-rule-details#threat-intelligence-fw-policy.'
     )
@@ -611,12 +624,12 @@ def AddSecurityProfileGroup(parser):
           ' apply_security_profile_group action. Allowed formats are: a)'
           ' http(s)://<namespace>/<api>/organizations/<org_id>/locations/global/securityProfileGroups/<profile>'
           ' b) (//)<namespace>/organizations/<org_id>/locations/global/securityProfileGroups/<profile>'
-          ' c) <profile>. In case "c" gCloud CLI will create a reference'
+          ' c) <profile>. In case "c" `gcloud` CLI will create a reference'
           ' matching format "a", but to make it work'
           ' CLOUDSDK_API_ENDPOINT_OVERRIDES_NETWORKSECURITY property must be'
-          ' set. In order to set this property, please run the command gcloud'
+          ' set. In order to set this property, please run the command `gcloud'
           ' config set api_endpoint_overrides/networksecurity'
-          ' https://<namespace>/.'
+          ' https://<namespace>/`.'
       ),
   )
 
@@ -632,12 +645,12 @@ def AddMirroringSecurityProfileGroup(parser):
           ' Allowed formats are: a)'
           ' http(s)://<namespace>/<api>/organizations/<org_id>/locations/global/securityProfileGroups/<profile>'
           ' b) (//)<namespace>/organizations/<org_id>/locations/global/securityProfileGroups/<profile>'
-          ' c) <profile>. In case "c" gCloud CLI will create a reference'
+          ' c) <profile>. In case "c" `gcloud` CLI will create a reference'
           ' matching format "a", but to make it work'
           ' CLOUDSDK_API_ENDPOINT_OVERRIDES_NETWORKSECURITY property must be'
-          ' set. In order to set this property, please run the command gcloud'
+          ' set. In order to set this property, please run the command `gcloud'
           ' config set api_endpoint_overrides/networksecurity'
-          ' https://<namespace>/.'
+          ' https://<namespace>/`.'
       ),
   )
 
@@ -661,6 +674,23 @@ def AddSrcNetworkScope(parser, required=False):
   parser.add_argument(
       '--src-network-scope',
       required=required,
+      hidden=True,
+      help=(
+          'Deprecated. Use --src-network-type instead.'
+          ' Use this flag to indicate that the rule should match internet,'
+          ' non-internet traffic or traffic coming from the network specified'
+          ' by --src-network. It applies to ingress rules. Valid values are'
+          ' INTERNET, NON_INTERNET, VPC_NETWORKS and INTRA_VPC. Use empty'
+          ' string to clear the field.'
+      ),
+  )
+
+
+def AddSrcNetworkType(parser, required=False):
+  """Adds source network type to this rule."""
+  parser.add_argument(
+      '--src-network-type',
+      required=required,
       help=(
           'Use this flag to indicate that the rule should match internet,'
           ' non-internet traffic or traffic coming from the network specified'
@@ -680,7 +710,7 @@ def AddSrcNetworks(parser):
       required=False,
       help=(
           'The source VPC networks to  match for this rule.  It can only be'
-          ' specified when --src-network-scope is VPC_NETWORKS. It applies to '
+          ' specified when --src-network-type is VPC_NETWORKS. It applies to '
           ' ingress rules. It accepts full or partial URLs.'
       ),
   )
@@ -691,10 +721,66 @@ def AddDestNetworkScope(parser, required=False):
   parser.add_argument(
       '--dest-network-scope',
       required=required,
+      hidden=True,
+      help=(
+          'Deprecated. Use --dest-network-type instead.'
+          ' Use this flag to indicate that the rule should match internet or'
+          ' non-internet traffic. It applies to destination traffic for egress'
+          ' rules. Valid values are INTERNET and NON_INTERNET. Use'
+          ' empty string to clear the field.'
+      ),
+  )
+
+
+def AddDestNetworkType(parser, required=False):
+  """Adds destination network type to this rule."""
+  parser.add_argument(
+      '--dest-network-type',
+      required=required,
       help=(
           'Use this flag to indicate that the rule should match internet or'
           ' non-internet traffic. It applies to destination traffic for egress'
           ' rules. Valid values are INTERNET and NON_INTERNET. Use'
           ' empty string to clear the field.'
+      ),
+  )
+
+
+def AddSrcSecureTags(parser, required=False, support_network_scopes=False):
+  """Adds a  source secure tag to this rule."""
+  help_text = (
+      'A list of instance secure tags indicating the set of instances on the'
+      ' network to which the rule applies if all other fields match. Either'
+      ' --src-ip-ranges or --src-secure-tags must be specified for ingress'
+      ' traffic. If both --src-ip-ranges and --src-secure-tags are specified,'
+      ' an inbound connection is allowed if either the range of the source'
+      ' matches --src-ip-ranges or the tag of the source matches'
+      ' --src-secure-tags. Secure Tags can be assigned to instances during'
+      ' instance creation.'
+  )
+  if support_network_scopes:
+    help_text += (
+        ' Secure tags cannot be specified if source network type is INTERNET.'
+    )
+
+  parser.add_argument(
+      '--src-secure-tags',
+      type=arg_parsers.ArgList(),
+      metavar='SOURCE_SECURE_TAGS',
+      required=required,
+      help=help_text,
+  )
+
+
+def AddTargetSecureTags(parser, required=False):
+  """Adds a target secure tag to this rule."""
+  parser.add_argument(
+      '--target-secure-tags',
+      type=arg_parsers.ArgList(),
+      metavar='TARGET_SECURE_TAGS',
+      required=required,
+      help=(
+          'An optional, list of target secure tags with a name of the '
+          'format tagValues/ or full namespaced name'
       ),
   )

@@ -440,7 +440,7 @@ class DataflowV1b3(base_api.BaseApiClient):
     )
 
     def Create(self, request, global_params=None):
-      r"""Creates a Cloud Dataflow job. To create a job, we recommend using `projects.locations.jobs.create` with a [regional endpoint] (https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using `projects.jobs.create` is not recommended, as your job will always start in `us-central1`. Do not enter confidential information when you supply string values using the API.
+      r"""Creates a Dataflow job. To create a job, we recommend using `projects.locations.jobs.create` with a [regional endpoint] (https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using `projects.jobs.create` is not recommended, as your job will always start in `us-central1`. Do not enter confidential information when you supply string values using the API.
 
       Args:
         request: (DataflowProjectsJobsCreateRequest) input message
@@ -866,6 +866,32 @@ class DataflowV1b3(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def GetWorkerStacktraces(self, request, global_params=None):
+      r"""Get worker stacktraces from debug capture.
+
+      Args:
+        request: (DataflowProjectsLocationsJobsDebugGetWorkerStacktracesRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GetWorkerStacktracesResponse) The response message.
+      """
+      config = self.GetMethodConfig('GetWorkerStacktraces')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetWorkerStacktraces.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='dataflow.projects.locations.jobs.debug.getWorkerStacktraces',
+        ordered_params=['projectId', 'location', 'jobId'],
+        path_params=['jobId', 'location', 'projectId'],
+        query_params=[],
+        relative_path='v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/debug/getWorkerStacktraces',
+        request_field='getWorkerStacktracesRequest',
+        request_type_name='DataflowProjectsLocationsJobsDebugGetWorkerStacktracesRequest',
+        response_type_name='GetWorkerStacktracesResponse',
+        supports_download=False,
+    )
+
     def SendCapture(self, request, global_params=None):
       r"""Send encoded debug capture data for component.
 
@@ -1073,7 +1099,7 @@ class DataflowV1b3(base_api.BaseApiClient):
           }
 
     def Create(self, request, global_params=None):
-      r"""Creates a Cloud Dataflow job. To create a job, we recommend using `projects.locations.jobs.create` with a [regional endpoint] (https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using `projects.jobs.create` is not recommended, as your job will always start in `us-central1`. Do not enter confidential information when you supply string values using the API.
+      r"""Creates a Dataflow job. To create a job, we recommend using `projects.locations.jobs.create` with a [regional endpoint] (https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using `projects.jobs.create` is not recommended, as your job will always start in `us-central1`. Do not enter confidential information when you supply string values using the API.
 
       Args:
         request: (DataflowProjectsLocationsJobsCreateRequest) input message

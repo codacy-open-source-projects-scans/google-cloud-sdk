@@ -43,9 +43,11 @@ class NetappV1(base_api.BaseApiClient):
     self.projects_locations_backupPolicies = self.ProjectsLocationsBackupPoliciesService(self)
     self.projects_locations_backupVaults_backups = self.ProjectsLocationsBackupVaultsBackupsService(self)
     self.projects_locations_backupVaults = self.ProjectsLocationsBackupVaultsService(self)
+    self.projects_locations_hostGroups = self.ProjectsLocationsHostGroupsService(self)
     self.projects_locations_kmsConfigs = self.ProjectsLocationsKmsConfigsService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
     self.projects_locations_storagePools = self.ProjectsLocationsStoragePoolsService(self)
+    self.projects_locations_volumes_quotaRules = self.ProjectsLocationsVolumesQuotaRulesService(self)
     self.projects_locations_volumes_replications = self.ProjectsLocationsVolumesReplicationsService(self)
     self.projects_locations_volumes_snapshots = self.ProjectsLocationsVolumesSnapshotsService(self)
     self.projects_locations_volumes = self.ProjectsLocationsVolumesService(self)
@@ -632,6 +634,151 @@ class NetappV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsHostGroupsService(base_api.BaseApiService):
+    """Service class for the projects_locations_hostGroups resource."""
+
+    _NAME = 'projects_locations_hostGroups'
+
+    def __init__(self, client):
+      super(NetappV1.ProjectsLocationsHostGroupsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/hostGroups',
+        http_method='POST',
+        method_id='netapp.projects.locations.hostGroups.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['hostGroupId'],
+        relative_path='v1/{+parent}/hostGroups',
+        request_field='hostGroup',
+        request_type_name='NetappProjectsLocationsHostGroupsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='DELETE',
+        method_id='netapp.projects.locations.hostGroups.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Returns details of the specified host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (HostGroup) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='GET',
+        method_id='netapp.projects.locations.hostGroups.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsGetRequest',
+        response_type_name='HostGroup',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Returns a list of host groups in a location. Use '-' as location to list host groups across all locations.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListHostGroupsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/hostGroups',
+        http_method='GET',
+        method_id='netapp.projects.locations.hostGroups.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/hostGroups',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsListRequest',
+        response_type_name='ListHostGroupsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates an existing host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='PATCH',
+        method_id='netapp.projects.locations.hostGroups.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='hostGroup',
+        request_type_name='NetappProjectsLocationsHostGroupsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class ProjectsLocationsKmsConfigsService(base_api.BaseApiService):
     """Service class for the projects_locations_kmsConfigs resource."""
 
@@ -842,7 +989,7 @@ class NetappV1(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (NetappProjectsLocationsOperationsCancelRequest) input message
@@ -941,7 +1088,7 @@ class NetappV1(base_api.BaseApiClient):
         method_id='netapp.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}/operations',
         request_field='',
         request_type_name='NetappProjectsLocationsOperationsListRequest',
@@ -1144,6 +1291,151 @@ class NetappV1(base_api.BaseApiClient):
         relative_path='v1/{+name}:validateDirectoryService',
         request_field='validateDirectoryServiceRequest',
         request_type_name='NetappProjectsLocationsStoragePoolsValidateDirectoryServiceRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class ProjectsLocationsVolumesQuotaRulesService(base_api.BaseApiService):
+    """Service class for the projects_locations_volumes_quotaRules resource."""
+
+    _NAME = 'projects_locations_volumes_quotaRules'
+
+    def __init__(self, client):
+      super(NetappV1.ProjectsLocationsVolumesQuotaRulesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new quota rule.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesQuotaRulesCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}/quotaRules',
+        http_method='POST',
+        method_id='netapp.projects.locations.volumes.quotaRules.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['quotaRuleId'],
+        relative_path='v1/{+parent}/quotaRules',
+        request_field='quotaRule',
+        request_type_name='NetappProjectsLocationsVolumesQuotaRulesCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a quota rule.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesQuotaRulesDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}/quotaRules/{quotaRulesId}',
+        http_method='DELETE',
+        method_id='netapp.projects.locations.volumes.quotaRules.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsVolumesQuotaRulesDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Returns details of the specified quota rule.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesQuotaRulesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (QuotaRule) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}/quotaRules/{quotaRulesId}',
+        http_method='GET',
+        method_id='netapp.projects.locations.volumes.quotaRules.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsVolumesQuotaRulesGetRequest',
+        response_type_name='QuotaRule',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Returns list of all quota rules in a location.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesQuotaRulesListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListQuotaRulesResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}/quotaRules',
+        http_method='GET',
+        method_id='netapp.projects.locations.volumes.quotaRules.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/quotaRules',
+        request_field='',
+        request_type_name='NetappProjectsLocationsVolumesQuotaRulesListRequest',
+        response_type_name='ListQuotaRulesResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates a quota rule.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesQuotaRulesPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}/quotaRules/{quotaRulesId}',
+        http_method='PATCH',
+        method_id='netapp.projects.locations.volumes.quotaRules.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='quotaRule',
+        request_type_name='NetappProjectsLocationsVolumesQuotaRulesPatchRequest',
         response_type_name='Operation',
         supports_download=False,
     )
@@ -1718,6 +2010,33 @@ class NetappV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def Restore(self, request, global_params=None):
+      r"""Restore files from a backup to a volume.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesRestoreRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Restore')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Restore.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}:restore',
+        http_method='POST',
+        method_id='netapp.projects.locations.volumes.restore',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:restore',
+        request_field='restoreBackupFilesRequest',
+        request_type_name='NetappProjectsLocationsVolumesRestoreRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def Revert(self, request, global_params=None):
       r"""Revert an existing volume to a specified snapshot. Warning! This operation will permanently revert all changes made after the snapshot was created.
 
@@ -1801,7 +2120,7 @@ class NetappV1(base_api.BaseApiClient):
         method_id='netapp.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1/{+name}/locations',
         request_field='',
         request_type_name='NetappProjectsLocationsListRequest',

@@ -54,6 +54,9 @@ class AcceleratorConfig(_messages.Message):
       V5LITE_POD: TPU v5lite pod.
       V5P: TPU v5.
       V6E: TPU v6e.
+      TPU7X: TPU7x.
+      V6EA: TPU v6ea.
+      TPU7: TPU7.
     """
     TYPE_UNSPECIFIED = 0
     V2 = 1
@@ -62,6 +65,9 @@ class AcceleratorConfig(_messages.Message):
     V5LITE_POD = 4
     V5P = 5
     V6E = 6
+    TPU7X = 7
+    V6EA = 8
+    TPU7 = 9
 
   topology = _messages.StringField(1)
   type = _messages.EnumField('TypeValueValuesEnum', 2)
@@ -112,7 +118,7 @@ class AllToAllTraffic(_messages.Message):
 
 
 class AttachedDisk(_messages.Message):
-  r"""A node-attached disk resource. Next ID: 8;
+  r"""A node-attached disk resource.
 
   Enums:
     ModeValueValuesEnum: The mode in which to attach this disk. If not
@@ -124,6 +130,7 @@ class AttachedDisk(_messages.Message):
       is READ_WRITE mode. Only applicable to data_disks.
     sourceDisk: Specifies the full path to an existing disk. For example:
       "projects/my-project/zones/us-central1-c/disks/my-disk".
+    workerIds: Optional. The list of worker IDs this disk is attached to.
   """
 
   class ModeValueValuesEnum(_messages.Enum):
@@ -143,6 +150,7 @@ class AttachedDisk(_messages.Message):
 
   mode = _messages.EnumField('ModeValueValuesEnum', 1)
   sourceDisk = _messages.StringField(2)
+  workerIds = _messages.StringField(3, repeated=True)
 
 
 class BestEffort(_messages.Message):
@@ -154,12 +162,32 @@ class BootDiskConfig(_messages.Message):
 
   Fields:
     customerEncryptionKey: Optional. Customer encryption key for boot disk.
+    diskSizeGb: Optional. Size of the boot disk in GB. It must be larger than
+      or equal to the size of the image.
     enableConfidentialCompute: Optional. Whether the boot disk will be created
       with confidential compute mode.
+    provisionedIops: Optional. Indicates how many IOPS to provision for the
+      disk. This sets the number of I/O operations per second that the disk
+      can handle. To learn more about IOPS, see [Provisioning persistent disk
+      performance](https://cloud.google.com/compute/docs/disks/performance#pro
+      visioned-iops).
+    provisionedThroughput: Optional. Indicates how much throughput to
+      provision for the disk. This sets the number of throughput MB per second
+      that the disk can handle.
+    sourceImage: Optional. Image from which boot disk is to be created. If not
+      specified, the default image for the runtime version will be used.
+      Example: `projects/$PROJECT_ID/global/images/$IMAGE_NAME`.
+    storagePool: Optional. The storage pool in which the boot disk is created.
+      You can provide this as a partial or full URL to the resource.
   """
 
   customerEncryptionKey = _messages.MessageField('CustomerEncryptionKey', 1)
-  enableConfidentialCompute = _messages.BooleanField(2)
+  diskSizeGb = _messages.IntegerField(2)
+  enableConfidentialCompute = _messages.BooleanField(3)
+  provisionedIops = _messages.IntegerField(4)
+  provisionedThroughput = _messages.IntegerField(5)
+  sourceImage = _messages.StringField(6)
+  storagePool = _messages.StringField(7)
 
 
 class ChipCoordinate(_messages.Message):
@@ -207,6 +235,33 @@ class ChipCoordinateRangeGenerator(_messages.Message):
   zCoordinates = _messages.MessageField('Range', 4)
 
 
+class ConfidentialInstanceConfig(_messages.Message):
+  r"""A set of Confidential Instance options.
+
+  Enums:
+    ConfidentialInstanceTypeValueValuesEnum: Optional. Defines the type of
+      technology used by the confidential instance.
+
+  Fields:
+    confidentialInstanceType: Optional. Defines the type of technology used by
+      the confidential instance.
+  """
+
+  class ConfidentialInstanceTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Defines the type of technology used by the confidential
+    instance.
+
+    Values:
+      CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED: No type specified. Do not use
+        this value.
+      SEV: AMD Secure Encrypted Virtualization.
+    """
+    CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED = 0
+    SEV = 1
+
+  confidentialInstanceType = _messages.EnumField('ConfidentialInstanceTypeValueValuesEnum', 1)
+
+
 class CoordinateList(_messages.Message):
   r"""Defines a list of related `src` and/or `dst` coordinates in the traffic
   matrix.
@@ -242,12 +297,11 @@ class CustomerEncryptionKey(_messages.Message):
 
   Fields:
     kmsKeyName: The name of the encryption key that is stored in Google Cloud
-      KMS. For example: "kmsKeyName":
-      "projects/kms_project_id/locations/region/keyRings/
-      key_region/cryptoKeys/key The fully-qualifed key name may be returned
-      for resource GET requests. For example: "kmsKeyName":
-      "projects/kms_project_id/locations/region/keyRings/
-      key_region/cryptoKeys/key /cryptoKeyVersions/1
+      KMS. For example: "kmsKeyName": "projects/KMS_PROJECT_ID/locations/REGIO
+      N/keyRings/KEY_REGION/cryptoKeys/KEY The fully-qualifed key name may be
+      returned for resource GET requests. For example: "kmsKeyName": "projects
+      /KMS_PROJECT_ID/locations/REGION/keyRings/KEY_REGION/cryptoKeys/KEY/cryp
+      toKeyVersions/1
   """
 
   kmsKeyName = _messages.StringField(1)
@@ -328,6 +382,16 @@ class GetGuestAttributesResponse(_messages.Message):
   """
 
   guestAttributes = _messages.MessageField('GuestAttributes', 1, repeated=True)
+
+
+class GetMaintenanceInfoResponse(_messages.Message):
+  r"""Response for GetMaintenanceInfo.
+
+  Fields:
+    nodeUpcomingMaintenances: The list of upcoming maintenance entries.
+  """
+
+  nodeUpcomingMaintenances = _messages.MessageField('NodeUpcomingMaintenanceInfo', 1, repeated=True)
 
 
 class Guaranteed(_messages.Message):
@@ -448,10 +512,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListQueuedResourcesResponse(_messages.Message):
@@ -769,6 +838,8 @@ class Node(_messages.Message):
       the CIDR block conflicts with any subnetworks in the user's provided
       network, or the provided network is peered with another network that is
       using that CIDR block.
+    confidentialInstanceConfig: Optional. Configuration for confidential
+      instance options.
     createTime: Output only. The time when the node was created.
     dataDisks: The additional data disks for the Node.
     description: The user-supplied description of the TPU. Maximum of 512
@@ -783,9 +854,14 @@ class Node(_messages.Message):
     multisliceNode: Output only. Whether the Node belongs to a Multislice
       group.
     name: Output only. Immutable. The name of the TPU.
-    networkConfig: Network configurations for the TPU node.
+    networkConfig: Network configurations for the TPU node. network_config and
+      network_configs are mutually exclusive, you can only specify one of
+      them. If both are specified, an error will be returned.
     networkConfigs: Optional. Repeated network configurations for the TPU
-      node.
+      node. This field is used to specify multiple networks configs for the
+      TPU node. network_config and network_configs are mutually exclusive, you
+      can only specify one of them. If both are specified, an error will be
+      returned.
     networkEndpoints: Output only. The network endpoints where TPU workers can
       be accessed and sent work. It is recommended that runtime clients of the
       node reach out to the 0th entry in this map first.
@@ -932,28 +1008,29 @@ class Node(_messages.Message):
   autocheckpointEnabled = _messages.BooleanField(4)
   bootDiskConfig = _messages.MessageField('BootDiskConfig', 5)
   cidrBlock = _messages.StringField(6)
-  createTime = _messages.StringField(7)
-  dataDisks = _messages.MessageField('AttachedDisk', 8, repeated=True)
-  description = _messages.StringField(9)
-  health = _messages.EnumField('HealthValueValuesEnum', 10)
-  healthDescription = _messages.StringField(11)
-  id = _messages.IntegerField(12)
-  labels = _messages.MessageField('LabelsValue', 13)
-  metadata = _messages.MessageField('MetadataValue', 14)
-  multisliceNode = _messages.BooleanField(15)
-  name = _messages.StringField(16)
-  networkConfig = _messages.MessageField('NetworkConfig', 17)
-  networkConfigs = _messages.MessageField('NetworkConfig', 18, repeated=True)
-  networkEndpoints = _messages.MessageField('NetworkEndpoint', 19, repeated=True)
-  queuedResource = _messages.StringField(20)
-  runtimeVersion = _messages.StringField(21)
-  schedulingConfig = _messages.MessageField('SchedulingConfig', 22)
-  serviceAccount = _messages.MessageField('ServiceAccount', 23)
-  shieldedInstanceConfig = _messages.MessageField('ShieldedInstanceConfig', 24)
-  state = _messages.EnumField('StateValueValuesEnum', 25)
-  symptoms = _messages.MessageField('Symptom', 26, repeated=True)
-  tags = _messages.StringField(27, repeated=True)
-  upcomingMaintenance = _messages.MessageField('UpcomingMaintenance', 28)
+  confidentialInstanceConfig = _messages.MessageField('ConfidentialInstanceConfig', 7)
+  createTime = _messages.StringField(8)
+  dataDisks = _messages.MessageField('AttachedDisk', 9, repeated=True)
+  description = _messages.StringField(10)
+  health = _messages.EnumField('HealthValueValuesEnum', 11)
+  healthDescription = _messages.StringField(12)
+  id = _messages.IntegerField(13)
+  labels = _messages.MessageField('LabelsValue', 14)
+  metadata = _messages.MessageField('MetadataValue', 15)
+  multisliceNode = _messages.BooleanField(16)
+  name = _messages.StringField(17)
+  networkConfig = _messages.MessageField('NetworkConfig', 18)
+  networkConfigs = _messages.MessageField('NetworkConfig', 19, repeated=True)
+  networkEndpoints = _messages.MessageField('NetworkEndpoint', 20, repeated=True)
+  queuedResource = _messages.StringField(21)
+  runtimeVersion = _messages.StringField(22)
+  schedulingConfig = _messages.MessageField('SchedulingConfig', 23)
+  serviceAccount = _messages.MessageField('ServiceAccount', 24)
+  shieldedInstanceConfig = _messages.MessageField('ShieldedInstanceConfig', 25)
+  state = _messages.EnumField('StateValueValuesEnum', 26)
+  symptoms = _messages.MessageField('Symptom', 27, repeated=True)
+  tags = _messages.StringField(28, repeated=True)
+  upcomingMaintenance = _messages.MessageField('UpcomingMaintenance', 29)
 
 
 class NodeSpec(_messages.Message):
@@ -977,6 +1054,20 @@ class NodeSpec(_messages.Message):
   node = _messages.MessageField('Node', 2)
   nodeId = _messages.StringField(3)
   parent = _messages.StringField(4)
+
+
+class NodeUpcomingMaintenanceInfo(_messages.Message):
+  r"""A tuple containing node name / ID and maintenance info.
+
+  Fields:
+    nodeName: Unqualified node name.
+    nodeUid: UID of this node.
+    upcomingMaintenance: Upcoming maintenance info for this node.
+  """
+
+  nodeName = _messages.StringField(1)
+  nodeUid = _messages.IntegerField(2)
+  upcomingMaintenance = _messages.MessageField('UpcomingMaintenance', 3)
 
 
 class Operation(_messages.Message):
@@ -1143,31 +1234,56 @@ class QueuedResource(_messages.Message):
   r"""A QueuedResource represents a request for resources that will be placed
   in a queue and fulfilled when the necessary resources are available.
 
+  Enums:
+    ProvisioningModelValueValuesEnum: Optional. The provisioning model for the
+      resource.
+
   Fields:
     bestEffort: The BestEffort tier.
     createTime: Output only. The time when the QueuedResource was created.
     guaranteed: The Guaranteed tier.
     name: Output only. Immutable. The name of the QueuedResource.
+    provisioningModel: Optional. The provisioning model for the resource.
     queueingPolicy: The queueing policy of the QueuedRequest.
     reservationName: Name of the reservation in which the resource should be
       provisioned. Format:
       projects/{project}/locations/{zone}/reservations/{reservation}
+    runDuration: Optional. The duration of the requested resource.
     spot: Optional. The Spot tier.
     state: Output only. State of the QueuedResource request.
     tpu: Defines a TPU resource.
     trafficConfig: Network traffic configuration.
   """
 
+  class ProvisioningModelValueValuesEnum(_messages.Enum):
+    r"""Optional. The provisioning model for the resource.
+
+    Values:
+      PROVISIONING_MODEL_UNSPECIFIED: Provisioning model is unknown.
+      STANDARD: Standard provisioning with user controlled runtime.
+      SPOT: Spot provisioning with no guaranteed runtime.
+      RESERVATION_BOUND: Reservation provisioning with runtime bound to the
+        lifetime of the consumed reservation.
+      FLEX_START: Provisioning with DWS Flex Start with max run duration.
+    """
+    PROVISIONING_MODEL_UNSPECIFIED = 0
+    STANDARD = 1
+    SPOT = 2
+    RESERVATION_BOUND = 3
+    FLEX_START = 4
+
   bestEffort = _messages.MessageField('BestEffort', 1)
   createTime = _messages.StringField(2)
   guaranteed = _messages.MessageField('Guaranteed', 3)
   name = _messages.StringField(4)
-  queueingPolicy = _messages.MessageField('QueueingPolicy', 5)
-  reservationName = _messages.StringField(6)
-  spot = _messages.MessageField('Spot', 7)
-  state = _messages.MessageField('QueuedResourceState', 8)
-  tpu = _messages.MessageField('Tpu', 9)
-  trafficConfig = _messages.MessageField('TrafficConfig', 10)
+  provisioningModel = _messages.EnumField('ProvisioningModelValueValuesEnum', 5)
+  queueingPolicy = _messages.MessageField('QueueingPolicy', 6)
+  reservationName = _messages.StringField(7)
+  runDuration = _messages.MessageField('RunDuration', 8)
+  spot = _messages.MessageField('Spot', 9)
+  state = _messages.MessageField('QueuedResourceState', 10)
+  tpu = _messages.MessageField('Tpu', 11)
+  trafficConfig = _messages.MessageField('TrafficConfig', 12)
 
 
 class QueuedResourceState(_messages.Message):
@@ -1318,7 +1434,7 @@ class Reservation(_messages.Message):
   Fields:
     name: The reservation name with the format:
       projects/{projectID}/locations/{location}/reservations/{reservationID}
-    standard: A Standard attribute.
+    standard: A standard reservation.
     state: Output only. The state of the Reservation.
   """
 
@@ -1389,6 +1505,19 @@ class RingTraffic(_messages.Message):
   trafficDirection = _messages.EnumField('TrafficDirectionValueValuesEnum', 2)
 
 
+class RunDuration(_messages.Message):
+  r"""Defines the maximum lifetime of the requested resource.
+
+  Fields:
+    maxRunDuration: The maximum duration of the requested resource.
+    terminationTime: The time at which the requested resource will be
+      terminated.
+  """
+
+  maxRunDuration = _messages.StringField(1)
+  terminationTime = _messages.StringField(2)
+
+
 class RuntimeVersion(_messages.Message):
   r"""A runtime version that a Node can be configured with.
 
@@ -1404,15 +1533,42 @@ class RuntimeVersion(_messages.Message):
 class SchedulingConfig(_messages.Message):
   r"""Sets the scheduling options for this node.
 
+  Enums:
+    ProvisioningModelValueValuesEnum: Optional. Defines the provisioning model
+      for the node.
+
   Fields:
     preemptible: Defines whether the node is preemptible.
+    provisioningModel: Optional. Defines the provisioning model for the node.
+    reservationName: Optional. Name of the reservation in which the node
+      should be provisioned.
     reserved: Whether the node is created under a reservation.
     spot: Optional. Defines whether the node is Spot VM.
+    terminationTimestamp: Output only. The time at which the node will be
+      terminated.
   """
 
+  class ProvisioningModelValueValuesEnum(_messages.Enum):
+    r"""Optional. Defines the provisioning model for the node.
+
+    Values:
+      PROVISIONING_MODEL_UNSPECIFIED: Provisioning model is unknown.
+      STANDARD: Standard provisioning with user controlled runtime.
+      SPOT: Spot provisioning with no guaranteed runtime.
+      RESERVATION_BOUND: Reservation provisioning with runtime bound to the
+        lifetime of the consumed reservation.
+    """
+    PROVISIONING_MODEL_UNSPECIFIED = 0
+    STANDARD = 1
+    SPOT = 2
+    RESERVATION_BOUND = 3
+
   preemptible = _messages.BooleanField(1)
-  reserved = _messages.BooleanField(2)
-  spot = _messages.BooleanField(3)
+  provisioningModel = _messages.EnumField('ProvisioningModelValueValuesEnum', 2)
+  reservationName = _messages.StringField(3)
+  reserved = _messages.BooleanField(4)
+  spot = _messages.BooleanField(5)
+  terminationTimestamp = _messages.StringField(6)
 
 
 class ServiceAccount(_messages.Message):
@@ -1513,22 +1669,23 @@ class SrcSliceTraffic(_messages.Message):
 
 
 class Standard(_messages.Message):
-  r"""A Standard object.
+  r"""Details of a standard reservation.
 
   Enums:
-    CapacityUnitsValueValuesEnum:
+    CapacityUnitsValueValuesEnum: Capacity units this reservation is measured
+      in.
 
   Fields:
-    capacityUnits: A CapacityUnitsValueValuesEnum attribute.
+    capacityUnits: Capacity units this reservation is measured in.
     interval: The start and end time of the reservation.
     resourceType: The resource type of the reservation.
     size: The size of the reservation, in the units specified in the
       'capacity_units' field.
-    usage: A Usage attribute.
+    usage: The current usage of the reservation.
   """
 
   class CapacityUnitsValueValuesEnum(_messages.Enum):
-    r"""CapacityUnitsValueValuesEnum enum type.
+    r"""Capacity units this reservation is measured in.
 
     Values:
       CAPACITY_UNITS_UNSPECIFIED: The capacity units is not known/set.
@@ -1784,6 +1941,9 @@ class TpuProjectsLocationsListRequest(_messages.Message):
   r"""A TpuProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1794,10 +1954,11 @@ class TpuProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class TpuProjectsLocationsNodesCreateRequest(_messages.Message):
@@ -1972,12 +2133,20 @@ class TpuProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class TpuProjectsLocationsQueuedResourcesCreateRequest(_messages.Message):
@@ -2014,6 +2183,16 @@ class TpuProjectsLocationsQueuedResourcesDeleteRequest(_messages.Message):
   force = _messages.BooleanField(1)
   name = _messages.StringField(2, required=True)
   requestId = _messages.StringField(3)
+
+
+class TpuProjectsLocationsQueuedResourcesGetMaintenanceInfoRequest(_messages.Message):
+  r"""A TpuProjectsLocationsQueuedResourcesGetMaintenanceInfoRequest object.
+
+  Fields:
+    name: Required. The QueuedResource name.
+  """
+
+  name = _messages.StringField(1, required=True)
 
 
 class TpuProjectsLocationsQueuedResourcesGetRequest(_messages.Message):
@@ -2075,7 +2254,8 @@ class TpuProjectsLocationsReservationsListRequest(_messages.Message):
   r"""A TpuProjectsLocationsReservationsListRequest object.
 
   Fields:
-    pageSize: The maximum number of items to return.
+    pageSize: The maximum number of items to return. Defaults to 0 if not
+      specified, which means no limit.
     pageToken: The next_page_token value returned from a previous List
       request, if any.
     parent: Required. The parent for reservations.
@@ -2189,7 +2369,7 @@ class UpcomingMaintenance(_messages.Message):
 
 
 class Usage(_messages.Message):
-  r"""A Usage object.
+  r"""Usage details of a reservation.
 
   Fields:
     total: The real-time value of usage within the reservation, with the unit

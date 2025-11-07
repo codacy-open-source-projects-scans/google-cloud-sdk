@@ -47,6 +47,31 @@ class AcceptHubSpokeResponse(_messages.Message):
   spoke = _messages.MessageField('Spoke', 1)
 
 
+class AcceptSpokeUpdateRequest(_messages.Message):
+  r"""The request for HubService.AcceptSpokeUpdate.
+
+  Fields:
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    spokeEtag: Required. The etag of the spoke to accept update.
+    spokeUri: Required. The URI of the spoke to accept update.
+  """
+
+  requestId = _messages.StringField(1)
+  spokeEtag = _messages.StringField(2)
+  spokeUri = _messages.StringField(3)
+
+
 class ActivateSpokeRequest(_messages.Message):
   r"""The request for HubService.ActivateSpoke.
 
@@ -66,6 +91,60 @@ class ActivateSpokeRequest(_messages.Message):
   """
 
   requestId = _messages.StringField(1)
+
+
+class AllocationOptions(_messages.Message):
+  r"""Range auto-allocation options, to be optionally used when CIDR block is
+  not explicitly set.
+
+  Enums:
+    AllocationStrategyValueValuesEnum: Optional. Allocation strategy Not
+      setting this field when the allocation is requested means an
+      implementation defined strategy is used.
+
+  Fields:
+    allocationStrategy: Optional. Allocation strategy Not setting this field
+      when the allocation is requested means an implementation defined
+      strategy is used.
+    firstAvailableRangesLookupSize: Optional. This field must be set only when
+      allocation_strategy is set to RANDOM_FIRST_N_AVAILABLE. The value should
+      be the maximum expected parallelism of range creation requests issued to
+      the same space of peered netwroks.
+  """
+
+  class AllocationStrategyValueValuesEnum(_messages.Enum):
+    r"""Optional. Allocation strategy Not setting this field when the
+    allocation is requested means an implementation defined strategy is used.
+
+    Values:
+      ALLOCATION_STRATEGY_UNSPECIFIED: Unspecified is the only valid option
+        when the range is specified explicitly by ip_cidr_range field.
+        Otherwise unspefified means using the default strategy.
+      RANDOM: Random strategy, the legacy algorithm, used for backwards
+        compatibility. This allocation strategy remains efficient in the case
+        of concurrent allocation requests in the same peered network space and
+        doesn't require providing the level of concurrency in an explicit
+        parameter, but it is prone to fragmenting available address space.
+      FIRST_AVAILABLE: Pick the first available address range. This strategy
+        is deterministic and the result is easy to predict.
+      RANDOM_FIRST_N_AVAILABLE: Pick an arbitrary range out of the first N
+        available ones. The N will be set in the
+        first_available_ranges_lookup_size field. This strategy should be used
+        when concurrent allocation requests are made in the same space of
+        peered networks while the fragmentation of the addrress space is
+        reduced.
+      FIRST_SMALLEST_FITTING: Pick the smallest but fitting available range.
+        This deterministic strategy minimizes fragmentation of the address
+        space.
+    """
+    ALLOCATION_STRATEGY_UNSPECIFIED = 0
+    RANDOM = 1
+    FIRST_AVAILABLE = 2
+    RANDOM_FIRST_N_AVAILABLE = 3
+    FIRST_SMALLEST_FITTING = 4
+
+  allocationStrategy = _messages.EnumField('AllocationStrategyValueValuesEnum', 1)
+  firstAvailableRangesLookupSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
 
 
 class AuditConfig(_messages.Message):
@@ -140,9 +219,9 @@ class AutoAccept(_messages.Message):
   hub administrator.
 
   Fields:
-    autoAcceptProjects: A list of project ids or project numbers for which you
-      want to enable auto-accept. The auto-accept setting is applied to spokes
-      being created or updated in these projects.
+    autoAcceptProjects: Optional. A list of project ids or project numbers for
+      which you want to enable auto-accept. The auto-accept setting is applied
+      to spokes being created or updated in these projects.
   """
 
   autoAcceptProjects = _messages.StringField(1, repeated=True)
@@ -540,6 +619,112 @@ class DeactivateSpokeRequest(_messages.Message):
   requestId = _messages.StringField(1)
 
 
+class Destination(_messages.Message):
+  r"""The `Destination` resource. It specifies the IP prefix and the
+  associated autonomous system numbers (ASN) that you want to include in a
+  `MulticloudDataTransferConfig` resource.
+
+  Messages:
+    LabelsValue: Optional. User-defined labels.
+
+  Fields:
+    createTime: Output only. Time when the `Destination` resource was created.
+    description: Optional. A description of this resource.
+    endpoints: Required. Unordered list. The list of `DestinationEndpoint`
+      resources configured for the IP prefix.
+    etag: The etag is computed by the server, and might be sent with update
+      and delete requests so that the client has an up-to-date value before
+      proceeding.
+    ipPrefix: Required. Immutable. The IP prefix that represents your workload
+      on another CSP.
+    labels: Optional. User-defined labels.
+    name: Identifier. The name of the `Destination` resource. Format: `project
+      s/{project}/locations/{location}/multicloudDataTransferConfigs/{multiclo
+      ud_data_transfer_config}/destinations/{destination}`.
+    stateTimeline: Output only. The timeline of the expected `Destination`
+      states or the current rest state. If a state change is expected, the
+      value is `ADDING`, `DELETING` or `SUSPENDING`, depending on the action
+      specified. Example: "state_timeline": { "states": [ { // The time when
+      the `Destination` resource will be activated. "effectiveTime":
+      "2024-12-01T08:00:00Z", "state": "ADDING" }, { // The time when the
+      `Destination` resource will be suspended. "effectiveTime":
+      "2024-12-01T20:00:00Z", "state": "SUSPENDING" } ] }
+    uid: Output only. The Google-generated unique ID for the `Destination`
+      resource. This value is unique across all `Destination` resources. If a
+      resource is deleted and another with the same name is created, the new
+      resource is assigned a different and unique ID.
+    updateTime: Output only. Time when the `Destination` resource was updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. User-defined labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  endpoints = _messages.MessageField('DestinationEndpoint', 3, repeated=True)
+  etag = _messages.StringField(4)
+  ipPrefix = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  stateTimeline = _messages.MessageField('StateTimeline', 8)
+  uid = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
+
+
+class DestinationEndpoint(_messages.Message):
+  r"""The metadata for a `DestinationEndpoint` resource.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the `DestinationEndpoint`
+      resource.
+
+  Fields:
+    asn: Required. The ASN of the remote IP prefix.
+    csp: Required. The CSP of the remote IP prefix.
+    state: Output only. The state of the `DestinationEndpoint` resource.
+    updateTime: Output only. Time when the `DestinationEndpoint` resource was
+      updated.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the `DestinationEndpoint` resource.
+
+    Values:
+      STATE_UNSPECIFIED: An invalid state, which is the default case.
+      VALID: The `DestinationEndpoint` resource is valid.
+      INVALID: The `DestinationEndpoint` resource is invalid.
+    """
+    STATE_UNSPECIFIED = 0
+    VALID = 1
+    INVALID = 2
+
+  asn = _messages.IntegerField(1)
+  csp = _messages.StringField(2)
+  state = _messages.EnumField('StateValueValuesEnum', 3)
+  updateTime = _messages.StringField(4)
+
+
 class Empty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
@@ -590,83 +775,38 @@ class Filter(_messages.Message):
 
   Enums:
     ProtocolVersionValueValuesEnum: Required. Internet protocol versions this
-      policy-based route applies to. For this version, only IPV4 is supported.
-      IPV6 is supported in preview.
+      policy-based route applies to. IPV4 and IPV6 is supported.
 
   Fields:
     destRange: Optional. The destination IP range of outgoing packets that
       this policy-based route applies to. Default is "0.0.0.0/0" if protocol
-      version is IPv4.
+      version is IPv4 and "::/0" if protocol version is IPv6.
     ipProtocol: Optional. The IP protocol that this policy-based route applies
       to. Valid values are 'TCP', 'UDP', and 'ALL'. Default is 'ALL'.
     protocolVersion: Required. Internet protocol versions this policy-based
-      route applies to. For this version, only IPV4 is supported. IPV6 is
-      supported in preview.
+      route applies to. IPV4 and IPV6 is supported.
     srcRange: Optional. The source IP range of outgoing packets that this
       policy-based route applies to. Default is "0.0.0.0/0" if protocol
-      version is IPv4.
+      version is IPv4 and "::/0" if protocol version is IPv6.
   """
 
   class ProtocolVersionValueValuesEnum(_messages.Enum):
     r"""Required. Internet protocol versions this policy-based route applies
-    to. For this version, only IPV4 is supported. IPV6 is supported in
-    preview.
+    to. IPV4 and IPV6 is supported.
 
     Values:
       PROTOCOL_VERSION_UNSPECIFIED: Default value.
       IPV4: The PBR is for IPv4 internet protocol traffic.
+      IPV6: The PBR is for IPv6 internet protocol traffic.
     """
     PROTOCOL_VERSION_UNSPECIFIED = 0
     IPV4 = 1
+    IPV6 = 2
 
   destRange = _messages.StringField(1)
   ipProtocol = _messages.StringField(2)
   protocolVersion = _messages.EnumField('ProtocolVersionValueValuesEnum', 3)
   srcRange = _messages.StringField(4)
-
-
-class Gateway(_messages.Message):
-  r"""A gateway that can apply specialized traffic processing.
-
-  Enums:
-    CapacityValueValuesEnum: Optional. The aggregate processing capacity of
-      this gateway.
-
-  Fields:
-    capacity: Optional. The aggregate processing capacity of this gateway.
-    ipRangeReservations: Optional. A list of IP ranges that are reserved for
-      this gateway's internal intfrastructure.
-    landingNetwork: Optional. This field will be deprecated and replaced
-      before gateway spokes reach General Availability.
-  """
-
-  class CapacityValueValuesEnum(_messages.Enum):
-    r"""Optional. The aggregate processing capacity of this gateway.
-
-    Values:
-      GATEWAY_CAPACITY_UNSPECIFIED: The gateway capacity is unspecified.
-      CAPACITY_1_GBPS: The gateway has 1 Gbps of aggregate processing capacity
-      CAPACITY_5_GBPS: The gateway has 5 Gbps of aggregate processing capacity
-      CAPACITY_10_GBPS: The gateway has 10 Gbps of aggregate processing
-        capacity
-      CAPACITY_25_GBPS: The gateway has 25 Gbps of aggregate processing
-        capacity
-      CAPACITY_50_GBPS: The gateway has 50 Gbps of aggregate processing
-        capacity
-      CAPACITY_100_GBPS: The gateway has 100 Gbps of aggregate processing
-        capacity
-    """
-    GATEWAY_CAPACITY_UNSPECIFIED = 0
-    CAPACITY_1_GBPS = 1
-    CAPACITY_5_GBPS = 2
-    CAPACITY_10_GBPS = 3
-    CAPACITY_25_GBPS = 4
-    CAPACITY_50_GBPS = 5
-    CAPACITY_100_GBPS = 6
-
-  capacity = _messages.EnumField('CapacityValueValuesEnum', 1)
-  ipRangeReservations = _messages.MessageField('IpRangeReservation', 2, repeated=True)
-  landingNetwork = _messages.MessageField('LandingNetwork', 3)
 
 
 class GoogleLongrunningCancelOperationRequest(_messages.Message):
@@ -807,13 +947,13 @@ class GoogleRpcErrorInfo(_messages.Message):
 
   Messages:
     MetadataValue: Additional structured details about this error. Keys must
-      match /a-z+/ but should ideally be lowerCamelCase. Also they must be
-      limited to 64 characters in length. When identifying the current value
-      of an exceeded limit, the units should be contained in the key, not the
-      value. For example, rather than {"instanceLimit": "100/request"}, should
-      be returned as, {"instanceLimitPerRequest": "100"}, if the client
-      exceeds the number of instances that can be created in a single (batch)
-      request.
+      match a regular expression of `a-z+` but should ideally be
+      lowerCamelCase. Also, they must be limited to 64 characters in length.
+      When identifying the current value of an exceeded limit, the units
+      should be contained in the key, not the value. For example, rather than
+      `{"instanceLimit": "100/request"}`, should be returned as,
+      `{"instanceLimitPerRequest": "100"}`, if the client exceeds the number
+      of instances that can be created in a single (batch) request.
 
   Fields:
     domain: The logical grouping to which the "reason" belongs. The error
@@ -823,12 +963,13 @@ class GoogleRpcErrorInfo(_messages.Message):
       globally unique value that identifies the infrastructure. For Google API
       infrastructure, the error domain is "googleapis.com".
     metadata: Additional structured details about this error. Keys must match
-      /a-z+/ but should ideally be lowerCamelCase. Also they must be limited
-      to 64 characters in length. When identifying the current value of an
-      exceeded limit, the units should be contained in the key, not the value.
-      For example, rather than {"instanceLimit": "100/request"}, should be
-      returned as, {"instanceLimitPerRequest": "100"}, if the client exceeds
-      the number of instances that can be created in a single (batch) request.
+      a regular expression of `a-z+` but should ideally be lowerCamelCase.
+      Also, they must be limited to 64 characters in length. When identifying
+      the current value of an exceeded limit, the units should be contained in
+      the key, not the value. For example, rather than `{"instanceLimit":
+      "100/request"}`, should be returned as, `{"instanceLimitPerRequest":
+      "100"}`, if the client exceeds the number of instances that can be
+      created in a single (batch) request.
     reason: The reason of the error. This is a constant value that identifies
       the proximate cause of the error. Error reasons are unique within a
       particular domain of errors. This should be at most 63 characters and
@@ -838,13 +979,14 @@ class GoogleRpcErrorInfo(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class MetadataValue(_messages.Message):
-    r"""Additional structured details about this error. Keys must match /a-z+/
-    but should ideally be lowerCamelCase. Also they must be limited to 64
-    characters in length. When identifying the current value of an exceeded
-    limit, the units should be contained in the key, not the value. For
-    example, rather than {"instanceLimit": "100/request"}, should be returned
-    as, {"instanceLimitPerRequest": "100"}, if the client exceeds the number
-    of instances that can be created in a single (batch) request.
+    r"""Additional structured details about this error. Keys must match a
+    regular expression of `a-z+` but should ideally be lowerCamelCase. Also,
+    they must be limited to 64 characters in length. When identifying the
+    current value of an exceeded limit, the units should be contained in the
+    key, not the value. For example, rather than `{"instanceLimit":
+    "100/request"}`, should be returned as, `{"instanceLimitPerRequest":
+    "100"}`, if the client exceeds the number of instances that can be created
+    in a single (batch) request.
 
     Messages:
       AdditionalProperty: An additional property for a MetadataValue object.
@@ -973,6 +1115,9 @@ class Group(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -985,6 +1130,7 @@ class Group(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1052,14 +1198,14 @@ class Hub(_messages.Message):
 
   Fields:
     createTime: Output only. The time the hub was created.
-    description: An optional description of the hub.
+    description: Optional. An optional description of the hub.
     exchangePupi: Optional. Whether Privately Used Public IP (PUPI) exchange
       is enabled for the hub. If true, PUPI exchange will be allowed in VPC
       spokes attached to the hub. The default value is false.
-    exportPsc: Optional. Whether Private Service Connect transitivity is
-      enabled for the hub. If true, Private Service Connect endpoints in VPC
-      spokes attached to the hub are made accessible to other VPC spokes
-      attached to the hub. The default value is false.
+    exportPsc: Optional. Whether Private Service Connect connection
+      propagation is enabled for the hub. If true, Private Service Connect
+      endpoints in VPC spokes attached to the hub are made accessible to other
+      VPC spokes attached to the hub. The default value is false.
     labels: Optional labels in key-value pair format. For more information
       about labels, see [Requirements for
       labels](https://cloud.google.com/resource-manager/docs/creating-
@@ -1081,9 +1227,10 @@ class Hub(_messages.Message):
       /{hub_id}/routeTables/{route_table_id}` This field is read-only. Network
       Connectivity Center automatically populates it based on the route tables
       nested under the hub.
-    routingVpcs: The VPC networks associated with this hub's spokes. This
-      field is read-only. Network Connectivity Center automatically populates
-      it based on the set of spokes attached to the hub.
+    routingVpcs: Output only. The VPC networks associated with this hub's
+      spokes. This field is read-only. Network Connectivity Center
+      automatically populates it based on the set of spokes attached to the
+      hub.
     spokeSummary: Output only. A summary of the spokes associated with a hub.
       The summary includes a count of spokes according to type and according
       to state. If any spokes are inactive, the summary also lists the reasons
@@ -1147,6 +1294,9 @@ class Hub(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -1159,6 +1309,7 @@ class Hub(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1203,13 +1354,16 @@ class Hub(_messages.Message):
 
 
 class HubStatusEntry(_messages.Message):
-  r"""The hub status entry.
+  r"""A hub status entry represents the status of a set of propagated Private
+  Service Connect connections grouped by certain fields.
 
   Fields:
-    count: The number of status. If group_by is not set in the request, the
-      default is 1.
-    groupBy: The same group_by field from the request.
-    pscPropagationStatus: The PSC propagation status.
+    count: The number of propagated Private Service Connect connections with
+      this status. If the `group_by` field was not set in the request message,
+      the value of this field is 1.
+    groupBy: The fields that this entry is grouped by. This has the same value
+      as the `group_by` field in the request message.
+    pscPropagationStatus: The Private Service Connect propagation status.
   """
 
   count = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -1232,55 +1386,64 @@ class InterconnectAttachment(_messages.Message):
 class InternalRange(_messages.Message):
   r"""The internal range resource for IPAM operations within a VPC network.
   Used to represent a private address range along with behavioral
-  characterstics of that range (its usage and peering behavior). Networking
+  characteristics of that range (its usage and peering behavior). Networking
   resources can link to this range if they are created as belonging to it.
 
   Enums:
     OverlapsValueListEntryValuesEnum:
-    PeeringValueValuesEnum: The type of peering set for this internal range.
-    UsageValueValuesEnum: The type of usage set for this InternalRange.
+    PeeringValueValuesEnum: Optional. The type of peering set for this
+      internal range.
+    UsageValueValuesEnum: Optional. The type of usage set for this
+      InternalRange.
 
   Messages:
     LabelsValue: User-defined labels.
 
   Fields:
+    allocationOptions: Optional. Range auto-allocation options, may be set
+      only when auto-allocation is selected by not setting ip_cidr_range (and
+      setting prefix_length).
     createTime: Time when the internal range was created.
-    description: A description of this resource.
+    description: Optional. A description of this resource.
+    excludeCidrRanges: Optional. ExcludeCidrRanges flag. Specifies a set of
+      CIDR blocks that allows exclusion of particular CIDR ranges from the
+      auto-allocation process, without having to reserve these blocks
     immutable: Optional. Immutable ranges cannot have their fields modified,
       except for labels and description.
-    ipCidrRange: The IP range that this internal range defines. NOTE: IPv6
-      ranges are limited to usage=EXTERNAL_TO_VPC and peering=FOR_SELF. NOTE:
-      For IPv6 Ranges this field is compulsory, i.e. the address range must be
-      specified explicitly.
+    ipCidrRange: Optional. The IP range that this internal range defines.
+      NOTE: IPv6 ranges are limited to usage=EXTERNAL_TO_VPC and
+      peering=FOR_SELF. NOTE: For IPv6 Ranges this field is compulsory, i.e.
+      the address range must be specified explicitly.
     labels: User-defined labels.
     migration: Optional. Must be present if usage is set to FOR_MIGRATION.
-      This field is for internal use.
-    name: Immutable. The name of an internal range. Format:
+    name: Identifier. The name of an internal range. Format:
       projects/{project}/locations/{location}/internalRanges/{internal_range}
       See: https://google.aip.dev/122#fields-representing-resource-names
-    network: The URL or resource ID of the network in which to reserve the
-      internal range. The network cannot be deleted if there are any reserved
-      internal ranges referring to it. Legacy networks are not supported. For
-      example: https://www.googleapis.com/compute/v1/projects/{project}/locati
-      ons/global/networks/{network}
+    network: Immutable. The URL or resource ID of the network in which to
+      reserve the internal range. The network cannot be deleted if there are
+      any reserved internal ranges referring to it. Legacy networks are not
+      supported. For example: https://www.googleapis.com/compute/v1/projects/{
+      project}/locations/global/networks/{network}
       projects/{project}/locations/global/networks/{network} {network}
     overlaps: Optional. Types of resources that are allowed to overlap with
       the current internal range.
-    peering: The type of peering set for this internal range.
-    prefixLength: An alternate to ip_cidr_range. Can be set when trying to
-      create an IPv4 reservation that automatically finds a free range of the
-      given size. If both ip_cidr_range and prefix_length are set, there is an
-      error if the range sizes do not match. Can also be used during updates
-      to change the range size. NOTE: For IPv6 this field only works if
-      ip_cidr_range is set as well, and both fields must match. In other
-      words, with IPv6 this field only works as a redundant parameter.
+    peering: Optional. The type of peering set for this internal range.
+    prefixLength: Optional. An alternate to ip_cidr_range. Can be set when
+      trying to create an IPv4 reservation that automatically finds a free
+      range of the given size. If both ip_cidr_range and prefix_length are
+      set, there is an error if the range sizes do not match. Can also be used
+      during updates to change the range size. NOTE: For IPv6 this field only
+      works if ip_cidr_range is set as well, and both fields must match. In
+      other words, with IPv6 this field only works as a redundant parameter.
     targetCidrRange: Optional. Can be set to narrow down or pick a different
       address space while searching for a free range. If not set, defaults to
-      the "10.0.0.0/8" address space. This can be used to search in other
-      rfc-1918 address spaces like "172.16.0.0/12" and "192.168.0.0/16" or
-      non-rfc-1918 address spaces used in the VPC.
+      the ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"] address space (for
+      auto-mode networks, the "10.0.0.0/9" range is used instead of
+      "10.0.0.0/8"). This can be used to target the search in other rfc-1918
+      address spaces like "172.16.0.0/12" and "192.168.0.0/16" or non-rfc-1918
+      address spaces used in the VPC.
     updateTime: Time when the internal range was updated.
-    usage: The type of usage set for this InternalRange.
+    usage: Optional. The type of usage set for this InternalRange.
     users: Output only. The list of resources that refer to this internal
       range. Resources that use the internal range for their range allocation
       are referred to as users of the range. Other resources mark themselves
@@ -1304,7 +1467,7 @@ class InternalRange(_messages.Message):
     OVERLAP_EXISTING_SUBNET_RANGE = 2
 
   class PeeringValueValuesEnum(_messages.Enum):
-    r"""The type of peering set for this internal range.
+    r"""Optional. The type of peering set for this internal range.
 
     Values:
       PEERING_UNSPECIFIED: If Peering is left unspecified in
@@ -1334,7 +1497,7 @@ class InternalRange(_messages.Message):
     NOT_SHARED = 3
 
   class UsageValueValuesEnum(_messages.Enum):
-    r"""The type of usage set for this InternalRange.
+    r"""Optional. The type of usage set for this InternalRange.
 
     Values:
       USAGE_UNSPECIFIED: Unspecified usage is allowed in calls which identify
@@ -1351,7 +1514,7 @@ class InternalRange(_messages.Message):
       FOR_MIGRATION: Ranges created FOR_MIGRATION can be used to lock a CIDR
         range between a source and target subnet. If usage is set to
         FOR_MIGRATION, the peering value has to be set to FOR_SELF or default
-        to FOR_SELF when unset. This value is for internal use.
+        to FOR_SELF when unset.
     """
     USAGE_UNSPECIFIED = 0
     FOR_VPC = 1
@@ -1382,55 +1545,23 @@ class InternalRange(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  createTime = _messages.StringField(1)
-  description = _messages.StringField(2)
-  immutable = _messages.BooleanField(3)
-  ipCidrRange = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  migration = _messages.MessageField('Migration', 6)
-  name = _messages.StringField(7)
-  network = _messages.StringField(8)
-  overlaps = _messages.EnumField('OverlapsValueListEntryValuesEnum', 9, repeated=True)
-  peering = _messages.EnumField('PeeringValueValuesEnum', 10)
-  prefixLength = _messages.IntegerField(11, variant=_messages.Variant.INT32)
-  targetCidrRange = _messages.StringField(12, repeated=True)
-  updateTime = _messages.StringField(13)
-  usage = _messages.EnumField('UsageValueValuesEnum', 14)
-  users = _messages.StringField(15, repeated=True)
-
-
-class IpRangeReservation(_messages.Message):
-  r"""A list of IP ranges that are reserved for this gateway's internal
-  intfrastructure.
-
-  Fields:
-    ipRange: Required. A block of IP addresses used to allocate supporting
-      infrastructure for this gateway. This block must not overlap with
-      subnets in any spokes or peer VPC networks that the gateway can
-      communicate with. Example: "10.1.2.0/24"
-  """
-
-  ipRange = _messages.StringField(1)
-
-
-class LandingNetwork(_messages.Message):
-  r"""Information about the landing network connected to this gateway.
-
-  Fields:
-    network: Optional. A VPC network containing Interconnect VLAN attachments.
-      We will initiate peering to this network; you probably want to
-      reciprocate by peering `network` with `peer_network`.
-    peerNetwork: Optional. We'll initiate peering to `landing_network_uri`
-      from this VPC network. You should reciprocate peering to this network.
-    targetIp: Optional. To egress traffic to the Internet, you should create a
-      static route in the landing network that directs traffic toward this IP
-      address. We will pass traffic through any services attached to this
-      gateway en route to or from the Internet.
-  """
-
-  network = _messages.StringField(1)
-  peerNetwork = _messages.StringField(2)
-  targetIp = _messages.StringField(3)
+  allocationOptions = _messages.MessageField('AllocationOptions', 1)
+  createTime = _messages.StringField(2)
+  description = _messages.StringField(3)
+  excludeCidrRanges = _messages.StringField(4, repeated=True)
+  immutable = _messages.BooleanField(5)
+  ipCidrRange = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  migration = _messages.MessageField('Migration', 8)
+  name = _messages.StringField(9)
+  network = _messages.StringField(10)
+  overlaps = _messages.EnumField('OverlapsValueListEntryValuesEnum', 11, repeated=True)
+  peering = _messages.EnumField('PeeringValueValuesEnum', 12)
+  prefixLength = _messages.IntegerField(13, variant=_messages.Variant.INT32)
+  targetCidrRange = _messages.StringField(14, repeated=True)
+  updateTime = _messages.StringField(15)
+  usage = _messages.EnumField('UsageValueValuesEnum', 16)
+  users = _messages.StringField(17, repeated=True)
 
 
 class LinkedInterconnectAttachments(_messages.Message):
@@ -1440,9 +1571,14 @@ class LinkedInterconnectAttachments(_messages.Message):
   capable of advertising the same prefixes.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
       in [supported locations](https://cloud.google.com/network-
@@ -1452,10 +1588,13 @@ class LinkedInterconnectAttachments(_messages.Message):
       located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(2)
-  uris = _messages.StringField(3, repeated=True)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(5)
+  uris = _messages.StringField(6, repeated=True)
+  vpcNetwork = _messages.StringField(7)
 
 
 class LinkedProducerVpcNetwork(_messages.Message):
@@ -1472,6 +1611,10 @@ class LinkedProducerVpcNetwork(_messages.Message):
       Consumer VPC and the Producer VPC (defined in the Tenant project) which
       is added to the NCC hub. This peering must be in ACTIVE state.
     producerNetwork: Output only. The URI of the Producer VPC.
+    proposedExcludeExportRanges: Output only. The proposed exclude export IP
+      ranges waiting for hub administration's approval.
+    proposedIncludeExportRanges: Output only. The proposed include export IP
+      ranges waiting for hub administration's approval.
     serviceConsumerVpcSpoke: Output only. The Service Consumer Network spoke.
   """
 
@@ -1480,7 +1623,9 @@ class LinkedProducerVpcNetwork(_messages.Message):
   network = _messages.StringField(3)
   peering = _messages.StringField(4)
   producerNetwork = _messages.StringField(5)
-  serviceConsumerVpcSpoke = _messages.StringField(6)
+  proposedExcludeExportRanges = _messages.StringField(6, repeated=True)
+  proposedIncludeExportRanges = _messages.StringField(7, repeated=True)
+  serviceConsumerVpcSpoke = _messages.StringField(8)
 
 
 class LinkedRouterApplianceInstances(_messages.Message):
@@ -1490,9 +1635,14 @@ class LinkedRouterApplianceInstances(_messages.Message):
   with the same spoke.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     instances: The list of router appliance instances.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
@@ -1502,10 +1652,13 @@ class LinkedRouterApplianceInstances(_messages.Message):
       instances are located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  instances = _messages.MessageField('RouterApplianceInstance', 2, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(3)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  instances = _messages.MessageField('RouterApplianceInstance', 5, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(6)
+  vpcNetwork = _messages.StringField(7)
 
 
 class LinkedVpcNetwork(_messages.Message):
@@ -1519,13 +1672,23 @@ class LinkedVpcNetwork(_messages.Message):
     producerVpcSpokes: Output only. The list of Producer VPC spokes that this
       VPC spoke is a service consumer VPC spoke for. These producer VPCs are
       connected through VPC peering to this spoke's backing VPC network.
+      Because they are directly connected through VPC peering, NCC export
+      filters do not apply between the service consumer VPC spoke and any of
+      its producer VPC spokes. This VPC spoke cannot be deleted as long as any
+      of these producer VPC spokes are connected to the NCC Hub.
+    proposedExcludeExportRanges: Output only. The proposed exclude export IP
+      ranges waiting for hub administration's approval.
+    proposedIncludeExportRanges: Output only. The proposed include export IP
+      ranges waiting for hub administration's approval.
     uri: Required. The URI of the VPC network resource.
   """
 
   excludeExportRanges = _messages.StringField(1, repeated=True)
   includeExportRanges = _messages.StringField(2, repeated=True)
   producerVpcSpokes = _messages.StringField(3, repeated=True)
-  uri = _messages.StringField(4)
+  proposedExcludeExportRanges = _messages.StringField(4, repeated=True)
+  proposedIncludeExportRanges = _messages.StringField(5, repeated=True)
+  uri = _messages.StringField(6)
 
 
 class LinkedVpnTunnels(_messages.Message):
@@ -1535,9 +1698,14 @@ class LinkedVpnTunnels(_messages.Message):
   be capable of advertising the same prefixes.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
       in [supported locations](https://cloud.google.com/network-
@@ -1547,10 +1715,27 @@ class LinkedVpnTunnels(_messages.Message):
       located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(2)
-  uris = _messages.StringField(3, repeated=True)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(5)
+  uris = _messages.StringField(6, repeated=True)
+  vpcNetwork = _messages.StringField(7)
+
+
+class ListDestinationsResponse(_messages.Message):
+  r"""Response message to list `Destination` resources.
+
+  Fields:
+    destinations: The list of `Destination` resources to be listed.
+    nextPageToken: The next page token.
+    unreachable: Locations that could not be reached.
+  """
+
+  destinations = _messages.MessageField('Destination', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListGroupsResponse(_messages.Message):
@@ -1628,6 +1813,34 @@ class ListLocationsResponse(_messages.Message):
   """
 
   locations = _messages.MessageField('Location', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class ListMulticloudDataTransferConfigsResponse(_messages.Message):
+  r"""Response message to list `MulticloudDataTransferConfig` resources.
+
+  Fields:
+    multicloudDataTransferConfigs: The list of `MulticloudDataTransferConfig`
+      resources to be listed.
+    nextPageToken: The next page token.
+    unreachable: Locations that could not be reached.
+  """
+
+  multicloudDataTransferConfigs = _messages.MessageField('MulticloudDataTransferConfig', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListMulticloudDataTransferSupportedServicesResponse(_messages.Message):
+  r"""Response message to list the services in your project in regions that
+  are eligible for Data Transfer Essentials configuration.
+
+  Fields:
+    multicloudDataTransferSupportedServices: The list of supported services.
+    nextPageToken: The next page token.
+  """
+
+  multicloudDataTransferSupportedServices = _messages.MessageField('MulticloudDataTransferSupportedService', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
 
 
@@ -1894,12 +2107,137 @@ class Migration(_messages.Message):
       /projects/{project}/regions/{region}/subnetworks/{subnet}
     target: Immutable. Resource path of the target resource. The target
       project can be different, as in the cases when migrating to peer
-      networks. The resource For example:
+      networks. For example:
       /projects/{project}/regions/{region}/subnetworks/{subnet}
   """
 
   source = _messages.StringField(1)
   target = _messages.StringField(2)
+
+
+class MulticloudDataTransferConfig(_messages.Message):
+  r"""The `MulticloudDataTransferConfig` resource. It lists the services that
+  you configure for Data Transfer Essentials billing and metering.
+
+  Messages:
+    LabelsValue: Optional. User-defined labels.
+    ServicesValue: Optional. Maps services to their current or planned states.
+      Service names are keys, and the associated values describe the state of
+      the service. If a state change is expected, the value is either `ADDING`
+      or `DELETING`, depending on the actions taken. Sample output:
+      "services": { "big-query": { "states": [ { "effectiveTime":
+      "2024-12-12T08:00:00Z" "state": "ADDING", }, ] }, "cloud-storage": {
+      "states": [ { "state": "ACTIVE", } ] } }
+
+  Fields:
+    createTime: Output only. Time when the `MulticloudDataTransferConfig`
+      resource was created.
+    description: Optional. A description of this resource.
+    destinationsActiveCount: Output only. The number of `Destination`
+      resources in use with the `MulticloudDataTransferConfig` resource.
+    destinationsCount: Output only. The number of `Destination` resources
+      configured for the `MulticloudDataTransferConfig` resource.
+    etag: The etag is computed by the server, and might be sent with update
+      and delete requests so that the client has an up-to-date value before
+      proceeding.
+    labels: Optional. User-defined labels.
+    name: Identifier. The name of the `MulticloudDataTransferConfig` resource.
+      Format: `projects/{project}/locations/{location}/multicloudDataTransferC
+      onfigs/{multicloud_data_transfer_config}`.
+    services: Optional. Maps services to their current or planned states.
+      Service names are keys, and the associated values describe the state of
+      the service. If a state change is expected, the value is either `ADDING`
+      or `DELETING`, depending on the actions taken. Sample output:
+      "services": { "big-query": { "states": [ { "effectiveTime":
+      "2024-12-12T08:00:00Z" "state": "ADDING", }, ] }, "cloud-storage": {
+      "states": [ { "state": "ACTIVE", } ] } }
+    uid: Output only. The Google-generated unique ID for the
+      `MulticloudDataTransferConfig` resource. This value is unique across all
+      `MulticloudDataTransferConfig` resources. If a resource is deleted and
+      another with the same name is created, the new resource is assigned a
+      different and unique ID.
+    updateTime: Output only. Time when the `MulticloudDataTransferConfig`
+      resource was updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. User-defined labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ServicesValue(_messages.Message):
+    r"""Optional. Maps services to their current or planned states. Service
+    names are keys, and the associated values describe the state of the
+    service. If a state change is expected, the value is either `ADDING` or
+    `DELETING`, depending on the actions taken. Sample output: "services": {
+    "big-query": { "states": [ { "effectiveTime": "2024-12-12T08:00:00Z"
+    "state": "ADDING", }, ] }, "cloud-storage": { "states": [ { "state":
+    "ACTIVE", } ] } }
+
+    Messages:
+      AdditionalProperty: An additional property for a ServicesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ServicesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ServicesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A StateTimeline attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('StateTimeline', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  destinationsActiveCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  destinationsCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  etag = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  services = _messages.MessageField('ServicesValue', 8)
+  uid = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
+
+
+class MulticloudDataTransferSupportedService(_messages.Message):
+  r"""A service in your project in a region that is eligible for Data Transfer
+  Essentials configuration.
+
+  Fields:
+    name: Identifier. The name of the service.
+    serviceConfigs: Output only. The network service tier or regional endpoint
+      supported for the service.
+  """
+
+  name = _messages.StringField(1)
+  serviceConfigs = _messages.MessageField('ServiceConfig', 2, repeated=True)
 
 
 class NetworkconnectivityProjectsLocationsGetRequest(_messages.Message):
@@ -1923,6 +2261,20 @@ class NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeRequest(_messages
   """
 
   acceptHubSpokeRequest = _messages.MessageField('AcceptHubSpokeRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest
+  object.
+
+  Fields:
+    acceptSpokeUpdateRequest: A AcceptSpokeUpdateRequest resource to be passed
+      as the request body.
+    name: Required. The name of the hub to accept spoke update.
+  """
+
+  acceptSpokeUpdateRequest = _messages.MessageField('AcceptSpokeUpdateRequest', 1)
   name = _messages.StringField(2, required=True)
 
 
@@ -2248,26 +2600,27 @@ class NetworkconnectivityProjectsLocationsGlobalHubsQueryStatusRequest(_messages
   Fields:
     filter: Optional. An expression that filters the list of results. The
       filter can be used to filter the results by the following fields: *
-      psc_propagation_status.source_spoke *
-      psc_propagation_status.source_group *
-      psc_propagation_status.source_forwarding_rule *
-      psc_propagation_status.target_spoke *
-      psc_propagation_status.target_group * psc_propagation_status.code *
-      psc_propagation_status.message
-    groupBy: Optional. A field that counts are grouped by. A comma-separated
-      list of any of these fields: * psc_propagation_status.source_spoke *
-      psc_propagation_status.source_group *
-      psc_propagation_status.source_forwarding_rule *
-      psc_propagation_status.target_spoke *
-      psc_propagation_status.target_group * psc_propagation_status.code
+      `psc_propagation_status.source_spoke` *
+      `psc_propagation_status.source_group` *
+      `psc_propagation_status.source_forwarding_rule` *
+      `psc_propagation_status.target_spoke` *
+      `psc_propagation_status.target_group` * `psc_propagation_status.code` *
+      `psc_propagation_status.message`
+    groupBy: Optional. Aggregate the results by the specified fields. A comma-
+      separated list of any of these fields: *
+      `psc_propagation_status.source_spoke` *
+      `psc_propagation_status.source_group` *
+      `psc_propagation_status.source_forwarding_rule` *
+      `psc_propagation_status.target_spoke` *
+      `psc_propagation_status.target_group` * `psc_propagation_status.code`
     name: Required. The name of the hub.
-    orderBy: Optional. Sort the results in the ascending order by specific
-      fields returned in the response. A comma-separated list of any of these
-      fields: * psc_propagation_status.source_spoke *
-      psc_propagation_status.source_group *
-      psc_propagation_status.source_forwarding_rule *
-      psc_propagation_status.target_spoke *
-      psc_propagation_status.target_group * psc_propagation_status.code If
+    orderBy: Optional. Sort the results in ascending order by the specified
+      fields. A comma-separated list of any of these fields: *
+      `psc_propagation_status.source_spoke` *
+      `psc_propagation_status.source_group` *
+      `psc_propagation_status.source_forwarding_rule` *
+      `psc_propagation_status.target_spoke` *
+      `psc_propagation_status.target_group` * `psc_propagation_status.code` If
       `group_by` is set, the value of the `order_by` field must be the same as
       or a subset of the `group_by` field.
     pageSize: Optional. The maximum number of results to return per page.
@@ -2294,6 +2647,20 @@ class NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeRequest(_messages
 
   name = _messages.StringField(1, required=True)
   rejectHubSpokeRequest = _messages.MessageField('RejectHubSpokeRequest', 2)
+
+
+class NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest
+  object.
+
+  Fields:
+    name: Required. The name of the hub to reject spoke update.
+    rejectSpokeUpdateRequest: A RejectSpokeUpdateRequest resource to be passed
+      as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  rejectSpokeUpdateRequest = _messages.MessageField('RejectSpokeUpdateRequest', 2)
 
 
 class NetworkconnectivityProjectsLocationsGlobalHubsRouteTablesGetRequest(_messages.Message):
@@ -2403,7 +2770,13 @@ class NetworkconnectivityProjectsLocationsGlobalPolicyBasedRoutesCreateRequest(_
     policyBasedRoute: A PolicyBasedRoute resource to be passed as the request
       body.
     policyBasedRouteId: Required. Unique id for the policy-based route to
-      create.
+      create. Provided by the client when the resource is created. The name
+      must comply with https://google.aip.dev/122#resource-id-segments.
+      Specifically, the name must be 1-63 characters long and match the
+      regular expression [a-z]([a-z0-9-]*[a-z0-9])?. The first character must
+      be a lowercase letter, and all following characters (except for the last
+      character) must be a dash, lowercase letter, or digit. The last
+      character must be a lowercase letter or digit.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       knows to ignore the request if it has already been completed. The server
@@ -2591,6 +2964,33 @@ class NetworkconnectivityProjectsLocationsInternalRangesDeleteRequest(_messages.
   requestId = _messages.StringField(2)
 
 
+class NetworkconnectivityProjectsLocationsInternalRangesGetIamPolicyRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsInternalRangesGetIamPolicyRequest
+  object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
+
+
 class NetworkconnectivityProjectsLocationsInternalRangesGetRequest(_messages.Message):
   r"""A NetworkconnectivityProjectsLocationsInternalRangesGetRequest object.
 
@@ -2625,7 +3025,7 @@ class NetworkconnectivityProjectsLocationsInternalRangesPatchRequest(_messages.M
 
   Fields:
     internalRange: A InternalRange resource to be passed as the request body.
-    name: Immutable. The name of an internal range. Format:
+    name: Identifier. The name of an internal range. Format:
       projects/{project}/locations/{location}/internalRanges/{internal_range}
       See: https://google.aip.dev/122#fields-representing-resource-names
     requestId: Optional. An optional request ID to identify requests. Specify
@@ -2652,10 +3052,48 @@ class NetworkconnectivityProjectsLocationsInternalRangesPatchRequest(_messages.M
   updateMask = _messages.StringField(4)
 
 
+class NetworkconnectivityProjectsLocationsInternalRangesSetIamPolicyRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsInternalRangesSetIamPolicyRequest
+  object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
+      request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+
+
+class NetworkconnectivityProjectsLocationsInternalRangesTestIamPermissionsRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsInternalRangesTestIamPermissionsRequest
+  object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy detail is being
+      requested. See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
+      passed as the request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
+
+
 class NetworkconnectivityProjectsLocationsListRequest(_messages.Message):
   r"""A NetworkconnectivityProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -2666,10 +3104,286 @@ class NetworkconnectivityProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsCreateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsCreat
+  eRequest object.
+
+  Fields:
+    multicloudDataTransferConfig: A MulticloudDataTransferConfig resource to
+      be passed as the request body.
+    multicloudDataTransferConfigId: Required. The ID to use for the
+      `MulticloudDataTransferConfig` resource, which becomes the final
+      component of the `MulticloudDataTransferConfig` resource name.
+    parent: Required. The name of the parent resource.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  multicloudDataTransferConfig = _messages.MessageField('MulticloudDataTransferConfig', 1)
+  multicloudDataTransferConfigId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDeleteRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDelet
+  eRequest object.
+
+  Fields:
+    etag: Optional. The etag is computed by the server, and might be sent with
+      update and delete requests so that the client has an up-to-date value
+      before proceeding.
+    name: Required. The name of the `MulticloudDataTransferConfig` resource to
+      delete.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  etag = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsCreateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsCreateRequest object.
+
+  Fields:
+    destination: A Destination resource to be passed as the request body.
+    destinationId: Required. The ID to use for the `Destination` resource,
+      which becomes the final component of the `Destination` resource name.
+    parent: Required. The name of the parent resource.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `Destination` resources. The request ID
+      must be a valid UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  destination = _messages.MessageField('Destination', 1)
+  destinationId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsDeleteRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsDeleteRequest object.
+
+  Fields:
+    etag: Optional. The etag is computed by the server, and might be sent with
+      update and delete requests so that the client has an up-to-date value
+      before proceeding.
+    name: Required. The name of the `Destination` resource to delete.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. The request ID must be a valid
+      UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  etag = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsGetRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsGetRequest object.
+
+  Fields:
+    name: Required. The name of the `Destination` resource to get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsListRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsListRequest object.
+
+  Fields:
+    filter: Optional. An expression that filters the results listed in the
+      response.
+    orderBy: Optional. The sort order of the results.
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+    returnPartialSuccess: Optional. If `true`, allow partial responses for
+      multi-regional aggregated list requests.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsPatchRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsPatchRequest object.
+
+  Fields:
+    destination: A Destination resource to be passed as the request body.
+    name: Identifier. The name of the `Destination` resource. Format: `project
+      s/{project}/locations/{location}/multicloudDataTransferConfigs/{multiclo
+      ud_data_transfer_config}/destinations/{destination}`.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. The request ID must be a valid
+      UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+    updateMask: Optional. `FieldMask is used to specify the fields to be
+      overwritten in the `Destination` resource by the update. The fields
+      specified in `update_mask` are relative to the resource, not the full
+      request. A field is overwritten if it is in the mask. If you don't
+      specify a mask, all fields are overwritten.
+  """
+
+  destination = _messages.MessageField('Destination', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsGetRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsGetRequest
+  object.
+
+  Fields:
+    name: Required. The name of the `MulticloudDataTransferConfig` resource to
+      get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsListRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsListRequest
+  object.
+
+  Fields:
+    filter: Optional. An expression that filters the results listed in the
+      response.
+    orderBy: Optional. The sort order of the results.
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+    returnPartialSuccess: Optional. If `true`, allows partial responses for
+      multi-regional aggregated list requests.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsPatchRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsPatch
+  Request object.
+
+  Fields:
+    multicloudDataTransferConfig: A MulticloudDataTransferConfig resource to
+      be passed as the request body.
+    name: Identifier. The name of the `MulticloudDataTransferConfig` resource.
+      Format: `projects/{project}/locations/{location}/multicloudDataTransferC
+      onfigs/{multicloud_data_transfer_config}`.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+    updateMask: Optional. `FieldMask` is used to specify the fields in the
+      `MulticloudDataTransferConfig` resource to be overwritten by the update.
+      The fields specified in `update_mask` are relative to the resource, not
+      the full request. A field is overwritten if it is in the mask. If you
+      don't specify a mask, all fields are overwritten.
+  """
+
+  multicloudDataTransferConfig = _messages.MessageField('MulticloudDataTransferConfig', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedServicesGetRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedSer
+  vicesGetRequest object.
+
+  Fields:
+    name: Required. The name of the service.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedServicesListRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedSer
+  vicesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
 
 
 class NetworkconnectivityProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -2731,7 +3445,7 @@ class NetworkconnectivityProjectsLocationsRegionalEndpointsCreateRequest(_messag
     regionalEndpoint: A RegionalEndpoint resource to be passed as the request
       body.
     regionalEndpointId: Required. Unique id of the Regional Endpoint to be
-      created.
+      created. @pattern: ^[-a-z0-9](?:[-a-z0-9]{0,44})[a-z0-9]$
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       knows to ignore the request if it has already been completed. The server
@@ -3694,6 +4408,24 @@ class NextHopRouterApplianceInstance(_messages.Message):
   vpcNetwork = _messages.StringField(3)
 
 
+class NextHopSpoke(_messages.Message):
+  r"""A route next hop that leads to a spoke resource.
+
+  Fields:
+    siteToSiteDataTransfer: Indicates whether site-to-site data transfer is
+      allowed for this spoke resource. Data transfer is available only in
+      [supported locations](https://cloud.google.com/network-
+      connectivity/docs/network-connectivity-center/concepts/locations).
+      Whether this route is accessible to other hybrid spokes with site-to-
+      site data transfer enabled. If this is false, the route is only
+      accessible to VPC spokes of the connected Hub.
+    uri: The URI of the spoke resource.
+  """
+
+  siteToSiteDataTransfer = _messages.BooleanField(1)
+  uri = _messages.StringField(2)
+
+
 class NextHopVPNTunnel(_messages.Message):
   r"""A route next hop that leads to a VPN tunnel resource.
 
@@ -3946,7 +4678,7 @@ class PscConfig(_messages.Message):
   Infrastructure is PSC.
 
   Enums:
-    ProducerInstanceLocationValueValuesEnum: Required.
+    ProducerInstanceLocationValueValuesEnum: Optional.
       ProducerInstanceLocation is used to specify which authorization
       mechanism to use to determine which projects the Producer instance can
       be within.
@@ -3967,7 +4699,7 @@ class PscConfig(_messages.Message):
       'folders/' or 'organizations/' Eg. [projects/my-project-id,
       projects/567, folders/891, organizations/123]
     limit: Optional. Max number of PSC connections for this policy.
-    producerInstanceLocation: Required. ProducerInstanceLocation is used to
+    producerInstanceLocation: Optional. ProducerInstanceLocation is used to
       specify which authorization mechanism to use to determine which projects
       the Producer instance can be within.
     subnetworks: The resource paths of subnetworks to use for IP address
@@ -3976,7 +4708,7 @@ class PscConfig(_messages.Message):
   """
 
   class ProducerInstanceLocationValueValuesEnum(_messages.Enum):
-    r"""Required. ProducerInstanceLocation is used to specify which
+    r"""Optional. ProducerInstanceLocation is used to specify which
     authorization mechanism to use to determine which projects the Producer
     instance can be within.
 
@@ -4135,15 +4867,16 @@ class PscConnection(_messages.Message):
 
 
 class PscPropagationStatus(_messages.Message):
-  r"""The PSC propagation status in a hub.
+  r"""The status of one or more propagated Private Service Connect connections
+  in a hub.
 
   Enums:
     CodeValueValuesEnum: The propagation status.
 
   Fields:
     code: The propagation status.
-    message: The human-readable summary of the PSC connection propagation
-      status.
+    message: The human-readable summary of the Private Service Connect
+      connection propagation status.
     sourceForwardingRule: The name of the forwarding rule exported to the hub.
     sourceGroup: The name of the group that the source spoke belongs to.
     sourceSpoke: The name of the spoke that the source forwarding rule belongs
@@ -4158,22 +4891,27 @@ class PscPropagationStatus(_messages.Message):
 
     Values:
       CODE_UNSPECIFIED: The code is unspecified.
-      READY: The propagated PSC connection is ready.
-      PROPAGATING: PSC connection is propagating. This is a transient state.
-      ERROR_PRODUCER_PROPAGATED_CONNECTION_LIMIT_EXCEEDED: The PSC connection
-        propagation failed because the VPC network or the project of the
-        target spoke has exceeded the connection limit set by the producer.
-      ERROR_PRODUCER_NAT_IP_SPACE_EXHAUSTED: The PSC connection propagation
-        failed because the NAT IP subnet space has been exhausted. It is
-        equivalent to the `Needs attention` status of the PSC connection. See
+      READY: The propagated Private Service Connect connection is ready.
+      PROPAGATING: The Private Service Connect connection is propagating. This
+        is a transient state.
+      ERROR_PRODUCER_PROPAGATED_CONNECTION_LIMIT_EXCEEDED: The Private Service
+        Connect connection propagation failed because the VPC network or the
+        project of the target spoke has exceeded the connection limit set by
+        the producer.
+      ERROR_PRODUCER_NAT_IP_SPACE_EXHAUSTED: The Private Service Connect
+        connection propagation failed because the NAT IP subnet space has been
+        exhausted. It is equivalent to the `Needs attention` status of the
+        Private Service Connect connection. See
         https://cloud.google.com/vpc/docs/about-accessing-vpc-hosted-services-
         endpoints#connection-statuses.
-      ERROR_PRODUCER_QUOTA_EXCEEDED: PSC connection propagation failed because
-        the `PSC_ILB_CONSUMER_FORWARDING_RULES_PER_PRODUCER_NETWORK` quota in
-        the producer VPC network has been exceeded.
-      ERROR_CONSUMER_QUOTA_EXCEEDED: The PSC connection propagation failed
-        because the `PSC_PROPAGATED_CONNECTIONS_PER_VPC_NETWORK` quota in the
-        consumer VPC network has been exceeded.
+      ERROR_PRODUCER_QUOTA_EXCEEDED: The Private Service Connect connection
+        propagation failed because the
+        `PSC_ILB_CONSUMER_FORWARDING_RULES_PER_PRODUCER_NETWORK` quota in the
+        producer VPC network has been exceeded.
+      ERROR_CONSUMER_QUOTA_EXCEEDED: The Private Service Connect connection
+        propagation failed because the
+        `PSC_PROPAGATED_CONNECTIONS_PER_VPC_NETWORK` quota in the consumer VPC
+        network has been exceeded.
     """
     CODE_UNSPECIFIED = 0
     READY = 1
@@ -4233,8 +4971,9 @@ class RegionalEndpoint(_messages.Message):
       created on behalf of the customer. This field is deprecated. Use address
       instead.
     labels: User-defined labels.
-    name: Output only. The name of a RegionalEndpoint. Format: `projects/{proj
-      ect}/locations/{location}/regionalEndpoints/{regional_endpoint}`.
+    name: Output only. The name of a RegionalEndpoint. Pattern: `projects/{pro
+      ject}/locations/{location}/regionalEndpoints/^[-a-z0-9](?:[-a-z0-
+      9]{0,44})[a-z0-9]$`.
     network: The name of the VPC network for this private regional endpoint.
       Format: `projects/{project}/global/networks/{network}`
     pscForwardingRule: Output only. The resource reference of the PSC
@@ -4339,6 +5078,34 @@ class RejectHubSpokeResponse(_messages.Message):
   spoke = _messages.MessageField('Spoke', 1)
 
 
+class RejectSpokeUpdateRequest(_messages.Message):
+  r"""The request for HubService.RejectSpokeUpdate.
+
+  Fields:
+    details: Optional. Additional information provided by the hub
+      administrator.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    spokeEtag: Required. The etag of the spoke to reject update.
+    spokeUri: Required. The URI of the spoke to reject update.
+  """
+
+  details = _messages.StringField(1)
+  requestId = _messages.StringField(2)
+  spokeEtag = _messages.StringField(3)
+  spokeUri = _messages.StringField(4)
+
+
 class Route(_messages.Message):
   r"""A route defines a path from VM instances within a spoke to a specific
   destination resource. Only VPC spokes have routes.
@@ -4373,6 +5140,7 @@ class Route(_messages.Message):
       packets on this route.
     nextHopRouterApplianceInstance: Immutable. The next-hop Router appliance
       instance for packets on this route.
+    nextHopSpoke: Immutable. The next-hop spoke for packets on this route.
     nextHopVpcNetwork: Immutable. The destination VPC network for packets on
       this route.
     nextHopVpnTunnel: Immutable. The next-hop VPN tunnel for packets on this
@@ -4408,6 +5176,9 @@ class Route(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -4420,6 +5191,7 @@ class Route(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   class TypeValueValuesEnum(_messages.Enum):
     r"""Output only. The route's type. Its type is determined by the
@@ -4474,14 +5246,15 @@ class Route(_messages.Message):
   name = _messages.StringField(6)
   nextHopInterconnectAttachment = _messages.MessageField('NextHopInterconnectAttachment', 7)
   nextHopRouterApplianceInstance = _messages.MessageField('NextHopRouterApplianceInstance', 8)
-  nextHopVpcNetwork = _messages.MessageField('NextHopVpcNetwork', 9)
-  nextHopVpnTunnel = _messages.MessageField('NextHopVPNTunnel', 10)
-  priority = _messages.IntegerField(11)
-  spoke = _messages.StringField(12)
-  state = _messages.EnumField('StateValueValuesEnum', 13)
-  type = _messages.EnumField('TypeValueValuesEnum', 14)
-  uid = _messages.StringField(15)
-  updateTime = _messages.StringField(16)
+  nextHopSpoke = _messages.MessageField('NextHopSpoke', 9)
+  nextHopVpcNetwork = _messages.MessageField('NextHopVpcNetwork', 10)
+  nextHopVpnTunnel = _messages.MessageField('NextHopVPNTunnel', 11)
+  priority = _messages.IntegerField(12)
+  spoke = _messages.StringField(13)
+  state = _messages.EnumField('StateValueValuesEnum', 14)
+  type = _messages.EnumField('TypeValueValuesEnum', 15)
+  uid = _messages.StringField(16)
+  updateTime = _messages.StringField(17)
 
 
 class RouteTable(_messages.Message):
@@ -4531,6 +5304,9 @@ class RouteTable(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -4543,6 +5319,7 @@ class RouteTable(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -4667,6 +5444,42 @@ class ServiceClass(_messages.Message):
   updateTime = _messages.StringField(7)
 
 
+class ServiceConfig(_messages.Message):
+  r"""Specifies eligibility information for the service.
+
+  Enums:
+    EligibilityCriteriaValueValuesEnum: Output only. The eligibility criteria
+      for the service.
+
+  Fields:
+    eligibilityCriteria: Output only. The eligibility criteria for the
+      service.
+    supportEndTime: Output only. The end time for eligibility criteria
+      support. If not specified, no planned end time is set.
+  """
+
+  class EligibilityCriteriaValueValuesEnum(_messages.Enum):
+    r"""Output only. The eligibility criteria for the service.
+
+    Values:
+      ELIGIBILITY_CRITERIA_UNSPECIFIED: The service is not eligible for Data
+        Transfer Essentials configuration. This is the default case.
+      NETWORK_SERVICE_TIER_PREMIUM_ONLY: The service is eligible for Data
+        Transfer Essentials configuration only for Premium Tier.
+      NETWORK_SERVICE_TIER_STANDARD_ONLY: The service is eligible for Data
+        Transfer Essentials configuration only for Standard Tier.
+      REQUEST_ENDPOINT_REGIONAL_ENDPOINT_ONLY: The service is eligible for
+        Data Transfer Essentials configuration only for the regional endpoint.
+    """
+    ELIGIBILITY_CRITERIA_UNSPECIFIED = 0
+    NETWORK_SERVICE_TIER_PREMIUM_ONLY = 1
+    NETWORK_SERVICE_TIER_STANDARD_ONLY = 2
+    REQUEST_ENDPOINT_REGIONAL_ENDPOINT_ONLY = 3
+
+  eligibilityCriteria = _messages.EnumField('EligibilityCriteriaValueValuesEnum', 1)
+  supportEndTime = _messages.StringField(2)
+
+
 class ServiceConnectionMap(_messages.Message):
   r"""The ServiceConnectionMap resource.
 
@@ -4700,7 +5513,7 @@ class ServiceConnectionMap(_messages.Message):
     serviceClassUri: Output only. The service class uri this
       ServiceConnectionMap is for.
     token: The token provided by the consumer. This token authenticates that
-      the consumer can create a connecton within the specified project and
+      the consumer can create a connection within the specified project and
       network.
     updateTime: Output only. Time when the ServiceConnectionMap was updated.
   """
@@ -4942,23 +5755,27 @@ class Spoke(_messages.Message):
 
   Fields:
     createTime: Output only. The time the spoke was created.
-    description: An optional description of the spoke.
-    gateway: Optional. This is a gateway that can apply specialized processing
-      to traffic going through it.
+    description: Optional. An optional description of the spoke.
+    etag: Optional. This checksum is computed by the server based on the value
+      of other fields, and may be sent on update and delete requests to ensure
+      the client has an up-to-date value before proceeding.
+    fieldPathsPendingUpdate: Optional. The list of fields waiting for hub
+      administration's approval.
     group: Optional. The name of the group that this spoke is associated with.
     hub: Immutable. The name of the hub that this spoke is attached to.
     labels: Optional labels in key-value pair format. For more information
       about labels, see [Requirements for
       labels](https://cloud.google.com/resource-manager/docs/creating-
       managing-labels#requirements).
-    linkedInterconnectAttachments: VLAN attachments that are associated with
-      the spoke.
+    linkedInterconnectAttachments: Optional. VLAN attachments that are
+      associated with the spoke.
     linkedProducerVpcNetwork: Optional. The linked producer VPC that is
       associated with the spoke.
-    linkedRouterApplianceInstances: Router appliance instances that are
-      associated with the spoke.
+    linkedRouterApplianceInstances: Optional. Router appliance instances that
+      are associated with the spoke.
     linkedVpcNetwork: Optional. VPC network that is associated with the spoke.
-    linkedVpnTunnels: VPN tunnels that are associated with the spoke.
+    linkedVpnTunnels: Optional. VPN tunnels that are associated with the
+      spoke.
     name: Immutable. The name of the spoke. Spoke names must be unique. They
       use the following form:
       `projects/{project_number}/locations/{region}/spokes/{spoke_id}`
@@ -5006,6 +5823,9 @@ class Spoke(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -5018,6 +5838,7 @@ class Spoke(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -5047,21 +5868,22 @@ class Spoke(_messages.Message):
 
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
-  gateway = _messages.MessageField('Gateway', 3)
-  group = _messages.StringField(4)
-  hub = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  linkedInterconnectAttachments = _messages.MessageField('LinkedInterconnectAttachments', 7)
-  linkedProducerVpcNetwork = _messages.MessageField('LinkedProducerVpcNetwork', 8)
-  linkedRouterApplianceInstances = _messages.MessageField('LinkedRouterApplianceInstances', 9)
-  linkedVpcNetwork = _messages.MessageField('LinkedVpcNetwork', 10)
-  linkedVpnTunnels = _messages.MessageField('LinkedVpnTunnels', 11)
-  name = _messages.StringField(12)
-  reasons = _messages.MessageField('StateReason', 13, repeated=True)
-  spokeType = _messages.EnumField('SpokeTypeValueValuesEnum', 14)
-  state = _messages.EnumField('StateValueValuesEnum', 15)
-  uniqueId = _messages.StringField(16)
-  updateTime = _messages.StringField(17)
+  etag = _messages.StringField(3)
+  fieldPathsPendingUpdate = _messages.StringField(4, repeated=True)
+  group = _messages.StringField(5)
+  hub = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  linkedInterconnectAttachments = _messages.MessageField('LinkedInterconnectAttachments', 8)
+  linkedProducerVpcNetwork = _messages.MessageField('LinkedProducerVpcNetwork', 9)
+  linkedRouterApplianceInstances = _messages.MessageField('LinkedRouterApplianceInstances', 10)
+  linkedVpcNetwork = _messages.MessageField('LinkedVpcNetwork', 11)
+  linkedVpnTunnels = _messages.MessageField('LinkedVpnTunnels', 12)
+  name = _messages.StringField(13)
+  reasons = _messages.MessageField('StateReason', 14, repeated=True)
+  spokeType = _messages.EnumField('SpokeTypeValueValuesEnum', 15)
+  state = _messages.EnumField('StateValueValuesEnum', 16)
+  uniqueId = _messages.StringField(17)
+  updateTime = _messages.StringField(18)
 
 
 class SpokeStateCount(_messages.Message):
@@ -5093,6 +5915,9 @@ class SpokeStateCount(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -5105,6 +5930,7 @@ class SpokeStateCount(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   count = _messages.IntegerField(1)
   state = _messages.EnumField('StateValueValuesEnum', 2)
@@ -5270,6 +6096,43 @@ class StandardQueryParameters(_messages.Message):
   upload_protocol = _messages.StringField(12)
 
 
+class StateMetadata(_messages.Message):
+  r"""The state and activation time details of the resource state.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the resource.
+
+  Fields:
+    effectiveTime: Output only. Accompanies only the transient states, which
+      include `ADDING`, `DELETING`, and `SUSPENDING`, to denote the time until
+      which the transient state of the resource will be effective. For
+      instance, if the state is `ADDING`, this field shows the time when the
+      resource state transitions to `ACTIVE`.
+    state: Output only. The state of the resource.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the resource.
+
+    Values:
+      STATE_UNSPECIFIED: An invalid state, which is the default case.
+      ADDING: The resource is being added.
+      ACTIVE: The resource is in use.
+      DELETING: The resource is being deleted.
+      SUSPENDING: The resource is being suspended.
+      SUSPENDED: The resource is suspended and not in use.
+    """
+    STATE_UNSPECIFIED = 0
+    ADDING = 1
+    ACTIVE = 2
+    DELETING = 3
+    SUSPENDING = 4
+    SUSPENDED = 5
+
+  effectiveTime = _messages.StringField(1)
+  state = _messages.EnumField('StateValueValuesEnum', 2)
+
+
 class StateReason(_messages.Message):
   r"""The reason a spoke is inactive.
 
@@ -5311,6 +6174,17 @@ class StateReason(_messages.Message):
   code = _messages.EnumField('CodeValueValuesEnum', 1)
   message = _messages.StringField(2)
   userDetails = _messages.StringField(3)
+
+
+class StateTimeline(_messages.Message):
+  r"""The timeline of the pending states for a resource.
+
+  Fields:
+    states: Output only. The state and activation time details of the resource
+      state.
+  """
+
+  states = _messages.MessageField('StateMetadata', 1, repeated=True)
 
 
 class TestIamPermissionsRequest(_messages.Message):
@@ -5436,6 +6310,8 @@ encoding.AddCustomJsonFieldMapping(
     NetworkconnectivityProjectsLocationsGlobalHubsGroupsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     NetworkconnectivityProjectsLocationsGlobalPolicyBasedRoutesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+encoding.AddCustomJsonFieldMapping(
+    NetworkconnectivityProjectsLocationsInternalRangesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     NetworkconnectivityProjectsLocationsServiceClassesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(

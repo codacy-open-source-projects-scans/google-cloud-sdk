@@ -115,6 +115,29 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  LOCATIONS_WORKFORCEPOOLS_PROVIDERS_SCIMTENANTS = (
+      'locations.workforcePools.providers.scimTenants',
+      '{+name}',
+      {
+          '':
+              'locations/{locationsId}/workforcePools/{workforcePoolsId}/'
+              'providers/{providersId}/scimTenants/{scimTenantsId}',
+      },
+      ['name'],
+      True
+  )
+  LOCATIONS_WORKFORCEPOOLS_PROVIDERS_SCIMTENANTS_TOKENS = (
+      'locations.workforcePools.providers.scimTenants.tokens',
+      '{+name}',
+      {
+          '':
+              'locations/{locationsId}/workforcePools/{workforcePoolsId}/'
+              'providers/{providersId}/scimTenants/{scimTenantsId}/tokens/'
+              '{tokensId}',
+      },
+      ['name'],
+      True
+  )
   LOCATIONS_WORKFORCEPOOLS_SUBJECTS = (
       'locations.workforcePools.subjects',
       'locations/{locationsId}/workforcePools/{workforcePoolsId}/subjects/'
@@ -374,17 +397,6 @@ class Collections(enum.Enum):
       {
           '':
               'projects/{projectsId}/serviceAccounts/{serviceAccountsId}',
-      },
-      ['name'],
-      True
-  )
-  PROJECTS_SERVICEACCOUNTS_IDENTITYBINDINGS = (
-      'projects.serviceAccounts.identityBindings',
-      '{+name}',
-      {
-          '':
-              'projects/{projectsId}/serviceAccounts/{serviceAccountsId}/'
-              'identityBindings/{identityBindingsId}',
       },
       ['name'],
       True

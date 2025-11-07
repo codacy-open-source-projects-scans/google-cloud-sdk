@@ -41,6 +41,28 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_BACKUPCOLLECTIONS = (
+      'projects.locations.backupCollections',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'backupCollections/{backupCollectionsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_BACKUPCOLLECTIONS_BACKUPS = (
+      'projects.locations.backupCollections.backups',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'backupCollections/{backupCollectionsId}/backups/{backupsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_INSTANCES = (
       'projects.locations.instances',
       '{+name}',
@@ -50,6 +72,14 @@ class Collections(enum.Enum):
               '{instancesId}',
       },
       ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_KEYRINGS_CRYPTOKEYS = (
+      'projects.locations.keyRings.cryptoKeys',
+      'projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/'
+      'cryptoKeys/{cryptoKeysId}',
+      {},
+      ['projectsId', 'locationsId', 'keyRingsId', 'cryptoKeysId'],
       True
   )
   PROJECTS_LOCATIONS_OPERATIONS = (

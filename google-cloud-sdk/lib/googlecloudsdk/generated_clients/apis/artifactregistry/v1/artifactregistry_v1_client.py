@@ -1596,6 +1596,33 @@ class ArtifactregistryV1(base_api.BaseApiClient):
       self._upload_configs = {
           }
 
+    def CopyRepository(self, request, global_params=None):
+      r"""Copies all artifacts from one repository to another.
+
+      Args:
+        request: (ArtifactregistryProjectsLocationsRepositoriesCopyRepositoryRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('CopyRepository')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    CopyRepository.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/repositories/{repositoriesId}:copyRepository',
+        http_method='POST',
+        method_id='artifactregistry.projects.locations.repositories.copyRepository',
+        ordered_params=['destinationRepository'],
+        path_params=['destinationRepository'],
+        query_params=[],
+        relative_path='v1/{+destinationRepository}:copyRepository',
+        request_field='copyRepositoryRequest',
+        request_type_name='ArtifactregistryProjectsLocationsRepositoriesCopyRepositoryRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def Create(self, request, global_params=None):
       r"""Creates a repository. The returned Operation will finish once the repository has been created. Its response will be the created Repository.
 
@@ -1646,6 +1673,33 @@ class ArtifactregistryV1(base_api.BaseApiClient):
         relative_path='v1/{+name}',
         request_field='',
         request_type_name='ArtifactregistryProjectsLocationsRepositoriesDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def ExportArtifact(self, request, global_params=None):
+      r"""Exports an artifact.
+
+      Args:
+        request: (ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('ExportArtifact')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    ExportArtifact.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/repositories/{repositoriesId}:exportArtifact',
+        http_method='POST',
+        method_id='artifactregistry.projects.locations.repositories.exportArtifact',
+        ordered_params=['repository'],
+        path_params=['repository'],
+        query_params=[],
+        relative_path='v1/{+repository}:exportArtifact',
+        request_field='exportArtifactRequest',
+        request_type_name='ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest',
         response_type_name='Operation',
         supports_download=False,
     )
@@ -2003,7 +2057,7 @@ class ArtifactregistryV1(base_api.BaseApiClient):
         method_id='artifactregistry.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1/{+name}/locations',
         request_field='',
         request_type_name='ArtifactregistryProjectsLocationsListRequest',

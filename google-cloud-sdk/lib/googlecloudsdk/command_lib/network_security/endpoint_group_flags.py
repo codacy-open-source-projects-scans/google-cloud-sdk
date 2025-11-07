@@ -20,11 +20,13 @@ from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.network_security.mirroring_endpoint_groups import api
 from googlecloudsdk.calliope import arg_parsers
+from googlecloudsdk.calliope import base
 from googlecloudsdk.calliope import parser_arguments
 from googlecloudsdk.calliope.concepts import concepts
 from googlecloudsdk.calliope.concepts import deps
 from googlecloudsdk.command_lib.util.concepts import concept_parsers
 from googlecloudsdk.command_lib.util.concepts import presentation_specs
+from googlecloudsdk.core import properties
 from googlecloudsdk.core import resources
 
 
@@ -35,6 +37,8 @@ ENDPOINT_GROUP_RESOURCE_COLLECTION = (
 DEPLOYMENT_GROUP_RESOURCE_COLLECTION = (
     "networksecurity.projects.locations.mirroringDeploymentGroups"
 )
+
+_PACKET_BROKER_SUPPORTED = (base.ReleaseTrack.ALPHA,)
 
 
 def AddEndpointGroupResource(release_track, parser):
@@ -93,11 +97,14 @@ def LocationAttributeConfig(default="global"):
         deps.Fallthrough(
             lambda: default,
             "Location of the Mirroring Endpoint Group. Defaults to {}".format(
-                default)))
+                default
+            ),
+        )
+    )
   return concepts.ResourceParameterAttributeConfig(
       name="location",
       help_text="Location of the {resource}.",
-      fallthroughs=fallthroughs
+      fallthroughs=fallthroughs,
   )
 
 
@@ -111,8 +118,9 @@ def GetLocationResourceSpec():
   )
 
 
-def AddLocationResourceArg(parser: parser_arguments.ArgumentInterceptor,
-                           help_text):
+def AddLocationResourceArg(
+    parser: parser_arguments.ArgumentInterceptor, help_text
+):
   """Adds a resource argument for Google Cloud location.
 
   Args:
@@ -142,7 +150,20 @@ def AddMirroringDeploymentGroupResource(release_track, parser):
       DEPLOYMENT_GROUP_RESOURCE_COLLECTION,
       "mirroring deployment group",
       api_version=api_version,
-      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      projectsId=concepts.ResourceParameterAttributeConfig(
+          name="project",
+          help_text="Project of the {resource}.",
+          parameter_name="projectsId",
+          fallthroughs=[
+              deps.ArgFallthrough("--project"),
+              deps.PropertyFallthrough(properties.VALUES.core.project),
+              deps.FullySpecifiedAnchorFallthrough(
+                  [deps.ArgFallthrough(ENDPOINT_GROUP_RESOURCE_NAME)],
+                  collection_info,
+                  "projectsId",
+              ),
+          ],
+      ),
       locationsId=concepts.ResourceParameterAttributeConfig(
           "location",
           "Location of the {resource}.",
@@ -150,9 +171,7 @@ def AddMirroringDeploymentGroupResource(release_track, parser):
           fallthroughs=[
               deps.ArgFallthrough("--location"),
               deps.FullySpecifiedAnchorFallthrough(
-                  [deps.ArgFallthrough(
-                      ENDPOINT_GROUP_RESOURCE_NAME
-                  )],
+                  [deps.ArgFallthrough(ENDPOINT_GROUP_RESOURCE_NAME)],
                   collection_info,
                   "locationsId",
               ),
@@ -167,8 +186,47 @@ def AddMirroringDeploymentGroupResource(release_track, parser):
   presentation_spec = presentation_specs.ResourcePresentationSpec(
       name="--mirroring-deployment-group",
       concept_spec=resource_spec,
-      required=True,
+      required=False,
       group_help="Mirroring Deployment Group.",
+      flag_name_overrides={"project": "--mirroring-deployment-group-project"},
       prefixes=True,
   )
-  return concept_parsers.ConceptParser([presentation_spec]).AddToParser(parser)
+  concept_parsers.ConceptParser([presentation_spec]).AddToParser(parser)
+
+
+def AddDeploymentGroupMutexGroup(release_track, parser):
+  """Adds mirroring deployment groups resource."""
+  mutex_group = parser.add_group(mutex=True, required=True)
+
+  # This flag is added to the mutex group for ALL release tracks.
+  AddMirroringDeploymentGroupResource(release_track, mutex_group)
+
+  # This plural flag is ONLY added to the mutex group for the BROKER-supported
+  # tracks.
+  if release_track in _PACKET_BROKER_SUPPORTED:
+    mutex_group.add_argument(
+        "--mirroring-deployment-groups",
+        metavar="MIRRORING_DEPLOYMENT_GROUPS",
+        type=arg_parsers.ArgList(min_length=1),
+        help=(
+            "A comma-separated list of Mirroring Deployment Groups to associate"
+            " with the Endpoint Group. Each deployment group must be specified"
+            " by its full resource name. e.g."
+            " --mirroring-deployment-groups=projects/123/locations/global/mirroringDeploymentGroups/my-dg1,projects/456/locations/global/mirroringDeploymentGroups/my-dg2"
+        ),
+        required=False,
+    )
+
+
+# The type flag is only supported for Alpha. When not specified, the default
+# type is DIRECT.
+def AddType(parser):
+  """Adds the endpoint group type flag to the parser."""
+  parser.add_argument(
+      "--type",
+      choices=["DIRECT", "BROKER"],
+      help=(
+          "The type of the endpoint group. If not specified, the default type"
+          " is DIRECT."
+      ),
+  )

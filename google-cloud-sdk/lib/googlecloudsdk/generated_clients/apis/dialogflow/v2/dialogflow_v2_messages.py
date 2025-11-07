@@ -1365,9 +1365,12 @@ class DialogflowProjectsAnswerRecordsListRequest(_messages.Message):
 
   Fields:
     filter: Optional. Filters to restrict results to specific answer records.
-      Marked deprecated as it hasn't been, and isn't currently, supported. For
-      more information about filtering, see [API
-      Filtering](https://aip.dev/160).
+      The expression has the following syntax: [AND ] ... The following fields
+      and operators are supported: * conversation_id with equals(=) operator
+      Examples: * `conversation_id=bar` matches answer records in the
+      `projects/foo/locations/global/conversations/bar` conversation (assuming
+      the parent is `projects/foo/locations/global`). For more information
+      about filtering, see [API Filtering](https://aip.dev/160).
     pageSize: Optional. The maximum number of records to return in a single
       page. The server may return fewer records than this. If unspecified, we
       use 10. The maximum is 100.
@@ -1895,6 +1898,23 @@ class DialogflowProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesR
 
   googleCloudDialogflowV2SuggestSmartRepliesRequest = _messages.MessageField('GoogleCloudDialogflowV2SuggestSmartRepliesRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class DialogflowProjectsConversationsSuggestionsGenerateRequest(_messages.Message):
+  r"""A DialogflowProjectsConversationsSuggestionsGenerateRequest object.
+
+  Fields:
+    conversation: Required. The conversation for which the suggestions are
+      generated. Format: `projects//locations//conversations/`. The
+      conversation must be created with a conversation profile which has
+      generators configured in it to be able to get suggestions.
+    googleCloudDialogflowV2GenerateSuggestionsRequest: A
+      GoogleCloudDialogflowV2GenerateSuggestionsRequest resource to be passed
+      as the request body.
+  """
+
+  conversation = _messages.StringField(1, required=True)
+  googleCloudDialogflowV2GenerateSuggestionsRequest = _messages.MessageField('GoogleCloudDialogflowV2GenerateSuggestionsRequest', 2)
 
 
 class DialogflowProjectsConversationsSuggestionsSuggestConversationSummaryRequest(_messages.Message):
@@ -3362,9 +3382,12 @@ class DialogflowProjectsLocationsAnswerRecordsListRequest(_messages.Message):
 
   Fields:
     filter: Optional. Filters to restrict results to specific answer records.
-      Marked deprecated as it hasn't been, and isn't currently, supported. For
-      more information about filtering, see [API
-      Filtering](https://aip.dev/160).
+      The expression has the following syntax: [AND ] ... The following fields
+      and operators are supported: * conversation_id with equals(=) operator
+      Examples: * `conversation_id=bar` matches answer records in the
+      `projects/foo/locations/global/conversations/bar` conversation (assuming
+      the parent is `projects/foo/locations/global`). For more information
+      about filtering, see [API Filtering](https://aip.dev/160).
     pageSize: Optional. The maximum number of records to return in a single
       page. The server may return fewer records than this. If unspecified, we
       use 10. The maximum is 100.
@@ -3751,6 +3774,22 @@ class DialogflowProjectsLocationsConversationsGetRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class DialogflowProjectsLocationsConversationsIngestContextReferencesRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsConversationsIngestContextReferencesRequest
+  object.
+
+  Fields:
+    conversation: Required. Resource identifier of the conversation to ingest
+      context information for. Format: `projects//locations//conversations/`.
+    googleCloudDialogflowV2IngestContextReferencesRequest: A
+      GoogleCloudDialogflowV2IngestContextReferencesRequest resource to be
+      passed as the request body.
+  """
+
+  conversation = _messages.StringField(1, required=True)
+  googleCloudDialogflowV2IngestContextReferencesRequest = _messages.MessageField('GoogleCloudDialogflowV2IngestContextReferencesRequest', 2)
+
+
 class DialogflowProjectsLocationsConversationsListRequest(_messages.Message):
   r"""A DialogflowProjectsLocationsConversationsListRequest object.
 
@@ -3940,6 +3979,24 @@ class DialogflowProjectsLocationsConversationsParticipantsSuggestionsSuggestSmar
   parent = _messages.StringField(2, required=True)
 
 
+class DialogflowProjectsLocationsConversationsSuggestionsGenerateRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsConversationsSuggestionsGenerateRequest
+  object.
+
+  Fields:
+    conversation: Required. The conversation for which the suggestions are
+      generated. Format: `projects//locations//conversations/`. The
+      conversation must be created with a conversation profile which has
+      generators configured in it to be able to get suggestions.
+    googleCloudDialogflowV2GenerateSuggestionsRequest: A
+      GoogleCloudDialogflowV2GenerateSuggestionsRequest resource to be passed
+      as the request body.
+  """
+
+  conversation = _messages.StringField(1, required=True)
+  googleCloudDialogflowV2GenerateSuggestionsRequest = _messages.MessageField('GoogleCloudDialogflowV2GenerateSuggestionsRequest', 2)
+
+
 class DialogflowProjectsLocationsConversationsSuggestionsSuggestConversationSummaryRequest(_messages.Message):
   r"""A DialogflowProjectsLocationsConversationsSuggestionsSuggestConversation
   SummaryRequest object.
@@ -4014,6 +4071,62 @@ class DialogflowProjectsLocationsGeneratorsDeleteRequest(_messages.Message):
   """
 
   name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsGeneratorsEvaluationsCreateRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsGeneratorsEvaluationsCreateRequest object.
+
+  Fields:
+    googleCloudDialogflowV2GeneratorEvaluation: A
+      GoogleCloudDialogflowV2GeneratorEvaluation resource to be passed as the
+      request body.
+    parent: Required. The generator resource name. Format:
+      `projects//locations//generators/`
+  """
+
+  googleCloudDialogflowV2GeneratorEvaluation = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluation', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class DialogflowProjectsLocationsGeneratorsEvaluationsDeleteRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsGeneratorsEvaluationsDeleteRequest object.
+
+  Fields:
+    name: Required. The generator evaluation resource name. Format:
+      `projects//locations//generators// evaluations/`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsGeneratorsEvaluationsGetRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsGeneratorsEvaluationsGetRequest object.
+
+  Fields:
+    name: Required. The generator evaluation resource name. Format:
+      `projects//locations//generators//evaluations/`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsGeneratorsEvaluationsListRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsGeneratorsEvaluationsListRequest object.
+
+  Fields:
+    pageSize: Optional. Maximum number of evaluations to return in a single
+      page. By default 100 and at most 1000.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list request.
+    parent: Required. The generator resource name. Format:
+      `projects//locations//generators/` Wildcard value `-` is supported on
+      generator_id to list evaluations across all generators under same
+      project.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
 
 
 class DialogflowProjectsLocationsGeneratorsGetRequest(_messages.Message):
@@ -4319,6 +4432,9 @@ class DialogflowProjectsLocationsListRequest(_messages.Message):
   r"""A DialogflowProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -4329,10 +4445,11 @@ class DialogflowProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class DialogflowProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -4363,12 +4480,20 @@ class DialogflowProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class DialogflowProjectsLocationsSetAgentRequest(_messages.Message):
@@ -4383,6 +4508,76 @@ class DialogflowProjectsLocationsSetAgentRequest(_messages.Message):
 
   googleCloudDialogflowV2Agent = _messages.MessageField('GoogleCloudDialogflowV2Agent', 1)
   parent = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
+class DialogflowProjectsLocationsSipTrunksCreateRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsSipTrunksCreateRequest object.
+
+  Fields:
+    googleCloudDialogflowV2SipTrunk: A GoogleCloudDialogflowV2SipTrunk
+      resource to be passed as the request body.
+    parent: Required. The location to create a SIP trunk for. Format:
+      `projects//locations/`.
+  """
+
+  googleCloudDialogflowV2SipTrunk = _messages.MessageField('GoogleCloudDialogflowV2SipTrunk', 1)
+  parent = _messages.StringField(2, required=True)
+
+
+class DialogflowProjectsLocationsSipTrunksDeleteRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsSipTrunksDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the SIP trunk to delete. Format:
+      `projects//locations//sipTrunks/`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsSipTrunksGetRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsSipTrunksGetRequest object.
+
+  Fields:
+    name: Required. The name of the SIP trunk to delete. Format:
+      `projects//locations//sipTrunks/`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsSipTrunksListRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsSipTrunksListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of items to return in a single
+      page. By default 100 and at most 1000.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list request.
+    parent: Required. The location to list SIP trunks from. Format:
+      `projects//locations/`.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class DialogflowProjectsLocationsSipTrunksPatchRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsSipTrunksPatchRequest object.
+
+  Fields:
+    googleCloudDialogflowV2SipTrunk: A GoogleCloudDialogflowV2SipTrunk
+      resource to be passed as the request body.
+    name: Identifier. The unique identifier of the SIP trunk. Format:
+      `projects//locations//sipTrunks/`.
+    updateMask: Optional. The mask to control which fields get updated. If the
+      mask is not present, all fields will be updated.
+  """
+
+  googleCloudDialogflowV2SipTrunk = _messages.MessageField('GoogleCloudDialogflowV2SipTrunk', 1)
+  name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
 
 
@@ -4417,6 +4612,84 @@ class DialogflowProjectsLocationsSuggestionsGenerateStatelessSummaryRequest(_mes
   parent = _messages.StringField(2, required=True)
 
 
+class DialogflowProjectsLocationsToolsCreateRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsToolsCreateRequest object.
+
+  Fields:
+    googleCloudDialogflowV2Tool: A GoogleCloudDialogflowV2Tool resource to be
+      passed as the request body.
+    parent: Required. The project/location to create tool for. Format:
+      `projects//locations/`
+    toolId: Optional. The ID to use for the tool, which will become the final
+      component of the tool's resource name. The tool ID must be compliant
+      with the regression formula `a-zA-Z*` with the characters length in
+      range of [3,64]. If the field is not provide, an Id will be auto-
+      generated. If the field is provided, the caller is responsible for 1.
+      the uniqueness of the ID, otherwise the request will be rejected. 2. the
+      consistency for whether to use custom ID or not under a project to
+      better ensure uniqueness.
+  """
+
+  googleCloudDialogflowV2Tool = _messages.MessageField('GoogleCloudDialogflowV2Tool', 1)
+  parent = _messages.StringField(2, required=True)
+  toolId = _messages.StringField(3)
+
+
+class DialogflowProjectsLocationsToolsDeleteRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsToolsDeleteRequest object.
+
+  Fields:
+    name: Required. The tool resource name to delete. Format:
+      `projects//locations//tools/`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsToolsGetRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsToolsGetRequest object.
+
+  Fields:
+    name: Required. The tool resource name to retrieve. Format:
+      `projects//locations//tools/`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DialogflowProjectsLocationsToolsListRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsToolsListRequest object.
+
+  Fields:
+    pageSize: Optional. Maximum number of conversation models to return in a
+      single page. Default to 10.
+    pageToken: Optional. The next_page_token value returned from a previous
+      list request.
+    parent: Required. The project/location to list tools for. Format:
+      `projects//locations/`
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class DialogflowProjectsLocationsToolsPatchRequest(_messages.Message):
+  r"""A DialogflowProjectsLocationsToolsPatchRequest object.
+
+  Fields:
+    googleCloudDialogflowV2Tool: A GoogleCloudDialogflowV2Tool resource to be
+      passed as the request body.
+    name: Output only. Identifier. The resource name of the tool. Format:
+      `projects//locations//tools/`.
+    updateMask: Optional. The list of fields to update.
+  """
+
+  googleCloudDialogflowV2Tool = _messages.MessageField('GoogleCloudDialogflowV2Tool', 1)
+  name = _messages.StringField(2, required=True)
+  updateMask = _messages.StringField(3)
+
+
 class DialogflowProjectsOperationsCancelRequest(_messages.Message):
   r"""A DialogflowProjectsOperationsCancelRequest object.
 
@@ -4445,12 +4718,20 @@ class DialogflowProjectsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class DialogflowProjectsSetAgentRequest(_messages.Message):
@@ -4576,7 +4857,7 @@ class GoogleCloudDialogflowCxV3AdvancedSettingsSpeechSettings(_messages.Message)
       models).
     noSpeechTimeout: Timeout before detecting no speech.
     useTimeoutBasedEndpointing: Use timeout based endpointing, interpreting
-      endpointer sensitivy as seconds of timeout value.
+      endpointer sensitivity as seconds of timeout value.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
@@ -4895,6 +5176,10 @@ class GoogleCloudDialogflowCxV3DataStoreConnection(_messages.Message):
 
   Enums:
     DataStoreTypeValueValuesEnum: The type of the connected data store.
+    DocumentProcessingModeValueValuesEnum: The document processing mode for
+      the data store connection. Should only be set for PUBLIC_WEB and
+      UNSTRUCTURED data stores. If not set it is considered as DOCUMENTS, as
+      this is the legacy mode.
 
   Fields:
     dataStore: The full name of the referenced data store. Formats: `projects/
@@ -4902,6 +5187,10 @@ class GoogleCloudDialogflowCxV3DataStoreConnection(_messages.Message):
       _store}`
       `projects/{project}/locations/{location}/dataStores/{data_store}`
     dataStoreType: The type of the connected data store.
+    documentProcessingMode: The document processing mode for the data store
+      connection. Should only be set for PUBLIC_WEB and UNSTRUCTURED data
+      stores. If not set it is considered as DOCUMENTS, as this is the legacy
+      mode.
   """
 
   class DataStoreTypeValueValuesEnum(_messages.Enum):
@@ -4921,8 +5210,25 @@ class GoogleCloudDialogflowCxV3DataStoreConnection(_messages.Message):
     UNSTRUCTURED = 2
     STRUCTURED = 3
 
+  class DocumentProcessingModeValueValuesEnum(_messages.Enum):
+    r"""The document processing mode for the data store connection. Should
+    only be set for PUBLIC_WEB and UNSTRUCTURED data stores. If not set it is
+    considered as DOCUMENTS, as this is the legacy mode.
+
+    Values:
+      DOCUMENT_PROCESSING_MODE_UNSPECIFIED: Not specified. This should be set
+        for STRUCTURED type data stores. Due to legacy reasons this is
+        considered as DOCUMENTS for STRUCTURED and PUBLIC_WEB data stores.
+      DOCUMENTS: Documents are processed as documents.
+      CHUNKS: Documents are converted to chunks.
+    """
+    DOCUMENT_PROCESSING_MODE_UNSPECIFIED = 0
+    DOCUMENTS = 1
+    CHUNKS = 2
+
   dataStore = _messages.StringField(1)
   dataStoreType = _messages.EnumField('DataStoreTypeValueValuesEnum', 2)
+  documentProcessingMode = _messages.EnumField('DocumentProcessingModeValueValuesEnum', 3)
 
 
 class GoogleCloudDialogflowCxV3DeployFlowMetadata(_messages.Message):
@@ -5020,9 +5326,10 @@ class GoogleCloudDialogflowCxV3EnvironmentVersionConfig(_messages.Message):
   r"""Configuration for the version.
 
   Fields:
-    version: Required. Both flow and playbook versions are supported. Format
+    version: Required. Flow, playbook and tool versions are supported. Format
       for flow version: projects//locations//agents//flows//versions/. Format
       for playbook version: projects//locations//agents//playbooks//versions/.
+      Format for tool version: projects//locations//agents//tools//versions/.
   """
 
   version = _messages.StringField(1)
@@ -5281,6 +5588,7 @@ class GoogleCloudDialogflowCxV3Fulfillment(_messages.Message):
       to generate a text response. If LLM generation fails, the defined
       responses in the fulfillment will be respected. This flag is only useful
       for fulfillments associated with no-match event handlers.
+    generators: A list of Generators to be called during this fulfillment.
     messages: The list of rich message responses to present to the user.
     returnPartialResponses: Whether Dialogflow should return currently queued
       fulfillment response messages in streaming APIs. If a webhook is
@@ -5302,11 +5610,12 @@ class GoogleCloudDialogflowCxV3Fulfillment(_messages.Message):
   advancedSettings = _messages.MessageField('GoogleCloudDialogflowCxV3AdvancedSettings', 1)
   conditionalCases = _messages.MessageField('GoogleCloudDialogflowCxV3FulfillmentConditionalCases', 2, repeated=True)
   enableGenerativeFallback = _messages.BooleanField(3)
-  messages = _messages.MessageField('GoogleCloudDialogflowCxV3ResponseMessage', 4, repeated=True)
-  returnPartialResponses = _messages.BooleanField(5)
-  setParameterActions = _messages.MessageField('GoogleCloudDialogflowCxV3FulfillmentSetParameterAction', 6, repeated=True)
-  tag = _messages.StringField(7)
-  webhook = _messages.StringField(8)
+  generators = _messages.MessageField('GoogleCloudDialogflowCxV3FulfillmentGeneratorSettings', 4, repeated=True)
+  messages = _messages.MessageField('GoogleCloudDialogflowCxV3ResponseMessage', 5, repeated=True)
+  returnPartialResponses = _messages.BooleanField(6)
+  setParameterActions = _messages.MessageField('GoogleCloudDialogflowCxV3FulfillmentSetParameterAction', 7, repeated=True)
+  tag = _messages.StringField(8)
+  webhook = _messages.StringField(9)
 
 
 class GoogleCloudDialogflowCxV3FulfillmentConditionalCases(_messages.Message):
@@ -5346,6 +5655,70 @@ class GoogleCloudDialogflowCxV3FulfillmentConditionalCasesCaseCaseContent(_messa
 
   additionalCases = _messages.MessageField('GoogleCloudDialogflowCxV3FulfillmentConditionalCases', 1)
   message = _messages.MessageField('GoogleCloudDialogflowCxV3ResponseMessage', 2)
+
+
+class GoogleCloudDialogflowCxV3FulfillmentGeneratorSettings(_messages.Message):
+  r"""Generator settings used by the LLM to generate a text response.
+
+  Messages:
+    InputParametersValue: Map from placeholder parameter in the Generator to
+      corresponding session parameters. By default, Dialogflow uses the
+      session parameter with the same name to fill in the generator template.
+      e.g. If there is a placeholder parameter `city` in the Generator,
+      Dialogflow default to fill in the `$city` with `$session.params.city`.
+      However, you may choose to fill `$city` with
+      `$session.params.desination-city`. - Map key: parameter ID - Map value:
+      session parameter name
+
+  Fields:
+    generator: Required. The generator to call. Format:
+      `projects//locations//agents//generators/`.
+    inputParameters: Map from placeholder parameter in the Generator to
+      corresponding session parameters. By default, Dialogflow uses the
+      session parameter with the same name to fill in the generator template.
+      e.g. If there is a placeholder parameter `city` in the Generator,
+      Dialogflow default to fill in the `$city` with `$session.params.city`.
+      However, you may choose to fill `$city` with
+      `$session.params.desination-city`. - Map key: parameter ID - Map value:
+      session parameter name
+    outputParameter: Required. Output parameter which should contain the
+      generator response.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputParametersValue(_messages.Message):
+    r"""Map from placeholder parameter in the Generator to corresponding
+    session parameters. By default, Dialogflow uses the session parameter with
+    the same name to fill in the generator template. e.g. If there is a
+    placeholder parameter `city` in the Generator, Dialogflow default to fill
+    in the `$city` with `$session.params.city`. However, you may choose to
+    fill `$city` with `$session.params.desination-city`. - Map key: parameter
+    ID - Map value: session parameter name
+
+    Messages:
+      AdditionalProperty: An additional property for a InputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type InputParametersValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  generator = _messages.StringField(1)
+  inputParameters = _messages.MessageField('InputParametersValue', 2)
+  outputParameter = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowCxV3FulfillmentSetParameterAction(_messages.Message):
@@ -5539,7 +5912,7 @@ class GoogleCloudDialogflowCxV3InputAudioConfig(_messages.Message):
     Values:
       AUDIO_ENCODING_UNSPECIFIED: Not specified.
       AUDIO_ENCODING_LINEAR_16: Uncompressed 16-bit signed little-endian
-        samples (Linear PCM).
+        samples (Linear PCM). LINT: LEGACY_NAMES
       AUDIO_ENCODING_FLAC: [`FLAC`](https://xiph.org/flac/documentation.html)
         (Free Lossless Audio Codec) is the recommended encoding because it is
         lossless (therefore recognition is not compromised) and requires only
@@ -5877,7 +6250,7 @@ class GoogleCloudDialogflowCxV3Page(_messages.Message):
     transitionRoutes: A list of transitions for the transition rules of this
       page. They route the conversation to another page in the same flow, or
       another flow. When we are in a certain page, the TransitionRoutes are
-      evalauted in the following order: * TransitionRoutes defined in the page
+      evaluated in the following order: * TransitionRoutes defined in the page
       with intent specified. * TransitionRoutes defined in the transition
       route groups with intent specified. * TransitionRoutes defined in flow
       with intent specified. * TransitionRoutes defined in the transition
@@ -6001,6 +6374,7 @@ class GoogleCloudDialogflowCxV3QueryInput(_messages.Message):
       in the same session do not necessarily need to specify the same
       language.
     text: The natural language text to be processed.
+    toolCallResult: The results of a tool executed by the client.
   """
 
   audio = _messages.MessageField('GoogleCloudDialogflowCxV3AudioInput', 1)
@@ -6009,6 +6383,7 @@ class GoogleCloudDialogflowCxV3QueryInput(_messages.Message):
   intent = _messages.MessageField('GoogleCloudDialogflowCxV3IntentInput', 4)
   languageCode = _messages.StringField(5)
   text = _messages.MessageField('GoogleCloudDialogflowCxV3TextInput', 6)
+  toolCallResult = _messages.MessageField('GoogleCloudDialogflowCxV3ToolCallResult', 7)
 
 
 class GoogleCloudDialogflowCxV3ResponseMessage(_messages.Message):
@@ -6062,6 +6437,8 @@ class GoogleCloudDialogflowCxV3ResponseMessage(_messages.Message):
     telephonyTransferCall: A signal that the client should transfer the phone
       call connected to this agent to a third-party endpoint.
     text: Returns a text response.
+    toolCall: Returns the definition of a tool call that should be executed by
+      the client.
   """
 
   class ResponseTypeValueValuesEnum(_messages.Enum):
@@ -6115,6 +6492,7 @@ class GoogleCloudDialogflowCxV3ResponseMessage(_messages.Message):
   responseType = _messages.EnumField('ResponseTypeValueValuesEnum', 10)
   telephonyTransferCall = _messages.MessageField('GoogleCloudDialogflowCxV3ResponseMessageTelephonyTransferCall', 11)
   text = _messages.MessageField('GoogleCloudDialogflowCxV3ResponseMessageText', 12)
+  toolCall = _messages.MessageField('GoogleCloudDialogflowCxV3ToolCall', 13)
 
 
 class GoogleCloudDialogflowCxV3ResponseMessageConversationSuccess(_messages.Message):
@@ -6581,6 +6959,105 @@ class GoogleCloudDialogflowCxV3TextInput(_messages.Message):
   text = _messages.StringField(1)
 
 
+class GoogleCloudDialogflowCxV3ToolCall(_messages.Message):
+  r"""Represents a call of a specific tool's action with the specified inputs.
+
+  Messages:
+    InputParametersValue: Optional. The action's input parameters.
+
+  Fields:
+    action: Required. The name of the tool's action associated with this call.
+    inputParameters: Optional. The action's input parameters.
+    tool: Required. The tool associated with this call. Format:
+      `projects//locations//agents//tools/`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputParametersValue(_messages.Message):
+    r"""Optional. The action's input parameters.
+
+    Messages:
+      AdditionalProperty: An additional property for a InputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  action = _messages.StringField(1)
+  inputParameters = _messages.MessageField('InputParametersValue', 2)
+  tool = _messages.StringField(3)
+
+
+class GoogleCloudDialogflowCxV3ToolCallResult(_messages.Message):
+  r"""The result of calling a tool's action that has been executed by the
+  client.
+
+  Messages:
+    OutputParametersValue: The tool call's output parameters.
+
+  Fields:
+    action: Required. The name of the tool's action associated with this call.
+    error: The tool call's error.
+    outputParameters: The tool call's output parameters.
+    tool: Required. The tool associated with this call. Format:
+      `projects//locations//agents//tools/`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class OutputParametersValue(_messages.Message):
+    r"""The tool call's output parameters.
+
+    Messages:
+      AdditionalProperty: An additional property for a OutputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a OutputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  action = _messages.StringField(1)
+  error = _messages.MessageField('GoogleCloudDialogflowCxV3ToolCallResultError', 2)
+  outputParameters = _messages.MessageField('OutputParametersValue', 3)
+  tool = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowCxV3ToolCallResultError(_messages.Message):
+  r"""An error produced by the tool call.
+
+  Fields:
+    message: Optional. The error message of the function.
+  """
+
+  message = _messages.StringField(1)
+
+
 class GoogleCloudDialogflowCxV3TransitionRoute(_messages.Message):
   r"""A transition route specifies a intent that can be matched and/or a data
   condition that can be evaluated during a session. When a specified
@@ -6722,6 +7199,11 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebService(_messages.Message):
       session parameter name - Value: field path in the webhook response
     RequestHeadersValue: The HTTP request headers to send together with
       webhook requests.
+    SecretVersionsForRequestHeadersValue: Optional. The HTTP request headers
+      to send together with webhook requests. Header values are stored in
+      SecretManager secret versions. When the same header name is specified in
+      both `request_headers` and `secret_versions_for_request_headers`, the
+      value in `secret_versions_for_request_headers` will be used.
 
   Fields:
     allowedCaCerts: Optional. Specifies a list of allowed custom CA
@@ -6747,6 +7229,17 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebService(_messages.Message):
       send to flexible webhook.
     requestHeaders: The HTTP request headers to send together with webhook
       requests.
+    secretVersionForUsernamePassword: Optional. The SecretManager secret
+      version resource storing the username:password pair for HTTP Basic
+      authentication. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+    secretVersionsForRequestHeaders: Optional. The HTTP request headers to
+      send together with webhook requests. Header values are stored in
+      SecretManager secret versions. When the same header name is specified in
+      both `request_headers` and `secret_versions_for_request_headers`, the
+      value in `secret_versions_for_request_headers` will be used.
+    serviceAccountAuthConfig: Optional. Configuration for service account
+      authentication.
     serviceAgentAuth: Optional. Indicate the auth token type generated from
       the [Diglogflow service
       agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-
@@ -6871,6 +7364,38 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebService(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class SecretVersionsForRequestHeadersValue(_messages.Message):
+    r"""Optional. The HTTP request headers to send together with webhook
+    requests. Header values are stored in SecretManager secret versions. When
+    the same header name is specified in both `request_headers` and
+    `secret_versions_for_request_headers`, the value in
+    `secret_versions_for_request_headers` will be used.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        SecretVersionsForRequestHeadersValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        SecretVersionsForRequestHeadersValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a SecretVersionsForRequestHeadersValue
+      object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowCxV3WebhookGenericWebServiceSecretVersio
+          nHeaderValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowCxV3WebhookGenericWebServiceSecretVersionHeaderValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   allowedCaCerts = _messages.BytesField(1, repeated=True)
   httpMethod = _messages.EnumField('HttpMethodValueValuesEnum', 2)
   oauthConfig = _messages.MessageField('GoogleCloudDialogflowCxV3WebhookGenericWebServiceOAuthConfig', 3)
@@ -6878,10 +7403,13 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebService(_messages.Message):
   password = _messages.StringField(5)
   requestBody = _messages.StringField(6)
   requestHeaders = _messages.MessageField('RequestHeadersValue', 7)
-  serviceAgentAuth = _messages.EnumField('ServiceAgentAuthValueValuesEnum', 8)
-  uri = _messages.StringField(9)
-  username = _messages.StringField(10)
-  webhookType = _messages.EnumField('WebhookTypeValueValuesEnum', 11)
+  secretVersionForUsernamePassword = _messages.StringField(8)
+  secretVersionsForRequestHeaders = _messages.MessageField('SecretVersionsForRequestHeadersValue', 9)
+  serviceAccountAuthConfig = _messages.MessageField('GoogleCloudDialogflowCxV3WebhookGenericWebServiceServiceAccountAuthConfig', 10)
+  serviceAgentAuth = _messages.EnumField('ServiceAgentAuthValueValuesEnum', 11)
+  uri = _messages.StringField(12)
+  username = _messages.StringField(13)
+  webhookType = _messages.EnumField('WebhookTypeValueValuesEnum', 14)
 
 
 class GoogleCloudDialogflowCxV3WebhookGenericWebServiceOAuthConfig(_messages.Message):
@@ -6890,9 +7418,13 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebServiceOAuthConfig(_messages.Mes
 
   Fields:
     clientId: Required. The client ID provided by the 3rd party platform.
-    clientSecret: Required. The client secret provided by the 3rd party
+    clientSecret: Optional. The client secret provided by the 3rd party
       platform.
     scopes: Optional. The OAuth scopes to grant.
+    secretVersionForClientSecret: Optional. The name of the SecretManager
+      secret version resource storing the client secret. If this field is set,
+      the `client_secret` field will be ignored. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
     tokenEndpoint: Required. The token endpoint provided by the 3rd party
       platform to exchange an access token.
   """
@@ -6900,7 +7432,37 @@ class GoogleCloudDialogflowCxV3WebhookGenericWebServiceOAuthConfig(_messages.Mes
   clientId = _messages.StringField(1)
   clientSecret = _messages.StringField(2)
   scopes = _messages.StringField(3, repeated=True)
-  tokenEndpoint = _messages.StringField(4)
+  secretVersionForClientSecret = _messages.StringField(4)
+  tokenEndpoint = _messages.StringField(5)
+
+
+class GoogleCloudDialogflowCxV3WebhookGenericWebServiceSecretVersionHeaderValue(_messages.Message):
+  r"""Represents the value of an HTTP header stored in a SecretManager secret
+  version.
+
+  Fields:
+    secretVersion: Required. The SecretManager secret version resource storing
+      the header value. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+  """
+
+  secretVersion = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowCxV3WebhookGenericWebServiceServiceAccountAuthConfig(_messages.Message):
+  r"""Configuration for authentication using a service account.
+
+  Fields:
+    serviceAccount: Required. The email address of the service account used to
+      authenticate the webhook call. Dialogflow uses this service account to
+      exchange an access token and the access token is then sent in the
+      `Authorization` header of the webhook request. The service account must
+      have the `roles/iam.serviceAccountTokenCreator` role granted to the
+      [Dialogflow service agent](https://cloud.google.com/iam/docs/service-
+      agents#dialogflow-service-agent).
+  """
+
+  serviceAccount = _messages.StringField(1)
 
 
 class GoogleCloudDialogflowCxV3WebhookRequest(_messages.Message):
@@ -7273,7 +7835,7 @@ class GoogleCloudDialogflowCxV3beta1AdvancedSettingsSpeechSettings(_messages.Mes
       models).
     noSpeechTimeout: Timeout before detecting no speech.
     useTimeoutBasedEndpointing: Use timeout based endpointing, interpreting
-      endpointer sensitivy as seconds of timeout value.
+      endpointer sensitivity as seconds of timeout value.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
@@ -7592,6 +8154,10 @@ class GoogleCloudDialogflowCxV3beta1DataStoreConnection(_messages.Message):
 
   Enums:
     DataStoreTypeValueValuesEnum: The type of the connected data store.
+    DocumentProcessingModeValueValuesEnum: The document processing mode for
+      the data store connection. Should only be set for PUBLIC_WEB and
+      UNSTRUCTURED data stores. If not set it is considered as DOCUMENTS, as
+      this is the legacy mode.
 
   Fields:
     dataStore: The full name of the referenced data store. Formats: `projects/
@@ -7599,6 +8165,10 @@ class GoogleCloudDialogflowCxV3beta1DataStoreConnection(_messages.Message):
       _store}`
       `projects/{project}/locations/{location}/dataStores/{data_store}`
     dataStoreType: The type of the connected data store.
+    documentProcessingMode: The document processing mode for the data store
+      connection. Should only be set for PUBLIC_WEB and UNSTRUCTURED data
+      stores. If not set it is considered as DOCUMENTS, as this is the legacy
+      mode.
   """
 
   class DataStoreTypeValueValuesEnum(_messages.Enum):
@@ -7618,8 +8188,25 @@ class GoogleCloudDialogflowCxV3beta1DataStoreConnection(_messages.Message):
     UNSTRUCTURED = 2
     STRUCTURED = 3
 
+  class DocumentProcessingModeValueValuesEnum(_messages.Enum):
+    r"""The document processing mode for the data store connection. Should
+    only be set for PUBLIC_WEB and UNSTRUCTURED data stores. If not set it is
+    considered as DOCUMENTS, as this is the legacy mode.
+
+    Values:
+      DOCUMENT_PROCESSING_MODE_UNSPECIFIED: Not specified. This should be set
+        for STRUCTURED type data stores. Due to legacy reasons this is
+        considered as DOCUMENTS for STRUCTURED and PUBLIC_WEB data stores.
+      DOCUMENTS: Documents are processed as documents.
+      CHUNKS: Documents are converted to chunks.
+    """
+    DOCUMENT_PROCESSING_MODE_UNSPECIFIED = 0
+    DOCUMENTS = 1
+    CHUNKS = 2
+
   dataStore = _messages.StringField(1)
   dataStoreType = _messages.EnumField('DataStoreTypeValueValuesEnum', 2)
+  documentProcessingMode = _messages.EnumField('DocumentProcessingModeValueValuesEnum', 3)
 
 
 class GoogleCloudDialogflowCxV3beta1DeployFlowMetadata(_messages.Message):
@@ -7717,9 +8304,10 @@ class GoogleCloudDialogflowCxV3beta1EnvironmentVersionConfig(_messages.Message):
   r"""Configuration for the version.
 
   Fields:
-    version: Required. Both flow and playbook versions are supported. Format
+    version: Required. Flow, playbook and tool versions are supported. Format
       for flow version: projects//locations//agents//flows//versions/. Format
       for playbook version: projects//locations//agents//playbooks//versions/.
+      Format for tool version: projects//locations//agents//tools//versions/.
   """
 
   version = _messages.StringField(1)
@@ -7978,6 +8566,7 @@ class GoogleCloudDialogflowCxV3beta1Fulfillment(_messages.Message):
       to generate a text response. If LLM generation fails, the defined
       responses in the fulfillment will be respected. This flag is only useful
       for fulfillments associated with no-match event handlers.
+    generators: A list of Generators to be called during this fulfillment.
     messages: The list of rich message responses to present to the user.
     returnPartialResponses: Whether Dialogflow should return currently queued
       fulfillment response messages in streaming APIs. If a webhook is
@@ -7999,11 +8588,12 @@ class GoogleCloudDialogflowCxV3beta1Fulfillment(_messages.Message):
   advancedSettings = _messages.MessageField('GoogleCloudDialogflowCxV3beta1AdvancedSettings', 1)
   conditionalCases = _messages.MessageField('GoogleCloudDialogflowCxV3beta1FulfillmentConditionalCases', 2, repeated=True)
   enableGenerativeFallback = _messages.BooleanField(3)
-  messages = _messages.MessageField('GoogleCloudDialogflowCxV3beta1ResponseMessage', 4, repeated=True)
-  returnPartialResponses = _messages.BooleanField(5)
-  setParameterActions = _messages.MessageField('GoogleCloudDialogflowCxV3beta1FulfillmentSetParameterAction', 6, repeated=True)
-  tag = _messages.StringField(7)
-  webhook = _messages.StringField(8)
+  generators = _messages.MessageField('GoogleCloudDialogflowCxV3beta1FulfillmentGeneratorSettings', 4, repeated=True)
+  messages = _messages.MessageField('GoogleCloudDialogflowCxV3beta1ResponseMessage', 5, repeated=True)
+  returnPartialResponses = _messages.BooleanField(6)
+  setParameterActions = _messages.MessageField('GoogleCloudDialogflowCxV3beta1FulfillmentSetParameterAction', 7, repeated=True)
+  tag = _messages.StringField(8)
+  webhook = _messages.StringField(9)
 
 
 class GoogleCloudDialogflowCxV3beta1FulfillmentConditionalCases(_messages.Message):
@@ -8043,6 +8633,70 @@ class GoogleCloudDialogflowCxV3beta1FulfillmentConditionalCasesCaseCaseContent(_
 
   additionalCases = _messages.MessageField('GoogleCloudDialogflowCxV3beta1FulfillmentConditionalCases', 1)
   message = _messages.MessageField('GoogleCloudDialogflowCxV3beta1ResponseMessage', 2)
+
+
+class GoogleCloudDialogflowCxV3beta1FulfillmentGeneratorSettings(_messages.Message):
+  r"""Generator settings used by the LLM to generate a text response.
+
+  Messages:
+    InputParametersValue: Map from placeholder parameter in the Generator to
+      corresponding session parameters. By default, Dialogflow uses the
+      session parameter with the same name to fill in the generator template.
+      e.g. If there is a placeholder parameter `city` in the Generator,
+      Dialogflow default to fill in the `$city` with `$session.params.city`.
+      However, you may choose to fill `$city` with
+      `$session.params.desination-city`. - Map key: parameter ID - Map value:
+      session parameter name
+
+  Fields:
+    generator: Required. The generator to call. Format:
+      `projects//locations//agents//generators/`.
+    inputParameters: Map from placeholder parameter in the Generator to
+      corresponding session parameters. By default, Dialogflow uses the
+      session parameter with the same name to fill in the generator template.
+      e.g. If there is a placeholder parameter `city` in the Generator,
+      Dialogflow default to fill in the `$city` with `$session.params.city`.
+      However, you may choose to fill `$city` with
+      `$session.params.desination-city`. - Map key: parameter ID - Map value:
+      session parameter name
+    outputParameter: Required. Output parameter which should contain the
+      generator response.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputParametersValue(_messages.Message):
+    r"""Map from placeholder parameter in the Generator to corresponding
+    session parameters. By default, Dialogflow uses the session parameter with
+    the same name to fill in the generator template. e.g. If there is a
+    placeholder parameter `city` in the Generator, Dialogflow default to fill
+    in the `$city` with `$session.params.city`. However, you may choose to
+    fill `$city` with `$session.params.desination-city`. - Map key: parameter
+    ID - Map value: session parameter name
+
+    Messages:
+      AdditionalProperty: An additional property for a InputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type InputParametersValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  generator = _messages.StringField(1)
+  inputParameters = _messages.MessageField('InputParametersValue', 2)
+  outputParameter = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowCxV3beta1FulfillmentSetParameterAction(_messages.Message):
@@ -8236,7 +8890,7 @@ class GoogleCloudDialogflowCxV3beta1InputAudioConfig(_messages.Message):
     Values:
       AUDIO_ENCODING_UNSPECIFIED: Not specified.
       AUDIO_ENCODING_LINEAR_16: Uncompressed 16-bit signed little-endian
-        samples (Linear PCM).
+        samples (Linear PCM). LINT: LEGACY_NAMES
       AUDIO_ENCODING_FLAC: [`FLAC`](https://xiph.org/flac/documentation.html)
         (Free Lossless Audio Codec) is the recommended encoding because it is
         lossless (therefore recognition is not compromised) and requires only
@@ -8574,7 +9228,7 @@ class GoogleCloudDialogflowCxV3beta1Page(_messages.Message):
     transitionRoutes: A list of transitions for the transition rules of this
       page. They route the conversation to another page in the same flow, or
       another flow. When we are in a certain page, the TransitionRoutes are
-      evalauted in the following order: * TransitionRoutes defined in the page
+      evaluated in the following order: * TransitionRoutes defined in the page
       with intent specified. * TransitionRoutes defined in the transition
       route groups with intent specified. * TransitionRoutes defined in flow
       with intent specified. * TransitionRoutes defined in the transition
@@ -9503,6 +10157,11 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebService(_messages.Message):
       session parameter name - Value: field path in the webhook response
     RequestHeadersValue: The HTTP request headers to send together with
       webhook requests.
+    SecretVersionsForRequestHeadersValue: Optional. The HTTP request headers
+      to send together with webhook requests. Header values are stored in
+      SecretManager secret versions. When the same header name is specified in
+      both `request_headers` and `secret_versions_for_request_headers`, the
+      value in `secret_versions_for_request_headers` will be used.
 
   Fields:
     allowedCaCerts: Optional. Specifies a list of allowed custom CA
@@ -9528,6 +10187,17 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebService(_messages.Message):
       send to flexible webhook.
     requestHeaders: The HTTP request headers to send together with webhook
       requests.
+    secretVersionForUsernamePassword: Optional. The SecretManager secret
+      version resource storing the username:password pair for HTTP Basic
+      authentication. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+    secretVersionsForRequestHeaders: Optional. The HTTP request headers to
+      send together with webhook requests. Header values are stored in
+      SecretManager secret versions. When the same header name is specified in
+      both `request_headers` and `secret_versions_for_request_headers`, the
+      value in `secret_versions_for_request_headers` will be used.
+    serviceAccountAuthConfig: Optional. Configuration for service account
+      authentication.
     serviceAgentAuth: Optional. Indicate the auth token type generated from
       the [Diglogflow service
       agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-
@@ -9652,6 +10322,38 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebService(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class SecretVersionsForRequestHeadersValue(_messages.Message):
+    r"""Optional. The HTTP request headers to send together with webhook
+    requests. Header values are stored in SecretManager secret versions. When
+    the same header name is specified in both `request_headers` and
+    `secret_versions_for_request_headers`, the value in
+    `secret_versions_for_request_headers` will be used.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        SecretVersionsForRequestHeadersValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        SecretVersionsForRequestHeadersValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a SecretVersionsForRequestHeadersValue
+      object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceSecretV
+          ersionHeaderValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceSecretVersionHeaderValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   allowedCaCerts = _messages.BytesField(1, repeated=True)
   httpMethod = _messages.EnumField('HttpMethodValueValuesEnum', 2)
   oauthConfig = _messages.MessageField('GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceOAuthConfig', 3)
@@ -9659,10 +10361,13 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebService(_messages.Message):
   password = _messages.StringField(5)
   requestBody = _messages.StringField(6)
   requestHeaders = _messages.MessageField('RequestHeadersValue', 7)
-  serviceAgentAuth = _messages.EnumField('ServiceAgentAuthValueValuesEnum', 8)
-  uri = _messages.StringField(9)
-  username = _messages.StringField(10)
-  webhookType = _messages.EnumField('WebhookTypeValueValuesEnum', 11)
+  secretVersionForUsernamePassword = _messages.StringField(8)
+  secretVersionsForRequestHeaders = _messages.MessageField('SecretVersionsForRequestHeadersValue', 9)
+  serviceAccountAuthConfig = _messages.MessageField('GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceServiceAccountAuthConfig', 10)
+  serviceAgentAuth = _messages.EnumField('ServiceAgentAuthValueValuesEnum', 11)
+  uri = _messages.StringField(12)
+  username = _messages.StringField(13)
+  webhookType = _messages.EnumField('WebhookTypeValueValuesEnum', 14)
 
 
 class GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceOAuthConfig(_messages.Message):
@@ -9671,9 +10376,13 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceOAuthConfig(_message
 
   Fields:
     clientId: Required. The client ID provided by the 3rd party platform.
-    clientSecret: Required. The client secret provided by the 3rd party
+    clientSecret: Optional. The client secret provided by the 3rd party
       platform.
     scopes: Optional. The OAuth scopes to grant.
+    secretVersionForClientSecret: Optional. The name of the SecretManager
+      secret version resource storing the client secret. If this field is set,
+      the `client_secret` field will be ignored. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
     tokenEndpoint: Required. The token endpoint provided by the 3rd party
       platform to exchange an access token.
   """
@@ -9681,7 +10390,37 @@ class GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceOAuthConfig(_message
   clientId = _messages.StringField(1)
   clientSecret = _messages.StringField(2)
   scopes = _messages.StringField(3, repeated=True)
-  tokenEndpoint = _messages.StringField(4)
+  secretVersionForClientSecret = _messages.StringField(4)
+  tokenEndpoint = _messages.StringField(5)
+
+
+class GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceSecretVersionHeaderValue(_messages.Message):
+  r"""Represents the value of an HTTP header stored in a SecretManager secret
+  version.
+
+  Fields:
+    secretVersion: Required. The SecretManager secret version resource storing
+      the header value. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+  """
+
+  secretVersion = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowCxV3beta1WebhookGenericWebServiceServiceAccountAuthConfig(_messages.Message):
+  r"""Configuration for authentication using a service account.
+
+  Fields:
+    serviceAccount: Required. The email address of the service account used to
+      authenticate the webhook call. Dialogflow uses this service account to
+      exchange an access token and the access token is then sent in the
+      `Authorization` header of the webhook request. The service account must
+      have the `roles/iam.serviceAccountTokenCreator` role granted to the
+      [Dialogflow service agent](https://cloud.google.com/iam/docs/service-
+      agents#dialogflow-service-agent).
+  """
+
+  serviceAccount = _messages.StringField(1)
 
 
 class GoogleCloudDialogflowCxV3beta1WebhookRequest(_messages.Message):
@@ -10095,7 +10834,7 @@ class GoogleCloudDialogflowV2AgentAssistantFeedback(_messages.Message):
       return the package in 2 days once received?" * Suggested document says:
       "Items must be returned/exchanged within 60 days of the purchase date."
       * Ground truth: "No return or exchange is allowed." *
-      [document_correctness]: INCORRECT
+      document_correctness: INCORRECT
     DocumentEfficiencyValueValuesEnum: Optional. Whether or not the suggested
       document is efficient. For example, if the document is poorly written,
       hard to understand, hard to use or too long to find useful information,
@@ -10111,7 +10850,7 @@ class GoogleCloudDialogflowV2AgentAssistantFeedback(_messages.Message):
       document is correct. For example: * Query: "Can I return the package in
       2 days once received?" * Suggested document says: "Items must be
       returned/exchanged within 60 days of the purchase date." * Ground truth:
-      "No return or exchange is allowed." * [document_correctness]: INCORRECT
+      "No return or exchange is allowed." * document_correctness: INCORRECT
     documentEfficiency: Optional. Whether or not the suggested document is
       efficient. For example, if the document is poorly written, hard to
       understand, hard to use or too long to find useful information,
@@ -10141,7 +10880,7 @@ class GoogleCloudDialogflowV2AgentAssistantFeedback(_messages.Message):
     For example: * Query: "Can I return the package in 2 days once received?"
     * Suggested document says: "Items must be returned/exchanged within 60
     days of the purchase date." * Ground truth: "No return or exchange is
-    allowed." * [document_correctness]: INCORRECT
+    allowed." * document_correctness: INCORRECT
 
     Values:
       DOCUMENT_CORRECTNESS_UNSPECIFIED: Document correctness unspecified.
@@ -10258,11 +10997,174 @@ class GoogleCloudDialogflowV2AgentAssistantRecord(_messages.Message):
     articleSuggestionAnswer: Output only. The article suggestion answer.
     dialogflowAssistAnswer: Output only. Dialogflow assist answer.
     faqAnswer: Output only. The FAQ answer.
+    generatorSuggestion: Output only. The generator suggestion.
   """
 
   articleSuggestionAnswer = _messages.MessageField('GoogleCloudDialogflowV2ArticleAnswer', 1)
   dialogflowAssistAnswer = _messages.MessageField('GoogleCloudDialogflowV2DialogflowAssistAnswer', 2)
   faqAnswer = _messages.MessageField('GoogleCloudDialogflowV2FaqAnswer', 3)
+  generatorSuggestion = _messages.MessageField('GoogleCloudDialogflowV2GeneratorSuggestion', 4)
+
+
+class GoogleCloudDialogflowV2AgentCoachingContext(_messages.Message):
+  r"""Agent Coaching context that customer can configure.
+
+  Fields:
+    instructions: Optional. Customized instructions for agent coaching.
+    outputLanguageCode: Optional. Output language code.
+    overarchingGuidance: Optional. The overarching guidance for the agent
+      coaching. This should be set only for v1.5 and later versions.
+    version: Optional. Version of the feature. If not set, default to latest
+      version. Current candidates are ["1.2"].
+  """
+
+  instructions = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingInstruction', 1, repeated=True)
+  outputLanguageCode = _messages.StringField(2)
+  overarchingGuidance = _messages.StringField(3)
+  version = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2AgentCoachingInstruction(_messages.Message):
+  r"""Agent Coaching instructions that customer can configure.
+
+  Fields:
+    agentAction: Optional. The action that human agent should take. For
+      example, "apologize for the slow shipping". If the users only want to
+      use agent coaching for intent detection, agent_action can be empty
+    condition: Optional. The condition of the instruction. For example, "the
+      customer wants to cancel an order". If the users want the instruction to
+      be triggered unconditionally, the condition can be empty.
+    displayDetails: Optional. The detailed description of this instruction.
+    displayName: Optional. Display name for the instruction.
+    duplicateCheckResult: Output only. Duplication check for the
+      AgentCoachingInstruction.
+    systemAction: Optional. The action that system should take. For example,
+      "call GetOrderTime with order_number={order number provided by the
+      customer}". If the users don't have plugins or don't want to trigger
+      plugins, the system_action can be empty
+  """
+
+  agentAction = _messages.StringField(1)
+  condition = _messages.StringField(2)
+  displayDetails = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingInstructionDuplicateCheckResult', 5)
+  systemAction = _messages.StringField(6)
+
+
+class GoogleCloudDialogflowV2AgentCoachingInstructionDuplicateCheckResult(_messages.Message):
+  r"""Duplication check for the suggestion.
+
+  Fields:
+    duplicateSuggestions: Output only. The duplicate suggestions.
+  """
+
+  duplicateSuggestions = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingInstructionDuplicateCheckResultDuplicateSuggestion', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2AgentCoachingInstructionDuplicateCheckResultDuplicateSuggestion(_messages.Message):
+  r"""The duplicate suggestion details.
+
+  Fields:
+    answerRecord: Output only. The answer record id of the past duplicate
+      suggestion.
+    similarityScore: Output only. The similarity score of between the past and
+      current suggestion.
+    suggestionIndex: Output only. The index of the duplicate suggestion in the
+      past suggestion list.
+  """
+
+  answerRecord = _messages.StringField(1)
+  similarityScore = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  suggestionIndex = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestion(_messages.Message):
+  r"""Suggestion for coaching agents.
+
+  Fields:
+    agentActionSuggestions: Optional. Suggested actions for the agent to take.
+    applicableInstructions: Optional. Instructions applicable based on the
+      current context.
+    sampleResponses: Optional. Sample response for the Agent.
+  """
+
+  agentActionSuggestions = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionAgentActionSuggestion', 1, repeated=True)
+  applicableInstructions = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingInstruction', 2, repeated=True)
+  sampleResponses = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionSampleResponse', 3, repeated=True)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestionAgentActionSuggestion(_messages.Message):
+  r"""Actions suggested for the agent. This is based on applicable
+  instructions.
+
+  Fields:
+    agentAction: Optional. The suggested action for the agent.
+    duplicateCheckResult: Output only. Duplicate check result for the agent
+      action suggestion.
+    sources: Output only. Sources for the agent action suggestion.
+  """
+
+  agentAction = _messages.StringField(1)
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionDuplicateCheckResult', 2)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionSources', 3)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestionDuplicateCheckResult(_messages.Message):
+  r"""Duplication check for the suggestion.
+
+  Fields:
+    duplicateSuggestions: Output only. The duplicate suggestions.
+  """
+
+  duplicateSuggestions = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionDuplicateCheckResultDuplicateSuggestion', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestionDuplicateCheckResultDuplicateSuggestion(_messages.Message):
+  r"""The duplicate suggestion details. Keeping answer_record and sources
+  together as they are identifiers for duplicate suggestions.
+
+  Fields:
+    answerRecord: Output only. The answer record id of the past duplicate
+      suggestion.
+    similarityScore: Output only. The similarity score of between the past and
+      current suggestion.
+    sources: Output only. Sources for the suggestion.
+    suggestionIndex: Output only. The index of the duplicate suggestion in the
+      past suggestion list.
+  """
+
+  answerRecord = _messages.StringField(1)
+  similarityScore = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionSources', 3)
+  suggestionIndex = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestionSampleResponse(_messages.Message):
+  r"""Sample response that the agent can use. This could be based on
+  applicable instructions and ingested data from other systems.
+
+  Fields:
+    duplicateCheckResult: Output only. Duplicate check result for the sample
+      response.
+    responseText: Optional. Sample response for Agent in text.
+    sources: Output only. Sources for the Sample Response.
+  """
+
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionDuplicateCheckResult', 1)
+  responseText = _messages.StringField(2)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestionSources', 3)
+
+
+class GoogleCloudDialogflowV2AgentCoachingSuggestionSources(_messages.Message):
+  r"""Sources for the suggestion.
+
+  Fields:
+    instructionIndexes: Output only. Source instruction indexes for the
+      suggestion. This is the index of the applicable_instructions field.
+  """
+
+  instructionIndexes = _messages.IntegerField(1, repeated=True, variant=_messages.Variant.INT32)
 
 
 class GoogleCloudDialogflowV2AnalyzeContentRequest(_messages.Message):
@@ -10276,6 +11178,7 @@ class GoogleCloudDialogflowV2AnalyzeContentRequest(_messages.Message):
 
   Fields:
     assistQueryParams: Parameters for a human assist query.
+    audioInput: The natural language speech audio to be processed.
     cxParameters: Additional parameters to be put into Dialogflow CX session
       parameters. To remove a parameter from the session, clients should
       explicitly set the parameter value to null. Note: this field should only
@@ -10322,13 +11225,14 @@ class GoogleCloudDialogflowV2AnalyzeContentRequest(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   assistQueryParams = _messages.MessageField('GoogleCloudDialogflowV2AssistQueryParameters', 1)
-  cxParameters = _messages.MessageField('CxParametersValue', 2)
-  eventInput = _messages.MessageField('GoogleCloudDialogflowV2EventInput', 3)
-  queryParams = _messages.MessageField('GoogleCloudDialogflowV2QueryParameters', 4)
-  replyAudioConfig = _messages.MessageField('GoogleCloudDialogflowV2OutputAudioConfig', 5)
-  requestId = _messages.StringField(6)
-  suggestionInput = _messages.MessageField('GoogleCloudDialogflowV2SuggestionInput', 7)
-  textInput = _messages.MessageField('GoogleCloudDialogflowV2TextInput', 8)
+  audioInput = _messages.MessageField('GoogleCloudDialogflowV2AudioInput', 2)
+  cxParameters = _messages.MessageField('CxParametersValue', 3)
+  eventInput = _messages.MessageField('GoogleCloudDialogflowV2EventInput', 4)
+  queryParams = _messages.MessageField('GoogleCloudDialogflowV2QueryParameters', 5)
+  replyAudioConfig = _messages.MessageField('GoogleCloudDialogflowV2OutputAudioConfig', 6)
+  requestId = _messages.StringField(7)
+  suggestionInput = _messages.MessageField('GoogleCloudDialogflowV2SuggestionInput', 8)
+  textInput = _messages.MessageField('GoogleCloudDialogflowV2TextInput', 9)
 
 
 class GoogleCloudDialogflowV2AnalyzeContentResponse(_messages.Message):
@@ -10336,10 +11240,10 @@ class GoogleCloudDialogflowV2AnalyzeContentResponse(_messages.Message):
 
   Fields:
     automatedAgentReply: Only set if a Dialogflow automated agent has
-      responded. Note that:
-      AutomatedAgentReply.detect_intent_response.output_audio and
-      AutomatedAgentReply.detect_intent_response.output_audio_config are
-      always empty, use reply_audio instead.
+      responded. Note that in AutomatedAgentReply.DetectIntentResponse,
+      Sessions.DetectIntentResponse.output_audio and
+      Sessions.DetectIntentResponse.output_audio_config are always empty, use
+      reply_audio instead.
     dtmfParameters: Indicates the parameters of DTMF.
     endUserSuggestionResults: The suggestions for end user. The order is the
       same as HumanAgentAssistantConfig.SuggestionConfig.feature_configs of
@@ -10453,8 +11357,8 @@ class GoogleCloudDialogflowV2AnswerRecord(_messages.Message):
   is: 1. For human agent assistant, customers get suggestion via
   ListSuggestions API. Together with the answers, AnswerRecord.name are
   returned to the customers. 2. The customer uses the AnswerRecord.name to
-  call the UpdateAnswerRecord method to send feedback about a specific answer
-  that they believe is wrong.
+  call the AnswerRecords.UpdateAnswerRecord method to send feedback about a
+  specific answer that they believe is wrong.
 
   Fields:
     agentAssistantRecord: Output only. The record for human agent assistant.
@@ -10612,6 +11516,22 @@ class GoogleCloudDialogflowV2AssistQueryParameters(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   documentsMetadataFilters = _messages.MessageField('DocumentsMetadataFiltersValue', 1)
+
+
+class GoogleCloudDialogflowV2AudioInput(_messages.Message):
+  r"""Represents the natural language speech audio to be processed.
+
+  Fields:
+    audio: Required. The natural language speech audio to be processed. A
+      single request can contain up to 2 minutes of speech audio data. The
+      transcribed text cannot contain more than 256 bytes for virtual agent
+      interactions.
+    config: Required. Instructs the speech recognizer how to process the
+      speech audio.
+  """
+
+  audio = _messages.BytesField(1)
+  config = _messages.MessageField('GoogleCloudDialogflowV2InputAudioConfig', 2)
 
 
 class GoogleCloudDialogflowV2AutomatedAgentConfig(_messages.Message):
@@ -10835,7 +11755,7 @@ class GoogleCloudDialogflowV2BatchUpdateIntentsResponse(_messages.Message):
 
 
 class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigOperationMetadata(_messages.Message):
-  r"""Metadata for a ConversationProfile.ClearSuggestionFeatureConfig
+  r"""Metadata for a ConversationProfiles.ClearSuggestionFeatureConfig
   operation.
 
   Enums:
@@ -10880,6 +11800,8 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigOperationMetadata(_mess
       ARTICLE_SUGGESTION: Run article suggestion model for chat.
       FAQ: Run FAQ model for chat.
       SMART_REPLY: Run smart reply model for chat.
+      CONVERSATION_SUMMARIZATION: Run conversation summarization model for
+        chat.
       KNOWLEDGE_SEARCH: Run knowledge search with text input from agent or
         text generated query.
       KNOWLEDGE_ASSIST: Run knowledge assist with automatic query generation.
@@ -10888,8 +11810,9 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigOperationMetadata(_mess
     ARTICLE_SUGGESTION = 1
     FAQ = 2
     SMART_REPLY = 3
-    KNOWLEDGE_SEARCH = 4
-    KNOWLEDGE_ASSIST = 5
+    CONVERSATION_SUMMARIZATION = 4
+    KNOWLEDGE_SEARCH = 5
+    KNOWLEDGE_ASSIST = 6
 
   conversationProfile = _messages.StringField(1)
   createTime = _messages.StringField(2)
@@ -10898,7 +11821,8 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigOperationMetadata(_mess
 
 
 class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest(_messages.Message):
-  r"""The request message for ConversationProfiles.ClearFeature.
+  r"""The request message for
+  ConversationProfiles.ClearSuggestionFeatureConfig.
 
   Enums:
     ParticipantRoleValueValuesEnum: Required. The participant role to remove
@@ -10938,6 +11862,8 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest(_messages.Messa
       ARTICLE_SUGGESTION: Run article suggestion model for chat.
       FAQ: Run FAQ model for chat.
       SMART_REPLY: Run smart reply model for chat.
+      CONVERSATION_SUMMARIZATION: Run conversation summarization model for
+        chat.
       KNOWLEDGE_SEARCH: Run knowledge search with text input from agent or
         text generated query.
       KNOWLEDGE_ASSIST: Run knowledge assist with automatic query generation.
@@ -10946,8 +11872,9 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest(_messages.Messa
     ARTICLE_SUGGESTION = 1
     FAQ = 2
     SMART_REPLY = 3
-    KNOWLEDGE_SEARCH = 4
-    KNOWLEDGE_ASSIST = 5
+    CONVERSATION_SUMMARIZATION = 4
+    KNOWLEDGE_SEARCH = 5
+    KNOWLEDGE_ASSIST = 6
 
   participantRole = _messages.EnumField('ParticipantRoleValueValuesEnum', 1)
   suggestionFeatureType = _messages.EnumField('SuggestionFeatureTypeValueValuesEnum', 2)
@@ -10955,6 +11882,86 @@ class GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest(_messages.Messa
 
 class GoogleCloudDialogflowV2CompleteConversationRequest(_messages.Message):
   r"""The request message for Conversations.CompleteConversation."""
+
+
+class GoogleCloudDialogflowV2Connection(_messages.Message):
+  r"""Represents a connection for SIP Trunk.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the connection.
+
+  Fields:
+    connectionId: Output only. The unique identifier of the SIP Trunk
+      connection.
+    errorDetails: Output only. The error details for the connection. Only
+      populated when authentication errors occur.
+    state: Output only. State of the connection.
+    updateTime: Output only. When the connection status changed.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the connection.
+
+    Values:
+      STATE_UNSPECIFIED: SIP Trunk connection state is Not specified.
+      CONNECTED: SIP Trunk connection is connected.
+      DISCONNECTED: SIP Trunk connection is disconnected.
+      AUTHENTICATION_FAILED: SIP Trunk connection has authentication error.
+      KEEPALIVE: SIP Trunk connection is keepalive.
+    """
+    STATE_UNSPECIFIED = 0
+    CONNECTED = 1
+    DISCONNECTED = 2
+    AUTHENTICATION_FAILED = 3
+    KEEPALIVE = 4
+
+  connectionId = _messages.StringField(1)
+  errorDetails = _messages.MessageField('GoogleCloudDialogflowV2ConnectionErrorDetails', 2)
+  state = _messages.EnumField('StateValueValuesEnum', 3)
+  updateTime = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2ConnectionErrorDetails(_messages.Message):
+  r"""The error details of Sip Trunk connection authentication.
+
+  Enums:
+    CertificateStateValueValuesEnum: Output only. The status of the
+      certificate authentication.
+
+  Fields:
+    certificateState: Output only. The status of the certificate
+      authentication.
+    errorMessage: The error message provided from SIP trunking auth service
+  """
+
+  class CertificateStateValueValuesEnum(_messages.Enum):
+    r"""Output only. The status of the certificate authentication.
+
+    Values:
+      CERTIFICATE_STATE_UNSPECIFIED: Certificate state is not specified.
+      CERTIFICATE_VALID: Certificate is valid.
+      CERTIFICATE_INVALID: Catch all for any error not specified.
+      CERTIFICATE_EXPIRED: Certificate leaf node has expired.
+      CERTIFICATE_HOSTNAME_NOT_FOUND: There is no hostname defined to
+        authenticate in SipTrunkingServer.
+      CERTIFICATE_UNAUTHENTICATED: No path found from the leaf certificate to
+        any root.
+      CERTIFICATE_TRUST_STORE_NOT_FOUND: Trust store does not exist.
+      CERTIFICATE_HOSTNAME_INVALID_FORMAT: Hostname has invalid format.
+      CERTIFICATE_QUOTA_EXCEEDED: Certificate has exhausted its quota.
+    """
+    CERTIFICATE_STATE_UNSPECIFIED = 0
+    CERTIFICATE_VALID = 1
+    CERTIFICATE_INVALID = 2
+    CERTIFICATE_EXPIRED = 3
+    CERTIFICATE_HOSTNAME_NOT_FOUND = 4
+    CERTIFICATE_UNAUTHENTICATED = 5
+    CERTIFICATE_TRUST_STORE_NOT_FOUND = 6
+    CERTIFICATE_HOSTNAME_INVALID_FORMAT = 7
+    CERTIFICATE_QUOTA_EXCEEDED = 8
+
+  certificateState = _messages.EnumField('CertificateStateValueValuesEnum', 1)
+  errorMessage = _messages.StringField(2)
 
 
 class GoogleCloudDialogflowV2Context(_messages.Message):
@@ -11068,6 +12075,10 @@ class GoogleCloudDialogflowV2Conversation(_messages.Message):
     LifecycleStateValueValuesEnum: Output only. The current state of the
       Conversation.
 
+  Messages:
+    IngestedContextReferencesValue: Output only. The context reference updates
+      provided by external systems.
+
   Fields:
     conversationProfile: Required. The Conversation Profile to be used to
       configure this Conversation. This field cannot be updated. Format:
@@ -11084,12 +12095,16 @@ class GoogleCloudDialogflowV2Conversation(_messages.Message):
       ConversationStage.VIRTUAL_AGENT_STAGE stage and directly goes to
       ConversationStage.HUMAN_ASSIST_STAGE.
     endTime: Output only. The time the conversation was finished.
+    ingestedContextReferences: Output only. The context reference updates
+      provided by external systems.
     lifecycleState: Output only. The current state of the Conversation.
     name: Output only. Identifier. The unique identifier of this conversation.
       Format: `projects//locations//conversations/`.
     phoneNumber: Output only. It will not be empty if the conversation is to
       be connected over telephony.
     startTime: Output only. The time the conversation was started.
+    telephonyConnectionInfo: Output only. The telephony connection
+      information.
   """
 
   class ConversationStageValueValuesEnum(_messages.Enum):
@@ -11128,13 +12143,43 @@ class GoogleCloudDialogflowV2Conversation(_messages.Message):
     IN_PROGRESS = 1
     COMPLETED = 2
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class IngestedContextReferencesValue(_messages.Message):
+    r"""Output only. The context reference updates provided by external
+    systems.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        IngestedContextReferencesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        IngestedContextReferencesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a IngestedContextReferencesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowV2ConversationContextReference
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowV2ConversationContextReference', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   conversationProfile = _messages.StringField(1)
   conversationStage = _messages.EnumField('ConversationStageValueValuesEnum', 2)
   endTime = _messages.StringField(3)
-  lifecycleState = _messages.EnumField('LifecycleStateValueValuesEnum', 4)
-  name = _messages.StringField(5)
-  phoneNumber = _messages.MessageField('GoogleCloudDialogflowV2ConversationPhoneNumber', 6)
-  startTime = _messages.StringField(7)
+  ingestedContextReferences = _messages.MessageField('IngestedContextReferencesValue', 4)
+  lifecycleState = _messages.EnumField('LifecycleStateValueValuesEnum', 5)
+  name = _messages.StringField(6)
+  phoneNumber = _messages.MessageField('GoogleCloudDialogflowV2ConversationPhoneNumber', 7)
+  startTime = _messages.StringField(8)
+  telephonyConnectionInfo = _messages.MessageField('GoogleCloudDialogflowV2ConversationTelephonyConnectionInfo', 9)
 
 
 class GoogleCloudDialogflowV2ConversationContext(_messages.Message):
@@ -11145,6 +12190,75 @@ class GoogleCloudDialogflowV2ConversationContext(_messages.Message):
   """
 
   messageEntries = _messages.MessageField('GoogleCloudDialogflowV2MessageEntry', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2ConversationContextReference(_messages.Message):
+  r"""Represents a section of ingested context information.
+
+  Enums:
+    UpdateModeValueValuesEnum: Required. The mode in which context reference
+      contents are updated.
+
+  Fields:
+    contextContents: Required. The list of content updates for a context
+      reference.
+    createTime: Output only. The time the context reference was first created.
+    languageCode: Optional. The language of the information ingested, defaults
+      to "en-US" if not set.
+    updateMode: Required. The mode in which context reference contents are
+      updated.
+  """
+
+  class UpdateModeValueValuesEnum(_messages.Enum):
+    r"""Required. The mode in which context reference contents are updated.
+
+    Values:
+      UPDATE_MODE_UNSPECIFIED: Unspecified update mode.
+      APPEND: Context content updates are applied in append mode.
+      OVERWRITE: Context content updates are applied in overwrite mode.
+    """
+    UPDATE_MODE_UNSPECIFIED = 0
+    APPEND = 1
+    OVERWRITE = 2
+
+  contextContents = _messages.MessageField('GoogleCloudDialogflowV2ConversationContextReferenceContextContent', 1, repeated=True)
+  createTime = _messages.StringField(2)
+  languageCode = _messages.StringField(3)
+  updateMode = _messages.EnumField('UpdateModeValueValuesEnum', 4)
+
+
+class GoogleCloudDialogflowV2ConversationContextReferenceContextContent(_messages.Message):
+  r"""Contents ingested.
+
+  Enums:
+    ContentFormatValueValuesEnum: Required. The format of the ingested string.
+
+  Fields:
+    answerRecord: If the context content was generated from a tool call,
+      specify the answer record associated with the tool call. Format:
+      `projects//locations//answerRecords/`.
+    content: Required. The information ingested in a single request.
+    contentFormat: Required. The format of the ingested string.
+    ingestionTime: Output only. The time when this information was
+      incorporated into the relevant context reference.
+  """
+
+  class ContentFormatValueValuesEnum(_messages.Enum):
+    r"""Required. The format of the ingested string.
+
+    Values:
+      CONTENT_FORMAT_UNSPECIFIED: Unspecified content format.
+      JSON: Content was provided in JSON format.
+      PLAIN_TEXT: Content was provided as plain text.
+    """
+    CONTENT_FORMAT_UNSPECIFIED = 0
+    JSON = 1
+    PLAIN_TEXT = 2
+
+  answerRecord = _messages.StringField(1)
+  content = _messages.StringField(2)
+  contentFormat = _messages.EnumField('ContentFormatValueValuesEnum', 3)
+  ingestionTime = _messages.StringField(4)
 
 
 class GoogleCloudDialogflowV2ConversationDataset(_messages.Message):
@@ -11198,6 +12312,7 @@ class GoogleCloudDialogflowV2ConversationEvent(_messages.Message):
     errorStatus: More detailed information about an error. Only set for type
       UNRECOVERABLE_ERROR_IN_PHONE_CALL.
     newMessagePayload: Payload of NEW_MESSAGE event.
+    newRecognitionResultPayload: Payload of NEW_RECOGNITION_RESULT event.
     type: The type of the event that this notification refers to.
   """
 
@@ -11217,6 +12332,10 @@ class GoogleCloudDialogflowV2ConversationEvent(_messages.Message):
       NEW_MESSAGE: An existing conversation has received a new message, either
         from API or telephony. It is configured in
         ConversationProfile.new_message_event_notification_config
+      NEW_RECOGNITION_RESULT: An existing conversation has received a new
+        speech recognition result. This is mainly for delivering intermediate
+        transcripts. The notification is configured in
+        ConversationProfile.new_recognition_event_notification_config.
       UNRECOVERABLE_ERROR: Unrecoverable error during a telephone call. In
         general non-recoverable errors only occur if something was
         misconfigured in the ConversationProfile corresponding to the call.
@@ -11229,12 +12348,14 @@ class GoogleCloudDialogflowV2ConversationEvent(_messages.Message):
     CONVERSATION_FINISHED = 2
     HUMAN_INTERVENTION_NEEDED = 3
     NEW_MESSAGE = 4
-    UNRECOVERABLE_ERROR = 5
+    NEW_RECOGNITION_RESULT = 5
+    UNRECOVERABLE_ERROR = 6
 
   conversation = _messages.StringField(1)
   errorStatus = _messages.MessageField('GoogleRpcStatus', 2)
   newMessagePayload = _messages.MessageField('GoogleCloudDialogflowV2Message', 3)
-  type = _messages.EnumField('TypeValueValuesEnum', 4)
+  newRecognitionResultPayload = _messages.MessageField('GoogleCloudDialogflowV2StreamingRecognitionResult', 4)
+  type = _messages.EnumField('TypeValueValuesEnum', 5)
 
 
 class GoogleCloudDialogflowV2ConversationInfo(_messages.Message):
@@ -11328,7 +12449,7 @@ class GoogleCloudDialogflowV2ConversationModelEvaluation(_messages.Message):
     name: The resource name of the evaluation. Format:
       `projects//conversationModels//evaluations/`
     rawHumanEvalTemplateCsv: Output only. Human eval template in csv format.
-      It tooks real-world conversations provided through input dataset,
+      It takes real-world conversations provided through input dataset,
       generates example suggestions for customer to verify quality of the
       model. For Smart Reply, the generated csv file contains columns of
       Context, (Suggestions,Q1,Q2)*3, Actual reply. Context contains at most
@@ -11357,11 +12478,13 @@ class GoogleCloudDialogflowV2ConversationPhoneNumber(_messages.Message):
   connecting a particular conversation over telephony.
 
   Fields:
+    countryCode: Output only. Desired country code for the phone number.
     phoneNumber: Output only. The phone number to connect to this
       conversation.
   """
 
-  phoneNumber = _messages.StringField(1)
+  countryCode = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  phoneNumber = _messages.StringField(2)
 
 
 class GoogleCloudDialogflowV2ConversationProfile(_messages.Message):
@@ -11388,6 +12511,11 @@ class GoogleCloudDialogflowV2ConversationProfile(_messages.Message):
       `projects//locations//conversationProfiles/`.
     newMessageEventNotificationConfig: Configuration for publishing new
       message events. Event will be sent in format of ConversationEvent
+    newRecognitionResultNotificationConfig: Optional. Configuration for
+      publishing transcription intermediate results. Event will be sent in
+      format of ConversationEvent. If configured, the following information
+      will be populated as ConversationEvent Pub/Sub message attributes: -
+      "participant_id" - "participant_role" - "message_id"
     notificationConfig: Configuration for publishing conversation lifecycle
       events.
     securitySettings: Name of the CX SecuritySettings reference for the agent.
@@ -11412,16 +12540,62 @@ class GoogleCloudDialogflowV2ConversationProfile(_messages.Message):
   loggingConfig = _messages.MessageField('GoogleCloudDialogflowV2LoggingConfig', 7)
   name = _messages.StringField(8)
   newMessageEventNotificationConfig = _messages.MessageField('GoogleCloudDialogflowV2NotificationConfig', 9)
-  notificationConfig = _messages.MessageField('GoogleCloudDialogflowV2NotificationConfig', 10)
-  securitySettings = _messages.StringField(11)
-  sttConfig = _messages.MessageField('GoogleCloudDialogflowV2SpeechToTextConfig', 12)
-  timeZone = _messages.StringField(13)
-  ttsConfig = _messages.MessageField('GoogleCloudDialogflowV2SynthesizeSpeechConfig', 14)
-  updateTime = _messages.StringField(15)
+  newRecognitionResultNotificationConfig = _messages.MessageField('GoogleCloudDialogflowV2NotificationConfig', 10)
+  notificationConfig = _messages.MessageField('GoogleCloudDialogflowV2NotificationConfig', 11)
+  securitySettings = _messages.StringField(12)
+  sttConfig = _messages.MessageField('GoogleCloudDialogflowV2SpeechToTextConfig', 13)
+  timeZone = _messages.StringField(14)
+  ttsConfig = _messages.MessageField('GoogleCloudDialogflowV2SynthesizeSpeechConfig', 15)
+  updateTime = _messages.StringField(16)
+
+
+class GoogleCloudDialogflowV2ConversationTelephonyConnectionInfo(_messages.Message):
+  r"""The information about phone calls connected via phone gateway to the
+  conversation.
+
+  Fields:
+    dialedNumber: Output only. The number dialed to connect this call in E.164
+      format.
+    extraMimeContents: Output only. The mime content from the initial SIP
+      INVITE.
+    sdp: Optional. SDP of the call. It's initially the SDP answer to the
+      incoming call, but maybe later updated for the purpose of making the
+      link active, etc.
+    sipHeaders: Output only. The SIP headers from the initial SIP INVITE.
+  """
+
+  dialedNumber = _messages.StringField(1)
+  extraMimeContents = _messages.MessageField('GoogleCloudDialogflowV2ConversationTelephonyConnectionInfoMimeContent', 2, repeated=True)
+  sdp = _messages.StringField(3)
+  sipHeaders = _messages.MessageField('GoogleCloudDialogflowV2ConversationTelephonyConnectionInfoSipHeader', 4, repeated=True)
+
+
+class GoogleCloudDialogflowV2ConversationTelephonyConnectionInfoMimeContent(_messages.Message):
+  r"""The mime content from the initial SIP INVITE.
+
+  Fields:
+    content: Optional. The content payload.
+    mimeType: Optional. The mime type of the content.
+  """
+
+  content = _messages.BytesField(1)
+  mimeType = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2ConversationTelephonyConnectionInfoSipHeader(_messages.Message):
+  r"""The SIP headers from the initial SIP INVITE.
+
+  Fields:
+    name: Optional. The name of the header.
+    value: Optional. The value of the header.
+  """
+
+  name = _messages.StringField(1)
+  value = _messages.StringField(2)
 
 
 class GoogleCloudDialogflowV2CreateConversationDatasetOperationMetadata(_messages.Message):
-  r"""Metadata for ConversationDatasets.
+  r"""Metadata for CreateConversationDataset.
 
   Fields:
     conversationDataset: The resource name of the conversation dataset that
@@ -11495,6 +12669,7 @@ class GoogleCloudDialogflowV2CreateConversationModelOperationMetadata(_messages.
       `projects//conversationModels/`
     createTime: Timestamp when the request to create conversation model is
       submitted. The time is measured on server side.
+    doneTime: The time when the operation finished.
     state: State of CreateConversationModel operation.
   """
 
@@ -11522,11 +12697,46 @@ class GoogleCloudDialogflowV2CreateConversationModelOperationMetadata(_messages.
 
   conversationModel = _messages.StringField(1)
   createTime = _messages.StringField(2)
-  state = _messages.EnumField('StateValueValuesEnum', 3)
+  doneTime = _messages.StringField(3)
+  state = _messages.EnumField('StateValueValuesEnum', 4)
+
+
+class GoogleCloudDialogflowV2CustomPronunciationParams(_messages.Message):
+  r"""Pronunciation customization for a phrase.
+
+  Enums:
+    PhoneticEncodingValueValuesEnum: The phonetic encoding of the phrase.
+
+  Fields:
+    phoneticEncoding: The phonetic encoding of the phrase.
+    phrase: The phrase to which the customization is applied. The phrase can
+      be multiple words, such as proper nouns, but shouldn't span the length
+      of the sentence.
+    pronunciation: The pronunciation of the phrase. This must be in the
+      phonetic encoding specified above.
+  """
+
+  class PhoneticEncodingValueValuesEnum(_messages.Enum):
+    r"""The phonetic encoding of the phrase.
+
+    Values:
+      PHONETIC_ENCODING_UNSPECIFIED: Not specified.
+      PHONETIC_ENCODING_IPA: IPA, such as apple -> \u02c8\xe6p\u0259l.
+        https://en.wikipedia.org/wiki/International_Phonetic_Alphabet
+      PHONETIC_ENCODING_X_SAMPA: X-SAMPA, such as apple -> "{p@l".
+        https://en.wikipedia.org/wiki/X-SAMPA
+    """
+    PHONETIC_ENCODING_UNSPECIFIED = 0
+    PHONETIC_ENCODING_IPA = 1
+    PHONETIC_ENCODING_X_SAMPA = 2
+
+  phoneticEncoding = _messages.EnumField('PhoneticEncodingValueValuesEnum', 1)
+  phrase = _messages.StringField(2)
+  pronunciation = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowV2DeleteConversationDatasetOperationMetadata(_messages.Message):
-  r"""Metadata for ConversationDatasets."""
+  r"""Metadata for DeleteConversationDataset."""
 
 
 class GoogleCloudDialogflowV2DeleteConversationModelOperationMetadata(_messages.Message):
@@ -11537,10 +12747,12 @@ class GoogleCloudDialogflowV2DeleteConversationModelOperationMetadata(_messages.
       `projects//conversationModels/`
     createTime: Timestamp when delete conversation model request was created.
       The time is measured on server side.
+    doneTime: The time when the operation finished.
   """
 
   conversationModel = _messages.StringField(1)
   createTime = _messages.StringField(2)
+  doneTime = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowV2DeployConversationModelOperationMetadata(_messages.Message):
@@ -11551,10 +12763,12 @@ class GoogleCloudDialogflowV2DeployConversationModelOperationMetadata(_messages.
       `projects//conversationModels/`
     createTime: Timestamp when request to deploy conversation model was
       submitted. The time is measured on server side.
+    doneTime: The time when the operation finished.
   """
 
   conversationModel = _messages.StringField(1)
   createTime = _messages.StringField(2)
+  doneTime = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowV2DeployConversationModelRequest(_messages.Message):
@@ -12012,8 +13226,8 @@ class GoogleCloudDialogflowV2EvaluationConfig(_messages.Message):
 
   Fields:
     datasets: Required. Datasets used for evaluation.
-    smartComposeConfig: Configuration for smart compose model evalution.
-    smartReplyConfig: Configuration for smart reply model evalution.
+    smartComposeConfig: Configuration for smart compose model evaluation.
+    smartReplyConfig: Configuration for smart reply model evaluation.
   """
 
   datasets = _messages.MessageField('GoogleCloudDialogflowV2InputDataset', 1, repeated=True)
@@ -12052,6 +13266,21 @@ class GoogleCloudDialogflowV2EvaluationConfigSmartReplyConfig(_messages.Message)
 
   allowlistDocument = _messages.StringField(1)
   maxResultCount = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudDialogflowV2EvaluationStatus(_messages.Message):
+  r"""A common evalaution pipeline status.
+
+  Fields:
+    done: Output only. If the value is `false`, it means the evaluation is
+      still in progress. If `true`, the operation is completed, and either
+      `error` or `response` is available.
+    pipelineStatus: Output only. The error result of the evaluation in case of
+      failure in evaluation pipeline.
+  """
+
+  done = _messages.BooleanField(1)
+  pipelineStatus = _messages.MessageField('GoogleRpcStatus', 2)
 
 
 class GoogleCloudDialogflowV2EventInput(_messages.Message):
@@ -12292,6 +13521,26 @@ class GoogleCloudDialogflowV2FewShotExample(_messages.Message):
   summarizationSectionList = _messages.MessageField('GoogleCloudDialogflowV2SummarizationSectionList', 4)
 
 
+class GoogleCloudDialogflowV2FreeFormContext(_messages.Message):
+  r"""Free form generator context that customer can configure.
+
+  Fields:
+    text: Optional. Free form text input to LLM.
+  """
+
+  text = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2FreeFormSuggestion(_messages.Message):
+  r"""Suggestion generated using free form generator.
+
+  Fields:
+    response: Required. Free form suggestion.
+  """
+
+  response = _messages.StringField(1)
+
+
 class GoogleCloudDialogflowV2Fulfillment(_messages.Message):
   r"""By default, your agent responds to a matched intent with a static
   response. As an alternative, you can provide a more dynamic response by
@@ -12434,13 +13683,28 @@ class GoogleCloudDialogflowV2GenerateStatelessSuggestionRequest(_messages.Messag
   Enums:
     TriggerEventsValueListEntryValuesEnum:
 
+  Messages:
+    ContextReferencesValue: Optional. A section of ingested context
+      information. The key is the name of the context reference and the value
+      contains the contents of the context reference. The key is used to
+      incorporate ingested context references to enhance the generator.
+
   Fields:
+    contextReferences: Optional. A section of ingested context information.
+      The key is the name of the context reference and the value contains the
+      contents of the context reference. The key is used to incorporate
+      ingested context references to enhance the generator.
     conversationContext: Optional. Context of the conversation, including
       transcripts.
     generator: Uncreated generator. It should be a complete generator that
       includes all information about the generator.
     generatorName: The resource name of the existing created generator.
       Format: `projects//locations//generators/`
+    securitySettings: Optional. Name of the CX SecuritySettings which is used
+      to redact generated response. If this field is empty, try to fetch v2
+      security_settings, which is a project level setting. If this field is
+      empty and no v2 security_settings set up in this project, no redaction
+      will be done. Format: `projects//locations//securitySettings/`.
     triggerEvents: Optional. A list of trigger events. Generator will be
       triggered only if it's trigger event is included here.
   """
@@ -12455,15 +13719,51 @@ class GoogleCloudDialogflowV2GenerateStatelessSuggestionRequest(_messages.Messag
       MANUAL_CALL: Triggers on the conversation manually by API calls, such as
         Conversations.GenerateStatelessSuggestion and
         Conversations.GenerateSuggestions.
+      CUSTOMER_MESSAGE: Triggers after each customer message only.
+      AGENT_MESSAGE: Triggers after each agent message only.
     """
     TRIGGER_EVENT_UNSPECIFIED = 0
     END_OF_UTTERANCE = 1
     MANUAL_CALL = 2
+    CUSTOMER_MESSAGE = 3
+    AGENT_MESSAGE = 4
 
-  conversationContext = _messages.MessageField('GoogleCloudDialogflowV2ConversationContext', 1)
-  generator = _messages.MessageField('GoogleCloudDialogflowV2Generator', 2)
-  generatorName = _messages.StringField(3)
-  triggerEvents = _messages.EnumField('TriggerEventsValueListEntryValuesEnum', 4, repeated=True)
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ContextReferencesValue(_messages.Message):
+    r"""Optional. A section of ingested context information. The key is the
+    name of the context reference and the value contains the contents of the
+    context reference. The key is used to incorporate ingested context
+    references to enhance the generator.
+
+    Messages:
+      AdditionalProperty: An additional property for a ContextReferencesValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        ContextReferencesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ContextReferencesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowV2ConversationContextReference
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowV2ConversationContextReference', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  contextReferences = _messages.MessageField('ContextReferencesValue', 1)
+  conversationContext = _messages.MessageField('GoogleCloudDialogflowV2ConversationContext', 2)
+  generator = _messages.MessageField('GoogleCloudDialogflowV2Generator', 3)
+  generatorName = _messages.StringField(4)
+  securitySettings = _messages.StringField(5)
+  triggerEvents = _messages.EnumField('TriggerEventsValueListEntryValuesEnum', 6, repeated=True)
 
 
 class GoogleCloudDialogflowV2GenerateStatelessSuggestionResponse(_messages.Message):
@@ -12521,10 +13821,10 @@ class GoogleCloudDialogflowV2GenerateStatelessSummaryResponse(_messages.Message)
   r"""The response message for Conversations.GenerateStatelessSummary.
 
   Fields:
-    contextSize: Number of messages prior to and including
-      last_conversation_message used to compile the suggestion. It may be
-      smaller than the GenerateStatelessSummaryRequest.context_size field in
-      the request if there weren't that many messages in the conversation.
+    contextSize: Number of messages prior to and including latest_message used
+      to compile the suggestion. It may be smaller than the
+      GenerateStatelessSummaryRequest.max_context_size field in the request if
+      there weren't that many messages in the conversation.
     latestMessage: The name of the latest conversation message used as context
       for compiling suggestion. The format is specific to the user and the
       names of the messages provided.
@@ -12586,6 +13886,75 @@ class GoogleCloudDialogflowV2GenerateStatelessSummaryResponseSummary(_messages.M
   textSections = _messages.MessageField('TextSectionsValue', 3)
 
 
+class GoogleCloudDialogflowV2GenerateSuggestionsRequest(_messages.Message):
+  r"""The request message for Conversations.GenerateSuggestions.
+
+  Enums:
+    TriggerEventsValueListEntryValuesEnum:
+
+  Fields:
+    latestMessage: Optional. The name of the latest conversation message for
+      which the request is triggered. Format:
+      `projects//locations//conversations//messages/`.
+    triggerEvents: Optional. A list of trigger events. Only generators
+      configured in the conversation_profile whose trigger_event is listed
+      here will be triggered.
+  """
+
+  class TriggerEventsValueListEntryValuesEnum(_messages.Enum):
+    r"""TriggerEventsValueListEntryValuesEnum enum type.
+
+    Values:
+      TRIGGER_EVENT_UNSPECIFIED: Default value for TriggerEvent.
+      END_OF_UTTERANCE: Triggers when each chat message or voice utterance
+        ends.
+      MANUAL_CALL: Triggers on the conversation manually by API calls, such as
+        Conversations.GenerateStatelessSuggestion and
+        Conversations.GenerateSuggestions.
+      CUSTOMER_MESSAGE: Triggers after each customer message only.
+      AGENT_MESSAGE: Triggers after each agent message only.
+    """
+    TRIGGER_EVENT_UNSPECIFIED = 0
+    END_OF_UTTERANCE = 1
+    MANUAL_CALL = 2
+    CUSTOMER_MESSAGE = 3
+    AGENT_MESSAGE = 4
+
+  latestMessage = _messages.StringField(1)
+  triggerEvents = _messages.EnumField('TriggerEventsValueListEntryValuesEnum', 2, repeated=True)
+
+
+class GoogleCloudDialogflowV2GenerateSuggestionsResponse(_messages.Message):
+  r"""The response message for Conversations.GenerateSuggestions.
+
+  Fields:
+    generatorSuggestionAnswers: The answers generated for the conversation
+      based on context.
+    latestMessage: The name of the latest conversation message used as context
+      for compiling suggestion. Format:
+      `projects//locations//conversations//messages/`.
+  """
+
+  generatorSuggestionAnswers = _messages.MessageField('GoogleCloudDialogflowV2GenerateSuggestionsResponseGeneratorSuggestionAnswer', 1, repeated=True)
+  latestMessage = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2GenerateSuggestionsResponseGeneratorSuggestionAnswer(_messages.Message):
+  r"""A GeneratorSuggestion answer.
+
+  Fields:
+    answerRecord: Answer record that uniquely identifies the suggestion. This
+      can be used to provide suggestion feedback.
+    generatorSuggestion: Suggestion details.
+    sourceGenerator: The name of the generator used to generate this
+      suggestion. Format: `projects//locations//generators/`.
+  """
+
+  answerRecord = _messages.StringField(1)
+  generatorSuggestion = _messages.MessageField('GoogleCloudDialogflowV2GeneratorSuggestion', 2)
+  sourceGenerator = _messages.StringField(3)
+
+
 class GoogleCloudDialogflowV2Generator(_messages.Message):
   r"""LLM generator.
 
@@ -12594,12 +13963,22 @@ class GoogleCloudDialogflowV2Generator(_messages.Message):
       It defines when the generator is triggered in a conversation.
 
   Fields:
+    agentCoachingContext: Input of prebuilt Agent Coaching feature.
     createTime: Output only. Creation time of this generator.
     description: Optional. Human readable description of the generator.
+    freeFormContext: Input of free from generator to LLM.
     inferenceParameter: Optional. Inference parameters for this generator.
     name: Output only. Identifier. The resource name of the generator. Format:
       `projects//locations//generators/`
+    publishedModel: Optional. The published Large Language Model name. * To
+      use the latest model version, specify the model name without version
+      number. Example: `text-bison` * To use a stable model version, specify
+      the version number as well. Example: `text-bison@002`.
+    suggestionDedupingConfig: Optional. Configuration for suggestion deduping.
+      This is only applicable to AI Coach feature.
     summarizationContext: Input of prebuilt Summarization feature.
+    tools: Optional. Resource names of the tools that the generator can choose
+      from. Format: `projects//locations//tools/`.
     triggerEvent: Optional. The trigger event of the generator. It defines
       when the generator is triggered in a conversation.
     updateTime: Output only. Update time of this generator.
@@ -12616,28 +13995,233 @@ class GoogleCloudDialogflowV2Generator(_messages.Message):
       MANUAL_CALL: Triggers on the conversation manually by API calls, such as
         Conversations.GenerateStatelessSuggestion and
         Conversations.GenerateSuggestions.
+      CUSTOMER_MESSAGE: Triggers after each customer message only.
+      AGENT_MESSAGE: Triggers after each agent message only.
     """
     TRIGGER_EVENT_UNSPECIFIED = 0
     END_OF_UTTERANCE = 1
     MANUAL_CALL = 2
+    CUSTOMER_MESSAGE = 3
+    AGENT_MESSAGE = 4
 
-  createTime = _messages.StringField(1)
-  description = _messages.StringField(2)
-  inferenceParameter = _messages.MessageField('GoogleCloudDialogflowV2InferenceParameter', 3)
-  name = _messages.StringField(4)
-  summarizationContext = _messages.MessageField('GoogleCloudDialogflowV2SummarizationContext', 5)
-  triggerEvent = _messages.EnumField('TriggerEventValueValuesEnum', 6)
-  updateTime = _messages.StringField(7)
+  agentCoachingContext = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingContext', 1)
+  createTime = _messages.StringField(2)
+  description = _messages.StringField(3)
+  freeFormContext = _messages.MessageField('GoogleCloudDialogflowV2FreeFormContext', 4)
+  inferenceParameter = _messages.MessageField('GoogleCloudDialogflowV2InferenceParameter', 5)
+  name = _messages.StringField(6)
+  publishedModel = _messages.StringField(7)
+  suggestionDedupingConfig = _messages.MessageField('GoogleCloudDialogflowV2SuggestionDedupingConfig', 8)
+  summarizationContext = _messages.MessageField('GoogleCloudDialogflowV2SummarizationContext', 9)
+  tools = _messages.StringField(10, repeated=True)
+  triggerEvent = _messages.EnumField('TriggerEventValueValuesEnum', 11)
+  updateTime = _messages.StringField(12)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluation(_messages.Message):
+  r"""Represents evaluation result of a generator.
+
+  Fields:
+    completeTime: Output only. Completion time of this generator evaluation.
+    createTime: Output only. Creation time of this generator evaluation.
+    displayName: Optional. The display name of the generator evaluation. At
+      most 64 bytes long.
+    evaluationStatus: Output only. The result status of the evaluation
+      pipeline. Provides the status information including if the evaluation is
+      still in progress, completed or failed with certain error and user
+      actionable message.
+    generatorEvaluationConfig: Required. The configuration of the evaluation
+      task.
+    initialGenerator: Required. The initial generator that was used when
+      creating this evaluation. This is a copy of the generator read from
+      storage when creating the evaluation.
+    name: Output only. Identifier. The resource name of the evaluation.
+      Format: `projects//locations//generators// evaluations/`
+    satisfiesPzi: Output only. A read only boolean field reflecting Zone
+      Isolation status of the model. The field is an aggregated value of ZI
+      status of its underlying dependencies. See more details in go/zicy-
+      resource-placement#resource-status
+    satisfiesPzs: Output only. A read only boolean field reflecting Zone
+      Separation status of the model. The field is an aggregated value of ZS
+      status of its underlying dependencies. See more details in go/zicy-
+      resource-placement#resource-status
+    summarizationMetrics: Output only. Only available when the summarization
+      generator is provided.
+  """
+
+  completeTime = _messages.StringField(1)
+  createTime = _messages.StringField(2)
+  displayName = _messages.StringField(3)
+  evaluationStatus = _messages.MessageField('GoogleCloudDialogflowV2EvaluationStatus', 4)
+  generatorEvaluationConfig = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluationConfig', 5)
+  initialGenerator = _messages.MessageField('GoogleCloudDialogflowV2Generator', 6)
+  name = _messages.StringField(7)
+  satisfiesPzi = _messages.BooleanField(8)
+  satisfiesPzs = _messages.BooleanField(9)
+  summarizationMetrics = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetrics', 10)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluationConfig(_messages.Message):
+  r"""Generator evaluation input config.
+
+  Fields:
+    inputDataConfig: Required. The config/source of input data.
+    outputGcsBucketPath: Required. The output Cloud Storage bucket path to
+      store eval files, e.g. per_summary_accuracy_score report. This path is
+      provided by customer and files stored in it are visible to customer, no
+      internal data should be stored in this path.
+    summarizationConfig: Evaluation configs for summarization generator.
+  """
+
+  inputDataConfig = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluationConfigInputDataConfig', 1)
+  outputGcsBucketPath = _messages.StringField(2)
+  summarizationConfig = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluationConfigSummarizationConfig', 3)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluationConfigAgentAssistInputDataConfig(_messages.Message):
+  r"""The distinctive configs for Agent Assist conversations as the
+  conversation source.
+
+  Fields:
+    endTime: Required. The end of the time range for conversations to be
+      evaluated. Only conversations ended at or before this timestamp will be
+      sampled.
+    startTime: Required. The start of the time range for conversations to be
+      evaluated. Only conversations created at or after this timestamp will be
+      sampled.
+  """
+
+  endTime = _messages.StringField(1)
+  startTime = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluationConfigDatasetInputDataConfig(_messages.Message):
+  r"""The distinctive configs for dataset as the conversation source.
+
+  Fields:
+    dataset: Required. The identifier of the dataset to be evaluated. Format:
+      `projects//locations//datasets/`.
+  """
+
+  dataset = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluationConfigInputDataConfig(_messages.Message):
+  r"""Input data config details
+
+  Enums:
+    InputDataSourceTypeValueValuesEnum: Required. The source type of input
+      data.
+    SummaryGenerationOptionValueValuesEnum: Optional. Option to control
+      whether summaries are generated during evaluation.
+
+  Fields:
+    agentAssistInputDataConfig: The distinctive configs for Agent Assist
+      conversations as the conversation source.
+    datasetInputDataConfig: The distinctive configs for dataset as the
+      conversation source.
+    endTime: Optional. The end timestamp to fetch conversation data.
+    inputDataSourceType: Required. The source type of input data.
+    isSummaryGenerationAllowed: Optional. Whether the summary generation is
+      allowed when the pre-existing qualified summaries are insufficient to
+      cover the sample size.
+    sampleSize: Optional. Desired number of conversation-summary pairs to be
+      evaluated.
+    startTime: Optional. The start timestamp to fetch conversation data.
+    summaryGenerationOption: Optional. Option to control whether summaries are
+      generated during evaluation.
+  """
+
+  class InputDataSourceTypeValueValuesEnum(_messages.Enum):
+    r"""Required. The source type of input data.
+
+    Values:
+      INPUT_DATA_SOURCE_TYPE_UNSPECIFIED: Unspecified InputDataSourceType.
+        Should not be used.
+      AGENT_ASSIST_CONVERSATIONS: Fetch data from Agent Assist storage. If
+        this source type is chosen, input_data_config.start_time and
+        input_data_config.end_timestamp must be provided.
+      INSIGHTS_CONVERSATIONS: Fetch data from Insights storage. If this source
+        type is chosen, input_data_config.start_time and
+        input_data_config.end_timestamp must be provided.
+    """
+    INPUT_DATA_SOURCE_TYPE_UNSPECIFIED = 0
+    AGENT_ASSIST_CONVERSATIONS = 1
+    INSIGHTS_CONVERSATIONS = 2
+
+  class SummaryGenerationOptionValueValuesEnum(_messages.Enum):
+    r"""Optional. Option to control whether summaries are generated during
+    evaluation.
+
+    Values:
+      SUMMARY_GENERATION_OPTION_UNSPECIFIED: Default option will not be used
+      ALWAYS_GENERATE: Always Generate summary for all conversations.
+      GENERATE_IF_MISSING: Gnerate only missing summaries.
+      DO_NOT_GENERATE: Do not generate new summaries. Only use existing
+        summaries found.
+    """
+    SUMMARY_GENERATION_OPTION_UNSPECIFIED = 0
+    ALWAYS_GENERATE = 1
+    GENERATE_IF_MISSING = 2
+    DO_NOT_GENERATE = 3
+
+  agentAssistInputDataConfig = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluationConfigAgentAssistInputDataConfig', 1)
+  datasetInputDataConfig = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluationConfigDatasetInputDataConfig', 2)
+  endTime = _messages.StringField(3)
+  inputDataSourceType = _messages.EnumField('InputDataSourceTypeValueValuesEnum', 4)
+  isSummaryGenerationAllowed = _messages.BooleanField(5)
+  sampleSize = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  startTime = _messages.StringField(7)
+  summaryGenerationOption = _messages.EnumField('SummaryGenerationOptionValueValuesEnum', 8)
+
+
+class GoogleCloudDialogflowV2GeneratorEvaluationConfigSummarizationConfig(_messages.Message):
+  r"""Evaluation configs for summarization generator.
+
+  Fields:
+    accuracyEvaluationVersion: Optional. Version for summarization accuracy.
+      This will determine the prompt and model used at backend.
+    completenessEvaluationVersion: Optional. Version for summarization
+      completeness. This will determine the prompt and model used at backend.
+    enableAccuracyEvaluation: Optional. Enable accuracy evaluation.
+    enableCompletenessEvaluation: Optional. Enable completeness evaluation.
+    evaluatorVersion: Output only. Version for summarization evaluation.
+  """
+
+  accuracyEvaluationVersion = _messages.StringField(1)
+  completenessEvaluationVersion = _messages.StringField(2)
+  enableAccuracyEvaluation = _messages.BooleanField(3)
+  enableCompletenessEvaluation = _messages.BooleanField(4)
+  evaluatorVersion = _messages.StringField(5)
 
 
 class GoogleCloudDialogflowV2GeneratorSuggestion(_messages.Message):
   r"""Suggestion generated using a Generator.
 
   Fields:
+    agentCoachingSuggestion: Optional. Suggestion to coach the agent.
+    freeFormSuggestion: Optional. Free form suggestion.
     summarySuggestion: Optional. Suggested summary.
+    toolCallInfo: Optional. List of request and response for tool calls
+      executed.
   """
 
-  summarySuggestion = _messages.MessageField('GoogleCloudDialogflowV2SummarySuggestion', 1)
+  agentCoachingSuggestion = _messages.MessageField('GoogleCloudDialogflowV2AgentCoachingSuggestion', 1)
+  freeFormSuggestion = _messages.MessageField('GoogleCloudDialogflowV2FreeFormSuggestion', 2)
+  summarySuggestion = _messages.MessageField('GoogleCloudDialogflowV2SummarySuggestion', 3)
+  toolCallInfo = _messages.MessageField('GoogleCloudDialogflowV2GeneratorSuggestionToolCallInfo', 4, repeated=True)
+
+
+class GoogleCloudDialogflowV2GeneratorSuggestionToolCallInfo(_messages.Message):
+  r"""Request and response for a tool call.
+
+  Fields:
+    toolCall: Required. Request for a tool call.
+    toolCallResult: Required. Response for a tool call.
+  """
+
+  toolCall = _messages.MessageField('GoogleCloudDialogflowV2ToolCall', 1)
+  toolCallResult = _messages.MessageField('GoogleCloudDialogflowV2ToolCallResult', 2)
 
 
 class GoogleCloudDialogflowV2HumanAgentAssistantConfig(_messages.Message):
@@ -12667,8 +14251,9 @@ class GoogleCloudDialogflowV2HumanAgentAssistantConfigConversationModelConfig(_m
 
   Fields:
     baselineModelVersion: Version of current baseline model. It will be
-      ignored if model is set. Valid versions are: Article Suggestion baseline
-      model: - 0.9 - 1.0 (default) Summarization baseline model: - 1.0
+      ignored if model is set. Valid versions are: - Article Suggestion
+      baseline model: - 0.9 - 1.0 (default) - Summarization baseline model: -
+      1.0
     model: Conversation model resource name. Format:
       `projects//conversationModels/`.
   """
@@ -12732,6 +14317,8 @@ class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionConfig(_messages
       enable_event_based_suggestion must be set to true to receive the
       responses from high latency features in Pub/Sub. High latency
       feature(s): KNOWLEDGE_ASSIST
+    enableAsyncToolCall: Optional. If true, enable asynchronous execution of
+      tools.
     featureConfigs: Configuration of different suggestion features. One
       feature can have only one config.
     generators: Optional. List of various generator resource names used in the
@@ -12745,12 +14332,23 @@ class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionConfig(_messages
       to true. All the suggestions to the same participant based on the same
       context will be grouped into a single Pub/Sub event or
       StreamingAnalyzeContentResponse.
+    skipEmptyEventBasedSuggestion: Optional. Enable skipping event based
+      suggestion if the suggestion is empty. For example, with this field
+      disabled, Knowledge Assist feature sends a Pub/Sub message when there
+      are no suggestions. Enabling this field will change the behavior to skip
+      the Pub/Sub message in this situation.
+    useUnredactedConversationData: Optional. If true, use unredacted
+      transcript data (Supported features: AI_COACH) and use unredacted
+      ingested context (Supported features: All Agent Assist features)
   """
 
   disableHighLatencyFeaturesSyncDelivery = _messages.BooleanField(1)
-  featureConfigs = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig', 2, repeated=True)
-  generators = _messages.StringField(3, repeated=True)
-  groupSuggestionResponses = _messages.BooleanField(4)
+  enableAsyncToolCall = _messages.BooleanField(2)
+  featureConfigs = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig', 3, repeated=True)
+  generators = _messages.StringField(4, repeated=True)
+  groupSuggestionResponses = _messages.BooleanField(5)
+  skipEmptyEventBasedSuggestion = _messages.BooleanField(6)
+  useUnredactedConversationData = _messages.BooleanField(7)
 
 
 class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig(_messages.Message):
@@ -12773,7 +14371,15 @@ class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig(_m
     enableQuerySuggestionWhenNoAnswer: Optional. Enable query suggestion even
       if we can't find its answer. By default, queries are suggested only if
       we find its answer. Supported features: KNOWLEDGE_ASSIST
+    enableResponseDebugInfo: Optional. Enable returning detailed reasons for
+      suggestion results. For example, with this field disabled, Knowledge
+      Search feature returns NotFound error when no answer is found for the
+      input query. Enabling this field will change the behavior to return an
+      OK response with detailed information indicating the lack of results.
+      Supported features: KNOWLEDGE_SEARCH, KNOWLEDGE_ASSIST
     queryConfig: Configs of query.
+    raiSettings: Optional. Settings for Responsible AI checks. Supported
+      features: KNOWLEDGE_ASSIST
     suggestionFeature: The suggestion feature.
     suggestionTriggerSettings: Settings of suggestion trigger. Currently, only
       ARTICLE_SUGGESTION and FAQ will use this field.
@@ -12786,9 +14392,11 @@ class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig(_m
   enableEventBasedSuggestion = _messages.BooleanField(5)
   enableQuerySuggestionOnly = _messages.BooleanField(6)
   enableQuerySuggestionWhenNoAnswer = _messages.BooleanField(7)
-  queryConfig = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionQueryConfig', 8)
-  suggestionFeature = _messages.MessageField('GoogleCloudDialogflowV2SuggestionFeature', 9)
-  suggestionTriggerSettings = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionTriggerSettings', 10)
+  enableResponseDebugInfo = _messages.BooleanField(8)
+  queryConfig = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionQueryConfig', 9)
+  raiSettings = _messages.MessageField('GoogleCloudDialogflowV2RaiSettings', 10)
+  suggestionFeature = _messages.MessageField('GoogleCloudDialogflowV2SuggestionFeature', 11)
+  suggestionTriggerSettings = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionTriggerSettings', 12)
 
 
 class GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionQueryConfig(_messages.Message):
@@ -13232,6 +14840,95 @@ class GoogleCloudDialogflowV2InferenceParameter(_messages.Message):
   topP = _messages.FloatField(4)
 
 
+class GoogleCloudDialogflowV2IngestContextReferencesRequest(_messages.Message):
+  r"""The request message for ConversationsService.IngestContextReferences.
+
+  Messages:
+    ContextReferencesValue: Required. The context references to ingest. The
+      key is the name of the context reference and the value contains the
+      contents of the context reference. The key is used to incorporate
+      ingested context references to enhance the generator.
+
+  Fields:
+    contextReferences: Required. The context references to ingest. The key is
+      the name of the context reference and the value contains the contents of
+      the context reference. The key is used to incorporate ingested context
+      references to enhance the generator.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ContextReferencesValue(_messages.Message):
+    r"""Required. The context references to ingest. The key is the name of the
+    context reference and the value contains the contents of the context
+    reference. The key is used to incorporate ingested context references to
+    enhance the generator.
+
+    Messages:
+      AdditionalProperty: An additional property for a ContextReferencesValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        ContextReferencesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ContextReferencesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowV2ConversationContextReference
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowV2ConversationContextReference', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  contextReferences = _messages.MessageField('ContextReferencesValue', 1)
+
+
+class GoogleCloudDialogflowV2IngestContextReferencesResponse(_messages.Message):
+  r"""The response message for ConversationsService.IngestContextReferences.
+
+  Messages:
+    IngestedContextReferencesValue: All context references ingested.
+
+  Fields:
+    ingestedContextReferences: All context references ingested.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class IngestedContextReferencesValue(_messages.Message):
+    r"""All context references ingested.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        IngestedContextReferencesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        IngestedContextReferencesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a IngestedContextReferencesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudDialogflowV2ConversationContextReference
+          attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudDialogflowV2ConversationContextReference', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  ingestedContextReferences = _messages.MessageField('IngestedContextReferencesValue', 1)
+
+
 class GoogleCloudDialogflowV2InitializeEncryptionSpecMetadata(_messages.Message):
   r"""Metadata for initializing a location-level encryption specification.
 
@@ -13281,7 +14978,8 @@ class GoogleCloudDialogflowV2InputAudioConfig(_messages.Message):
       Support](https://cloud.google.com/dialogflow/docs/reference/language)
       for a list of the currently supported language codes. Note that queries
       in the same session do not necessarily need to specify the same
-      language.
+      language. If not set, the language is inferred from the
+      ConversationProfile.stt_config.
     model: Optional. Which Speech model to select for the given request. For
       more information, see [Speech
       models](https://cloud.google.com/dialogflow/es/docs/speech-models).
@@ -14424,6 +16122,7 @@ class GoogleCloudDialogflowV2KnowledgeOperationMetadata(_messages.Message):
     StateValueValuesEnum: Output only. The current state of this operation.
 
   Fields:
+    doneTime: The time when the operation finished.
     exportOperationMetadata: Metadata for the Export Data Operation such as
       the destination of export.
     knowledgeBase: The name of the knowledge base interacted with during the
@@ -14445,9 +16144,10 @@ class GoogleCloudDialogflowV2KnowledgeOperationMetadata(_messages.Message):
     RUNNING = 2
     DONE = 3
 
-  exportOperationMetadata = _messages.MessageField('GoogleCloudDialogflowV2ExportOperationMetadata', 1)
-  knowledgeBase = _messages.StringField(2)
-  state = _messages.EnumField('StateValueValuesEnum', 3)
+  doneTime = _messages.StringField(1)
+  exportOperationMetadata = _messages.MessageField('GoogleCloudDialogflowV2ExportOperationMetadata', 2)
+  knowledgeBase = _messages.StringField(3)
+  state = _messages.EnumField('StateValueValuesEnum', 4)
 
 
 class GoogleCloudDialogflowV2ListAnswerRecordsResponse(_messages.Message):
@@ -14589,6 +16289,19 @@ class GoogleCloudDialogflowV2ListEnvironmentsResponse(_messages.Message):
   nextPageToken = _messages.StringField(2)
 
 
+class GoogleCloudDialogflowV2ListGeneratorEvaluationsResponse(_messages.Message):
+  r"""Response of ListGeneratorEvaluations.
+
+  Fields:
+    generatorEvaluations: The list of evaluations to return.
+    nextPageToken: Token to retrieve the next page of results, or empty if
+      there are no more results in the list.
+  """
+
+  generatorEvaluations = _messages.MessageField('GoogleCloudDialogflowV2GeneratorEvaluation', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class GoogleCloudDialogflowV2ListGeneratorsResponse(_messages.Message):
   r"""Response of ListGenerators.
 
@@ -14673,6 +16386,32 @@ class GoogleCloudDialogflowV2ListSessionEntityTypesResponse(_messages.Message):
   sessionEntityTypes = _messages.MessageField('GoogleCloudDialogflowV2SessionEntityType', 2, repeated=True)
 
 
+class GoogleCloudDialogflowV2ListSipTrunksResponse(_messages.Message):
+  r"""The response message for SipTrunks.ListSipTrunks.
+
+  Fields:
+    nextPageToken: Token to retrieve the next page of results, or empty if
+      there are no more results in the list.
+    sipTrunks: The list of SIP trunks.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  sipTrunks = _messages.MessageField('GoogleCloudDialogflowV2SipTrunk', 2, repeated=True)
+
+
+class GoogleCloudDialogflowV2ListToolsResponse(_messages.Message):
+  r"""Response of ListTools.
+
+  Fields:
+    nextPageToken: Token to retrieve the next page of results, or empty if
+      there are no more results in the list.
+    tools: List of tools retrieved.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  tools = _messages.MessageField('GoogleCloudDialogflowV2Tool', 2, repeated=True)
+
+
 class GoogleCloudDialogflowV2ListVersionsResponse(_messages.Message):
   r"""The response message for Versions.ListVersions.
 
@@ -14717,7 +16456,8 @@ class GoogleCloudDialogflowV2Message(_messages.Message):
       `projects//locations//conversations//messages/`.
     participant: Output only. The participant that sends this message.
     participantRole: Output only. The role of the participant.
-    sendTime: Optional. The time when the message was sent.
+    sendTime: Optional. The time when the message was sent. For voice
+      messages, this is the time when an utterance started.
     sentimentAnalysis: Output only. The sentiment analysis result for the
       message.
   """
@@ -15418,6 +17158,68 @@ class GoogleCloudDialogflowV2QueryResult(_messages.Message):
   webhookSource = _messages.StringField(16)
 
 
+class GoogleCloudDialogflowV2RaiSettings(_messages.Message):
+  r"""Settings for Responsible AI checks.
+
+  Fields:
+    raiCategoryConfigs: Configuration for a set of RAI categories.
+  """
+
+  raiCategoryConfigs = _messages.MessageField('GoogleCloudDialogflowV2RaiSettingsRaiCategoryConfig', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2RaiSettingsRaiCategoryConfig(_messages.Message):
+  r"""Configuration for a specific RAI category.
+
+  Enums:
+    CategoryValueValuesEnum: Optional. The RAI category.
+    SensitivityLevelValueValuesEnum: Optional. The sensitivity level for this
+      category.
+
+  Fields:
+    category: Optional. The RAI category.
+    sensitivityLevel: Optional. The sensitivity level for this category.
+  """
+
+  class CategoryValueValuesEnum(_messages.Enum):
+    r"""Optional. The RAI category.
+
+    Values:
+      RAI_CATEGORY_UNSPECIFIED: Default value.
+      DANGEROUS_CONTENT: Dangerous content.
+      SEXUALLY_EXPLICIT: Sexually explicit content.
+      HARASSMENT: Harassment content.
+      HATE_SPEECH: Hate speech content.
+    """
+    RAI_CATEGORY_UNSPECIFIED = 0
+    DANGEROUS_CONTENT = 1
+    SEXUALLY_EXPLICIT = 2
+    HARASSMENT = 3
+    HATE_SPEECH = 4
+
+  class SensitivityLevelValueValuesEnum(_messages.Enum):
+    r"""Optional. The sensitivity level for this category.
+
+    Values:
+      SENSITIVITY_LEVEL_UNSPECIFIED: Default value. If unspecified, the
+        default behavior is: - DANGEROUS_CONTENT: BLOCK_FEW -
+        SEXUALLY_EXPLICIT: BLOCK_SOME - HARASSMENT: BLOCK_SOME - HATE_SPEECH:
+        BLOCK_SOME
+      BLOCK_MOST: Block most potentially sensitive responses.
+      BLOCK_SOME: Block some potentially sensitive responses.
+      BLOCK_FEW: Block a few potentially sensitive responses.
+      BLOCK_NONE: No filtering for this category.
+    """
+    SENSITIVITY_LEVEL_UNSPECIFIED = 0
+    BLOCK_MOST = 1
+    BLOCK_SOME = 2
+    BLOCK_FEW = 3
+    BLOCK_NONE = 4
+
+  category = _messages.EnumField('CategoryValueValuesEnum', 1)
+  sensitivityLevel = _messages.EnumField('SensitivityLevelValueValuesEnum', 2)
+
+
 class GoogleCloudDialogflowV2ReloadDocumentRequest(_messages.Message):
   r"""Request message for Documents.ReloadDocument.
 
@@ -15653,8 +17455,15 @@ class GoogleCloudDialogflowV2SearchKnowledgeRequestSearchConfig(_messages.Messag
   r"""Configuration specific to search queries with data stores.
 
   Fields:
-    boostSpecs: Optional. Boost specifications for data stores.
-    filterSpecs: Optional. Filter specification for data store queries.
+    boostSpecs: Optional. Boost specifications for data stores. Maps from
+      datastore name to their boost configuration. Do not specify more than
+      one BoostSpecs for each datastore name. If multiple BoostSpecs are
+      provided for the same datastore name, the behavior is undefined.
+    filterSpecs: Optional. Filter specification for data store queries. TMaps
+      from datastore name to the filter expression for that datastore. Do not
+      specify more than one FilterSpecs for each datastore name. If multiple
+      FilterSpecs are provided for the same datastore name, the behavior is
+      undefined.
   """
 
   boostSpecs = _messages.MessageField('GoogleCloudDialogflowV2SearchKnowledgeRequestSearchConfigBoostSpecs', 1, repeated=True)
@@ -15669,7 +17478,7 @@ class GoogleCloudDialogflowV2SearchKnowledgeRequestSearchConfigBoostSpecs(_messa
       applied. The full names of the referenced data stores. Formats: `project
       s/{project}/locations/{location}/collections/{collection}/dataStores/{da
       ta_store}`
-      `projects/{project}/locations/{location}/dataStores/{data_store}
+      `projects/{project}/locations/{location}/dataStores/{data_store}`
     spec: Optional. A list of boosting specifications.
   """
 
@@ -15685,7 +17494,7 @@ class GoogleCloudDialogflowV2SearchKnowledgeRequestSearchConfigBoostSpecsBoostSp
 
   Fields:
     conditionBoostSpecs: Optional. Condition boost specifications. If a
-      document matches multiple conditions in the specifictions, boost scores
+      document matches multiple conditions in the specifications, boost scores
       from these specifications are all applied and combined in a non-linear
       way. Maximum number of specifications is 20.
   """
@@ -15876,10 +17685,10 @@ class GoogleCloudDialogflowV2SentimentAnalysisRequestConfig(_messages.Message):
 class GoogleCloudDialogflowV2SentimentAnalysisResult(_messages.Message):
   r"""The result of sentiment analysis. Sentiment analysis inspects user input
   and identifies the prevailing subjective opinion, especially to determine a
-  user's attitude as positive, negative, or neutral. For
-  Participants.DetectIntent, it needs to be configured in
-  DetectIntentRequest.query_params. For Participants.StreamingDetectIntent, it
-  needs to be configured in StreamingDetectIntentRequest.query_params. And for
+  user's attitude as positive, negative, or neutral. For DetectIntent, it
+  needs to be configured in DetectIntentRequest.query_params. For
+  StreamingDetectIntent, it needs to be configured in
+  StreamingDetectIntentRequest.query_params. And for
   Participants.AnalyzeContent and Participants.StreamingAnalyzeContent, it
   needs to be configured in ConversationProfile.human_agent_assistant_config
 
@@ -15947,7 +17756,8 @@ class GoogleCloudDialogflowV2SessionEntityType(_messages.Message):
 
 
 class GoogleCloudDialogflowV2SetSuggestionFeatureConfigOperationMetadata(_messages.Message):
-  r"""Metadata for a ConversationProfile.SetSuggestionFeatureConfig operation.
+  r"""Metadata for a ConversationProfiles.SetSuggestionFeatureConfig
+  operation.
 
   Enums:
     ParticipantRoleValueValuesEnum: Required. The participant role to add or
@@ -15992,6 +17802,8 @@ class GoogleCloudDialogflowV2SetSuggestionFeatureConfigOperationMetadata(_messag
       ARTICLE_SUGGESTION: Run article suggestion model for chat.
       FAQ: Run FAQ model for chat.
       SMART_REPLY: Run smart reply model for chat.
+      CONVERSATION_SUMMARIZATION: Run conversation summarization model for
+        chat.
       KNOWLEDGE_SEARCH: Run knowledge search with text input from agent or
         text generated query.
       KNOWLEDGE_ASSIST: Run knowledge assist with automatic query generation.
@@ -16000,8 +17812,9 @@ class GoogleCloudDialogflowV2SetSuggestionFeatureConfigOperationMetadata(_messag
     ARTICLE_SUGGESTION = 1
     FAQ = 2
     SMART_REPLY = 3
-    KNOWLEDGE_SEARCH = 4
-    KNOWLEDGE_ASSIST = 5
+    CONVERSATION_SUMMARIZATION = 4
+    KNOWLEDGE_SEARCH = 5
+    KNOWLEDGE_ASSIST = 6
 
   conversationProfile = _messages.StringField(1)
   createTime = _messages.StringField(2)
@@ -16010,7 +17823,7 @@ class GoogleCloudDialogflowV2SetSuggestionFeatureConfigOperationMetadata(_messag
 
 
 class GoogleCloudDialogflowV2SetSuggestionFeatureConfigRequest(_messages.Message):
-  r"""The request message for ConversationProfiles.SetSuggestionFeature.
+  r"""The request message for ConversationProfiles.SetSuggestionFeatureConfig.
 
   Enums:
     ParticipantRoleValueValuesEnum: Required. The participant role to add or
@@ -16043,6 +17856,25 @@ class GoogleCloudDialogflowV2SetSuggestionFeatureConfigRequest(_messages.Message
 
   participantRole = _messages.EnumField('ParticipantRoleValueValuesEnum', 1)
   suggestionFeatureConfig = _messages.MessageField('GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig', 2)
+
+
+class GoogleCloudDialogflowV2SipTrunk(_messages.Message):
+  r"""SipTrunk is the resource that represents a SIP trunk to connect to
+  Google Telephony platform SIP trunking service.
+
+  Fields:
+    connections: Output only. Connections of the SIP trunk.
+    displayName: Optional. Human readable alias for this trunk.
+    expectedHostname: Required. The expected hostnames in the peer certificate
+      from partner that is used for TLS authentication.
+    name: Identifier. The unique identifier of the SIP trunk. Format:
+      `projects//locations//sipTrunks/`.
+  """
+
+  connections = _messages.MessageField('GoogleCloudDialogflowV2Connection', 1, repeated=True)
+  displayName = _messages.StringField(2)
+  expectedHostname = _messages.StringField(3, repeated=True)
+  name = _messages.StringField(4)
 
 
 class GoogleCloudDialogflowV2SmartReplyAnswer(_messages.Message):
@@ -16174,7 +18006,8 @@ class GoogleCloudDialogflowV2SpeechToTextConfig(_messages.Message):
       Support](https://cloud.google.com/dialogflow/docs/reference/language)
       for a list of the currently supported language codes. Note that queries
       in the same session do not necessarily need to specify the same
-      language.
+      language. If not specified, the default language configured at
+      ConversationProfile is used.
     model: Which Speech model to select. Select the model best suited to your
       domain to get best results. If a model is not explicitly specified, then
       Dialogflow auto-selects a model based on other parameters in the
@@ -16190,7 +18023,9 @@ class GoogleCloudDialogflowV2SpeechToTextConfig(_messages.Message):
       unspecified to use [Agent Speech settings](https://cloud.google.com/dial
       ogflow/cx/docs/concept/agent#settings-speech) for model selection.
     phraseSets: List of names of Cloud Speech phrase sets that are used for
-      transcription.
+      transcription. For phrase set limitations, please refer to [Cloud Speech
+      API quotas and limits](https://cloud.google.com/speech-to-
+      text/quotas#content).
     sampleRateHertz: Sample rate (in Hertz) of the audio content sent in the
       query. Refer to [Cloud Speech API
       documentation](https://cloud.google.com/speech-to-text/docs/basics) for
@@ -16202,7 +18037,7 @@ class GoogleCloudDialogflowV2SpeechToTextConfig(_messages.Message):
       specified and an enhanced version of the specified model for the
       language does not exist, then it would emit an error.
     useTimeoutBasedEndpointing: Use timeout based endpointing, interpreting
-      endpointer sensitivy as seconds of timeout value.
+      endpointer sensitivity as seconds of timeout value.
   """
 
   class AudioEncodingValueValuesEnum(_messages.Enum):
@@ -16297,6 +18132,110 @@ class GoogleCloudDialogflowV2SpeechToTextConfig(_messages.Message):
   useTimeoutBasedEndpointing = _messages.BooleanField(8)
 
 
+class GoogleCloudDialogflowV2SpeechWordInfo(_messages.Message):
+  r"""Information for a word recognized by the speech recognizer.
+
+  Fields:
+    confidence: The Speech confidence between 0.0 and 1.0 for this word. A
+      higher number indicates an estimated greater likelihood that the
+      recognized word is correct. The default of 0.0 is a sentinel value
+      indicating that confidence was not set. This field is not guaranteed to
+      be fully stable over time for the same audio input. Users should also
+      not rely on it to always be provided.
+    endOffset: Time offset relative to the beginning of the audio that
+      corresponds to the end of the spoken word. This is an experimental
+      feature and the accuracy of the time offset can vary.
+    startOffset: Time offset relative to the beginning of the audio that
+      corresponds to the start of the spoken word. This is an experimental
+      feature and the accuracy of the time offset can vary.
+    word: The word this info is for.
+  """
+
+  confidence = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
+  endOffset = _messages.StringField(2)
+  startOffset = _messages.StringField(3)
+  word = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2StreamingRecognitionResult(_messages.Message):
+  r"""Contains a speech recognition result corresponding to a portion of the
+  audio that is currently being processed or an indication that this is the
+  end of the single requested utterance. While end-user audio is being
+  processed, Dialogflow sends a series of results. Each result may contain a
+  `transcript` value. A transcript represents a portion of the utterance.
+  While the recognizer is processing audio, transcript values may be interim
+  values or finalized values. Once a transcript is finalized, the `is_final`
+  value is set to true and processing continues for the next transcript. If
+  `StreamingDetectIntentRequest.query_input.audio_config.single_utterance` was
+  true, and the recognizer has completed processing audio, the `message_type`
+  value is set to `END_OF_SINGLE_UTTERANCE and the following (last) result
+  contains the last finalized transcript. The complete end-user utterance is
+  determined by concatenating the finalized transcript values received for the
+  series of results. In the following example, single utterance is enabled. In
+  the case where single utterance is not enabled, result 7 would not occur.
+  ``` Num | transcript | message_type | is_final --- | -----------------------
+  | ----------------------- | -------- 1 | "tube" | TRANSCRIPT | false 2 | "to
+  be a" | TRANSCRIPT | false 3 | "to be" | TRANSCRIPT | false 4 | "to be or
+  not to be" | TRANSCRIPT | true 5 | "that's" | TRANSCRIPT | false 6 | "that
+  is | TRANSCRIPT | false 7 | unset | END_OF_SINGLE_UTTERANCE | unset 8 | "
+  that is the question" | TRANSCRIPT | true ``` Concatenating the finalized
+  transcripts with `is_final` set to true, the complete utterance becomes "to
+  be or not to be that is the question".
+
+  Enums:
+    MessageTypeValueValuesEnum: Type of the result message.
+
+  Fields:
+    confidence: The Speech confidence between 0.0 and 1.0 for the current
+      portion of audio. A higher number indicates an estimated greater
+      likelihood that the recognized words are correct. The default of 0.0 is
+      a sentinel value indicating that confidence was not set. This field is
+      typically only provided if `is_final` is true and you should not rely on
+      it being accurate or even set.
+    isFinal: If `false`, the `StreamingRecognitionResult` represents an
+      interim result that may change. If `true`, the recognizer will not
+      return any further hypotheses about this piece of the audio. May only be
+      populated for `message_type` = `TRANSCRIPT`.
+    languageCode: Detected language code for the transcript.
+    messageType: Type of the result message.
+    speechEndOffset: Time offset of the end of this Speech recognition result
+      relative to the beginning of the audio. Only populated for
+      `message_type` = `TRANSCRIPT`.
+    speechWordInfo: Word-specific information for the words recognized by
+      Speech in transcript. Populated if and only if `message_type` =
+      `TRANSCRIPT` and [InputAudioConfig.enable_word_info] is set.
+    transcript: Transcript text representing the words that the user spoke.
+      Populated if and only if `message_type` = `TRANSCRIPT`.
+  """
+
+  class MessageTypeValueValuesEnum(_messages.Enum):
+    r"""Type of the result message.
+
+    Values:
+      MESSAGE_TYPE_UNSPECIFIED: Not specified. Should never be used.
+      TRANSCRIPT: Message contains a (possibly partial) transcript.
+      END_OF_SINGLE_UTTERANCE: This event indicates that the server has
+        detected the end of the user's speech utterance and expects no
+        additional inputs. Therefore, the server will not process additional
+        audio (although it may subsequently return additional results). The
+        client should stop sending additional audio data, half-close the gRPC
+        connection, and wait for any additional results until the server
+        closes the gRPC connection. This message is only sent if
+        `single_utterance` was set to `true`, and is not used otherwise.
+    """
+    MESSAGE_TYPE_UNSPECIFIED = 0
+    TRANSCRIPT = 1
+    END_OF_SINGLE_UTTERANCE = 2
+
+  confidence = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
+  isFinal = _messages.BooleanField(2)
+  languageCode = _messages.StringField(3)
+  messageType = _messages.EnumField('MessageTypeValueValuesEnum', 4)
+  speechEndOffset = _messages.StringField(5)
+  speechWordInfo = _messages.MessageField('GoogleCloudDialogflowV2SpeechWordInfo', 6, repeated=True)
+  transcript = _messages.StringField(7)
+
+
 class GoogleCloudDialogflowV2SuggestArticlesRequest(_messages.Message):
   r"""The request message for Participants.SuggestArticles.
 
@@ -16357,10 +18296,10 @@ class GoogleCloudDialogflowV2SuggestConversationSummaryResponse(_messages.Messag
   r"""The response message for Conversations.SuggestConversationSummary.
 
   Fields:
-    contextSize: Number of messages prior to and including
-      last_conversation_message used to compile the suggestion. It may be
-      smaller than the SuggestSummaryRequest.context_size field in the request
-      if there weren't that many messages in the conversation.
+    contextSize: Number of messages prior to and including latest_message used
+      to compile the suggestion. It may be smaller than the
+      SuggestConversationSummaryRequest.context_size field in the request if
+      there weren't that many messages in the conversation.
     latestMessage: The name of the latest conversation message used as context
       for compiling suggestion. Format:
       `projects//locations//conversations//messages/`.
@@ -16473,8 +18412,8 @@ class GoogleCloudDialogflowV2SuggestKnowledgeAssistRequest(_messages.Message):
       conversation. Format: `projects//locations//conversations//messages/`.
     previousSuggestedQuery: Optional. The previously suggested query for the
       given conversation. This helps identify whether the next suggestion we
-      generate is resonably different from the previous one. This is useful to
-      avoid similar suggestions within the conversation.
+      generate is reasonably different from the previous one. This is useful
+      to avoid similar suggestions within the conversation.
   """
 
   contextSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -16541,6 +18480,19 @@ class GoogleCloudDialogflowV2SuggestSmartRepliesResponse(_messages.Message):
   smartReplyAnswers = _messages.MessageField('GoogleCloudDialogflowV2SmartReplyAnswer', 3, repeated=True)
 
 
+class GoogleCloudDialogflowV2SuggestionDedupingConfig(_messages.Message):
+  r"""Config for suggestion deduping. NEXT_ID: 3
+
+  Fields:
+    enableDeduping: Optional. Whether to enable suggestion deduping.
+    similarityThreshold: Optional. The threshold for similarity between two
+      suggestions. Acceptable value is [0.0, 1.0], default to 0.8
+  """
+
+  enableDeduping = _messages.BooleanField(1)
+  similarityThreshold = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+
+
 class GoogleCloudDialogflowV2SuggestionFeature(_messages.Message):
   r"""The type of Human Agent Assistant API suggestion to perform, and the
   maximum number of results to return for that type. Multiple `Feature`
@@ -16561,6 +18513,8 @@ class GoogleCloudDialogflowV2SuggestionFeature(_messages.Message):
       ARTICLE_SUGGESTION: Run article suggestion model for chat.
       FAQ: Run FAQ model for chat.
       SMART_REPLY: Run smart reply model for chat.
+      CONVERSATION_SUMMARIZATION: Run conversation summarization model for
+        chat.
       KNOWLEDGE_SEARCH: Run knowledge search with text input from agent or
         text generated query.
       KNOWLEDGE_ASSIST: Run knowledge assist with automatic query generation.
@@ -16569,23 +18523,81 @@ class GoogleCloudDialogflowV2SuggestionFeature(_messages.Message):
     ARTICLE_SUGGESTION = 1
     FAQ = 2
     SMART_REPLY = 3
-    KNOWLEDGE_SEARCH = 4
-    KNOWLEDGE_ASSIST = 5
+    CONVERSATION_SUMMARIZATION = 4
+    KNOWLEDGE_SEARCH = 5
+    KNOWLEDGE_ASSIST = 6
 
   type = _messages.EnumField('TypeValueValuesEnum', 1)
 
 
 class GoogleCloudDialogflowV2SuggestionInput(_messages.Message):
-  r"""Represents the selection of a suggestion.
+  r"""Represents the action to take for a tool call that requires
+  confirmation.
+
+  Enums:
+    ActionValueValuesEnum: Optional. The type of action to take with the tool.
+
+  Messages:
+    ParametersValue: Optional. Parameters to be used for the tool call. If not
+      provided, the tool will be called without any parameters.
 
   Fields:
-    answerRecord: Required. The ID of a suggestion selected by the human
-      agent. The suggestion(s) were generated in a previous call to request
-      Dialogflow assist. The format is: `projects//locations//answerRecords/`
-      where is an alphanumeric string.
+    action: Optional. The type of action to take with the tool.
+    answerRecord: Required. Format: `projects//locations//answerRecords/` The
+      answer record associated with the tool call.
+    parameters: Optional. Parameters to be used for the tool call. If not
+      provided, the tool will be called without any parameters.
+    sendTime: Optional. Time when the current suggest input is sent. For tool
+      calls, this timestamp (along with the answer record) will be included in
+      the corresponding tool call result so that it can be identified.
   """
 
-  answerRecord = _messages.StringField(1)
+  class ActionValueValuesEnum(_messages.Enum):
+    r"""Optional. The type of action to take with the tool.
+
+    Values:
+      ACTION_UNSPECIFIED: Action not specified.
+      CANCEL: Indicates the user chooses to not make the tool call. It is only
+        applicable to tool calls that are waiting for user confirmation.
+      REVISE: Makes the tool call with provided parameters. This action is
+        intended for tool calls that only read but not write data.
+      CONFIRM: Makes the tool call with provided parameters. This action is
+        intended for tool calls that may write data.
+    """
+    ACTION_UNSPECIFIED = 0
+    CANCEL = 1
+    REVISE = 2
+    CONFIRM = 3
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ParametersValue(_messages.Message):
+    r"""Optional. Parameters to be used for the tool call. If not provided,
+    the tool will be called without any parameters.
+
+    Messages:
+      AdditionalProperty: An additional property for a ParametersValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  action = _messages.EnumField('ActionValueValuesEnum', 1)
+  answerRecord = _messages.StringField(2)
+  parameters = _messages.MessageField('ParametersValue', 3)
+  sendTime = _messages.StringField(4)
 
 
 class GoogleCloudDialogflowV2SuggestionResult(_messages.Message):
@@ -16595,6 +18607,8 @@ class GoogleCloudDialogflowV2SuggestionResult(_messages.Message):
 
   Fields:
     error: Error status if the request failed.
+    generateSuggestionsResponse: Suggestions generated using generators
+      triggered by customer or agent messages.
     suggestArticlesResponse: SuggestArticlesResponse if request is for
       ARTICLE_SUGGESTION.
     suggestFaqAnswersResponse: SuggestFaqAnswersResponse if request is for
@@ -16606,10 +18620,11 @@ class GoogleCloudDialogflowV2SuggestionResult(_messages.Message):
   """
 
   error = _messages.MessageField('GoogleRpcStatus', 1)
-  suggestArticlesResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestArticlesResponse', 2)
-  suggestFaqAnswersResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestFaqAnswersResponse', 3)
-  suggestKnowledgeAssistResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestKnowledgeAssistResponse', 4)
-  suggestSmartRepliesResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestSmartRepliesResponse', 5)
+  generateSuggestionsResponse = _messages.MessageField('GoogleCloudDialogflowV2GenerateSuggestionsResponse', 2)
+  suggestArticlesResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestArticlesResponse', 3)
+  suggestFaqAnswersResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestFaqAnswersResponse', 4)
+  suggestKnowledgeAssistResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestKnowledgeAssistResponse', 5)
+  suggestSmartRepliesResponse = _messages.MessageField('GoogleCloudDialogflowV2SuggestSmartRepliesResponse', 6)
 
 
 class GoogleCloudDialogflowV2SummarizationContext(_messages.Message):
@@ -16630,6 +18645,221 @@ class GoogleCloudDialogflowV2SummarizationContext(_messages.Message):
   outputLanguageCode = _messages.StringField(2)
   summarizationSections = _messages.MessageField('GoogleCloudDialogflowV2SummarizationSection', 3, repeated=True)
   version = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetrics(_messages.Message):
+  r"""Evaluation metrics for summarization generator.
+
+  Fields:
+    conversationDetails: Output only. List of conversation details.
+    overallMetrics: Output only. A list of aggregated(average) scores per
+      metric section.
+    overallSectionTokens: Output only. Overall token per section. This is an
+      aggregated(sum) result of input token of summary acorss all
+      conversations that are selected for summarization evaluation.
+    summarizationEvaluationMergedResultsUri: Output only. User bucket uri for
+      merged evaluation score and aggregation score csv.
+    summarizationEvaluationResults: Output only. A list of evaluation results
+      per conversation(&summary), metric and section.
+  """
+
+  conversationDetails = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetail', 1, repeated=True)
+  overallMetrics = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsOverallScoresByMetric', 2, repeated=True)
+  overallSectionTokens = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsSectionToken', 3, repeated=True)
+  summarizationEvaluationMergedResultsUri = _messages.StringField(4)
+  summarizationEvaluationResults = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsSummarizationEvaluationResult', 5, repeated=True)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsAccuracyDecomposition(_messages.Message):
+  r"""Decomposition details for accuracy.
+
+  Fields:
+    accuracyReasoning: Output only. The accuracy reasoning of the breakdown
+      point.
+    isAccurate: Output only. Whether the breakdown point is accurate or not.
+    point: Output only. The breakdown point of the summary.
+  """
+
+  accuracyReasoning = _messages.StringField(1)
+  isAccurate = _messages.BooleanField(2)
+  point = _messages.StringField(3)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsAdherenceDecomposition(_messages.Message):
+  r"""Decomposition details for adherence.
+
+  Fields:
+    adherenceReasoning: Output only. The adherence reasoning of the breakdown
+      point.
+    isAdherent: Output only. Whether the breakdown point is adherent or not.
+    point: Output only. The breakdown point of the given instructions.
+  """
+
+  adherenceReasoning = _messages.StringField(1)
+  isAdherent = _messages.BooleanField(2)
+  point = _messages.StringField(3)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsAdherenceRubric(_messages.Message):
+  r"""Rubric result of the adherence evaluation. A rubric is ued to determine
+  if the summary adheres to all aspects of the given instructions.
+
+  Fields:
+    isAddressed: Output only. A boolean that indicates whether the rubric
+      question is addressed or not.
+    question: Output only. The question generated from instruction that used
+      to evaluate summary.
+    reasoning: Output only. The reasoning of the rubric question is addressed
+      or not.
+  """
+
+  isAddressed = _messages.BooleanField(1)
+  question = _messages.StringField(2)
+  reasoning = _messages.StringField(3)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsCompletenessRubric(_messages.Message):
+  r"""Rubric details of the completeness evaluation result.
+
+  Fields:
+    isAddressed: Output only. A boolean that indicates whether the rubric
+      question is addressed or not.
+    question: Output only. The question generated from instruction that used
+      to evaluate summary.
+  """
+
+  isAddressed = _messages.BooleanField(1)
+  question = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetail(_messages.Message):
+  r"""Aggregated evaluation result on conversation level. This conatins
+  evaluation results of all the metrics and sections.
+
+  Fields:
+    messageEntries: Output only. Conversation transcript that used for
+      summarization evaluation as a reference.
+    metricDetails: Output only. List of metric details.
+    sectionTokens: Output only. Conversation level token count per section.
+      This is an aggregated(sum) result of input token of summary acorss all
+      metrics for a single conversation.
+    summarySections: Output only. Summary sections that used for summarization
+      evaluation as a reference.
+  """
+
+  messageEntries = _messages.MessageField('GoogleCloudDialogflowV2MessageEntry', 1, repeated=True)
+  metricDetails = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetailMetricDetail', 2, repeated=True)
+  sectionTokens = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsSectionToken', 3, repeated=True)
+  summarySections = _messages.MessageField('GoogleCloudDialogflowV2SummarySuggestionSummarySection', 4, repeated=True)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetailMetricDetail(_messages.Message):
+  r"""Aggregated result on metric level. This conatins the evaluation results
+  of all the sections.
+
+  Fields:
+    metric: Output only. Metrics name. e.g. accuracy, adherence, completeness.
+    score: Output only. Aggregated(average) score on this metric across all
+      sections.
+    sectionDetails: Output only. List of section details.
+  """
+
+  metric = _messages.StringField(1)
+  score = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  sectionDetails = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetailMetricDetailSectionDetail', 3, repeated=True)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsConversationDetailMetricDetailSectionDetail(_messages.Message):
+  r"""Section level result.
+
+  Fields:
+    evaluationResults: Output only. List of evaluation result. The list only
+      contains one kind of the evaluation result.
+    score: Output only. Aggregated(average) score on this section across all
+      evaluation results. Either decompositions or rubrics.
+    section: Output only. The name of the summary instruction.
+    sectionSummary: Output only. Summary for this section
+  """
+
+  evaluationResults = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsEvaluationResult', 1, repeated=True)
+  score = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  section = _messages.StringField(3)
+  sectionSummary = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsDecomposition(_messages.Message):
+  r"""Decomposition details
+
+  Fields:
+    accuracyDecomposition: only available for accuracy metric.
+    adherenceDecomposition: only available for adherence metric.
+  """
+
+  accuracyDecomposition = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsAccuracyDecomposition', 1)
+  adherenceDecomposition = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsAdherenceDecomposition', 2)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsEvaluationResult(_messages.Message):
+  r"""Evaluation result that contains one of accuracy, adherence or
+  completeness evaluation result.
+
+  Fields:
+    accuracyDecomposition: Only available for accuracy metric.
+    adherenceRubric: Only available for adherence metric.
+    completenessRubric: Only available for completeness metric.
+  """
+
+  accuracyDecomposition = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsAccuracyDecomposition', 1)
+  adherenceRubric = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsAdherenceRubric', 2)
+  completenessRubric = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsCompletenessRubric', 3)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsOverallScoresByMetric(_messages.Message):
+  r"""Overall performance per metric. This is the aggregated score for each
+  metric across all conversations that are selected for summarization
+  evaluation.
+
+  Fields:
+    metric: Output only. Metric name. e.g. accuracy, adherence, completeness.
+  """
+
+  metric = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsSectionToken(_messages.Message):
+  r"""A pair of section name and input token count of the input summary
+  section.
+
+  Fields:
+    section: Output only. The name of the summary instruction.
+    tokenCount: Output only. Token count.
+  """
+
+  section = _messages.StringField(1)
+  tokenCount = _messages.IntegerField(2)
+
+
+class GoogleCloudDialogflowV2SummarizationEvaluationMetricsSummarizationEvaluationResult(_messages.Message):
+  r"""Evaluation result per conversation(&summary), metric and section.
+
+  Fields:
+    decompositions: Output only. List of decompostion details
+    evaluationResults: Output only. List of evaluation results.
+    metric: Output only. metric name, e.g. accuracy, completeness, adherence,
+      etc.
+    score: Output only. score calculated from decompositions
+    section: Output only. section/task name, e.g. action, situation, etc
+    sectionSummary: Output only. Summary of this section
+    sessionId: Output only. conversation session id
+  """
+
+  decompositions = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsDecomposition', 1, repeated=True)
+  evaluationResults = _messages.MessageField('GoogleCloudDialogflowV2SummarizationEvaluationMetricsEvaluationResult', 2, repeated=True)
+  metric = _messages.StringField(3)
+  score = _messages.FloatField(4, variant=_messages.Variant.FLOAT)
+  section = _messages.StringField(5)
+  sectionSummary = _messages.StringField(6)
+  sessionId = _messages.StringField(7)
 
 
 class GoogleCloudDialogflowV2SummarizationSection(_messages.Message):
@@ -16666,6 +18896,10 @@ class GoogleCloudDialogflowV2SummarizationSection(_messages.Message):
         number, order number, dollar amount, etc. Section names are prefixed
         by "entities/".
       CUSTOMER_DEFINED: Customer defined sections.
+      SITUATION_CONCISE: Concise version of the situation section. This type
+        is only available if type SITUATION is not selected.
+      ACTION_CONCISE: Concise version of the action section. This type is only
+        available if type ACTION is not selected.
     """
     TYPE_UNSPECIFIED = 0
     SITUATION = 1
@@ -16675,6 +18909,8 @@ class GoogleCloudDialogflowV2SummarizationSection(_messages.Message):
     CUSTOMER_SATISFACTION = 5
     ENTITIES = 6
     CUSTOMER_DEFINED = 7
+    SITUATION_CONCISE = 8
+    ACTION_CONCISE = 9
 
   definition = _messages.StringField(1)
   key = _messages.StringField(2)
@@ -16723,6 +18959,8 @@ class GoogleCloudDialogflowV2SynthesizeSpeechConfig(_messages.Message):
     pitch: Optional. Speaking pitch, in the range [-20.0, 20.0]. 20 means
       increase 20 semitones from the original pitch. -20 means decrease 20
       semitones from the original pitch.
+    pronunciations: Optional. The custom pronunciations for the synthesized
+      audio.
     speakingRate: Optional. Speaking rate/speed, in the range [0.25, 4.0]. 1.0
       is the normal native speed supported by the specific voice. 2.0 is twice
       as fast, and 0.5 is half as fast. If unset(0.0), defaults to the native
@@ -16741,9 +18979,10 @@ class GoogleCloudDialogflowV2SynthesizeSpeechConfig(_messages.Message):
 
   effectsProfileId = _messages.StringField(1, repeated=True)
   pitch = _messages.FloatField(2)
-  speakingRate = _messages.FloatField(3)
-  voice = _messages.MessageField('GoogleCloudDialogflowV2VoiceSelectionParams', 4)
-  volumeGainDb = _messages.FloatField(5)
+  pronunciations = _messages.MessageField('GoogleCloudDialogflowV2CustomPronunciationParams', 3, repeated=True)
+  speakingRate = _messages.FloatField(4)
+  voice = _messages.MessageField('GoogleCloudDialogflowV2VoiceSelectionParams', 5)
+  volumeGainDb = _messages.FloatField(6)
 
 
 class GoogleCloudDialogflowV2TextInput(_messages.Message):
@@ -16861,6 +19100,619 @@ class GoogleCloudDialogflowV2TextToSpeechSettings(_messages.Message):
   synthesizeSpeechConfigs = _messages.MessageField('SynthesizeSpeechConfigsValue', 4)
 
 
+class GoogleCloudDialogflowV2Tool(_messages.Message):
+  r"""Represents a tool.
+
+  Messages:
+    ActionConfirmationRequirementValue: Optional. Confirmation requirement for
+      the actions. Each key is an action name in the action_schemas. If an
+      action's confirmation requirement is unspecified (either the key is not
+      present, or its value is CONFIRMATION_REQUIREMENT_UNSPECIFIED), the
+      requirement is inferred from the action's method_type - confirmation is
+      not required if and only if method_type is GET.
+
+  Fields:
+    actionConfirmationRequirement: Optional. Confirmation requirement for the
+      actions. Each key is an action name in the action_schemas. If an
+      action's confirmation requirement is unspecified (either the key is not
+      present, or its value is CONFIRMATION_REQUIREMENT_UNSPECIFIED), the
+      requirement is inferred from the action's method_type - confirmation is
+      not required if and only if method_type is GET.
+    connectorSpec: Integration connectors tool specification.
+    createTime: Output only. Creation time of this tool.
+    description: Optional. A human readable description of the tool.
+    displayName: Optional. A human readable short name of the tool, to be
+      shown on the UI.
+    extensionSpec: Vertex extension tool specification.
+    functionSpec: Client side executed function specification.
+    name: Output only. Identifier. The resource name of the tool. Format:
+      `projects//locations//tools/`.
+    openApiSpec: OpenAPI tool.
+    satisfiesPzi: Output only. A read only boolean field reflecting Zone
+      Isolation status of the tool. If the field is absent, it means the
+      status is unknown.
+    satisfiesPzs: Output only. A read only boolean field reflecting Zone
+      Separation status of the tool. If the field is absent, it means the
+      status is unknown.
+    toolKey: Required. A human readable short name of the tool, which should
+      be unique within the project. It should only contain letters, numbers,
+      and underscores, and it will be used by LLM to identify the tool.
+    updateTime: Output only. Update time of this tool.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ActionConfirmationRequirementValue(_messages.Message):
+    r"""Optional. Confirmation requirement for the actions. Each key is an
+    action name in the action_schemas. If an action's confirmation requirement
+    is unspecified (either the key is not present, or its value is
+    CONFIRMATION_REQUIREMENT_UNSPECIFIED), the requirement is inferred from
+    the action's method_type - confirmation is not required if and only if
+    method_type is GET.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        ActionConfirmationRequirementValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        ActionConfirmationRequirementValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ActionConfirmationRequirementValue
+      object.
+
+      Enums:
+        ValueValueValuesEnum:
+
+      Fields:
+        key: Name of the additional property.
+        value: A ValueValueValuesEnum attribute.
+      """
+
+      class ValueValueValuesEnum(_messages.Enum):
+        r"""ValueValueValuesEnum enum type.
+
+        Values:
+          CONFIRMATION_REQUIREMENT_UNSPECIFIED: Unspecified. Whether the
+            action requires confirmation is inferred from method_type.
+          REQUIRED: Conformation is required.
+          NOT_REQUIRED: Conformation is not required.
+        """
+        CONFIRMATION_REQUIREMENT_UNSPECIFIED = 0
+        REQUIRED = 1
+        NOT_REQUIRED = 2
+
+      key = _messages.StringField(1)
+      value = _messages.EnumField('ValueValueValuesEnum', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  actionConfirmationRequirement = _messages.MessageField('ActionConfirmationRequirementValue', 1)
+  connectorSpec = _messages.MessageField('GoogleCloudDialogflowV2ToolConnectorTool', 2)
+  createTime = _messages.StringField(3)
+  description = _messages.StringField(4)
+  displayName = _messages.StringField(5)
+  extensionSpec = _messages.MessageField('GoogleCloudDialogflowV2ToolExtensionTool', 6)
+  functionSpec = _messages.MessageField('GoogleCloudDialogflowV2ToolFunctionTool', 7)
+  name = _messages.StringField(8)
+  openApiSpec = _messages.MessageField('GoogleCloudDialogflowV2ToolOpenApiTool', 9)
+  satisfiesPzi = _messages.BooleanField(10)
+  satisfiesPzs = _messages.BooleanField(11)
+  toolKey = _messages.StringField(12)
+  updateTime = _messages.StringField(13)
+
+
+class GoogleCloudDialogflowV2ToolAuthentication(_messages.Message):
+  r"""Authentication information required for API calls
+
+  Fields:
+    apiKeyConfig: Config for API key auth.
+    bearerTokenConfig: Config for bearer token auth.
+    oauthConfig: Config for OAuth.
+    serviceAgentAuthConfig: Config for [Diglogflow service
+      agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-
+      service-agent) auth.
+  """
+
+  apiKeyConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolAuthenticationApiKeyConfig', 1)
+  bearerTokenConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolAuthenticationBearerTokenConfig', 2)
+  oauthConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolAuthenticationOAuthConfig', 3)
+  serviceAgentAuthConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolAuthenticationServiceAgentAuthConfig', 4)
+
+
+class GoogleCloudDialogflowV2ToolAuthenticationApiKeyConfig(_messages.Message):
+  r"""Config for authentication with API key.
+
+  Enums:
+    RequestLocationValueValuesEnum: Required. Key location in the request.
+
+  Fields:
+    apiKey: Optional. The API key. If the `secret_version_for_api_key` field
+      is set, this field will be ignored.
+    keyName: Required. The parameter name or the header name of the API key.
+      E.g., If the API request is "https://example.com/act?X-Api-Key=",
+      "X-Api-Key" would be the parameter name.
+    requestLocation: Required. Key location in the request.
+    secretVersionForApiKey: Optional. The name of the SecretManager secret
+      version resource storing the API key. If this field is set, the
+      `api_key` field will be ignored. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+  """
+
+  class RequestLocationValueValuesEnum(_messages.Enum):
+    r"""Required. Key location in the request.
+
+    Values:
+      REQUEST_LOCATION_UNSPECIFIED: Default value. This value is unused.
+      HEADER: Represents the key in http header.
+      QUERY_STRING: Represents the key in query string.
+    """
+    REQUEST_LOCATION_UNSPECIFIED = 0
+    HEADER = 1
+    QUERY_STRING = 2
+
+  apiKey = _messages.StringField(1)
+  keyName = _messages.StringField(2)
+  requestLocation = _messages.EnumField('RequestLocationValueValuesEnum', 3)
+  secretVersionForApiKey = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2ToolAuthenticationBearerTokenConfig(_messages.Message):
+  r"""Config for authentication using bearer token.
+
+  Fields:
+    secretVersionForToken: Optional. The name of the SecretManager secret
+      version resource storing the Bearer token. If this field is set, the
+      `token` field will be ignored. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+    token: Optional. The text token appended to the text `Bearer` to the
+      request Authorization header. [Session parameters reference](https://clo
+      ud.google.com/dialogflow/cx/docs/concept/parameter#session-ref) can be
+      used to pass the token dynamically, e.g. `$session.params.parameter-id`.
+  """
+
+  secretVersionForToken = _messages.StringField(1)
+  token = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2ToolAuthenticationOAuthConfig(_messages.Message):
+  r"""Config for authentication with OAuth.
+
+  Enums:
+    OauthGrantTypeValueValuesEnum: Required. OAuth grant types.
+
+  Fields:
+    clientId: Required. The client ID from the OAuth provider.
+    clientSecret: Optional. The client secret from the OAuth provider. If the
+      `secret_version_for_client_secret` field is set, this field will be
+      ignored.
+    oauthGrantType: Required. OAuth grant types.
+    scopes: Optional. The OAuth scopes to grant.
+    secretVersionForClientSecret: Optional. The name of the SecretManager
+      secret version resource storing the client secret. If this field is set,
+      the `client_secret` field will be ignored. Format:
+      `projects/{project}/secrets/{secret}/versions/{version}`
+    tokenEndpoint: Required. The token endpoint in the OAuth provider to
+      exchange for an access token.
+  """
+
+  class OauthGrantTypeValueValuesEnum(_messages.Enum):
+    r"""Required. OAuth grant types.
+
+    Values:
+      OAUTH_GRANT_TYPE_UNSPECIFIED: Default value. This value is unused.
+      CLIENT_CREDENTIAL: Represents the [client credential
+        flow](https://oauth.net/2/grant-types/client-credentials).
+    """
+    OAUTH_GRANT_TYPE_UNSPECIFIED = 0
+    CLIENT_CREDENTIAL = 1
+
+  clientId = _messages.StringField(1)
+  clientSecret = _messages.StringField(2)
+  oauthGrantType = _messages.EnumField('OauthGrantTypeValueValuesEnum', 3)
+  scopes = _messages.StringField(4, repeated=True)
+  secretVersionForClientSecret = _messages.StringField(5)
+  tokenEndpoint = _messages.StringField(6)
+
+
+class GoogleCloudDialogflowV2ToolAuthenticationServiceAgentAuthConfig(_messages.Message):
+  r"""Config for auth using [Dialogflow service
+  agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-service-
+  agent).
+
+  Enums:
+    ServiceAgentAuthValueValuesEnum: Optional. Indicate the auth token type
+      generated from the [Diglogflow service
+      agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-
+      service-agent). The generated token is sent in the Authorization header.
+
+  Fields:
+    serviceAgentAuth: Optional. Indicate the auth token type generated from
+      the [Diglogflow service
+      agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-
+      service-agent). The generated token is sent in the Authorization header.
+  """
+
+  class ServiceAgentAuthValueValuesEnum(_messages.Enum):
+    r"""Optional. Indicate the auth token type generated from the [Diglogflow
+    service agent](https://cloud.google.com/iam/docs/service-
+    agents#dialogflow-service-agent). The generated token is sent in the
+    Authorization header.
+
+    Values:
+      SERVICE_AGENT_AUTH_UNSPECIFIED: Service agent auth type unspecified.
+        Default to ID_TOKEN.
+      ID_TOKEN: Use [ID
+        token](https://cloud.google.com/docs/authentication/token-types#id)
+        generated from service agent. This can be used to access Cloud
+        Function and Cloud Run after you grant Invoker role to `service-@gcp-
+        sa-dialogflow.iam.gserviceaccount.com`.
+      ACCESS_TOKEN: Use [access
+        token](https://cloud.google.com/docs/authentication/token-
+        types#access) generated from service agent. This can be used to access
+        other Google Cloud APIs after you grant required roles to
+        `service-@gcp-sa-dialogflow.iam.gserviceaccount.com`.
+    """
+    SERVICE_AGENT_AUTH_UNSPECIFIED = 0
+    ID_TOKEN = 1
+    ACCESS_TOKEN = 2
+
+  serviceAgentAuth = _messages.EnumField('ServiceAgentAuthValueValuesEnum', 1)
+
+
+class GoogleCloudDialogflowV2ToolCall(_messages.Message):
+  r"""Represents a call of a specific tool's action with the specified inputs.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the tool call.
+
+  Messages:
+    InputParametersValue: Optional. The action's input parameters.
+
+  Fields:
+    action: Optional. The name of the tool's action associated with this call.
+    answerRecord: Optional. The answer record associated with this tool call.
+    createTime: Output only. Create time of the tool call.
+    inputParameters: Optional. The action's input parameters.
+    state: Output only. State of the tool call.
+    tool: Optional. The tool associated with this call. Format:
+      `projects//locations//tools/`.
+    toolDisplayDetails: Optional. A human readable description of the tool.
+    toolDisplayName: Optional. A human readable short name of the tool, to be
+      shown on the UI.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the tool call.
+
+    Values:
+      STATE_UNSPECIFIED: Default value.
+      TRIGGERED: The tool call has been triggered.
+      NEEDS_CONFIRMATION: The tool call requires confirmation from a human.
+    """
+    STATE_UNSPECIFIED = 0
+    TRIGGERED = 1
+    NEEDS_CONFIRMATION = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputParametersValue(_messages.Message):
+    r"""Optional. The action's input parameters.
+
+    Messages:
+      AdditionalProperty: An additional property for a InputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  action = _messages.StringField(1)
+  answerRecord = _messages.StringField(2)
+  createTime = _messages.StringField(3)
+  inputParameters = _messages.MessageField('InputParametersValue', 4)
+  state = _messages.EnumField('StateValueValuesEnum', 5)
+  tool = _messages.StringField(6)
+  toolDisplayDetails = _messages.StringField(7)
+  toolDisplayName = _messages.StringField(8)
+
+
+class GoogleCloudDialogflowV2ToolCallResult(_messages.Message):
+  r"""The result of calling a tool's action.
+
+  Fields:
+    action: Optional. The name of the tool's action associated with this call.
+    answerRecord: Optional. The answer record associated with this tool call
+      result.
+    content: Only populated if the response content is utf-8 encoded.
+    createTime: Output only. Create time of the tool call result.
+    error: The tool call's error.
+    rawContent: Only populated if the response content is not utf-8 encoded.
+      (by definition byte fields are base64 encoded).
+    tool: Optional. The tool associated with this call. Format:
+      `projects//locations//tools/`.
+  """
+
+  action = _messages.StringField(1)
+  answerRecord = _messages.StringField(2)
+  content = _messages.StringField(3)
+  createTime = _messages.StringField(4)
+  error = _messages.MessageField('GoogleCloudDialogflowV2ToolCallResultError', 5)
+  rawContent = _messages.BytesField(6)
+  tool = _messages.StringField(7)
+
+
+class GoogleCloudDialogflowV2ToolCallResultError(_messages.Message):
+  r"""An error produced by the tool call.
+
+  Fields:
+    message: Optional. The error message of the function.
+  """
+
+  message = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2ToolConnectorTool(_messages.Message):
+  r"""A ConnectorTool enabling using Integration Connectors Connections as
+  tools.
+
+  Fields:
+    actions: Required. Actions for the tool to use.
+    name: Required. The full resource name of the referenced Integration
+      Connectors Connection. Format: 'projects/*/locations/*/connections/*'
+  """
+
+  actions = _messages.MessageField('GoogleCloudDialogflowV2ToolConnectorToolAction', 1, repeated=True)
+  name = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2ToolConnectorToolAction(_messages.Message):
+  r"""Configuration of a Connection operation for the tool to use.
+
+  Fields:
+    connectionActionId: ID of a Connection action for the tool to use.
+    entityOperation: Entity operation configuration for the tool to use.
+    inputFields: Optional. Entity fields to use as inputs for the operation.
+      If no fields are specified, all fields of the Entity will be used.
+    outputFields: Optional. Entity fields to return from the operation. If no
+      fields are specified, all fields of the Entity will be returned.
+  """
+
+  connectionActionId = _messages.StringField(1)
+  entityOperation = _messages.MessageField('GoogleCloudDialogflowV2ToolConnectorToolActionEntityOperation', 2)
+  inputFields = _messages.StringField(3, repeated=True)
+  outputFields = _messages.StringField(4, repeated=True)
+
+
+class GoogleCloudDialogflowV2ToolConnectorToolActionEntityOperation(_messages.Message):
+  r"""Entity CRUD operation specification.
+
+  Enums:
+    OperationValueValuesEnum: Required. Operation to perform on the entity.
+
+  Fields:
+    entityId: Required. ID of the entity.
+    operation: Required. Operation to perform on the entity.
+  """
+
+  class OperationValueValuesEnum(_messages.Enum):
+    r"""Required. Operation to perform on the entity.
+
+    Values:
+      OPERATION_TYPE_UNSPECIFIED: Operation type unspecified. Invalid,
+        ConnectorTool create/update will fail.
+      LIST: List operation.
+      GET: Get operation.
+      CREATE: Create operation.
+      UPDATE: Update operation.
+      DELETE: Delete operation.
+    """
+    OPERATION_TYPE_UNSPECIFIED = 0
+    LIST = 1
+    GET = 2
+    CREATE = 3
+    UPDATE = 4
+    DELETE = 5
+
+  entityId = _messages.StringField(1)
+  operation = _messages.EnumField('OperationValueValuesEnum', 2)
+
+
+class GoogleCloudDialogflowV2ToolExtensionTool(_messages.Message):
+  r"""An ExtensionTool is a way to use Vertex Extensions as a tool.
+
+  Fields:
+    name: Required. The full name of the referenced vertex extension. Format:
+      `projects/{project}/locations/{location}/extensions/{extension}`
+  """
+
+  name = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2ToolFunctionTool(_messages.Message):
+  r"""A Function tool describes the functions to be invoked on the client
+  side.
+
+  Enums:
+    MethodTypeValueValuesEnum: Optional. The method type of the function. If
+      not specified, the default value is GET.
+
+  Messages:
+    InputSchemaValue: Optional. The JSON schema is encapsulated in a
+      google.protobuf.Struct to describe the input of the function. This input
+      is a JSON object that contains the function's parameters as properties
+      of the object.
+    OutputSchemaValue: Optional. The JSON schema is encapsulated in a
+      google.protobuf.Struct to describe the output of the function. This
+      output is a JSON object that contains the function's parameters as
+      properties of the object.
+
+  Fields:
+    inputSchema: Optional. The JSON schema is encapsulated in a
+      google.protobuf.Struct to describe the input of the function. This input
+      is a JSON object that contains the function's parameters as properties
+      of the object.
+    methodType: Optional. The method type of the function. If not specified,
+      the default value is GET.
+    outputSchema: Optional. The JSON schema is encapsulated in a
+      google.protobuf.Struct to describe the output of the function. This
+      output is a JSON object that contains the function's parameters as
+      properties of the object.
+  """
+
+  class MethodTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The method type of the function. If not specified, the
+    default value is GET.
+
+    Values:
+      METHOD_TYPE_UNSPECIFIED: Unspecified.
+      GET: GET method.
+      POST: POST method.
+      PUT: PUT method.
+      DELETE: DELETE method.
+      PATCH: PATCH method.
+    """
+    METHOD_TYPE_UNSPECIFIED = 0
+    GET = 1
+    POST = 2
+    PUT = 3
+    DELETE = 4
+    PATCH = 5
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputSchemaValue(_messages.Message):
+    r"""Optional. The JSON schema is encapsulated in a google.protobuf.Struct
+    to describe the input of the function. This input is a JSON object that
+    contains the function's parameters as properties of the object.
+
+    Messages:
+      AdditionalProperty: An additional property for a InputSchemaValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputSchemaValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class OutputSchemaValue(_messages.Message):
+    r"""Optional. The JSON schema is encapsulated in a google.protobuf.Struct
+    to describe the output of the function. This output is a JSON object that
+    contains the function's parameters as properties of the object.
+
+    Messages:
+      AdditionalProperty: An additional property for a OutputSchemaValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a OutputSchemaValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  inputSchema = _messages.MessageField('InputSchemaValue', 1)
+  methodType = _messages.EnumField('MethodTypeValueValuesEnum', 2)
+  outputSchema = _messages.MessageField('OutputSchemaValue', 3)
+
+
+class GoogleCloudDialogflowV2ToolOpenApiTool(_messages.Message):
+  r"""An OpenAPI tool is a way to provide the Tool specifications in the Open
+  API schema format.
+
+  Fields:
+    authentication: Optional. Authentication information required by the API.
+    serviceDirectoryConfig: Optional. Service Directory configuration.
+    textSchema: Required. The OpenAPI schema specified as a text.
+    tlsConfig: Optional. TLS configuration for the HTTPS verification.
+  """
+
+  authentication = _messages.MessageField('GoogleCloudDialogflowV2ToolAuthentication', 1)
+  serviceDirectoryConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolServiceDirectoryConfig', 2)
+  textSchema = _messages.StringField(3)
+  tlsConfig = _messages.MessageField('GoogleCloudDialogflowV2ToolTLSConfig', 4)
+
+
+class GoogleCloudDialogflowV2ToolServiceDirectoryConfig(_messages.Message):
+  r"""Configuration for tools using Service Directory.
+
+  Fields:
+    service: Required. The name of [Service
+      Directory](https://cloud.google.com/service-directory) service. Format:
+      `projects//locations//namespaces//services/`. `LocationID` of the
+      service directory must be the same as the location of the tool.
+  """
+
+  service = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2ToolTLSConfig(_messages.Message):
+  r"""The TLS configuration.
+
+  Fields:
+    caCerts: Required. Specifies a list of allowed custom CA certificates for
+      HTTPS verification.
+  """
+
+  caCerts = _messages.MessageField('GoogleCloudDialogflowV2ToolTLSConfigCACert', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2ToolTLSConfigCACert(_messages.Message):
+  r"""The CA certificate.
+
+  Fields:
+    cert: Required. The allowed custom CA certificates (in DER format) for
+      HTTPS verification. This overrides the default SSL trust store. If this
+      is empty or unspecified, Dialogflow will use Google's default trust
+      store to verify certificates. N.B. Make sure the HTTPS server
+      certificates are signed with "subject alt name". For instance a
+      certificate can be self-signed using the following command, ``` openssl
+      x509 -req -days 200 -in example.com.csr \ -signkey example.com.key \
+      -out example.com.crt \ -extfile <(printf
+      "\nsubjectAltName='DNS:www.example.com'") ```
+    displayName: Required. The name of the allowed custom CA certificates.
+      This can be used to disambiguate the custom CA certificates.
+  """
+
+  cert = _messages.BytesField(1)
+  displayName = _messages.StringField(2)
+
+
 class GoogleCloudDialogflowV2TrainAgentRequest(_messages.Message):
   r"""The request message for Agents.TrainAgent."""
 
@@ -16873,10 +19725,12 @@ class GoogleCloudDialogflowV2UndeployConversationModelOperationMetadata(_message
       `projects//conversationModels/`
     createTime: Timestamp when the request to undeploy conversation model was
       submitted. The time is measured on server side.
+    doneTime: The time when the operation finished.
   """
 
   conversationModel = _messages.StringField(1)
   createTime = _messages.StringField(2)
+  doneTime = _messages.StringField(3)
 
 
 class GoogleCloudDialogflowV2UndeployConversationModelRequest(_messages.Message):
@@ -17152,6 +20006,149 @@ class GoogleCloudDialogflowV2WebhookResponse(_messages.Message):
   source = _messages.StringField(7)
 
 
+class GoogleCloudDialogflowV2beta1AgentCoachingInstruction(_messages.Message):
+  r"""Agent Coaching instructions that customer can configure.
+
+  Fields:
+    agentAction: Optional. The action that human agent should take. For
+      example, "apologize for the slow shipping". If the users only want to
+      use agent coaching for intent detection, agent_action can be empty
+    condition: Optional. The condition of the instruction. For example, "the
+      customer wants to cancel an order". If the users want the instruction to
+      be triggered unconditionally, the condition can be empty.
+    displayDetails: Optional. The detailed description of this instruction.
+    displayName: Optional. Display name for the instruction.
+    duplicateCheckResult: Output only. Duplication check for the
+      AgentCoachingInstruction.
+    systemAction: Optional. The action that system should take. For example,
+      "call GetOrderTime with order_number={order number provided by the
+      customer}". If the users don't have plugins or don't want to trigger
+      plugins, the system_action can be empty
+  """
+
+  agentAction = _messages.StringField(1)
+  condition = _messages.StringField(2)
+  displayDetails = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingInstructionDuplicateCheckResult', 5)
+  systemAction = _messages.StringField(6)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingInstructionDuplicateCheckResult(_messages.Message):
+  r"""Duplication check for the suggestion.
+
+  Fields:
+    duplicateSuggestions: Output only. The duplicate suggestions.
+  """
+
+  duplicateSuggestions = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingInstructionDuplicateCheckResultDuplicateSuggestion', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingInstructionDuplicateCheckResultDuplicateSuggestion(_messages.Message):
+  r"""The duplicate suggestion details.
+
+  Fields:
+    answerRecord: Output only. The answer record id of the past duplicate
+      suggestion.
+    similarityScore: Output only. The similarity score of between the past and
+      current suggestion.
+    suggestionIndex: Output only. The index of the duplicate suggestion in the
+      past suggestion list.
+  """
+
+  answerRecord = _messages.StringField(1)
+  similarityScore = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  suggestionIndex = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestion(_messages.Message):
+  r"""Suggestion for coaching agents.
+
+  Fields:
+    agentActionSuggestions: Optional. Suggested actions for the agent to take.
+    applicableInstructions: Optional. Instructions applicable based on the
+      current context.
+    sampleResponses: Optional. Sample response for the Agent.
+  """
+
+  agentActionSuggestions = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionAgentActionSuggestion', 1, repeated=True)
+  applicableInstructions = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingInstruction', 2, repeated=True)
+  sampleResponses = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSampleResponse', 3, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestionAgentActionSuggestion(_messages.Message):
+  r"""Actions suggested for the agent. This is based on applicable
+  instructions.
+
+  Fields:
+    agentAction: Optional. The suggested action for the agent.
+    duplicateCheckResult: Output only. Duplicate check result for the agent
+      action suggestion.
+    sources: Output only. Sources for the agent action suggestion.
+  """
+
+  agentAction = _messages.StringField(1)
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionDuplicateCheckResult', 2)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSources', 3)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestionDuplicateCheckResult(_messages.Message):
+  r"""Duplication check for the suggestion.
+
+  Fields:
+    duplicateSuggestions: Output only. The duplicate suggestions.
+  """
+
+  duplicateSuggestions = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionDuplicateCheckResultDuplicateSuggestion', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestionDuplicateCheckResultDuplicateSuggestion(_messages.Message):
+  r"""The duplicate suggestion details. Keeping answer_record and sources
+  together as they are identifiers for duplicate suggestions.
+
+  Fields:
+    answerRecord: Output only. The answer record id of the past duplicate
+      suggestion.
+    similarityScore: Output only. The similarity score of between the past and
+      current suggestion.
+    sources: Output only. Sources for the suggestion.
+    suggestionIndex: Output only. The index of the duplicate suggestion in the
+      past suggestion list.
+  """
+
+  answerRecord = _messages.StringField(1)
+  similarityScore = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSources', 3)
+  suggestionIndex = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSampleResponse(_messages.Message):
+  r"""Sample response that the agent can use. This could be based on
+  applicable instructions and ingested data from other systems.
+
+  Fields:
+    duplicateCheckResult: Output only. Duplicate check result for the sample
+      response.
+    responseText: Optional. Sample response for Agent in text.
+    sources: Output only. Sources for the Sample Response.
+  """
+
+  duplicateCheckResult = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionDuplicateCheckResult', 1)
+  responseText = _messages.StringField(2)
+  sources = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSources', 3)
+
+
+class GoogleCloudDialogflowV2beta1AgentCoachingSuggestionSources(_messages.Message):
+  r"""Sources for the suggestion.
+
+  Fields:
+    instructionIndexes: Output only. Source instruction indexes for the
+      suggestion. This is the index of the applicable_instructions field.
+  """
+
+  instructionIndexes = _messages.IntegerField(1, repeated=True, variant=_messages.Variant.INT32)
+
+
 class GoogleCloudDialogflowV2beta1AnnotatedMessagePart(_messages.Message):
   r"""Represents a part of a message possibly annotated with an entity. The
   part can be an entity or purely a part of the message between two entities
@@ -17419,6 +20416,7 @@ class GoogleCloudDialogflowV2beta1ConversationEvent(_messages.Message):
     errorStatus: Optional. More detailed information about an error. Only set
       for type UNRECOVERABLE_ERROR_IN_PHONE_CALL.
     newMessagePayload: Payload of NEW_MESSAGE event.
+    newRecognitionResultPayload: Payload of NEW_RECOGNITION_RESULT event.
     type: Required. The type of the event that this notification refers to.
   """
 
@@ -17438,6 +20436,10 @@ class GoogleCloudDialogflowV2beta1ConversationEvent(_messages.Message):
       NEW_MESSAGE: An existing conversation has received a new message, either
         from API or telephony. It is configured in
         ConversationProfile.new_message_event_notification_config
+      NEW_RECOGNITION_RESULT: An existing conversation has received a new
+        speech recognition result. This is mainly for delivering intermediate
+        transcripts. The notification is configured in
+        ConversationProfile.new_recognition_event_notification_config.
       UNRECOVERABLE_ERROR: Unrecoverable error during a telephone call. In
         general non-recoverable errors only occur if something was
         misconfigured in the ConversationProfile corresponding to the call.
@@ -17450,12 +20452,14 @@ class GoogleCloudDialogflowV2beta1ConversationEvent(_messages.Message):
     CONVERSATION_FINISHED = 2
     HUMAN_INTERVENTION_NEEDED = 3
     NEW_MESSAGE = 4
-    UNRECOVERABLE_ERROR = 5
+    NEW_RECOGNITION_RESULT = 5
+    UNRECOVERABLE_ERROR = 6
 
   conversation = _messages.StringField(1)
   errorStatus = _messages.MessageField('GoogleRpcStatus', 2)
   newMessagePayload = _messages.MessageField('GoogleCloudDialogflowV2beta1Message', 3)
-  type = _messages.EnumField('TypeValueValuesEnum', 4)
+  newRecognitionResultPayload = _messages.MessageField('GoogleCloudDialogflowV2beta1StreamingRecognitionResult', 4)
+  type = _messages.EnumField('TypeValueValuesEnum', 5)
 
 
 class GoogleCloudDialogflowV2beta1DialogflowAssistAnswer(_messages.Message):
@@ -17734,6 +20738,16 @@ class GoogleCloudDialogflowV2beta1FaqAnswer(_messages.Message):
   source = _messages.StringField(6)
 
 
+class GoogleCloudDialogflowV2beta1FreeFormSuggestion(_messages.Message):
+  r"""Suggestion generated using free form generator.
+
+  Fields:
+    response: Required. Free form suggestion.
+  """
+
+  response = _messages.StringField(1)
+
+
 class GoogleCloudDialogflowV2beta1GcsDestination(_messages.Message):
   r"""Google Cloud Storage location for the output.
 
@@ -17745,6 +20759,66 @@ class GoogleCloudDialogflowV2beta1GcsDestination(_messages.Message):
   """
 
   uri = _messages.StringField(1)
+
+
+class GoogleCloudDialogflowV2beta1GenerateSuggestionsResponse(_messages.Message):
+  r"""The response message for Conversations.GenerateSuggestions.
+
+  Fields:
+    generatorSuggestionAnswers: The answers generated for the conversation
+      based on context.
+    latestMessage: The name of the latest conversation message used as context
+      for compiling suggestion. Format:
+      `projects//locations//conversations//messages/`.
+  """
+
+  generatorSuggestionAnswers = _messages.MessageField('GoogleCloudDialogflowV2beta1GenerateSuggestionsResponseGeneratorSuggestionAnswer', 1, repeated=True)
+  latestMessage = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2beta1GenerateSuggestionsResponseGeneratorSuggestionAnswer(_messages.Message):
+  r"""A GeneratorSuggestion answer.
+
+  Fields:
+    answerRecord: Answer record that uniquely identifies the suggestion. This
+      can be used to provide suggestion feedback.
+    generatorSuggestion: Suggestion details.
+    sourceGenerator: The name of the generator used to generate this
+      suggestion. Format: `projects//locations//generators/`.
+  """
+
+  answerRecord = _messages.StringField(1)
+  generatorSuggestion = _messages.MessageField('GoogleCloudDialogflowV2beta1GeneratorSuggestion', 2)
+  sourceGenerator = _messages.StringField(3)
+
+
+class GoogleCloudDialogflowV2beta1GeneratorSuggestion(_messages.Message):
+  r"""Suggestion generated using a Generator.
+
+  Fields:
+    agentCoachingSuggestion: Optional. Suggestion to coach the agent.
+    freeFormSuggestion: Optional. Free form suggestion.
+    summarySuggestion: Optional. Suggested summary.
+    toolCallInfo: Optional. List of request and response for tool calls
+      executed.
+  """
+
+  agentCoachingSuggestion = _messages.MessageField('GoogleCloudDialogflowV2beta1AgentCoachingSuggestion', 1)
+  freeFormSuggestion = _messages.MessageField('GoogleCloudDialogflowV2beta1FreeFormSuggestion', 2)
+  summarySuggestion = _messages.MessageField('GoogleCloudDialogflowV2beta1SummarySuggestion', 3)
+  toolCallInfo = _messages.MessageField('GoogleCloudDialogflowV2beta1GeneratorSuggestionToolCallInfo', 4, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1GeneratorSuggestionToolCallInfo(_messages.Message):
+  r"""Request and response for a tool call.
+
+  Fields:
+    toolCall: Required. Request for a tool call.
+    toolCallResult: Required. Response for a tool call.
+  """
+
+  toolCall = _messages.MessageField('GoogleCloudDialogflowV2beta1ToolCall', 1)
+  toolCallResult = _messages.MessageField('GoogleCloudDialogflowV2beta1ToolCallResult', 2)
 
 
 class GoogleCloudDialogflowV2beta1HumanAgentAssistantEvent(_messages.Message):
@@ -19153,6 +22227,7 @@ class GoogleCloudDialogflowV2beta1KnowledgeOperationMetadata(_messages.Message):
       operation.
 
   Fields:
+    doneTime: The time when the operation finished.
     exportOperationMetadata: Metadata for the Export Data Operation such as
       the destination of export.
     knowledgeBase: The name of the knowledge base interacted with during the
@@ -19174,9 +22249,10 @@ class GoogleCloudDialogflowV2beta1KnowledgeOperationMetadata(_messages.Message):
     RUNNING = 2
     DONE = 3
 
-  exportOperationMetadata = _messages.MessageField('GoogleCloudDialogflowV2beta1ExportOperationMetadata', 1)
-  knowledgeBase = _messages.StringField(2)
-  state = _messages.EnumField('StateValueValuesEnum', 3)
+  doneTime = _messages.StringField(1)
+  exportOperationMetadata = _messages.MessageField('GoogleCloudDialogflowV2beta1ExportOperationMetadata', 2)
+  knowledgeBase = _messages.StringField(3)
+  state = _messages.EnumField('StateValueValuesEnum', 4)
 
 
 class GoogleCloudDialogflowV2beta1Message(_messages.Message):
@@ -19198,7 +22274,8 @@ class GoogleCloudDialogflowV2beta1Message(_messages.Message):
     participant: Output only. The participant that sends this message.
     participantRole: Output only. The role of the participant.
     responseMessages: Optional. Automated agent responses.
-    sendTime: Optional. The time when the message was sent.
+    sendTime: Optional. The time when the message was sent. For voice
+      messages, this is the time when an utterance started.
     sentimentAnalysis: Output only. The sentiment analysis result for the
       message.
   """
@@ -19578,9 +22655,10 @@ class GoogleCloudDialogflowV2beta1ResponseMessageLiveAgentHandoff(_messages.Mess
   Dialogflow only uses this to determine which conversations were handed off
   to a human agent for measurement purposes. What else to do with this signal
   is up to you and your handoff procedures. You may set this, for example: *
-  In the entry fulfillment of a CX Page if entering the page indicates
-  something went extremely wrong in the conversation. * In a webhook response
-  when you determine that the customer issue can only be handled by a human.
+  In the entry fulfillment of a Dialogflow CX Page if entering the page
+  indicates something went extremely wrong in the conversation. * In a webhook
+  response when you determine that the customer issue can only be handled by a
+  human.
 
   Messages:
     MetadataValue: Custom metadata for your handoff procedure. Dialogflow
@@ -19855,6 +22933,127 @@ class GoogleCloudDialogflowV2beta1SmartReplyAnswer(_messages.Message):
   reply = _messages.StringField(3)
 
 
+class GoogleCloudDialogflowV2beta1SpeechWordInfo(_messages.Message):
+  r"""Information for a word recognized by the speech recognizer.
+
+  Fields:
+    confidence: The Speech confidence between 0.0 and 1.0 for this word. A
+      higher number indicates an estimated greater likelihood that the
+      recognized word is correct. The default of 0.0 is a sentinel value
+      indicating that confidence was not set. This field is not guaranteed to
+      be fully stable over time for the same audio input. Users should also
+      not rely on it to always be provided.
+    endOffset: Time offset relative to the beginning of the audio that
+      corresponds to the end of the spoken word. This is an experimental
+      feature and the accuracy of the time offset can vary.
+    startOffset: Time offset relative to the beginning of the audio that
+      corresponds to the start of the spoken word. This is an experimental
+      feature and the accuracy of the time offset can vary.
+    word: The word this info is for.
+  """
+
+  confidence = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
+  endOffset = _messages.StringField(2)
+  startOffset = _messages.StringField(3)
+  word = _messages.StringField(4)
+
+
+class GoogleCloudDialogflowV2beta1StreamingRecognitionResult(_messages.Message):
+  r"""Contains a speech recognition result corresponding to a portion of the
+  audio that is currently being processed or an indication that this is the
+  end of the single requested utterance. While end-user audio is being
+  processed, Dialogflow sends a series of results. Each result may contain a
+  `transcript` value. A transcript represents a portion of the utterance.
+  While the recognizer is processing audio, transcript values may be interim
+  values or finalized values. Once a transcript is finalized, the `is_final`
+  value is set to true and processing continues for the next transcript. If
+  `StreamingDetectIntentRequest.query_input.audio_config.single_utterance` was
+  true, and the recognizer has completed processing audio, the `message_type`
+  value is set to `END_OF_SINGLE_UTTERANCE and the following (last) result
+  contains the last finalized transcript. The complete end-user utterance is
+  determined by concatenating the finalized transcript values received for the
+  series of results. In the following example, single utterance is enabled. In
+  the case where single utterance is not enabled, result 7 would not occur.
+  ``` Num | transcript | message_type | is_final --- | -----------------------
+  | ----------------------- | -------- 1 | "tube" | TRANSCRIPT | false 2 | "to
+  be a" | TRANSCRIPT | false 3 | "to be" | TRANSCRIPT | false 4 | "to be or
+  not to be" | TRANSCRIPT | true 5 | "that's" | TRANSCRIPT | false 6 | "that
+  is | TRANSCRIPT | false 7 | unset | END_OF_SINGLE_UTTERANCE | unset 8 | "
+  that is the question" | TRANSCRIPT | true ``` Concatenating the finalized
+  transcripts with `is_final` set to true, the complete utterance becomes "to
+  be or not to be that is the question".
+
+  Enums:
+    MessageTypeValueValuesEnum: Type of the result message.
+
+  Fields:
+    confidence: The Speech confidence between 0.0 and 1.0 for the current
+      portion of audio. A higher number indicates an estimated greater
+      likelihood that the recognized words are correct. The default of 0.0 is
+      a sentinel value indicating that confidence was not set. This field is
+      typically only provided if `is_final` is true and you should not rely on
+      it being accurate or even set.
+    dtmfDigits: DTMF digits. Populated if and only if `message_type` =
+      `DTMF_DIGITS`.
+    isFinal: If `false`, the `StreamingRecognitionResult` represents an
+      interim result that may change. If `true`, the recognizer will not
+      return any further hypotheses about this piece of the audio. May only be
+      populated for `message_type` = `TRANSCRIPT`.
+    languageCode: Detected language code for the transcript.
+    messageType: Type of the result message.
+    speechEndOffset: Time offset of the end of this Speech recognition result
+      relative to the beginning of the audio. Only populated for
+      `message_type` = `TRANSCRIPT`.
+    speechWordInfo: Word-specific information for the words recognized by
+      Speech in transcript. Populated if and only if `message_type` =
+      `TRANSCRIPT` and [InputAudioConfig.enable_word_info] is set.
+    stability: An estimate of the likelihood that the speech recognizer will
+      not change its guess about this interim recognition result: * If the
+      value is unspecified or 0.0, Dialogflow didn't compute the stability. In
+      particular, Dialogflow will only provide stability for `TRANSCRIPT`
+      results with `is_final = false`. * Otherwise, the value is in (0.0, 1.0]
+      where 0.0 means completely unstable and 1.0 means completely stable.
+    transcript: Transcript text representing the words that the user spoke.
+      Populated if and only if `message_type` = `TRANSCRIPT`.
+  """
+
+  class MessageTypeValueValuesEnum(_messages.Enum):
+    r"""Type of the result message.
+
+    Values:
+      MESSAGE_TYPE_UNSPECIFIED: Not specified. Should never be used.
+      TRANSCRIPT: Message contains a (possibly partial) transcript.
+      END_OF_SINGLE_UTTERANCE: This event indicates that the server has
+        detected the end of the user's speech utterance and expects no
+        additional speech. Therefore, the server will not process additional
+        audio (although it may subsequently return additional results). The
+        client should stop sending additional audio data, half-close the gRPC
+        connection, and wait for any additional results until the server
+        closes the gRPC connection. This message is only sent if
+        `single_utterance` was set to `true`, and is not used otherwise.
+      DTMF_DIGITS: Message contains DTMF digits.
+      PARTIAL_DTMF_DIGITS: Message contains DTMF digits. Before a message with
+        DTMF_DIGITS is sent, a message with PARTIAL_DTMF_DIGITS may be sent
+        with DTMF digits collected up to the time of sending, which represents
+        an intermediate result.
+    """
+    MESSAGE_TYPE_UNSPECIFIED = 0
+    TRANSCRIPT = 1
+    END_OF_SINGLE_UTTERANCE = 2
+    DTMF_DIGITS = 3
+    PARTIAL_DTMF_DIGITS = 4
+
+  confidence = _messages.FloatField(1, variant=_messages.Variant.FLOAT)
+  dtmfDigits = _messages.MessageField('GoogleCloudDialogflowV2beta1TelephonyDtmfEvents', 2)
+  isFinal = _messages.BooleanField(3)
+  languageCode = _messages.StringField(4)
+  messageType = _messages.EnumField('MessageTypeValueValuesEnum', 5)
+  speechEndOffset = _messages.StringField(6)
+  speechWordInfo = _messages.MessageField('GoogleCloudDialogflowV2beta1SpeechWordInfo', 7, repeated=True)
+  stability = _messages.FloatField(8, variant=_messages.Variant.FLOAT)
+  transcript = _messages.StringField(9)
+
+
 class GoogleCloudDialogflowV2beta1SuggestArticlesResponse(_messages.Message):
   r"""The response message for Participants.SuggestArticles.
 
@@ -19957,6 +23156,8 @@ class GoogleCloudDialogflowV2beta1SuggestionResult(_messages.Message):
 
   Fields:
     error: Error status if the request failed.
+    generateSuggestionsResponse: Suggestions generated using generators
+      triggered by customer or agent messages.
     suggestArticlesResponse: SuggestArticlesResponse if request is for
       ARTICLE_SUGGESTION.
     suggestDialogflowAssistsResponse: SuggestDialogflowAssistsResponse if
@@ -19972,12 +23173,193 @@ class GoogleCloudDialogflowV2beta1SuggestionResult(_messages.Message):
   """
 
   error = _messages.MessageField('GoogleRpcStatus', 1)
-  suggestArticlesResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestArticlesResponse', 2)
-  suggestDialogflowAssistsResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestDialogflowAssistsResponse', 3)
-  suggestEntityExtractionResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestDialogflowAssistsResponse', 4)
-  suggestFaqAnswersResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestFaqAnswersResponse', 5)
-  suggestKnowledgeAssistResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestKnowledgeAssistResponse', 6)
-  suggestSmartRepliesResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestSmartRepliesResponse', 7)
+  generateSuggestionsResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1GenerateSuggestionsResponse', 2)
+  suggestArticlesResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestArticlesResponse', 3)
+  suggestDialogflowAssistsResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestDialogflowAssistsResponse', 4)
+  suggestEntityExtractionResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestDialogflowAssistsResponse', 5)
+  suggestFaqAnswersResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestFaqAnswersResponse', 6)
+  suggestKnowledgeAssistResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestKnowledgeAssistResponse', 7)
+  suggestSmartRepliesResponse = _messages.MessageField('GoogleCloudDialogflowV2beta1SuggestSmartRepliesResponse', 8)
+
+
+class GoogleCloudDialogflowV2beta1SummarySuggestion(_messages.Message):
+  r"""Suggested summary of the conversation.
+
+  Fields:
+    summarySections: Required. All the parts of generated summary.
+  """
+
+  summarySections = _messages.MessageField('GoogleCloudDialogflowV2beta1SummarySuggestionSummarySection', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1SummarySuggestionSummarySection(_messages.Message):
+  r"""A component of the generated summary.
+
+  Fields:
+    section: Required. Name of the section.
+    summary: Required. Summary text for the section.
+  """
+
+  section = _messages.StringField(1)
+  summary = _messages.StringField(2)
+
+
+class GoogleCloudDialogflowV2beta1TelephonyDtmfEvents(_messages.Message):
+  r"""A wrapper of repeated TelephonyDtmf digits.
+
+  Enums:
+    DtmfEventsValueListEntryValuesEnum:
+
+  Fields:
+    dtmfEvents: A sequence of TelephonyDtmf digits.
+  """
+
+  class DtmfEventsValueListEntryValuesEnum(_messages.Enum):
+    r"""DtmfEventsValueListEntryValuesEnum enum type.
+
+    Values:
+      TELEPHONY_DTMF_UNSPECIFIED: Not specified. This value may be used to
+        indicate an absent digit.
+      DTMF_ONE: Number: '1'.
+      DTMF_TWO: Number: '2'.
+      DTMF_THREE: Number: '3'.
+      DTMF_FOUR: Number: '4'.
+      DTMF_FIVE: Number: '5'.
+      DTMF_SIX: Number: '6'.
+      DTMF_SEVEN: Number: '7'.
+      DTMF_EIGHT: Number: '8'.
+      DTMF_NINE: Number: '9'.
+      DTMF_ZERO: Number: '0'.
+      DTMF_A: Letter: 'A'.
+      DTMF_B: Letter: 'B'.
+      DTMF_C: Letter: 'C'.
+      DTMF_D: Letter: 'D'.
+      DTMF_STAR: Asterisk/star: '*'.
+      DTMF_POUND: Pound/diamond/hash/square/gate/octothorpe: '#'.
+    """
+    TELEPHONY_DTMF_UNSPECIFIED = 0
+    DTMF_ONE = 1
+    DTMF_TWO = 2
+    DTMF_THREE = 3
+    DTMF_FOUR = 4
+    DTMF_FIVE = 5
+    DTMF_SIX = 6
+    DTMF_SEVEN = 7
+    DTMF_EIGHT = 8
+    DTMF_NINE = 9
+    DTMF_ZERO = 10
+    DTMF_A = 11
+    DTMF_B = 12
+    DTMF_C = 13
+    DTMF_D = 14
+    DTMF_STAR = 15
+    DTMF_POUND = 16
+
+  dtmfEvents = _messages.EnumField('DtmfEventsValueListEntryValuesEnum', 1, repeated=True)
+
+
+class GoogleCloudDialogflowV2beta1ToolCall(_messages.Message):
+  r"""Represents a call of a specific tool's action with the specified inputs.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the tool call
+
+  Messages:
+    InputParametersValue: Optional. The action's input parameters.
+
+  Fields:
+    action: Optional. The name of the tool's action associated with this call.
+    answerRecord: Optional. The answer record associated with this tool call.
+    createTime: Output only. Create time of the tool call.
+    inputParameters: Optional. The action's input parameters.
+    state: Output only. State of the tool call
+    tool: Optional. The tool associated with this call. Format:
+      `projects//locations//tools/`.
+    toolDisplayDetails: Optional. A human readable description of the tool.
+    toolDisplayName: Optional. A human readable short name of the tool, to be
+      shown on the UI.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the tool call
+
+    Values:
+      STATE_UNSPECIFIED: Default value.
+      TRIGGERED: The tool call has been triggered.
+      NEEDS_CONFIRMATION: The tool call requires confirmation from a human.
+    """
+    STATE_UNSPECIFIED = 0
+    TRIGGERED = 1
+    NEEDS_CONFIRMATION = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class InputParametersValue(_messages.Message):
+    r"""Optional. The action's input parameters.
+
+    Messages:
+      AdditionalProperty: An additional property for a InputParametersValue
+        object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a InputParametersValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  action = _messages.StringField(1)
+  answerRecord = _messages.StringField(2)
+  createTime = _messages.StringField(3)
+  inputParameters = _messages.MessageField('InputParametersValue', 4)
+  state = _messages.EnumField('StateValueValuesEnum', 5)
+  tool = _messages.StringField(6)
+  toolDisplayDetails = _messages.StringField(7)
+  toolDisplayName = _messages.StringField(8)
+
+
+class GoogleCloudDialogflowV2beta1ToolCallResult(_messages.Message):
+  r"""The result of calling a tool's action.
+
+  Fields:
+    action: Optional. The name of the tool's action associated with this call.
+    answerRecord: Optional. The answer record associated with this tool call
+      result.
+    content: Only populated if the response content is utf-8 encoded.
+    createTime: Output only. Create time of the tool call result.
+    error: The tool call's error.
+    rawContent: Only populated if the response content is not utf-8 encoded.
+      (by definition byte fields are base64 encoded).
+    tool: Optional. The tool associated with this call. Format:
+      `projects//locations//tools/`.
+  """
+
+  action = _messages.StringField(1)
+  answerRecord = _messages.StringField(2)
+  content = _messages.StringField(3)
+  createTime = _messages.StringField(4)
+  error = _messages.MessageField('GoogleCloudDialogflowV2beta1ToolCallResultError', 5)
+  rawContent = _messages.BytesField(6)
+  tool = _messages.StringField(7)
+
+
+class GoogleCloudDialogflowV2beta1ToolCallResultError(_messages.Message):
+  r"""An error produced by the tool call.
+
+  Fields:
+    message: Optional. The error message of the function.
+  """
+
+  message = _messages.StringField(1)
 
 
 class GoogleCloudDialogflowV2beta1WebhookRequest(_messages.Message):
@@ -20277,10 +23659,15 @@ class GoogleLongrunningListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('GoogleLongrunningOperation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class GoogleLongrunningOperation(_messages.Message):

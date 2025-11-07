@@ -16,9 +16,6 @@
 
 Implements CloudApi for the GCS JSON API. Example functions include listing
 buckets, uploading objects, and setting lifecycle conditions.
-
-TODO(b/160601969): Update class with remaining API methods for ls and cp.
-    Note, this class has not been tested against the GCS API yet.
 """
 
 from __future__ import absolute_import
@@ -815,7 +812,7 @@ class JsonClient(cloud_api.CloudApi):
     source_messages = []
     for source in source_resources:
       source_message = self.messages.ComposeRequest.SourceObjectsValueListEntry(
-          name=source.storage_url.object_name)
+          name=source.storage_url.resource_name)
       if source.storage_url.generation is not None:
         generation = int(source.storage_url.generation)
         source_message.generation = generation
@@ -826,7 +823,7 @@ class JsonClient(cloud_api.CloudApi):
     if getattr(source_resources[0], 'metadata', None):
       final_destination_metadata = metadata_util.copy_object_metadata(
           source_resources[0].metadata, base_destination_metadata,
-          request_config)
+          request_config, method_type=metadata_util.MethodType.OBJECT_COMPOSE)
     else:
       final_destination_metadata = base_destination_metadata
     metadata_util.update_object_metadata_from_request_config(
@@ -834,6 +831,7 @@ class JsonClient(cloud_api.CloudApi):
         request_config,
         attributes_resource=original_source_resource,
         posix_to_set=posix_to_set,
+        method_type=metadata_util.MethodType.OBJECT_COMPOSE,
     )
 
     compose_request_payload = self.messages.ComposeRequest(
@@ -842,7 +840,7 @@ class JsonClient(cloud_api.CloudApi):
     compose_request = self.messages.StorageObjectsComposeRequest(
         composeRequest=compose_request_payload,
         destinationBucket=destination_resource.storage_url.bucket_name,
-        destinationObject=destination_resource.storage_url.object_name,
+        destinationObject=destination_resource.storage_url.resource_name,
         ifGenerationMatch=request_config.precondition_generation_match,
         ifMetagenerationMatch=request_config.precondition_metageneration_match)
 
@@ -887,7 +885,10 @@ class JsonClient(cloud_api.CloudApi):
           request_config,
           should_deep_copy=should_deep_copy_metadata)
     metadata_util.update_object_metadata_from_request_config(
-        destination_metadata, request_config, posix_to_set=posix_to_set
+        destination_metadata,
+        request_config,
+        posix_to_set=posix_to_set,
+        method_type=metadata_util.MethodType.OBJECT_REWRITE,
     )
 
     if request_config.predefined_acl_string:
@@ -930,9 +931,9 @@ class JsonClient(cloud_api.CloudApi):
       while True:
         request = self.messages.StorageObjectsRewriteRequest(
             sourceBucket=source_resource.storage_url.bucket_name,
-            sourceObject=source_resource.storage_url.object_name,
+            sourceObject=source_resource.storage_url.resource_name,
             destinationBucket=destination_resource.storage_url.bucket_name,
-            destinationObject=destination_resource.storage_url.object_name,
+            destinationObject=destination_resource.storage_url.resource_name,
             object=destination_metadata,
             sourceGeneration=source_generation,
             ifGenerationMatch=copy_util.get_generation_match_value(
@@ -985,7 +986,7 @@ class JsonClient(cloud_api.CloudApi):
 
     request = self.messages.StorageObjectsDeleteRequest(
         bucket=object_url.bucket_name,
-        object=object_url.object_name,
+        object=object_url.resource_name,
         generation=generation,
         ifGenerationMatch=request_config.precondition_generation_match,
         ifMetagenerationMatch=request_config.precondition_metageneration_match)
@@ -1125,6 +1126,7 @@ class JsonClient(cloud_api.CloudApi):
       include_folders_as_prefixes=None,
       next_page_token=None,
       object_state=cloud_api.ObjectState.LIVE,
+      list_filter=None,
   ):
     """See super class."""
     projection = self._get_projection(fields_scope,
@@ -1172,6 +1174,7 @@ class JsonClient(cloud_api.CloudApi):
           includeFoldersAsPrefixes=include_folders_as_prefixes,
           # Avoid needlessly appending "&softDeleted=False" to URL.
           softDeleted=soft_deleted,
+          filter=list_filter,
       )
 
       try:
@@ -1212,7 +1215,7 @@ class JsonClient(cloud_api.CloudApi):
             storage_url.CloudUrl(
                 scheme=storage_url.ProviderPrefix.GCS,
                 bucket_name=bucket_name,
-                object_name=prefix_string),
+                resource_name=prefix_string),
             prefix=prefix_string)
 
       if not next_page_token:
@@ -1252,7 +1255,10 @@ class JsonClient(cloud_api.CloudApi):
     )
 
     metadata_util.update_object_metadata_from_request_config(
-        object_metadata, request_config, posix_to_set=posix_to_set
+        object_metadata,
+        request_config,
+        posix_to_set=posix_to_set,
+        method_type=metadata_util.MethodType.OBJECT_PATCH,
     )
     request = self.messages.StorageObjectsPatchRequest(
         bucket=bucket_name,
@@ -1677,7 +1683,7 @@ class JsonClient(cloud_api.CloudApi):
             ifMetagenerationMatch=(
                 request_config.precondition_metageneration_match
             ),
-            object=url.object_name,
+            object=url.resource_name,
         )
     )
     return metadata_util.get_object_resource_from_metadata(object_metadata)
@@ -1709,6 +1715,8 @@ class JsonClient(cloud_api.CloudApi):
       object_globs,
       request_config,
       allow_overwrite=False,
+      created_after_time=None,
+      created_before_time=None,
       deleted_after_time=None,
       deleted_before_time=None,
   ):
@@ -1727,6 +1735,8 @@ class JsonClient(cloud_api.CloudApi):
               bulkRestoreObjectsRequest=self.messages.BulkRestoreObjectsRequest(
                   allowOverwrite=allow_overwrite,
                   copySourceAcl=preserve_acl,
+                  createdAfterTime=created_after_time,
+                  createdBeforeTime=created_before_time,
                   matchGlobs=object_globs,
                   softDeletedAfterTime=deleted_after_time,
                   softDeletedBeforeTime=deleted_before_time,

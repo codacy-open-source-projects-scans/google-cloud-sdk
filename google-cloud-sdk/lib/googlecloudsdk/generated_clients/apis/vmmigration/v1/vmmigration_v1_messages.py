@@ -30,6 +30,20 @@ class AccessKeyCredentials(_messages.Message):
   sessionToken = _messages.StringField(3)
 
 
+class AdaptationModifier(_messages.Message):
+  r"""AdaptationModifier a modifier to be used for configuration of the OS
+  adaptation process.
+
+  Fields:
+    modifier: Optional. The modifier name.
+    value: Optional. The value of the modifier. The actual value depends on
+      the modifier and can also be empty.
+  """
+
+  modifier = _messages.StringField(1)
+  value = _messages.StringField(2)
+
+
 class AdaptingOSStep(_messages.Message):
   r"""AdaptingOSStep contains specific step details."""
 
@@ -92,7 +106,7 @@ class AppliedLicense(_messages.Message):
 
 
 class AvailableUpdates(_messages.Message):
-  r"""Holds informatiom about the available versions for upgrade.
+  r"""Holds information about the available versions for upgrade.
 
   Fields:
     inPlaceUpdate: The latest version for in place update. The current
@@ -221,6 +235,74 @@ class AwsSourceDetails(_messages.Message):
   state = _messages.EnumField('StateValueValuesEnum', 8)
 
 
+class AwsSourceDiskDetails(_messages.Message):
+  r"""Represents the source AWS Disk details.
+
+  Enums:
+    DiskTypeValueValuesEnum: Optional. Output only. Disk type.
+
+  Messages:
+    TagsValue: Optional. Output only. A map of AWS volume tags.
+
+  Fields:
+    diskType: Optional. Output only. Disk type.
+    sizeGib: Output only. Size in GiB.
+    tags: Optional. Output only. A map of AWS volume tags.
+    volumeId: Required. AWS volume ID.
+  """
+
+  class DiskTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Output only. Disk type.
+
+    Values:
+      TYPE_UNSPECIFIED: Unspecified AWS disk type. Should not be used.
+      GP2: GP2 disk type.
+      GP3: GP3 disk type.
+      IO1: IO1 disk type.
+      IO2: IO2 disk type.
+      ST1: ST1 disk type.
+      SC1: SC1 disk type.
+      STANDARD: Standard disk type.
+    """
+    TYPE_UNSPECIFIED = 0
+    GP2 = 1
+    GP3 = 2
+    IO1 = 3
+    IO2 = 4
+    ST1 = 5
+    SC1 = 6
+    STANDARD = 7
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class TagsValue(_messages.Message):
+    r"""Optional. Output only. A map of AWS volume tags.
+
+    Messages:
+      AdditionalProperty: An additional property for a TagsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type TagsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a TagsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 1)
+  sizeGib = _messages.IntegerField(2)
+  tags = _messages.MessageField('TagsValue', 3)
+  volumeId = _messages.StringField(4)
+
+
 class AwsSourceVmDetails(_messages.Message):
   r"""Represent the source AWS VM details.
 
@@ -288,7 +370,7 @@ class AwsVmDetails(_messages.Message):
     bootOption: The VM Boot Option.
     committedStorageMb: The total size of the storage allocated to the VM in
       MB.
-    cpuCount: The number of cpus the VM has.
+    cpuCount: The number of CPU cores the VM has.
     diskCount: The number of disks the VM has.
     displayName: The display name of the VM. Note that this value is not
       necessarily unique.
@@ -302,6 +384,8 @@ class AwsVmDetails(_messages.Message):
       connected to.
     sourceId: The id of the AWS's source this VM is connected to.
     tags: The tags of the VM.
+    vcpuCount: The number of vCPUs the VM has. It is calculated as the number
+      of CPU cores * threads per CPU the VM has.
     virtualizationType: The virtualization type.
     vmId: The VM ID in AWS.
     vpcId: The VPC ID the VM belongs to.
@@ -403,10 +487,11 @@ class AwsVmDetails(_messages.Message):
   sourceDescription = _messages.StringField(12)
   sourceId = _messages.StringField(13)
   tags = _messages.MessageField('TagsValue', 14)
-  virtualizationType = _messages.EnumField('VirtualizationTypeValueValuesEnum', 15)
-  vmId = _messages.StringField(16)
-  vpcId = _messages.StringField(17)
-  zone = _messages.StringField(18)
+  vcpuCount = _messages.IntegerField(15, variant=_messages.Variant.INT32)
+  virtualizationType = _messages.EnumField('VirtualizationTypeValueValuesEnum', 16)
+  vmId = _messages.StringField(17)
+  vpcId = _messages.StringField(18)
+  zone = _messages.StringField(19)
 
 
 class AwsVmsDetails(_messages.Message):
@@ -713,6 +798,17 @@ class BootDiskDefaults(_messages.Message):
     diskType: Optional. The type of disk provisioning to use for the VM.
     encryption: Optional. The encryption to apply to the boot disk.
     image: The image to use when creating the disk.
+    provisionedIops: Optional. The provisioned IOPS of the disk in MiB/s. If
+      not specified, the default value will be used. This flag can only be
+      used for hyperdisk disks.
+    provisionedThroughput: Optional. The provisioned throughput of the disk in
+      Megabytes per second (MiB). If not specified, the default value will be
+      used. This flag can only be used for hyperdisk disks.
+    storagePool: Optional. If specified this will be the storage pool in which
+      the disk is created. This is the full path of the storage pool resource,
+      for example: "projects/my-project/zones/us-central1-a/storagePools/my-
+      storage-pool". The storage pool must be in the same project and zone as
+      the target disks. The storage pool's type must match the disk type.
   """
 
   class DiskTypeValueValuesEnum(_messages.Enum):
@@ -739,6 +835,9 @@ class BootDiskDefaults(_messages.Message):
   diskType = _messages.EnumField('DiskTypeValueValuesEnum', 3)
   encryption = _messages.MessageField('Encryption', 4)
   image = _messages.MessageField('DiskImageDefaults', 5)
+  provisionedIops = _messages.IntegerField(6)
+  provisionedThroughput = _messages.IntegerField(7)
+  storagePool = _messages.StringField(8)
 
 
 class CancelCloneJobRequest(_messages.Message):
@@ -747,6 +846,10 @@ class CancelCloneJobRequest(_messages.Message):
 
 class CancelCutoverJobRequest(_messages.Message):
   r"""Request message for 'CancelCutoverJob' request."""
+
+
+class CancelDiskMigrationJobRequest(_messages.Message):
+  r"""Request message for 'CancelDiskMigrationJob' request."""
 
 
 class CancelImageImportJobRequest(_messages.Message):
@@ -855,6 +958,50 @@ class CloneStep(_messages.Message):
   startTime = _messages.StringField(5)
 
 
+class ComputeEngineDisk(_messages.Message):
+  r"""Compute Engine disk target details.
+
+  Enums:
+    DiskTypeValueValuesEnum: Required. The disk type to use.
+
+  Fields:
+    diskId: Optional. Target Compute Engine Disk ID. This is the resource ID
+      segment of the Compute Engine Disk to create. In the resource name
+      compute/v1/projects/{project}/zones/{zone}/disks/disk1 "disk1" is the
+      resource ID for the disk.
+    diskType: Required. The disk type to use.
+    replicaZones: Optional. Replication zones of the regional disk. Should be
+      of the form: projects/{target-project}/locations/{replica-zone}
+      Currently only one replica zone is supported.
+    zone: Required. The Compute Engine zone in which to create the disk.
+      Should be of the form: projects/{target-project}/locations/{zone}
+  """
+
+  class DiskTypeValueValuesEnum(_messages.Enum):
+    r"""Required. The disk type to use.
+
+    Values:
+      COMPUTE_ENGINE_DISK_TYPE_UNSPECIFIED: An unspecified disk type. Will be
+        used as STANDARD.
+      COMPUTE_ENGINE_DISK_TYPE_STANDARD: A Standard disk type.
+      COMPUTE_ENGINE_DISK_TYPE_SSD: SSD hard disk type.
+      COMPUTE_ENGINE_DISK_TYPE_BALANCED: An alternative to SSD persistent
+        disks that balance performance and cost.
+      COMPUTE_ENGINE_DISK_TYPE_HYPERDISK_BALANCED: Hyperdisk balanced disk
+        type.
+    """
+    COMPUTE_ENGINE_DISK_TYPE_UNSPECIFIED = 0
+    COMPUTE_ENGINE_DISK_TYPE_STANDARD = 1
+    COMPUTE_ENGINE_DISK_TYPE_SSD = 2
+    COMPUTE_ENGINE_DISK_TYPE_BALANCED = 3
+    COMPUTE_ENGINE_DISK_TYPE_HYPERDISK_BALANCED = 4
+
+  diskId = _messages.StringField(1)
+  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 2)
+  replicaZones = _messages.StringField(3, repeated=True)
+  zone = _messages.StringField(4)
+
+
 class ComputeEngineDisksTargetDefaults(_messages.Message):
   r"""ComputeEngineDisksTargetDefaults is a collection of details for creating
   Persistent Disks in a target Compute Engine project.
@@ -911,6 +1058,8 @@ class ComputeEngineTargetDefaults(_messages.Message):
     MetadataValue: The metadata key/value pairs to assign to the VM.
 
   Fields:
+    adaptationModifiers: Optional. AdaptationModifiers are the set of
+      modifiers used during OS adaptation.
     additionalLicenses: Additional licenses to assign to the VM.
     appliedLicense: Output only. The OS license returned from the adaptation
       module report.
@@ -921,6 +1070,14 @@ class ComputeEngineTargetDefaults(_messages.Message):
     bootOption: Output only. The VM Boot Option, as set in the source VM.
     computeScheduling: Compute instance scheduling information (if empty
       default is used).
+    diskReplicaZones: Optional. Additional replica zones of the target
+      regional disks. If this list is not empty a regional disk will be
+      created. The first supported zone would be the one stated in the zone
+      field. The rest are taken from this list. Please refer to the [regional
+      disk creation API](https://cloud.google.com/compute/docs/regions-
+      zones/global-regional-zonal-resources) for further details about
+      regional vs zonal disks. If not specified, a zonal disk will be created
+      in the same zone the VM is created.
     diskType: The disk type to use in the VM.
     enableIntegrityMonitoring: Optional. Defines whether the instance has
       integrity monitoring enabled. This can be set to true only if the VM
@@ -936,9 +1093,20 @@ class ComputeEngineTargetDefaults(_messages.Message):
     metadata: The metadata key/value pairs to assign to the VM.
     networkInterfaces: List of NICs connected to this VM.
     networkTags: A list of network tags to associate with the VM.
+    provisionedIops: Optional. The provisioned IOPS of the disk in MiB/s. If
+      not specified, the default value will be used. This flag can only be
+      used for hyperdisk disks.
+    provisionedThroughput: Optional. The provisioned throughput of the disk in
+      Megabytes per second (MiB). If not specified, the default value will be
+      used. This flag can only be used for hyperdisk disks.
     secureBoot: Defines whether the instance has Secure Boot enabled. This can
       be set to true only if the VM boot option is EFI.
-    serviceAccount: The service account to associate the VM with.
+    serviceAccount: Optional. The service account to associate the VM with.
+    storagePool: Optional. If specified this will be the storage pool in which
+      the disk is created. This is the full path of the storage pool resource,
+      for example: "projects/my-project/zones/us-central1-a/storagePools/my-
+      storage-pool". The storage pool must be in the same project and zone as
+      the target disks. The storage pool's type must match the disk type.
     targetProject: The full path of the resource of type TargetProject which
       represents the Compute Engine project in which to create this VM.
     vmName: The name of the VM to create.
@@ -1054,28 +1222,33 @@ class ComputeEngineTargetDefaults(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  additionalLicenses = _messages.StringField(1, repeated=True)
-  appliedLicense = _messages.MessageField('AppliedLicense', 2)
-  bootConversion = _messages.EnumField('BootConversionValueValuesEnum', 3)
-  bootOption = _messages.EnumField('BootOptionValueValuesEnum', 4)
-  computeScheduling = _messages.MessageField('ComputeScheduling', 5)
-  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 6)
-  enableIntegrityMonitoring = _messages.BooleanField(7)
-  enableVtpm = _messages.BooleanField(8)
-  encryption = _messages.MessageField('Encryption', 9)
-  hostname = _messages.StringField(10)
-  labels = _messages.MessageField('LabelsValue', 11)
-  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 12)
-  machineType = _messages.StringField(13)
-  machineTypeSeries = _messages.StringField(14)
-  metadata = _messages.MessageField('MetadataValue', 15)
-  networkInterfaces = _messages.MessageField('NetworkInterface', 16, repeated=True)
-  networkTags = _messages.StringField(17, repeated=True)
-  secureBoot = _messages.BooleanField(18)
-  serviceAccount = _messages.StringField(19)
-  targetProject = _messages.StringField(20)
-  vmName = _messages.StringField(21)
-  zone = _messages.StringField(22)
+  adaptationModifiers = _messages.MessageField('AdaptationModifier', 1, repeated=True)
+  additionalLicenses = _messages.StringField(2, repeated=True)
+  appliedLicense = _messages.MessageField('AppliedLicense', 3)
+  bootConversion = _messages.EnumField('BootConversionValueValuesEnum', 4)
+  bootOption = _messages.EnumField('BootOptionValueValuesEnum', 5)
+  computeScheduling = _messages.MessageField('ComputeScheduling', 6)
+  diskReplicaZones = _messages.StringField(7, repeated=True)
+  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 8)
+  enableIntegrityMonitoring = _messages.BooleanField(9)
+  enableVtpm = _messages.BooleanField(10)
+  encryption = _messages.MessageField('Encryption', 11)
+  hostname = _messages.StringField(12)
+  labels = _messages.MessageField('LabelsValue', 13)
+  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 14)
+  machineType = _messages.StringField(15)
+  machineTypeSeries = _messages.StringField(16)
+  metadata = _messages.MessageField('MetadataValue', 17)
+  networkInterfaces = _messages.MessageField('NetworkInterface', 18, repeated=True)
+  networkTags = _messages.StringField(19, repeated=True)
+  provisionedIops = _messages.IntegerField(20)
+  provisionedThroughput = _messages.IntegerField(21)
+  secureBoot = _messages.BooleanField(22)
+  serviceAccount = _messages.StringField(23)
+  storagePool = _messages.StringField(24)
+  targetProject = _messages.StringField(25)
+  vmName = _messages.StringField(26)
+  zone = _messages.StringField(27)
 
 
 class ComputeEngineTargetDetails(_messages.Message):
@@ -1096,6 +1269,8 @@ class ComputeEngineTargetDetails(_messages.Message):
     MetadataValue: The metadata key/value pairs to assign to the VM.
 
   Fields:
+    adaptationModifiers: Optional. Modifiers to be used as configuration of
+      the OS adaptation process.
     additionalLicenses: Additional licenses to assign to the VM.
     appliedLicense: The OS license returned from the adaptation module report.
     bootConversion: Optional. By default the virtual machine will keep its
@@ -1105,6 +1280,14 @@ class ComputeEngineTargetDetails(_messages.Message):
     bootOption: The VM Boot Option, as set in the source VM.
     computeScheduling: Compute instance scheduling information (if empty
       default is used).
+    diskReplicaZones: Optional. Additional replica zones of the target
+      regional disks. If this list is not empty a regional disk will be
+      created. The first supported zone would be the one stated in the zone
+      field. The rest are taken from this list. Please refer to the [regional
+      disk creation API](https://cloud.google.com/compute/docs/regions-
+      zones/global-regional-zonal-resources) for further details about
+      regional vs zonal disks. If not specified, a zonal disk will be created
+      in the same zone the VM is created.
     diskType: The disk type to use in the VM.
     enableIntegrityMonitoring: Optional. Defines whether the instance has
       integrity monitoring enabled.
@@ -1119,9 +1302,20 @@ class ComputeEngineTargetDetails(_messages.Message):
     networkInterfaces: List of NICs connected to this VM.
     networkTags: A list of network tags to associate with the VM.
     project: The Google Cloud target project ID or project name.
+    provisionedIops: Optional. The provisioned IOPS of the VM disks. If not
+      specified, the default value was used.
+    provisionedThroughput: Optional. The provisioned throughput of the disks
+      in Megabytes per second (MiB). If not specified, the default value was
+      used.
     secureBoot: Defines whether the instance has Secure Boot enabled. This can
       be set to true only if the VM boot option is EFI.
     serviceAccount: The service account to associate the VM with.
+    storagePool: Optional. The storage pool used for the VM disks. If
+      specified this will be the storage pool in which the disk is created.
+      This is the full path of the storage pool resource, for example:
+      "projects/my-project/zones/us-central1-a/storagePools/my-storage-pool".
+      The storage pool must be in the same project and zone as the target
+      disks. The storage pool's type must match the disk type.
     vmName: The name of the VM to create.
     zone: The zone in which to create the VM.
   """
@@ -1235,28 +1429,33 @@ class ComputeEngineTargetDetails(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  additionalLicenses = _messages.StringField(1, repeated=True)
-  appliedLicense = _messages.MessageField('AppliedLicense', 2)
-  bootConversion = _messages.EnumField('BootConversionValueValuesEnum', 3)
-  bootOption = _messages.EnumField('BootOptionValueValuesEnum', 4)
-  computeScheduling = _messages.MessageField('ComputeScheduling', 5)
-  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 6)
-  enableIntegrityMonitoring = _messages.BooleanField(7)
-  enableVtpm = _messages.BooleanField(8)
-  encryption = _messages.MessageField('Encryption', 9)
-  hostname = _messages.StringField(10)
-  labels = _messages.MessageField('LabelsValue', 11)
-  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 12)
-  machineType = _messages.StringField(13)
-  machineTypeSeries = _messages.StringField(14)
-  metadata = _messages.MessageField('MetadataValue', 15)
-  networkInterfaces = _messages.MessageField('NetworkInterface', 16, repeated=True)
-  networkTags = _messages.StringField(17, repeated=True)
-  project = _messages.StringField(18)
-  secureBoot = _messages.BooleanField(19)
-  serviceAccount = _messages.StringField(20)
-  vmName = _messages.StringField(21)
-  zone = _messages.StringField(22)
+  adaptationModifiers = _messages.MessageField('AdaptationModifier', 1, repeated=True)
+  additionalLicenses = _messages.StringField(2, repeated=True)
+  appliedLicense = _messages.MessageField('AppliedLicense', 3)
+  bootConversion = _messages.EnumField('BootConversionValueValuesEnum', 4)
+  bootOption = _messages.EnumField('BootOptionValueValuesEnum', 5)
+  computeScheduling = _messages.MessageField('ComputeScheduling', 6)
+  diskReplicaZones = _messages.StringField(7, repeated=True)
+  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 8)
+  enableIntegrityMonitoring = _messages.BooleanField(9)
+  enableVtpm = _messages.BooleanField(10)
+  encryption = _messages.MessageField('Encryption', 11)
+  hostname = _messages.StringField(12)
+  labels = _messages.MessageField('LabelsValue', 13)
+  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 14)
+  machineType = _messages.StringField(15)
+  machineTypeSeries = _messages.StringField(16)
+  metadata = _messages.MessageField('MetadataValue', 17)
+  networkInterfaces = _messages.MessageField('NetworkInterface', 18, repeated=True)
+  networkTags = _messages.StringField(19, repeated=True)
+  project = _messages.StringField(20)
+  provisionedIops = _messages.IntegerField(21)
+  provisionedThroughput = _messages.IntegerField(22)
+  secureBoot = _messages.BooleanField(23)
+  serviceAccount = _messages.StringField(24)
+  storagePool = _messages.StringField(25)
+  vmName = _messages.StringField(26)
+  zone = _messages.StringField(27)
 
 
 class ComputeScheduling(_messages.Message):
@@ -1332,8 +1531,16 @@ class ComputeScheduling(_messages.Message):
   restartType = _messages.EnumField('RestartTypeValueValuesEnum', 4)
 
 
+class CopyingSourceDiskSnapshotStep(_messages.Message):
+  r"""CopyingSourceDiskSnapshotStep contains specific step details."""
+
+
 class CreatingImageStep(_messages.Message):
   r"""CreatingImageStep contains specific step details."""
+
+
+class CreatingSourceDiskSnapshotStep(_messages.Message):
+  r"""CreatingSourceDiskSnapshotStep contains specific step details."""
 
 
 class CutoverForecast(_messages.Message):
@@ -1350,7 +1557,7 @@ class CutoverForecast(_messages.Message):
 
 class CutoverJob(_messages.Message):
   r"""CutoverJob message describes a cutover of a migrating VM. The CutoverJob
-  is the operation of shutting down the VM, creating a snapshot and clonning
+  is the operation of shutting down the VM, creating a snapshot and cloning
   the VM using the replicated snapshot.
 
   Enums:
@@ -1627,6 +1834,127 @@ class DiskImageTargetDetails(_messages.Message):
   targetProject = _messages.StringField(10)
 
 
+class DiskMigrationJob(_messages.Message):
+  r"""Describes the disk which will be migrated from the source environment.
+  The source disk has to be unattached.
+
+  Enums:
+    StateValueValuesEnum: Output only. State of the DiskMigrationJob.
+
+  Fields:
+    awsSourceDiskDetails: Details of the unattached AWS source disk.
+    createTime: Output only. The time the DiskMigrationJob resource was
+      created.
+    errors: Output only. Provides details on the errors that led to the disk
+      migration job's state in case of an error.
+    name: Output only. Identifier. The identifier of the DiskMigrationJob.
+    state: Output only. State of the DiskMigrationJob.
+    steps: Output only. The disk migration steps list representing its
+      progress.
+    targetDetails: Required. Details of the target Disk in Compute Engine.
+    updateTime: Output only. The last time the DiskMigrationJob resource was
+      updated.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the DiskMigrationJob.
+
+    Values:
+      STATE_UNSPECIFIED: The state is unspecified. This is not in use.
+      READY: The initial state of the disk migration. In this state the
+        customers can update the target details.
+      RUNNING: The migration is active, and it's running or scheduled to run.
+      SUCCEEDED: The migration completed successfully.
+      CANCELLING: Migration cancellation was initiated.
+      CANCELLED: The migration was cancelled.
+      FAILED: The migration process encountered an unrecoverable error and was
+        aborted.
+    """
+    STATE_UNSPECIFIED = 0
+    READY = 1
+    RUNNING = 2
+    SUCCEEDED = 3
+    CANCELLING = 4
+    CANCELLED = 5
+    FAILED = 6
+
+  awsSourceDiskDetails = _messages.MessageField('AwsSourceDiskDetails', 1)
+  createTime = _messages.StringField(2)
+  errors = _messages.MessageField('Status', 3, repeated=True)
+  name = _messages.StringField(4)
+  state = _messages.EnumField('StateValueValuesEnum', 5)
+  steps = _messages.MessageField('DiskMigrationStep', 6, repeated=True)
+  targetDetails = _messages.MessageField('DiskMigrationJobTargetDetails', 7)
+  updateTime = _messages.StringField(8)
+
+
+class DiskMigrationJobTargetDetails(_messages.Message):
+  r"""Details of the target disk in Compute Engine.
+
+  Messages:
+    LabelsValue: Optional. A map of labels to associate with the disk.
+
+  Fields:
+    encryption: Optional. The encryption to apply to the disk. If the
+      DiskMigrationJob parent Source resource has an encryption, this field
+      must be set to the same encryption key.
+    labels: Optional. A map of labels to associate with the disk.
+    targetDisk: Required. The target disk.
+    targetProject: Required. The name of the resource of type TargetProject
+      which represents the Compute Engine project in which to create the disk.
+      Should be of the form:
+      projects/{project}/locations/global/targetProjects/{target-project}
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. A map of labels to associate with the disk.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  encryption = _messages.MessageField('Encryption', 1)
+  labels = _messages.MessageField('LabelsValue', 2)
+  targetDisk = _messages.MessageField('ComputeEngineDisk', 3)
+  targetProject = _messages.StringField(4)
+
+
+class DiskMigrationStep(_messages.Message):
+  r"""DiskMigrationStep holds information about the disk migration step
+  progress.
+
+  Fields:
+    copyingSourceDiskSnapshot: Copying source disk snapshot step.
+    creatingSourceDiskSnapshot: Creating source disk snapshot step.
+    endTime: Output only. The time the step has ended.
+    provisioningTargetDisk: Creating target disk step.
+    startTime: Output only. The time the step has started.
+  """
+
+  copyingSourceDiskSnapshot = _messages.MessageField('CopyingSourceDiskSnapshotStep', 1)
+  creatingSourceDiskSnapshot = _messages.MessageField('CreatingSourceDiskSnapshotStep', 2)
+  endTime = _messages.StringField(3)
+  provisioningTargetDisk = _messages.MessageField('ProvisioningTargetDiskStep', 4)
+  startTime = _messages.StringField(5)
+
+
 class DisksMigrationDisksTargetDefaults(_messages.Message):
   r"""Details for a disk only migration."""
 
@@ -1762,6 +2090,25 @@ class Encryption(_messages.Message):
   kmsKey = _messages.StringField(1)
 
 
+class Expiration(_messages.Message):
+  r"""Expiration holds information about the expiration of a MigratingVm.
+
+  Fields:
+    expireTime: Output only. Timestamp of when this resource is considered
+      expired.
+    extendable: Output only. Describes whether the expiration can be extended.
+    extensionCount: Output only. The number of times expiration was extended.
+  """
+
+  expireTime = _messages.StringField(1)
+  extendable = _messages.BooleanField(2)
+  extensionCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+
+
+class ExtendMigrationRequest(_messages.Message):
+  r"""Request message for 'ExtendMigrationRequest' request."""
+
+
 class FetchInventoryResponse(_messages.Message):
   r"""Response message for fetchInventory.
 
@@ -1781,6 +2128,23 @@ class FetchInventoryResponse(_messages.Message):
   nextPageToken = _messages.StringField(3)
   updateTime = _messages.StringField(4)
   vmwareVms = _messages.MessageField('VmwareVmsDetails', 5)
+
+
+class FetchStorageInventoryResponse(_messages.Message):
+  r"""Response message for fetchStorageInventory.
+
+  Fields:
+    nextPageToken: Output only. A token, which can be sent as `page_token` to
+      retrieve the next page. If this field is omitted, there are no
+      subsequent pages.
+    resources: The list of storage resources in the source.
+    updateTime: Output only. The timestamp when the source was last queried
+      (if the result is from the cache).
+  """
+
+  nextPageToken = _messages.StringField(1)
+  resources = _messages.MessageField('SourceStorageResource', 2, repeated=True)
+  updateTime = _messages.StringField(3)
 
 
 class FinalizeMigrationRequest(_messages.Message):
@@ -1919,10 +2283,21 @@ class ImageImportOsAdaptationParameters(_messages.Message):
   r"""Parameters affecting the OS adaptation process.
 
   Enums:
+    BootConversionValueValuesEnum: Optional. By default the image will keep
+      its existing boot option. Setting this property will trigger an internal
+      process which will convert the image from using the existing boot option
+      to another. The size of the boot disk might be increased to allow the
+      conversion
     LicenseTypeValueValuesEnum: Optional. Choose which type of license to
       apply to the imported image.
 
   Fields:
+    adaptationModifiers: Optional. Modifiers to be used as configuration of
+      the OS adaptation process.
+    bootConversion: Optional. By default the image will keep its existing boot
+      option. Setting this property will trigger an internal process which
+      will convert the image from using the existing boot option to another.
+      The size of the boot disk might be increased to allow the conversion
     generalize: Optional. Set to true in order to generalize the imported
       image. The generalization process enables co-existence of multiple VMs
       created from the same image. For Windows, generalizing the image removes
@@ -1931,6 +2306,21 @@ class ImageImportOsAdaptationParameters(_messages.Message):
     licenseType: Optional. Choose which type of license to apply to the
       imported image.
   """
+
+  class BootConversionValueValuesEnum(_messages.Enum):
+    r"""Optional. By default the image will keep its existing boot option.
+    Setting this property will trigger an internal process which will convert
+    the image from using the existing boot option to another. The size of the
+    boot disk might be increased to allow the conversion
+
+    Values:
+      BOOT_CONVERSION_UNSPECIFIED: Unspecified conversion type.
+      NONE: No conversion.
+      BIOS_TO_EFI: Convert from BIOS to EFI.
+    """
+    BOOT_CONVERSION_UNSPECIFIED = 0
+    NONE = 1
+    BIOS_TO_EFI = 2
 
   class LicenseTypeValueValuesEnum(_messages.Enum):
     r"""Optional. Choose which type of license to apply to the imported image.
@@ -1947,8 +2337,10 @@ class ImageImportOsAdaptationParameters(_messages.Message):
     COMPUTE_ENGINE_LICENSE_TYPE_PAYG = 1
     COMPUTE_ENGINE_LICENSE_TYPE_BYOL = 2
 
-  generalize = _messages.BooleanField(1)
-  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 2)
+  adaptationModifiers = _messages.MessageField('AdaptationModifier', 1, repeated=True)
+  bootConversion = _messages.EnumField('BootConversionValueValuesEnum', 2)
+  generalize = _messages.BooleanField(3)
+  licenseType = _messages.EnumField('LicenseTypeValueValuesEnum', 4)
 
 
 class ImageImportStep(_messages.Message):
@@ -2043,6 +2435,22 @@ class ListDatacenterConnectorsResponse(_messages.Message):
   unreachable = _messages.StringField(3, repeated=True)
 
 
+class ListDiskMigrationJobsResponse(_messages.Message):
+  r"""Response message for 'ListDiskMigrationJobs' request.
+
+  Fields:
+    diskMigrationJobs: Output only. The list of the disk migration jobs.
+    nextPageToken: Optional. Output only. A token, which can be sent as
+      `page_token` to retrieve the next page. If this field is omitted, there
+      are no subsequent pages.
+    unreachable: Output only. Locations that could not be reached.
+  """
+
+  diskMigrationJobs = _messages.MessageField('DiskMigrationJob', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
 class ListGroupsResponse(_messages.Message):
   r"""Response message for 'ListGroups' request.
 
@@ -2127,10 +2535,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListReplicationCyclesResponse(_messages.Message):
@@ -2326,7 +2739,9 @@ class MachineImageTargetDetails(_messages.Message):
       /www.googleapis.com/compute/beta/projects/PROJECT_ID/global/licenses/LIC
       ENSE_NAME
     description: Optional. An optional description of the machine image.
-    encryption: Immutable. The encryption to apply to the machine image.
+    encryption: Immutable. The encryption to apply to the machine image. If
+      the Image Import resource has an encryption, this field must be set to
+      the same encryption key.
     labels: Optional. The labels to apply to the instance created by the
       machine image.
     machineImageName: Required. The name of the machine image to be created.
@@ -2334,7 +2749,7 @@ class MachineImageTargetDetails(_messages.Message):
       based on the source machine image configurations.
     networkInterfaces: Optional. The network interfaces to create with the
       instance created by the machine image. Internal and external IP
-      addresses are ignored for machine image import.
+      addresses, and network tiers are ignored for machine image import.
     osAdaptationParameters: Optional. Use to set the parameters relevant for
       the OS adaptation process.
     serviceAccount: Optional. The service account to assign to the instance
@@ -2419,6 +2834,8 @@ class MigratingVm(_messages.Message):
     displayName: The display name attached to the MigratingVm by the user.
     error: Output only. Provides details on the state of the Migrating VM in
       case of an error in replication.
+    expiration: Output only. Provides details about the expiration state of
+      the migrating VM.
     group: Output only. The group this migrating vm is included in, if any.
       The group is represented by the full path of the appropriate Group
       resource.
@@ -2475,6 +2892,11 @@ class MigratingVm(_messages.Message):
         finalized and no longer consumes billable resources.
       ERROR: The replication process encountered an unrecoverable error and
         was aborted.
+      EXPIRED: The migrating VM has passed its expiration date. It might be
+        possible to bring it back to "Active" state by updating the TTL field.
+        For more information, see the documentation.
+      FINALIZED_EXPIRED: The migrating VM's has been finalized and migration
+        resources have been removed.
     """
     STATE_UNSPECIFIED = 0
     PENDING = 1
@@ -2488,6 +2910,8 @@ class MigratingVm(_messages.Message):
     FINALIZING = 9
     FINALIZED = 10
     ERROR = 11
+    EXPIRED = 12
+    FINALIZED_EXPIRED = 13
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -2523,19 +2947,20 @@ class MigratingVm(_messages.Message):
   description = _messages.StringField(8)
   displayName = _messages.StringField(9)
   error = _messages.MessageField('Status', 10)
-  group = _messages.StringField(11)
-  labels = _messages.MessageField('LabelsValue', 12)
-  lastReplicationCycle = _messages.MessageField('ReplicationCycle', 13)
-  lastSync = _messages.MessageField('ReplicationSync', 14)
-  name = _messages.StringField(15)
-  policy = _messages.MessageField('SchedulePolicy', 16)
-  recentCloneJobs = _messages.MessageField('CloneJob', 17, repeated=True)
-  recentCutoverJobs = _messages.MessageField('CutoverJob', 18, repeated=True)
-  sourceVmId = _messages.StringField(19)
-  state = _messages.EnumField('StateValueValuesEnum', 20)
-  stateTime = _messages.StringField(21)
-  updateTime = _messages.StringField(22)
-  vmwareSourceVmDetails = _messages.MessageField('VmwareSourceVmDetails', 23)
+  expiration = _messages.MessageField('Expiration', 11)
+  group = _messages.StringField(12)
+  labels = _messages.MessageField('LabelsValue', 13)
+  lastReplicationCycle = _messages.MessageField('ReplicationCycle', 14)
+  lastSync = _messages.MessageField('ReplicationSync', 15)
+  name = _messages.StringField(16)
+  policy = _messages.MessageField('SchedulePolicy', 17)
+  recentCloneJobs = _messages.MessageField('CloneJob', 18, repeated=True)
+  recentCutoverJobs = _messages.MessageField('CutoverJob', 19, repeated=True)
+  sourceVmId = _messages.StringField(20)
+  state = _messages.EnumField('StateValueValuesEnum', 21)
+  stateTime = _messages.StringField(22)
+  updateTime = _messages.StringField(23)
+  vmwareSourceVmDetails = _messages.MessageField('VmwareSourceVmDetails', 24)
 
 
 class MigrationError(_messages.Message):
@@ -2579,6 +3004,8 @@ class MigrationError(_messages.Message):
         error during appliance upgrade.
       IMAGE_IMPORT_ERROR: Migrate to Virtual Machines encountered an error in
         image import operation.
+      DISK_MIGRATION_ERROR: Migrate to Virtual Machines encountered an error
+        in disk migration operation.
     """
     ERROR_CODE_UNSPECIFIED = 0
     UNKNOWN_ERROR = 1
@@ -2591,6 +3018,7 @@ class MigrationError(_messages.Message):
     UTILIZATION_REPORT_ERROR = 8
     APPLIANCE_UPGRADE_ERROR = 9
     IMAGE_IMPORT_ERROR = 10
+    DISK_MIGRATION_ERROR = 11
 
   actionItem = _messages.MessageField('LocalizedMessage', 1)
   code = _messages.EnumField('CodeValueValuesEnum', 2)
@@ -2647,7 +3075,7 @@ class NetworkInterface(_messages.Message):
     internalIp: Optional. The internal IP to define in the NIC. The formats
       accepted are: `ephemeral` \ ipv4 address \ a named address resource full
       path.
-    network: The network to connect the NIC to.
+    network: Optional. The network to connect the NIC to.
     networkTier: Optional. The networking tier used for optimizing
       connectivity between instances and systems on the internet. Applies only
       for external ephemeral IP addresses. If left empty, will default to
@@ -2874,7 +3302,20 @@ class PersistentDiskDefaults(_messages.Message):
     diskName: Optional. The name of the Persistent Disk to create.
     diskType: The disk type to use.
     encryption: Optional. The encryption to apply to the disk.
+    provisionedIops: Optional. The provisioned IOPS of the disk. If not
+      specified, the default value will be used. This flag can only be used
+      for hyperdisk disks.
+    provisionedThroughput: Optional. The provisioned throughput of the disk.
+      If not specified, the default value will be used. This flag can only be
+      used for hyperdisk disks, and at the moment only supported for storage
+      pools.
     sourceDiskNumber: Required. The ordinal number of the source VM disk.
+    storagePool: Optional. If specified this will be the storage pool the disk
+      will be allocated from. This is the full path of the storage pool
+      resource, for example: "projects/my-project/zones/us-
+      central1-a/storagePools/my-storage-pool". The storage pool must be in
+      the same project and zone as the target disks. It can only be used for
+      hyperdisk types of disks.
     vmAttachmentDetails: Optional. Details for attachment of the disk to a VM.
       Used when the disk is set to be attached to a target VM.
   """
@@ -2928,8 +3369,11 @@ class PersistentDiskDefaults(_messages.Message):
   diskName = _messages.StringField(2)
   diskType = _messages.EnumField('DiskTypeValueValuesEnum', 3)
   encryption = _messages.MessageField('Encryption', 4)
-  sourceDiskNumber = _messages.IntegerField(5, variant=_messages.Variant.INT32)
-  vmAttachmentDetails = _messages.MessageField('VmAttachmentDetails', 6)
+  provisionedIops = _messages.IntegerField(5)
+  provisionedThroughput = _messages.IntegerField(6)
+  sourceDiskNumber = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  storagePool = _messages.StringField(8)
+  vmAttachmentDetails = _messages.MessageField('VmAttachmentDetails', 9)
 
 
 class PostProcessingStep(_messages.Message):
@@ -2938,6 +3382,10 @@ class PostProcessingStep(_messages.Message):
 
 class PreparingVMDisksStep(_messages.Message):
   r"""PreparingVMDisksStep contains specific step details."""
+
+
+class ProvisioningTargetDiskStep(_messages.Message):
+  r"""ProvisioningTargetDiskStep contains specific step details."""
 
 
 class RemoveGroupMigrationRequest(_messages.Message):
@@ -3035,6 +3483,10 @@ class ReplicationSync(_messages.Message):
 
 class ResumeMigrationRequest(_messages.Message):
   r"""Request message for 'ResumeMigration' request."""
+
+
+class RunDiskMigrationJobRequest(_messages.Message):
+  r"""Request message for 'RunDiskMigrationJobRequest' request."""
 
 
 class SchedulePolicy(_messages.Message):
@@ -3206,6 +3658,16 @@ class Source(_messages.Message):
   name = _messages.StringField(7)
   updateTime = _messages.StringField(8)
   vmware = _messages.MessageField('VmwareSourceDetails', 9)
+
+
+class SourceStorageResource(_messages.Message):
+  r"""SourceStorageResource describes a storage resource in the source.
+
+  Fields:
+    awsDiskDetails: Source AWS volume details.
+  """
+
+  awsDiskDetails = _messages.MessageField('AwsSourceDiskDetails', 1)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -3524,10 +3986,12 @@ class VmCapabilities(_messages.Message):
         use NVMe PD or local SSD.
       OS_CAPABILITY_GVNIC_NETWORK_INTERFACE: gVNIC virtual NIC driver
         supported.
+      OS_CAPABILITY_IDPF_NETWORK_INTERFACE: IDPF virtual NIC driver supported.
     """
     OS_CAPABILITY_UNSPECIFIED = 0
     OS_CAPABILITY_NVME_STORAGE_ACCESS = 1
     OS_CAPABILITY_GVNIC_NETWORK_INTERFACE = 2
+    OS_CAPABILITY_IDPF_NETWORK_INTERFACE = 3
 
   lastOsCapabilitiesUpdateTime = _messages.StringField(1)
   osCapabilities = _messages.EnumField('OsCapabilitiesValueListEntryValuesEnum', 2, repeated=True)
@@ -3861,6 +4325,9 @@ class VmmigrationProjectsLocationsListRequest(_messages.Message):
   r"""A VmmigrationProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -3871,10 +4338,11 @@ class VmmigrationProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class VmmigrationProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -3918,12 +4386,20 @@ class VmmigrationProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class VmmigrationProjectsLocationsSourcesCreateRequest(_messages.Message):
@@ -4078,6 +4554,145 @@ class VmmigrationProjectsLocationsSourcesDeleteRequest(_messages.Message):
   requestId = _messages.StringField(2)
 
 
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsCancelRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsCancelRequest
+  object.
+
+  Fields:
+    cancelDiskMigrationJobRequest: A CancelDiskMigrationJobRequest resource to
+      be passed as the request body.
+    name: Required. The name of the DiskMigrationJob.
+  """
+
+  cancelDiskMigrationJobRequest = _messages.MessageField('CancelDiskMigrationJobRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsCreateRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsCreateRequest
+  object.
+
+  Fields:
+    diskMigrationJob: A DiskMigrationJob resource to be passed as the request
+      body.
+    diskMigrationJobId: Required. The DiskMigrationJob identifier. The maximum
+      length of this value is 63 characters. Valid characters are lower case
+      Latin letters, digits and hyphen. It must start with a Latin letter and
+      must not end with a hyphen.
+    parent: Required. The DiskMigrationJob's parent.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed. The server will
+      guarantee that for at least 60 minutes since the first request. For
+      example, consider a situation where you make an initial request and the
+      request timed out. If you make the request again with the same request
+      ID, the server can check if original operation with the same request ID
+      was received, and if so, will ignore the second request. This prevents
+      clients from accidentally creating duplicate commitments. The request ID
+      must be a valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  diskMigrationJob = _messages.MessageField('DiskMigrationJob', 1)
+  diskMigrationJobId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsDeleteRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The name of the DiskMigrationJob.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsGetRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsGetRequest object.
+
+  Fields:
+    name: Required. The name of the DiskMigrationJob.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsListRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsListRequest
+  object.
+
+  Fields:
+    filter: Optional. The filter request (according to AIP-160).
+    orderBy: Optional. Ordering of the result list.
+    pageSize: Optional. The maximum number of disk migration jobs to return.
+      The service may return fewer than this value. If unspecified, at most
+      500 disk migration jobs will be returned. The maximum value is 1000;
+      values above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListDiskMigrationJobs` call. Provide this to retrieve the subsequent
+      page. When paginating, all parameters provided to
+      `ListDiskMigrationJobs` except `page_size` must match the call that
+      provided the page token.
+    parent: Required. The parent, which owns this collection of
+      DiskMigrationJobs.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsPatchRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsPatchRequest
+  object.
+
+  Fields:
+    diskMigrationJob: A DiskMigrationJob resource to be passed as the request
+      body.
+    name: Output only. Identifier. The identifier of the DiskMigrationJob.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed. The server will
+      guarantee that for at least 60 minutes since the first request. For
+      example, consider a situation where you make an initial request and the
+      request timed out. If you make the request again with the same request
+      ID, the server can check if original operation with the same request ID
+      was received, and if so, will ignore the second request. This prevents
+      clients from accidentally creating duplicate commitments. The request ID
+      must be a valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. Field mask is used to specify the fields to be
+      overwritten in the DiskMigrationJob resource by the update. The fields
+      specified in the update_mask are relative to the resource, not the full
+      request. A field will be overwritten if it is in the mask. If the user
+      does not provide a mask, then a mask equivalent to all fields that are
+      populated (have a non-empty value), will be implied.
+  """
+
+  diskMigrationJob = _messages.MessageField('DiskMigrationJob', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class VmmigrationProjectsLocationsSourcesDiskMigrationJobsRunRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesDiskMigrationJobsRunRequest object.
+
+  Fields:
+    name: Required. The name of the DiskMigrationJob.
+    runDiskMigrationJobRequest: A RunDiskMigrationJobRequest resource to be
+      passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  runDiskMigrationJobRequest = _messages.MessageField('RunDiskMigrationJobRequest', 2)
+
+
 class VmmigrationProjectsLocationsSourcesFetchInventoryRequest(_messages.Message):
   r"""A VmmigrationProjectsLocationsSourcesFetchInventoryRequest object.
 
@@ -4101,6 +4716,47 @@ class VmmigrationProjectsLocationsSourcesFetchInventoryRequest(_messages.Message
   pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(3)
   source = _messages.StringField(4, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesFetchStorageInventoryRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesFetchStorageInventoryRequest
+  object.
+
+  Enums:
+    TypeValueValuesEnum: Required. The type of the storage inventory to fetch.
+
+  Fields:
+    forceRefresh: Optional. If this flag is set to true, the source will be
+      queried instead of using cached results. Using this flag will make the
+      call slower.
+    pageSize: Optional. The maximum number of VMs to return. The service may
+      return fewer than this value.
+    pageToken: Optional. A page token, received from a previous
+      `FetchStorageInventory` call. Provide this to retrieve the subsequent
+      page. When paginating, all other parameters provided to
+      `FetchStorageInventory` must match the call that provided the page
+      token.
+    source: Required. The name of the Source.
+    type: Required. The type of the storage inventory to fetch.
+  """
+
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""Required. The type of the storage inventory to fetch.
+
+    Values:
+      STORAGE_TYPE_UNSPECIFIED: The type is unspecified.
+      DISKS: The type is disks.
+      SNAPSHOTS: The type is snapshots.
+    """
+    STORAGE_TYPE_UNSPECIFIED = 0
+    DISKS = 1
+    SNAPSHOTS = 2
+
+  forceRefresh = _messages.BooleanField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  source = _messages.StringField(4, required=True)
+  type = _messages.EnumField('TypeValueValuesEnum', 5)
 
 
 class VmmigrationProjectsLocationsSourcesGetRequest(_messages.Message):
@@ -4327,6 +4983,20 @@ class VmmigrationProjectsLocationsSourcesMigratingVmsDeleteRequest(_messages.Mes
   """
 
   name = _messages.StringField(1, required=True)
+
+
+class VmmigrationProjectsLocationsSourcesMigratingVmsExtendMigrationRequest(_messages.Message):
+  r"""A VmmigrationProjectsLocationsSourcesMigratingVmsExtendMigrationRequest
+  object.
+
+  Fields:
+    extendMigrationRequest: A ExtendMigrationRequest resource to be passed as
+      the request body.
+    migratingVm: Required. The name of the MigratingVm.
+  """
+
+  extendMigrationRequest = _messages.MessageField('ExtendMigrationRequest', 1)
+  migratingVm = _messages.StringField(2, required=True)
 
 
 class VmmigrationProjectsLocationsSourcesMigratingVmsFinalizeMigrationRequest(_messages.Message):

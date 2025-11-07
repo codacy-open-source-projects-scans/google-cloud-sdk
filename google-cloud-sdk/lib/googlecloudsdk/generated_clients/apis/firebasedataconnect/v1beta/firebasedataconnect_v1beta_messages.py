@@ -331,6 +331,9 @@ class FirebasedataconnectProjectsLocationsListRequest(_messages.Message):
   r"""A FirebasedataconnectProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -341,10 +344,11 @@ class FirebasedataconnectProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class FirebasedataconnectProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -388,12 +392,20 @@ class FirebasedataconnectProjectsLocationsOperationsListRequest(_messages.Messag
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class FirebasedataconnectProjectsLocationsServicesConnectorsCreateRequest(_messages.Message):
@@ -510,6 +522,38 @@ class FirebasedataconnectProjectsLocationsServicesConnectorsGetRequest(_messages
   """
 
   name = _messages.StringField(1, required=True)
+
+
+class FirebasedataconnectProjectsLocationsServicesConnectorsImpersonateMutationRequest(_messages.Message):
+  r"""A FirebasedataconnectProjectsLocationsServicesConnectorsImpersonateMutat
+  ionRequest object.
+
+  Fields:
+    impersonateRequest: A ImpersonateRequest resource to be passed as the
+      request body.
+    name: Required. The resource name of the connector to find the predefined
+      query/mutation, in the format: ``` projects/{project}/locations/{locatio
+      n}/services/{service}/connectors/{connector} ```
+  """
+
+  impersonateRequest = _messages.MessageField('ImpersonateRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class FirebasedataconnectProjectsLocationsServicesConnectorsImpersonateQueryRequest(_messages.Message):
+  r"""A FirebasedataconnectProjectsLocationsServicesConnectorsImpersonateQuery
+  Request object.
+
+  Fields:
+    impersonateRequest: A ImpersonateRequest resource to be passed as the
+      request body.
+    name: Required. The resource name of the connector to find the predefined
+      query/mutation, in the format: ``` projects/{project}/locations/{locatio
+      n}/services/{service}/connectors/{connector} ```
+  """
+
+  impersonateRequest = _messages.MessageField('ImpersonateRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class FirebasedataconnectProjectsLocationsServicesConnectorsListRequest(_messages.Message):
@@ -682,6 +726,22 @@ class FirebasedataconnectProjectsLocationsServicesGetRequest(_messages.Message):
   """
 
   name = _messages.StringField(1, required=True)
+
+
+class FirebasedataconnectProjectsLocationsServicesIntrospectGraphqlRequest(_messages.Message):
+  r"""A FirebasedataconnectProjectsLocationsServicesIntrospectGraphqlRequest
+  object.
+
+  Fields:
+    graphqlRequest: A GraphqlRequest resource to be passed as the request
+      body.
+    name: Required. The relative resource name of Firebase Data Connect
+      service, in the format: ```
+      projects/{project}/locations/{location}/services/{service} ```
+  """
+
+  graphqlRequest = _messages.MessageField('GraphqlRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class FirebasedataconnectProjectsLocationsServicesListRequest(_messages.Message):
@@ -895,16 +955,19 @@ class GraphqlError(_messages.Message):
   surfaces `GraphqlError` in various APIs: - Upon compile error,
   `UpdateSchema` and `UpdateConnector` return Code.Invalid_Argument with a
   list of `GraphqlError` in error details. - Upon query compile error,
-  `ExecuteGraphql` and `ExecuteGraphqlRead` return Code.OK with a list of
-  `GraphqlError` in response body. - Upon query execution error,
-  `ExecuteGraphql`, `ExecuteGraphqlRead`, `ExecuteMutation` and `ExecuteQuery`
-  all return Code.OK with a list of `GraphqlError` in response body.
+  `ExecuteGraphql`, `ExecuteGraphqlRead` and `IntrospectGraphql` return
+  Code.OK with a list of `GraphqlError` in response body. - Upon query
+  execution error, `ExecuteGraphql`, `ExecuteGraphqlRead`, `ExecuteMutation`,
+  `ExecuteQuery`, `IntrospectGraphql`, `ImpersonateQuery` and
+  `ImpersonateMutation` all return Code.OK with a list of `GraphqlError` in
+  response body.
 
   Fields:
     extensions: Additional error information.
     locations: The source locations where the error occurred. Locations should
       help developers and toolings identify the source of error quickly.
       Included in admin endpoints (`ExecuteGraphql`, `ExecuteGraphqlRead`,
+      `IntrospectGraphql`, `ImpersonateQuery`, `ImpersonateMutation`,
       `UpdateSchema` and `UpdateConnector`) to reference the provided GraphQL
       GQL document. Omitted in `ExecuteMutation` and `ExecuteQuery` since the
       caller shouldn't have access access the underlying GQL source.
@@ -926,13 +989,160 @@ class GraphqlErrorExtensions(_messages.Message):
   r"""GraphqlErrorExtensions contains additional information of
   `GraphqlError`.
 
+  Enums:
+    CodeValueValuesEnum: Maps to canonical gRPC codes. If not specified, it
+      represents `Code.INTERNAL`.
+    WarningLevelValueValuesEnum: Warning level describes the severity and
+      required action to suppress this warning when Firebase CLI run into it.
+
   Fields:
+    code: Maps to canonical gRPC codes. If not specified, it represents
+      `Code.INTERNAL`.
+    debugDetails: More detailed error message to assist debugging. It contains
+      application business logic that are inappropriate to leak publicly. In
+      the emulator, Data Connect API always includes it to assist local
+      development and debugging. In the backend, ConnectorService always hides
+      it. GraphqlService without impersonation always include it.
+      GraphqlService with impersonation includes it only if explicitly opted-
+      in with `include_debug_details` in `GraphqlRequestExtensions`.
     file: The source file name where the error occurred. Included only for
       `UpdateSchema` and `UpdateConnector`, it corresponds to `File.path` of
       the provided `Source`.
+    warningLevel: Warning level describes the severity and required action to
+      suppress this warning when Firebase CLI run into it.
+    workarounds: Workarounds provide suggestions to address the compile errors
+      or warnings.
   """
 
-  file = _messages.StringField(1)
+  class CodeValueValuesEnum(_messages.Enum):
+    r"""Maps to canonical gRPC codes. If not specified, it represents
+    `Code.INTERNAL`.
+
+    Values:
+      OK: Not an error; returned on success. HTTP Mapping: 200 OK
+      CANCELLED: The operation was cancelled, typically by the caller. HTTP
+        Mapping: 499 Client Closed Request
+      UNKNOWN: Unknown error. For example, this error may be returned when a
+        `Status` value received from another address space belongs to an error
+        space that is not known in this address space. Also errors raised by
+        APIs that do not return enough error information may be converted to
+        this error. HTTP Mapping: 500 Internal Server Error
+      INVALID_ARGUMENT: The client specified an invalid argument. Note that
+        this differs from `FAILED_PRECONDITION`. `INVALID_ARGUMENT` indicates
+        arguments that are problematic regardless of the state of the system
+        (e.g., a malformed file name). HTTP Mapping: 400 Bad Request
+      DEADLINE_EXCEEDED: The deadline expired before the operation could
+        complete. For operations that change the state of the system, this
+        error may be returned even if the operation has completed
+        successfully. For example, a successful response from a server could
+        have been delayed long enough for the deadline to expire. HTTP
+        Mapping: 504 Gateway Timeout
+      NOT_FOUND: Some requested entity (e.g., file or directory) was not
+        found. Note to server developers: if a request is denied for an entire
+        class of users, such as gradual feature rollout or undocumented
+        allowlist, `NOT_FOUND` may be used. If a request is denied for some
+        users within a class of users, such as user-based access control,
+        `PERMISSION_DENIED` must be used. HTTP Mapping: 404 Not Found
+      ALREADY_EXISTS: The entity that a client attempted to create (e.g., file
+        or directory) already exists. HTTP Mapping: 409 Conflict
+      PERMISSION_DENIED: The caller does not have permission to execute the
+        specified operation. `PERMISSION_DENIED` must not be used for
+        rejections caused by exhausting some resource (use
+        `RESOURCE_EXHAUSTED` instead for those errors). `PERMISSION_DENIED`
+        must not be used if the caller can not be identified (use
+        `UNAUTHENTICATED` instead for those errors). This error code does not
+        imply the request is valid or the requested entity exists or satisfies
+        other pre-conditions. HTTP Mapping: 403 Forbidden
+      UNAUTHENTICATED: The request does not have valid authentication
+        credentials for the operation. HTTP Mapping: 401 Unauthorized
+      RESOURCE_EXHAUSTED: Some resource has been exhausted, perhaps a per-user
+        quota, or perhaps the entire file system is out of space. HTTP
+        Mapping: 429 Too Many Requests
+      FAILED_PRECONDITION: The operation was rejected because the system is
+        not in a state required for the operation's execution. For example,
+        the directory to be deleted is non-empty, an rmdir operation is
+        applied to a non-directory, etc. Service implementors can use the
+        following guidelines to decide between `FAILED_PRECONDITION`,
+        `ABORTED`, and `UNAVAILABLE`: (a) Use `UNAVAILABLE` if the client can
+        retry just the failing call. (b) Use `ABORTED` if the client should
+        retry at a higher level. For example, when a client-specified test-
+        and-set fails, indicating the client should restart a read-modify-
+        write sequence. (c) Use `FAILED_PRECONDITION` if the client should not
+        retry until the system state has been explicitly fixed. For example,
+        if an "rmdir" fails because the directory is non-empty,
+        `FAILED_PRECONDITION` should be returned since the client should not
+        retry unless the files are deleted from the directory. HTTP Mapping:
+        400 Bad Request
+      ABORTED: The operation was aborted, typically due to a concurrency issue
+        such as a sequencer check failure or transaction abort. See the
+        guidelines above for deciding between `FAILED_PRECONDITION`,
+        `ABORTED`, and `UNAVAILABLE`. HTTP Mapping: 409 Conflict
+      OUT_OF_RANGE: The operation was attempted past the valid range. E.g.,
+        seeking or reading past end-of-file. Unlike `INVALID_ARGUMENT`, this
+        error indicates a problem that may be fixed if the system state
+        changes. For example, a 32-bit file system will generate
+        `INVALID_ARGUMENT` if asked to read at an offset that is not in the
+        range [0,2^32-1], but it will generate `OUT_OF_RANGE` if asked to read
+        from an offset past the current file size. There is a fair bit of
+        overlap between `FAILED_PRECONDITION` and `OUT_OF_RANGE`. We recommend
+        using `OUT_OF_RANGE` (the more specific error) when it applies so that
+        callers who are iterating through a space can easily look for an
+        `OUT_OF_RANGE` error to detect when they are done. HTTP Mapping: 400
+        Bad Request
+      UNIMPLEMENTED: The operation is not implemented or is not
+        supported/enabled in this service. HTTP Mapping: 501 Not Implemented
+      INTERNAL: Internal errors. This means that some invariants expected by
+        the underlying system have been broken. This error code is reserved
+        for serious errors. HTTP Mapping: 500 Internal Server Error
+      UNAVAILABLE: The service is currently unavailable. This is most likely a
+        transient condition, which can be corrected by retrying with a
+        backoff. Note that it is not always safe to retry non-idempotent
+        operations. See the guidelines above for deciding between
+        `FAILED_PRECONDITION`, `ABORTED`, and `UNAVAILABLE`. HTTP Mapping: 503
+        Service Unavailable
+      DATA_LOSS: Unrecoverable data loss or corruption. HTTP Mapping: 500
+        Internal Server Error
+    """
+    OK = 0
+    CANCELLED = 1
+    UNKNOWN = 2
+    INVALID_ARGUMENT = 3
+    DEADLINE_EXCEEDED = 4
+    NOT_FOUND = 5
+    ALREADY_EXISTS = 6
+    PERMISSION_DENIED = 7
+    UNAUTHENTICATED = 8
+    RESOURCE_EXHAUSTED = 9
+    FAILED_PRECONDITION = 10
+    ABORTED = 11
+    OUT_OF_RANGE = 12
+    UNIMPLEMENTED = 13
+    INTERNAL = 14
+    UNAVAILABLE = 15
+    DATA_LOSS = 16
+
+  class WarningLevelValueValuesEnum(_messages.Enum):
+    r"""Warning level describes the severity and required action to suppress
+    this warning when Firebase CLI run into it.
+
+    Values:
+      WARNING_LEVEL_UNKNOWN: Warning level is not specified.
+      LOG_ONLY: Display a warning without action needed.
+      INTERACTIVE_ACK: Request a confirmation in interactive deployment flow.
+      REQUIRE_ACK: Require an explicit confirmation in all deployment flows.
+      REQUIRE_FORCE: Require --force in all deployment flows.
+    """
+    WARNING_LEVEL_UNKNOWN = 0
+    LOG_ONLY = 1
+    INTERACTIVE_ACK = 2
+    REQUIRE_ACK = 3
+    REQUIRE_FORCE = 4
+
+  code = _messages.EnumField('CodeValueValuesEnum', 1)
+  debugDetails = _messages.StringField(2)
+  file = _messages.StringField(3)
+  warningLevel = _messages.EnumField('WarningLevelValueValuesEnum', 4)
+  workarounds = _messages.MessageField('Workaround', 5, repeated=True)
 
 
 class GraphqlRequest(_messages.Message):
@@ -1059,6 +1269,51 @@ class GraphqlResponse(_messages.Message):
   errors = _messages.MessageField('GraphqlError', 2, repeated=True)
 
 
+class ImpersonateRequest(_messages.Message):
+  r"""The Impersonate request to Firebase Data Connect.
+
+  Messages:
+    VariablesValue: Optional. Values for GraphQL variables provided in this
+      request.
+
+  Fields:
+    extensions: Optional. Additional GraphQL request information.
+    operationName: Required. The name of the GraphQL operation name. Required
+      because all Connector operations must be named. See
+      https://graphql.org/learn/queries/#operation-name.
+    variables: Optional. Values for GraphQL variables provided in this
+      request.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class VariablesValue(_messages.Message):
+    r"""Optional. Values for GraphQL variables provided in this request.
+
+    Messages:
+      AdditionalProperty: An additional property for a VariablesValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a VariablesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  extensions = _messages.MessageField('GraphqlRequestExtensions', 1)
+  operationName = _messages.StringField(2)
+  variables = _messages.MessageField('VariablesValue', 3)
+
+
 class Impersonation(_messages.Message):
   r"""Impersonation configures the Firebase Auth context to impersonate.
 
@@ -1073,6 +1328,8 @@ class Impersonation(_messages.Message):
       Should follow the Firebase Auth token format.
       https://firebase.google.com/docs/rules/rules-and-auth For example: a
       verified user may have auth_claims of {"sub": , "email_verified": true}
+    includeDebugDetails: Optional. If set, include debug details in GraphQL
+      error extensions.
     unauthenticated: Evaluate the auth policy as an unauthenticated request.
       Can only be set to true.
   """
@@ -1105,7 +1362,8 @@ class Impersonation(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   authClaims = _messages.MessageField('AuthClaimsValue', 1)
-  unauthenticated = _messages.BooleanField(2)
+  includeDebugDetails = _messages.BooleanField(2)
+  unauthenticated = _messages.BooleanField(3)
 
 
 class ListConnectorsResponse(_messages.Message):
@@ -1146,10 +1404,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListSchemasResponse(_messages.Message):
@@ -1411,21 +1674,51 @@ class PostgreSql(_messages.Message):
   r"""Settings for PostgreSQL data source.
 
   Enums:
+    SchemaMigrationValueValuesEnum: Optional. Configure how to perform
+      Postgresql schema migration.
     SchemaValidationValueValuesEnum: Optional. Configure how much Postgresql
-      schema validation to perform. Default to `STRICT` if not specified.
+      schema validation to perform.
 
   Fields:
     cloudSql: Cloud SQL configurations.
     database: Required. Name of the PostgreSQL database.
+    ephemeral: Output only. Ephemeral is true if this data connect service is
+      served from temporary in-memory emulation of Postgres. While Cloud SQL
+      is being provisioned, the data connect service provides the ephemeral
+      service to help developers get started. Once the Cloud SQL is
+      provisioned, Data Connect service will transfer its data on a best-
+      effort basis to the Cloud SQL instance. WARNING: Ephemeral data sources
+      will expire after 24 hour. The data will be lost if they aren't
+      transferred to the Cloud SQL instance. WARNING: When `ephemeral=true`,
+      mutations to the database are not guaranteed to be durably persisted,
+      even if an OK status code is returned. All or parts of the data may be
+      lost or reverted to earlier versions.
+    schemaMigration: Optional. Configure how to perform Postgresql schema
+      migration.
     schemaValidation: Optional. Configure how much Postgresql schema
-      validation to perform. Default to `STRICT` if not specified.
+      validation to perform.
     unlinked: No Postgres data source is linked. If set, don't allow
       `database` and `schema_validation` to be configured.
   """
 
+  class SchemaMigrationValueValuesEnum(_messages.Enum):
+    r"""Optional. Configure how to perform Postgresql schema migration.
+
+    Values:
+      SQL_SCHEMA_MIGRATION_UNSPECIFIED: Unspecified SQL schema migration.
+      MIGRATE_COMPATIBLE: Connect to the SQL database and identify any missing
+        SQL resources used in the given Firebase Data Connect Schema.
+        Automatically create necessary SQL resources (SQL table, column, etc)
+        before deploying the schema. During migration steps, the SQL Schema
+        must comply with the previous before_deploy setting in case the
+        migration is interrupted. Therefore, the previous before_deploy
+        setting must not be `schema_validation=STRICT`.
+    """
+    SQL_SCHEMA_MIGRATION_UNSPECIFIED = 0
+    MIGRATE_COMPATIBLE = 1
+
   class SchemaValidationValueValuesEnum(_messages.Enum):
     r"""Optional. Configure how much Postgresql schema validation to perform.
-    Default to `STRICT` if not specified.
 
     Values:
       SQL_SCHEMA_VALIDATION_UNSPECIFIED: Unspecified SQL schema validation.
@@ -1451,8 +1744,10 @@ class PostgreSql(_messages.Message):
 
   cloudSql = _messages.MessageField('CloudSqlInstance', 1)
   database = _messages.StringField(2)
-  schemaValidation = _messages.EnumField('SchemaValidationValueValuesEnum', 3)
-  unlinked = _messages.BooleanField(4)
+  ephemeral = _messages.BooleanField(3)
+  schemaMigration = _messages.EnumField('SchemaMigrationValueValuesEnum', 4)
+  schemaValidation = _messages.EnumField('SchemaValidationValueValuesEnum', 5)
+  unlinked = _messages.BooleanField(6)
 
 
 class Schema(_messages.Message):
@@ -1766,6 +2061,20 @@ class Status(_messages.Message):
   code = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   details = _messages.MessageField('DetailsValueListEntry', 2, repeated=True)
   message = _messages.StringField(3)
+
+
+class Workaround(_messages.Message):
+  r"""Workaround provides suggestions to address errors and warnings.
+
+  Fields:
+    description: Description of this workaround.
+    reason: Why would this workaround address the error and warning.
+    replace: A suggested code snippet to fix the error and warning.
+  """
+
+  description = _messages.StringField(1)
+  reason = _messages.StringField(2)
+  replace = _messages.StringField(3)
 
 
 encoding.AddCustomJsonFieldMapping(

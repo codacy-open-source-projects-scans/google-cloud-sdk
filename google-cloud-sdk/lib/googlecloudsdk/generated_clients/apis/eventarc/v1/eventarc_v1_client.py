@@ -43,6 +43,7 @@ class EventarcV1(base_api.BaseApiClient):
     self.projects_locations_channels = self.ProjectsLocationsChannelsService(self)
     self.projects_locations_enrollments = self.ProjectsLocationsEnrollmentsService(self)
     self.projects_locations_googleApiSources = self.ProjectsLocationsGoogleApiSourcesService(self)
+    self.projects_locations_kafkaSources = self.ProjectsLocationsKafkaSourcesService(self)
     self.projects_locations_messageBuses = self.ProjectsLocationsMessageBusesService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
     self.projects_locations_pipelines = self.ProjectsLocationsPipelinesService(self)
@@ -928,6 +929,232 @@ class EventarcV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsKafkaSourcesService(base_api.BaseApiService):
+    """Service class for the projects_locations_kafkaSources resource."""
+
+    _NAME = 'projects_locations_kafkaSources'
+
+    def __init__(self, client):
+      super(EventarcV1.ProjectsLocationsKafkaSourcesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Create a new KafkaSource in a particular project and location.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleLongrunningOperation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources',
+        http_method='POST',
+        method_id='eventarc.projects.locations.kafkaSources.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['kafkaSourceId', 'validateOnly'],
+        relative_path='v1/{+parent}/kafkaSources',
+        request_field='kafkaSource',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesCreateRequest',
+        response_type_name='GoogleLongrunningOperation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Delete a single KafkaSource.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleLongrunningOperation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}',
+        http_method='DELETE',
+        method_id='eventarc.projects.locations.kafkaSources.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['allowMissing', 'etag', 'validateOnly'],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesDeleteRequest',
+        response_type_name='GoogleLongrunningOperation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Get a single kafkaSource.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (KafkaSource) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}',
+        http_method='GET',
+        method_id='eventarc.projects.locations.kafkaSources.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesGetRequest',
+        response_type_name='KafkaSource',
+        supports_download=False,
+    )
+
+    def GetIamPolicy(self, request, global_params=None):
+      r"""Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesGetIamPolicyRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Policy) The response message.
+      """
+      config = self.GetMethodConfig('GetIamPolicy')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}:getIamPolicy',
+        http_method='GET',
+        method_id='eventarc.projects.locations.kafkaSources.getIamPolicy',
+        ordered_params=['resource'],
+        path_params=['resource'],
+        query_params=['options_requestedPolicyVersion'],
+        relative_path='v1/{+resource}:getIamPolicy',
+        request_field='',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesGetIamPolicyRequest',
+        response_type_name='Policy',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""List kafkaSources.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListKafkaSourcesResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources',
+        http_method='GET',
+        method_id='eventarc.projects.locations.kafkaSources.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v1/{+parent}/kafkaSources',
+        request_field='',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesListRequest',
+        response_type_name='ListKafkaSourcesResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Update a single KafkaSource.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleLongrunningOperation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}',
+        http_method='PATCH',
+        method_id='eventarc.projects.locations.kafkaSources.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['allowMissing', 'updateMask', 'validateOnly'],
+        relative_path='v1/{+name}',
+        request_field='kafkaSource',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesPatchRequest',
+        response_type_name='GoogleLongrunningOperation',
+        supports_download=False,
+    )
+
+    def SetIamPolicy(self, request, global_params=None):
+      r"""Sets the access control policy on the specified resource. Replaces any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesSetIamPolicyRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Policy) The response message.
+      """
+      config = self.GetMethodConfig('SetIamPolicy')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SetIamPolicy.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}:setIamPolicy',
+        http_method='POST',
+        method_id='eventarc.projects.locations.kafkaSources.setIamPolicy',
+        ordered_params=['resource'],
+        path_params=['resource'],
+        query_params=[],
+        relative_path='v1/{+resource}:setIamPolicy',
+        request_field='setIamPolicyRequest',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesSetIamPolicyRequest',
+        response_type_name='Policy',
+        supports_download=False,
+    )
+
+    def TestIamPermissions(self, request, global_params=None):
+      r"""Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may "fail open" without warning.
+
+      Args:
+        request: (EventarcProjectsLocationsKafkaSourcesTestIamPermissionsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (TestIamPermissionsResponse) The response message.
+      """
+      config = self.GetMethodConfig('TestIamPermissions')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    TestIamPermissions.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/kafkaSources/{kafkaSourcesId}:testIamPermissions',
+        http_method='POST',
+        method_id='eventarc.projects.locations.kafkaSources.testIamPermissions',
+        ordered_params=['resource'],
+        path_params=['resource'],
+        query_params=[],
+        relative_path='v1/{+resource}:testIamPermissions',
+        request_field='testIamPermissionsRequest',
+        request_type_name='EventarcProjectsLocationsKafkaSourcesTestIamPermissionsRequest',
+        response_type_name='TestIamPermissionsResponse',
+        supports_download=False,
+    )
+
   class ProjectsLocationsMessageBusesService(base_api.BaseApiService):
     """Service class for the projects_locations_messageBuses resource."""
 
@@ -1291,7 +1518,7 @@ class EventarcV1(base_api.BaseApiClient):
         method_id='eventarc.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}/operations',
         request_field='',
         request_type_name='EventarcProjectsLocationsOperationsListRequest',
@@ -1853,7 +2080,7 @@ class EventarcV1(base_api.BaseApiClient):
     )
 
     def GetGoogleChannelConfig(self, request, global_params=None):
-      r"""Get a GoogleChannelConfig.
+      r"""Get a GoogleChannelConfig. The name of the GoogleChannelConfig in the response is ALWAYS coded with projectID.
 
       Args:
         request: (EventarcProjectsLocationsGetGoogleChannelConfigRequest) input message
@@ -1898,7 +2125,7 @@ class EventarcV1(base_api.BaseApiClient):
         method_id='eventarc.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1/{+name}/locations',
         request_field='',
         request_type_name='EventarcProjectsLocationsListRequest',

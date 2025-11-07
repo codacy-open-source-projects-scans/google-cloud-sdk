@@ -138,10 +138,22 @@ def AddUriFlags(parser, collection, api_version=None):
   parser.display_info.AddUriFunc(_GetResourceUri)
 
 
-def GetModelIdArg(required=True):
-  return base.Argument(
-      '--model', help='Id of the uploaded model.', required=required
-  )
+def AddModelIdArg(version=None, parser=None):
+  if version == constants.GA_VERSION:
+    base.Argument(
+        '--model',
+        help='ID of the uploaded model.',
+        required=True,
+    ).AddToParser(parser)
+  else:
+    base.Argument(
+        '--model',
+        help=(
+            'ID of the uploaded model. The alpha and beta tracks also support'
+            ' GDC connected models.'
+        ),
+        required=True,
+    ).AddToParser(parser)
 
 
 def GetDeployedModelId(required=True):
@@ -225,7 +237,8 @@ def GetHiddenGdceZoneArg():
       hidden=True,
       help="""\
       The name of the GDCE zone. If set, the endpoint is in GDCE.
-      """)
+      """,
+  )
 
 
 def GetGdceZoneArg():
@@ -235,7 +248,19 @@ def GetGdceZoneArg():
       default=None,
       help="""\
       The name of the GDCE zone. If set, the endpoint is in GDCE.
-      """)
+      """,
+  )
+
+
+def GetGdcZoneArg():
+  return base.Argument(
+      '--gdc-zone',
+      required=False,
+      default=None,
+      help="""\
+      The name of the GDC zone. If set, the endpoint is for GDCc.
+      """,
+  )
 
 
 def AddPrivateServiceConnectConfig(parser):
@@ -396,27 +421,89 @@ def AddTrafficSplitGroupArgs(parser):
   )
 
 
-def AddPredictionResourcesArgs(parser, version):
-  """Add arguments for prediction resources."""
-  base.Argument(
-      '--min-replica-count',
-      type=arg_parsers.BoundedInt(1, sys.maxsize, unlimited=True),
-      help=("""\
-Minimum number of machine replicas for the deployment resources the model will be
-deployed on. If specified, the value must be equal to or larger than 1.
+def AddScaleToZeroArgs(parser, version):
+  """Add arguments for scale to zero."""
+  if version == constants.BETA_VERSION:
+    base.Argument(
+        '--min-scaleup-period',
+        type=arg_parsers.Duration(lower_bound='300s', upper_bound='28800s'),
+        help="""\
+Minimum duration (in seconds) that a deployment will be scaled up before traffic
+is evaluated for potential scale-down.
+Defaults to 1 hour if min replica count is 0.
+""",
+    ).AddToParser(parser)
 
-If not specified and the uploaded models use dedicated resources, the default
-value is 1.
-"""),
-  ).AddToParser(parser)
+    base.Argument(
+        '--idle-scaledown-period',
+        type=arg_parsers.Duration(lower_bound='300s', upper_bound='28800s'),
+        help="""\
+Duration (in seconds) without traffic before a deployment is scaled down to
+zero replicas. Defaults to 1 hour if min replica count is 0.
+""",
+    ).AddToParser(parser)
+
+    base.Argument(
+        '--initial-replica-count',
+        type=arg_parsers.BoundedInt(1, sys.maxsize, unlimited=True),
+        help="""\
+Initial number of replicas for the deployment resources the model will be
+scaled up to. Cannot be smaller than min replica count or larger than max
+replica count.
+""",
+    ).AddToParser(parser)
+
+
+def AddPredictionResourcesArgs(parser, version, drp=False):
+  """Add arguments for prediction resources."""
+  # Since DRP does not support scale-to-zero, we only allow min-replica-count
+  # to be set to 1 for non-DRP deployments.
+  if drp:
+    base.Argument(
+        '--min-replica-count',
+        type=arg_parsers.BoundedInt(1, sys.maxsize, unlimited=True),
+        help=("""\
+  Minimum number of machine replicas for the deployment resources the
+  model will be deployed on. If specified, the value must be equal to or
+  larger than 1.
+
+  If not specified and the uploaded models use dedicated resources, the
+  default value is 1.
+  """),
+    ).AddToParser(parser)
+  else:
+    base.Argument(
+        '--min-replica-count',
+        type=arg_parsers.BoundedInt(0, sys.maxsize, unlimited=True),
+        help=("""\
+  Minimum number of machine replicas for the deployment resources the model will be
+  deployed on. For normal deployments, the value must be equal to or larger than 1.
+  If the value is 0, the deployment will be enrolled in the scale-to-zero feature.
+  If not specified and the uploaded models use dedicated resources, the default
+  value is 1.
+
+  NOTE: DeploymentResourcePools (model-cohosting) is currently not supported for
+  scale-to-zero deployments.
+  """),
+    ).AddToParser(parser)
 
   base.Argument(
       '--max-replica-count',
-      type=int,
+      type=arg_parsers.BoundedInt(1, upper_bound=4096),
       help=("""\
 Maximum number of machine replicas for the deployment resources the model will be
 deployed on.
 """),
+  ).AddToParser(parser)
+
+  base.Argument(
+      '--required-replica-count',
+      type=arg_parsers.BoundedInt(1, sys.maxsize, unlimited=True),
+      help=("""\
+  Required number of machine replicas for the deployment resources the model will
+  be considered successfully deployed. This value must be greater than or equal
+  to 1 and less than or equal to min-replica-count.
+  """),
   ).AddToParser(parser)
 
   base.Argument(
@@ -451,10 +538,7 @@ or exclusively from on-demand capacity.
       default=False,
       required=False,
       help="""\
-If true, online prediction access logs are sent to Cloud Logging.
-
-These logs are standard server access logs, containing information like
-timestamp and latency for each prediction request.
+If true, schedule the deployment workload on Spot VMs.
 """,
   ).AddToParser(parser)
 
@@ -465,6 +549,25 @@ timestamp and latency for each prediction request.
 CloudTPU topology to use for this deployment. Required for multihost
 CloudTPU deployments:
 https://cloud.google.com/kubernetes-engine/docs/concepts/tpus#topology.
+""",
+    ).AddToParser(parser)
+    # for multihost GPU deployments
+    base.Argument(
+        '--multihost-gpu-node-count',
+        type=int,
+        help="""\
+The number of nodes per replica for multihost GPU deployments. Required for
+multihost GPU deployments.
+""",
+    ).AddToParser(parser)
+    base.Argument(
+        '--gpu-partition-size',
+        type=str,
+        hidden=True,
+        help="""\
+The partition size of the GPU accelerator. This can be used to partition a
+single GPU into multiple smaller GPU instances.
+See https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions for more details.
 """,
     ).AddToParser(parser)
 
@@ -505,16 +608,19 @@ def GetAutoscalingMetricSpecsArg():
       type=arg_parsers.ArgDict(key_type=str, value_type=int),
       action=arg_parsers.UpdateAction,
       help="""\
-Metric specifications that overrides a resource utilization metric's target
-value. At most one entry is allowed per metric.
+Metric specifications that control autoscaling behavior. At most one entry is
+allowed per metric.
 
 *METRIC-NAME*::: Resource metric name. Choices are {}.
 
-*TARGET*::: Target resource utilization in percentage (1% - 100%) for the
-given metric. If the value is set to 60, the target resource utilization is 60%.
+*TARGET*::: Target value for the given metric. For `cpu-usage` and
+`gpu-duty-cycle`, the target is the target resource utilization in percentage
+(1% - 100%). For `request-counts-per-minute`, the target is the number of
+requests per minute per replica.
 
-For example:
-`--autoscaling-metric-specs=cpu-usage=70`
+For example, to set target CPU usage to 70% and target requests to 600 per
+minute per replica:
+`--autoscaling-metric-specs=cpu-usage=70,request-counts-per-minute=600`
 """.format(
           ', '.join([
               "'{}'".format(c)
@@ -1363,19 +1469,22 @@ def GetIndexDatapointIdsArg(noun, required=False):
 
 
 def GetIndexUpdateMethod(required=False):
-  return base.Argument(
+  return base.ChoiceArgument(
       '--index-update-method',
       required=required,
-      type=str,
-      help="""\
-The update method to use with this index. Choose `stream_update` or
-`batch_update`. If not set, batch update will be used by default.
-
-`batch_update`: can update index with `gcloud ai indexes update` using
-datapoints files on Cloud Storage.
-
-`stream update`: can update datapoints with `upsert-datapoints` and
-`delete-datapoints` and will be applied nearly real-time.
+      choices={
+          'stream-update': (
+              'can update datapoints with `upsert-datapoints` and'
+              '`delete-datapoints` and will be applied nearly real-time.'
+          ),
+          'batch-update': (
+              'can update index with `gcloud ai indexes update` using'
+              'datapoints files on Cloud Storage.'
+          ),
+      },
+      help_str="""\
+The update method to use with this index. Choose `stream-update` or
+`batch-update` (case insensitive). If not set, batch update will be used by default.
 """,
   )
 

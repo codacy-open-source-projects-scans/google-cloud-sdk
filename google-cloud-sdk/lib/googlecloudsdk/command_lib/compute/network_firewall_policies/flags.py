@@ -63,6 +63,16 @@ def AddArgNetworkFirewallPolicyCreation(parser):
   )
 
 
+def AddPolicyType(parser, additional_choices):
+  """Adds policy type argument."""
+  parser.add_argument(
+      '--policy-type',
+      required=False,
+      choices=['VPC_POLICY', 'RDMA_ROCE_POLICY'] + additional_choices,
+      help='Network firewall policy type.',
+  )
+
+
 def AddArgsUpdateNetworkFirewallPolicy(parser):
   """Adds the arguments  for firewall policy update."""
   parser.add_argument(
@@ -87,7 +97,11 @@ def NetworkFirewallPolicyAssociationArgument(
   )
 
 
-def AddArgsCreateAssociation(parser, support_priority=False):
+def AddArgsCreateAssociation(
+    parser,
+    support_priority=False,
+    support_associated_policy_to_be_replaced=False,
+):
   """Adds the arguments of association creation."""
   parser.add_argument('--name', help='Name of the association.')
 
@@ -105,7 +119,17 @@ def AddArgsCreateAssociation(parser, support_priority=False):
         help='Priority of the association.',
     )
 
-  parser.add_argument(
+  group = parser
+  if support_associated_policy_to_be_replaced:
+    group = parser.add_group(mutex=True, required=False)
+    group.add_argument(
+        '--associated-policy-to-be-replaced',
+        required=False,
+        hidden=True,
+        help='Name of an already associated firewall policy to replace.',
+    )
+
+  group.add_argument(
       '--replace-association-on-target',
       action='store_true',
       default=False,
@@ -226,7 +250,7 @@ def AddRulePriority(parser, operation=None):
   """Adds the rule priority argument to the argparse."""
   parser.add_argument(
       'priority',
-      help='Priority of the rule to be {}. Valid in [0, 65535].'.format(
+      help='Priority of the rule to be {}. Valid in [0, 2147483547].'.format(
           operation
       ),
   )
@@ -368,7 +392,7 @@ def AddSrcSecureTags(parser, required=False, support_network_scopes=False):
   )
   if support_network_scopes:
     help_text += (
-        ' Secure tags cannot be specified if source network scope is INTERNET.'
+        ' Secure tags cannot be specified if source network type is INTERNET.'
     )
 
   parser.add_argument(
@@ -480,7 +504,7 @@ def AddSrcRegionCodes(parser, support_network_scopes=False):
   if support_network_scopes:
     help_text += (
         ' Cannot be specified when the source network'
-        ' scope is NON_INTERNET, VPC_NETWORK or INTRA_VPC.'
+        ' type is NON_INTERNET, VPC_NETWORK or INTRA_VPC.'
     )
   parser.add_argument(
       '--src-region-codes',
@@ -499,7 +523,7 @@ def AddDestRegionCodes(parser, support_network_scopes=False):
   )
   if support_network_scopes:
     help_text += (
-        ' Cannot be specified when the source network scope is NON_INTERNET.'
+        ' Cannot be specified when the source network type is NON_INTERNET.'
     )
   parser.add_argument(
       '--dest-region-codes',
@@ -522,7 +546,7 @@ def AddSrcThreatIntelligence(parser, support_network_scopes=False):
     help_text = (
         'Source Threat Intelligence lists to match for this rule. '
         'Can only be specified if DIRECTION is `ingress`. Cannot be specified'
-        ' when the source network scope is NON_INTERNET, VPC_NETWORK or'
+        ' when the source network type is NON_INTERNET, VPC_NETWORK or'
         ' INTRA_VPC. '
         'The available lists can be found here: '
         'https://cloud.google.com/vpc/docs/firewall-policies-rule-details#threat-intelligence-fw-policy.'
@@ -549,7 +573,7 @@ def AddDestThreatIntelligence(parser, support_network_scopes=False):
     help_text = (
         'Destination Threat Intelligence lists to match for this rule. '
         'Can only be specified if DIRECTION is `egress`. Cannot be specified'
-        ' when source network scope is NON_INTERNET.'
+        ' when source network type is NON_INTERNET.'
         ' The available lists can be found here: '
         'https://cloud.google.com/vpc/docs/firewall-policies-rule-details#threat-intelligence-fw-policy.'
     )
@@ -604,10 +628,27 @@ def AddSrcNetworkScope(parser, required=False):
   parser.add_argument(
       '--src-network-scope',
       required=required,
+      hidden=True,
+      help=(
+          'Deprecated. Use --src-network-type instead.'
+          ' Use this flag to indicate that the rule should match internet,'
+          ' non-internet traffic or traffic coming from the network specified'
+          ' by --src-network. It applies to ingress rules. Valid values are'
+          ' INTERNET, NON_INTERNET, VPC_NETWORKS and INTRA_VPC. Use empty'
+          ' string to clear the field.'
+      ),
+  )
+
+
+def AddSrcNetworkType(parser, required=False):
+  """Adds source network type to this rule."""
+  parser.add_argument(
+      '--src-network-type',
+      required=required,
       help=(
           'Use this flag to indicate that the rule should match internet,'
           ' non-internet traffic or traffic coming from the network specified'
-          ' by --src-network. It applies to ingress rules. Valid values are'
+          ' by --src-networks. It applies to ingress rules. Valid values are'
           ' INTERNET, NON_INTERNET, VPC_NETWORKS and INTRA_VPC. Use empty'
           ' string to clear the field.'
       ),
@@ -623,7 +664,7 @@ def AddSrcNetworks(parser):
       required=False,
       help=(
           'The source VPC networks to  match for this rule.  It can only be'
-          ' specified when --src-network-scope is VPC_NETWORKS. It applies to '
+          ' specified when --src-network-type is VPC_NETWORKS. It applies to '
           ' ingress rules. It accepts full or partial URLs.'
       ),
   )
@@ -634,10 +675,57 @@ def AddDestNetworkScope(parser, required=False):
   parser.add_argument(
       '--dest-network-scope',
       required=required,
+      hidden=True,
+      help=(
+          'Deprecated. Use --dest-network-type instead.'
+          ' Use this flag to indicate that the rule should match internet or'
+          ' non-internet traffic. It applies to destination traffic for egress'
+          ' rules. Valid values are INTERNET and NON_INTERNET. Use'
+          ' empty string to clear the field.'
+      ),
+  )
+
+
+def AddDestNetworkType(parser, required=False):
+  """Adds destination network type to this rule."""
+  parser.add_argument(
+      '--dest-network-type',
+      required=required,
       help=(
           'Use this flag to indicate that the rule should match internet or'
           ' non-internet traffic. It applies to destination traffic for egress'
           ' rules. Valid values are INTERNET and NON_INTERNET. Use'
           ' empty string to clear the field.'
+      ),
+  )
+
+
+def AddTargetType(parser, required=False):
+  """Adds target type to this rule."""
+  parser.add_argument(
+      '--target-type',
+      required=required,
+      choices=['INSTANCES', 'INTERNAL_MANAGED_LB'],
+      help=(
+          'Target type of the rule. By default a rule applies to VM instances'
+          ' (target-type = INSTANCES). Use INTERNAL_MANAGED_LB value to apply'
+          ' the rule to load balancers.'
+      ),
+  )
+
+
+def AddTargetForwardingRules(parser, required=False):
+  """Adds target forwarding rules to this rule."""
+  parser.add_argument(
+      '--target-forwarding-rules',
+      required=required,
+      type=arg_parsers.ArgList(),
+      metavar='TARGET_FORWARDING_RULES',
+      help=(
+          'A list of forwarding rules to which this rule applies. This field'
+          ' allows you to control which load balancers get this rule. If not'
+          ' specified, the rule applies to all load balancers. This field is'
+          ' only applicable when --target-type is INTERNAL_MANAGED_LB. It'
+          ' accepts full or partial resourceURLs.'
       ),
   )

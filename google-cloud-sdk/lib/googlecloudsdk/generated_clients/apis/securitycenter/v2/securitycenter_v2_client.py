@@ -55,6 +55,7 @@ class SecuritycenterV2(base_api.BaseApiClient):
     self.folders_sources = self.FoldersSourcesService(self)
     self.folders = self.FoldersService(self)
     self.organizations_assets = self.OrganizationsAssetsService(self)
+    self.organizations_attackPaths = self.OrganizationsAttackPathsService(self)
     self.organizations_findings = self.OrganizationsFindingsService(self)
     self.organizations_locations_bigQueryExports = self.OrganizationsLocationsBigQueryExportsService(self)
     self.organizations_locations_findings = self.OrganizationsLocationsFindingsService(self)
@@ -1058,6 +1059,33 @@ class SecuritycenterV2(base_api.BaseApiClient):
       self._upload_configs = {
           }
 
+    def Export(self, request, global_params=None):
+      r"""Kicks off an LRO to export findings for an organization to the customer's BigQuery dataset.
+
+      Args:
+        request: (SecuritycenterFoldersSourcesLocationsFindingsExportRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Export')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Export.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v2/folders/{foldersId}/sources/{sourcesId}/locations/{locationsId}/findings:export',
+        http_method='POST',
+        method_id='securitycenter.folders.sources.locations.findings.export',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v2/{+parent}/findings:export',
+        request_field='exportFindingsRequest',
+        request_type_name='SecuritycenterFoldersSourcesLocationsFindingsExportRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def Group(self, request, global_params=None):
       r"""Filters an organization or source's findings and groups them by their specified properties in a location. If no location is specified, findings are assumed to be in global To group across all sources provide a `-` as the source id. The following list shows some examples: + `/v2/organizations/{organization_id}/sources/-/findings` + `/v2/organizations/{organization_id}/sources/-/locations/{location_id}/findings` + `/v2/folders/{folder_id}/sources/-/findings` + `/v2/folders/{folder_id}/sources/-/locations/{location_id}/findings` + `/v2/projects/{project_id}/sources/-/findings` + `/v2/projects/{project_id}/sources/-/locations/{location_id}/findings`.
 
@@ -1311,6 +1339,43 @@ class SecuritycenterV2(base_api.BaseApiClient):
         request_field='googleCloudSecuritycenterV2SecurityMarks',
         request_type_name='SecuritycenterOrganizationsAssetsUpdateSecurityMarksRequest',
         response_type_name='GoogleCloudSecuritycenterV2SecurityMarks',
+        supports_download=False,
+    )
+
+  class OrganizationsAttackPathsService(base_api.BaseApiService):
+    """Service class for the organizations_attackPaths resource."""
+
+    _NAME = 'organizations_attackPaths'
+
+    def __init__(self, client):
+      super(SecuritycenterV2.OrganizationsAttackPathsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def List(self, request, global_params=None):
+      r"""Lists the attack paths for a set of simulation results or valued resources and filter.
+
+      Args:
+        request: (SecuritycenterOrganizationsAttackPathsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListAttackPathsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v2/organizations/{organizationsId}/attackPaths',
+        http_method='GET',
+        method_id='securitycenter.organizations.attackPaths.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'pageSize', 'pageToken'],
+        relative_path='v2/{+parent}/attackPaths',
+        request_field='',
+        request_type_name='SecuritycenterOrganizationsAttackPathsListRequest',
+        response_type_name='ListAttackPathsResponse',
         supports_download=False,
     )
 
@@ -2292,7 +2357,7 @@ class SecuritycenterV2(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (SecuritycenterOrganizationsOperationsCancelRequest) input message
@@ -2391,7 +2456,7 @@ class SecuritycenterV2(base_api.BaseApiClient):
         method_id='securitycenter.organizations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}',
         request_field='',
         request_type_name='SecuritycenterOrganizationsOperationsListRequest',
@@ -3110,6 +3175,33 @@ class SecuritycenterV2(base_api.BaseApiClient):
         request_field='googleCloudSecuritycenterV2Finding',
         request_type_name='SecuritycenterOrganizationsSourcesLocationsFindingsCreateRequest',
         response_type_name='GoogleCloudSecuritycenterV2Finding',
+        supports_download=False,
+    )
+
+    def Export(self, request, global_params=None):
+      r"""Kicks off an LRO to export findings for an organization to the customer's BigQuery dataset.
+
+      Args:
+        request: (SecuritycenterOrganizationsSourcesLocationsFindingsExportRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Export')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Export.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v2/organizations/{organizationsId}/sources/{sourcesId}/locations/{locationsId}/findings:export',
+        http_method='POST',
+        method_id='securitycenter.organizations.sources.locations.findings.export',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v2/{+parent}/findings:export',
+        request_field='exportFindingsRequest',
+        request_type_name='SecuritycenterOrganizationsSourcesLocationsFindingsExportRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
@@ -4487,6 +4579,33 @@ class SecuritycenterV2(base_api.BaseApiClient):
       super(SecuritycenterV2.ProjectsSourcesLocationsFindingsService, self).__init__(client)
       self._upload_configs = {
           }
+
+    def Export(self, request, global_params=None):
+      r"""Kicks off an LRO to export findings for an organization to the customer's BigQuery dataset.
+
+      Args:
+        request: (SecuritycenterProjectsSourcesLocationsFindingsExportRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Export')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Export.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v2/projects/{projectsId}/sources/{sourcesId}/locations/{locationsId}/findings:export',
+        http_method='POST',
+        method_id='securitycenter.projects.sources.locations.findings.export',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v2/{+parent}/findings:export',
+        request_field='exportFindingsRequest',
+        request_type_name='SecuritycenterProjectsSourcesLocationsFindingsExportRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
 
     def Group(self, request, global_params=None):
       r"""Filters an organization or source's findings and groups them by their specified properties in a location. If no location is specified, findings are assumed to be in global To group across all sources provide a `-` as the source id. The following list shows some examples: + `/v2/organizations/{organization_id}/sources/-/findings` + `/v2/organizations/{organization_id}/sources/-/locations/{location_id}/findings` + `/v2/folders/{folder_id}/sources/-/findings` + `/v2/folders/{folder_id}/sources/-/locations/{location_id}/findings` + `/v2/projects/{project_id}/sources/-/findings` + `/v2/projects/{project_id}/sources/-/locations/{location_id}/findings`.

@@ -14,9 +14,6 @@
 # limitations under the License.
 """Helpers and common arguments for Composer commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 import argparse
 import ipaddress
@@ -139,9 +136,12 @@ OPERATION_NAME_ARG = base.Argument(
 
 LOCATION_FLAG = base.Argument(
     '--location',
-    required=False,
+    required=arg_parsers.ArgRequiredInUniverse(
+        default_universe=False, non_default_universe=True
+    ),
     help='The Cloud Composer location (e.g., us-central1).',
-    action=actions.StoreProperty(properties.VALUES.composer.location))
+    action=actions.StoreProperty(properties.VALUES.composer.location),
+)
 
 _ENV_VAR_NAME_ERROR = (
     'Only upper and lowercase letters, digits, and underscores are allowed. '
@@ -165,6 +165,14 @@ _ENVIRONMENT_SIZE_MAPPING = {
     'ENVIRONMENT_SIZE_SMALL': 'small',
     'ENVIRONMENT_SIZE_MEDIUM': 'medium',
     'ENVIRONMENT_SIZE_LARGE': 'large'
+}
+
+_ENVIRONMENT_SIZE_MAPPING_ALPHA = {
+    'ENVIRONMENT_SIZE_UNSPECIFIED': 'unspecified',
+    'ENVIRONMENT_SIZE_SMALL': 'small',
+    'ENVIRONMENT_SIZE_MEDIUM': 'medium',
+    'ENVIRONMENT_SIZE_LARGE': 'large',
+    'ENVIRONMENT_SIZE_EXTRA_LARGE': 'extra-large'
 }
 
 AIRFLOW_CONFIGS_FLAG_GROUP_DESCRIPTION = (
@@ -953,7 +961,7 @@ ENVIRONMENT_SIZE_ALPHA = arg_utils.ChoiceEnumMapper(
     message_enum=api_util.GetMessagesModule(
         release_track=base.ReleaseTrack.ALPHA).EnvironmentConfig
     .EnvironmentSizeValueValuesEnum,
-    custom_mappings=_ENVIRONMENT_SIZE_MAPPING)
+    custom_mappings=_ENVIRONMENT_SIZE_MAPPING_ALPHA)
 
 AIRFLOW_DATABASE_RETENTION_DAYS = base.Argument(
     '--airflow-database-retention-days',
@@ -1059,16 +1067,26 @@ ENABLE_PRIVATE_ENVIRONMENT_FLAG = base.Argument(
     default=None,
     action='store_true',
     help="""\
-    Environment cluster is created with no public IP addresses on the cluster
-    nodes.
+    Disables internet connection from any Composer component.
 
-    If not specified, cluster nodes will be assigned public IP addresses.
-
-    When used with Composer 3, disable internet connection from any Composer
-    component.
+    When used with Composer 2, the environment cluster is created with
+    no public IP addresses on the cluster nodes. If not specified,
+    cluster nodes will be assigned public IP addresses.
 
     When used with Composer 1.x, cannot be specified unless `--enable-ip-alias`
     is also specified.
+    """,
+)
+
+DISABLE_PRIVATE_ENVIRONMENT_FLAG = base.Argument(
+    '--disable-private-environment',
+    default=None,
+    action='store_true',
+    help="""\
+    Enables internet connection for Composer components.
+
+    When used with Composer 2, this means the environment cluster is
+    created with public IP addresses on the cluster nodes.
 
     """,
 )
@@ -1663,6 +1681,7 @@ def AddPrivateIpEnvironmentFlags(update_type_group, release_track):
   """
   group = update_type_group.add_group(help='Private Clusters')
   ENABLE_PRIVATE_ENVIRONMENT_FLAG.AddToParser(group)
+  DISABLE_PRIVATE_ENVIRONMENT_FLAG.AddToParser(group)
   ENABLE_PRIVATE_ENDPOINT_FLAG.AddToParser(group)
   MASTER_IPV4_CIDR_FLAG.AddToParser(group)
   WEB_SERVER_IPV4_CIDR_FLAG.AddToParser(group)

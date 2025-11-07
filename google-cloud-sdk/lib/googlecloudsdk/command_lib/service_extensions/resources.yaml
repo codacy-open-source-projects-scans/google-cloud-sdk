@@ -61,6 +61,45 @@ lbRouteExtension:
     help: |
       The ID of the `LbRouteExtension`.
 
+lbEdgeExtension:
+  name: LbEdgeExtension
+  collection: networkservices.projects.locations.lbEdgeExtensions
+  request_id_field: lbEdgeExtensionId
+  attributes:
+  - *project
+  - *location
+  - &lbEdgeExtension:
+    parameter_name: lbEdgeExtensionsId
+    attribute_name: lb_edge_extension
+    help: |
+      The ID of the `LbEdgeExtension`.
+
+lbTcpExtension:
+  name: LbTcpExtension
+  collection: networkservices.projects.locations.lbTcpExtensions
+  request_id_field: lbTcpExtensionId
+  attributes:
+  - *project
+  - *location
+  - &lbTcpExtension:
+    parameter_name: lbTcpExtensionsId
+    attribute_name: lb_tcp_extension
+    help: |
+      The ID of the `LbTcpExtension`.
+
+swpSecurityExtension:
+  name: SwpSecurityExtension
+  collection: networkservices.projects.locations.swpSecurityExtensions
+  request_id_field: swpSecurityExtensionId
+  attributes:
+  - *project
+  - *location
+  - &swpSecurityExtension:
+    parameter_name: swpSecurityExtensionsId
+    attribute_name: swp_security_extension
+    help: |
+      The ID of the `SwpSecurityExtension`.
+
 lbObservabilityExtension:
   name: LbObservabilityExtension
   collection: networkservices.projects.locations.lbObservabilityExtensions

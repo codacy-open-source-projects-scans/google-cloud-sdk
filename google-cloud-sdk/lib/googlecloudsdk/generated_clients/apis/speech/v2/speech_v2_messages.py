@@ -566,6 +566,23 @@ class DeleteRecognizerRequest(_messages.Message):
   validateOnly = _messages.BooleanField(4)
 
 
+class DenoiserConfig(_messages.Message):
+  r"""Denoiser config. May not be supported for all models and may have no
+  effect.
+
+  Fields:
+    denoiseAudio: Denoise audio before sending to the transcription model.
+    snrThreshold: Signal-to-Noise Ratio (SNR) threshold for the denoiser. Here
+      SNR means the loudness of the speech signal. Audio with an SNR below
+      this threshold, meaning the speech is too quiet, will be prevented from
+      being sent to the transcription model. If snr_threshold=0, no filtering
+      will be applied.
+  """
+
+  denoiseAudio = _messages.BooleanField(1)
+  snrThreshold = _messages.FloatField(2, variant=_messages.Variant.FLOAT)
+
+
 class Entry(_messages.Message):
   r"""A single replacement configuration.
 
@@ -588,20 +605,18 @@ class ExplicitDecodingConfig(_messages.Message):
       recognition.
 
   Fields:
-    audioChannelCount: Number of channels present in the audio data sent for
-      recognition. Supported for the following encodings: * LINEAR16:
-      Headerless 16-bit signed little-endian PCM samples. * MULAW: Headerless
-      8-bit companded mulaw samples. * ALAW: Headerless 8-bit companded alaw
-      samples. The maximum allowed value is 8.
+    audioChannelCount: Optional. Number of channels present in the audio data
+      sent for recognition. Note that this field is marked as OPTIONAL for
+      backward compatibility reasons. It is (and has always been) effectively
+      REQUIRED. The maximum allowed value is 8.
     encoding: Required. Encoding of the audio data sent for recognition.
-    sampleRateHertz: Sample rate in Hertz of the audio data sent for
-      recognition. Valid values are: 8000-48000. 16000 is optimal. For best
-      results, set the sampling rate of the audio source to 16000 Hz. If
+    sampleRateHertz: Optional. Sample rate in Hertz of the audio data sent for
+      recognition. Valid values are: 8000-48000, and 16000 is optimal. For
+      best results, set the sampling rate of the audio source to 16000 Hz. If
       that's not possible, use the native sample rate of the audio source
-      (instead of re-sampling). Supported for the following encodings: *
-      LINEAR16: Headerless 16-bit signed little-endian PCM samples. * MULAW:
-      Headerless 8-bit companded mulaw samples. * ALAW: Headerless 8-bit
-      companded alaw samples.
+      (instead of resampling). Note that this field is marked as OPTIONAL for
+      backward compatibility reasons. It is (and has always been) effectively
+      REQUIRED.
   """
 
   class EncodingValueValuesEnum(_messages.Enum):
@@ -612,11 +627,29 @@ class ExplicitDecodingConfig(_messages.Message):
       LINEAR16: Headerless 16-bit signed little-endian PCM samples.
       MULAW: Headerless 8-bit companded mulaw samples.
       ALAW: Headerless 8-bit companded alaw samples.
+      AMR: AMR frames with an rfc4867.5 header.
+      AMR_WB: AMR-WB frames with an rfc4867.5 header.
+      FLAC: FLAC frames in the "native FLAC" container format.
+      MP3: MPEG audio frames with optional (ignored) ID3 metadata.
+      OGG_OPUS: Opus audio frames in an Ogg container.
+      WEBM_OPUS: Opus audio frames in a WebM container.
+      MP4_AAC: AAC audio frames in an MP4 container.
+      M4A_AAC: AAC audio frames in an M4A container.
+      MOV_AAC: AAC audio frames in an MOV container.
     """
     AUDIO_ENCODING_UNSPECIFIED = 0
     LINEAR16 = 1
     MULAW = 2
     ALAW = 3
+    AMR = 4
+    AMR_WB = 5
+    FLAC = 6
+    MP3 = 7
+    OGG_OPUS = 8
+    WEBM_OPUS = 9
+    MP4_AAC = 10
+    M4A_AAC = 11
+    MOV_AAC = 12
 
   audioChannelCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   encoding = _messages.EnumField('EncodingValueValuesEnum', 2)
@@ -726,10 +759,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListPhraseSetsResponse(_messages.Message):
@@ -857,7 +895,7 @@ class LocationsMetadata(_messages.Message):
 
 
 class ModelFeature(_messages.Message):
-  r"""Representes a singular feature of a model. If the feature is
+  r"""Represents a singular feature of a model. If the feature is
   `recognizer`, the release_state of the feature represents the release_state
   of the model
 
@@ -1266,6 +1304,8 @@ class RecognitionConfig(_messages.Message):
       for specific words and phrases.
     autoDecodingConfig: Automatically detect decoding parameters. Preferred
       for supported formats.
+    denoiserConfig: Optional. Optional denoiser config. May not be supported
+      for all models and may have no effect.
     explicitDecodingConfig: Explicitly specified decoding parameters. Required
       if using headerless PCM audio (linear16, mulaw, alaw).
     features: Speech recognition features to enable.
@@ -1297,12 +1337,13 @@ class RecognitionConfig(_messages.Message):
 
   adaptation = _messages.MessageField('SpeechAdaptation', 1)
   autoDecodingConfig = _messages.MessageField('AutoDetectDecodingConfig', 2)
-  explicitDecodingConfig = _messages.MessageField('ExplicitDecodingConfig', 3)
-  features = _messages.MessageField('RecognitionFeatures', 4)
-  languageCodes = _messages.StringField(5, repeated=True)
-  model = _messages.StringField(6)
-  transcriptNormalization = _messages.MessageField('TranscriptNormalization', 7)
-  translationConfig = _messages.MessageField('TranslationConfig', 8)
+  denoiserConfig = _messages.MessageField('DenoiserConfig', 3)
+  explicitDecodingConfig = _messages.MessageField('ExplicitDecodingConfig', 4)
+  features = _messages.MessageField('RecognitionFeatures', 5)
+  languageCodes = _messages.StringField(6, repeated=True)
+  model = _messages.StringField(7)
+  transcriptNormalization = _messages.MessageField('TranscriptNormalization', 8)
+  translationConfig = _messages.MessageField('TranslationConfig', 9)
 
 
 class RecognitionFeatures(_messages.Message):
@@ -1312,15 +1353,9 @@ class RecognitionFeatures(_messages.Message):
     MultiChannelModeValueValuesEnum: Mode for recognizing multi-channel audio.
 
   Fields:
-    diarizationConfig: Configuration to enable speaker diarization and set
-      additional parameters to make diarization better suited for your
-      application. When this is enabled, we send all the words from the
-      beginning of the audio for the top alternative in every consecutive
-      STREAMING responses. This is done in order to improve our speaker tags
-      as our models learn to identify the speakers in the conversation over
-      time. For non-streaming requests, the diarization results will be
-      provided only in the top alternative of the FINAL
-      SpeechRecognitionResult.
+    diarizationConfig: Configuration to enable speaker diarization. To enable
+      diarization, set this field to an empty SpeakerDiarizationConfig
+      message.
     enableAutomaticPunctuation: If `true`, adds punctuation to recognition
       result hypotheses. This feature is only available in select languages.
       The default `false` value does not add punctuation to result hypotheses.
@@ -1587,15 +1622,10 @@ class SpeakerDiarizationConfig(_messages.Message):
   r"""Configuration to enable speaker diarization.
 
   Fields:
-    maxSpeakerCount: Required. Maximum number of speakers in the conversation.
-      Valid values are: 1-6. Must be >= `min_speaker_count`. This range gives
-      you more flexibility by allowing the system to automatically determine
-      the correct number of speakers.
-    minSpeakerCount: Required. Minimum number of speakers in the conversation.
-      This range gives you more flexibility by allowing the system to
-      automatically determine the correct number of speakers. To fix the
-      number of speakers detected in the audio, set `min_speaker_count` =
-      `max_speaker_count`.
+    maxSpeakerCount: Optional. The system automatically determines the number
+      of speakers. This value is not currently used.
+    minSpeakerCount: Optional. The system automatically determines the number
+      of speakers. This value is not currently used.
   """
 
   maxSpeakerCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -1758,6 +1788,9 @@ class SpeechProjectsLocationsListRequest(_messages.Message):
   r"""A SpeechProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1768,10 +1801,11 @@ class SpeechProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class SpeechProjectsLocationsOperationsGetRequest(_messages.Message):
@@ -1792,12 +1826,20 @@ class SpeechProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SpeechProjectsLocationsPhraseSetsCreateRequest(_messages.Message):

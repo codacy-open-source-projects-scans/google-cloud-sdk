@@ -179,11 +179,12 @@ class Binding(_messages.Message):
 
 class BoostConfig(_messages.Message):
   r"""A boost configuration is a set of resources that a workstation can use
-  to increase its performance. If a boost configuration is specified, when
-  starting a workstation, users can choose to use a VM provisioned under the
-  boost config by passing the boost config id in the start request. If no
-  boost config id is provided in the start request, the system will choose a
-  VM from the pool provisioned under the default config.
+  to increase its performance. If you specify a boost configuration, upon
+  startup, workstation users can choose to use a VM provisioned under the
+  boost config by passing the boost config ID in the start request. If the
+  workstation user does not provide a boost config ID in the start request,
+  the system will choose a VM from the pool provisioned under the default
+  config.
 
   Fields:
     accelerators: Optional. A list of the type and count of accelerator cards
@@ -213,7 +214,7 @@ class BoostConfig(_messages.Message):
       **Machine Type**: nested virtualization can only be enabled on boost
       configurations that specify a machine_type in the N1 or N2 machine
       series.
-    id: Required. The id to be used for the boost configuration.
+    id: Required. The ID to be used for the boost configuration.
     machineType: Optional. The type of machine that boosted VM instances will
       use-for example, `e2-standard-4`. For more information about machine
       types that Cloud Workstations supports, see the list of [available
@@ -381,6 +382,17 @@ class Expr(_messages.Message):
   title = _messages.StringField(4)
 
 
+class GatewayConfig(_messages.Message):
+  r"""Configuration options for Cluster HTTP Gateway.
+
+  Fields:
+    http2Enabled: Optional. Whether HTTP/2 is enabled for this workstation
+      cluster. Defaults to false.
+  """
+
+  http2Enabled = _messages.BooleanField(1)
+
+
 class GceConfidentialInstanceConfig(_messages.Message):
   r"""A set of Compute Engine Confidential VM instance options.
 
@@ -533,6 +545,20 @@ class GceInstance(_messages.Message):
   vmTags = _messages.MessageField('VmTagsValue', 15)
 
 
+class GceInstanceHost(_messages.Message):
+  r"""The Compute Engine instance host.
+
+  Fields:
+    id: Optional. Output only. The ID of the Compute Engine instance.
+    name: Optional. Output only. The name of the Compute Engine instance.
+    zone: Optional. Output only. The zone of the Compute Engine instance.
+  """
+
+  id = _messages.StringField(1)
+  name = _messages.StringField(2)
+  zone = _messages.StringField(3)
+
+
 class GcePersistentDisk(_messages.Message):
   r"""An EphemeralDirectory is backed by a Compute Engine persistent disk.
 
@@ -543,11 +569,19 @@ class GcePersistentDisk(_messages.Message):
     sourceImage: Optional. Name of the disk image to use as the source for the
       disk. Must be empty if source_snapshot is set. Updating source_image
       will update content in the ephemeral directory after the workstation is
-      restarted. This field is mutable.
+      restarted. Only file systems supported by Container-Optimized OS (COS)
+      are explicitly supported. For a list of supported file systems, please
+      refer to the [COS documentation](https://cloud.google.com/container-
+      optimized-os/docs/concepts/supported-filesystems). This field is
+      mutable.
     sourceSnapshot: Optional. Name of the snapshot to use as the source for
       the disk. Must be empty if source_image is set. Must be empty if
       read_only is false. Updating source_snapshot will update content in the
-      ephemeral directory after the workstation is restarted. This field is
+      ephemeral directory after the workstation is restarted. Only file
+      systems supported by Container-Optimized OS (COS) are explicitly
+      supported. For a list of supported file systems, see [the filesystems
+      available in Container-Optimized OS](https://cloud.google.com/container-
+      optimized-os/docs/concepts/supported-filesystems). This field is
       mutable.
   """
 
@@ -587,7 +621,8 @@ class GceRegionalPersistentDisk(_messages.Message):
       `500`, or `1000`. Defaults to `200`. If less than `200` GB, the
       disk_type must be `"pd-balanced"` or `"pd-ssd"`.
     sourceSnapshot: Optional. Name of the snapshot to use as the source for
-      the disk. If set, size_gb and fs_type must be empty.
+      the disk. If set, size_gb and fs_type must be empty. Must be formatted
+      as ext4 file system with no partitions.
   """
 
   class ReclaimPolicyValueValuesEnum(_messages.Enum):
@@ -703,10 +738,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListUsableWorkstationConfigsResponse(_messages.Message):
@@ -998,7 +1038,9 @@ class OperationMetadata(_messages.Message):
 
 
 class PersistentDirectory(_messages.Message):
-  r"""A directory to persist across workstation sessions.
+  r"""A directory to persist across workstation sessions. Updates to this
+  field will not update existing workstations and will only take effect on new
+  workstations.
 
   Fields:
     gcePd: A PersistentDirectory backed by a Compute Engine persistent disk.
@@ -1119,7 +1161,7 @@ class PrivateClusterConfig(_messages.Message):
     enablePrivateEndpoint: Immutable. Whether Workstations endpoint is
       private.
     serviceAttachmentUri: Output only. Service attachment URI for the
-      workstation cluster. The service attachemnt is created when private
+      workstation cluster. The service attachment is created when private
       endpoint is enabled. To access workstations in the workstation cluster,
       configure access to the managed service using [Private Service
       Connect](https://cloud.google.com/vpc/docs/configure-private-service-
@@ -1142,6 +1184,16 @@ class ReadinessCheck(_messages.Message):
 
   path = _messages.StringField(1)
   port = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+
+
+class RuntimeHost(_messages.Message):
+  r"""Runtime host for the workstation.
+
+  Fields:
+    gceInstanceHost: Specifies a Compute Engine instance as the host.
+  """
+
+  gceInstanceHost = _messages.MessageField('GceInstanceHost', 1)
 
 
 class SetIamPolicyRequest(_messages.Message):
@@ -1228,14 +1280,17 @@ class StartWorkstationRequest(_messages.Message):
   r"""Request message for StartWorkstation.
 
   Fields:
+    boostConfig: Optional. If set, the workstation starts using the boost
+      configuration with the specified ID.
     etag: Optional. If set, the request will be rejected if the latest version
       of the workstation on the server does not have this ETag.
     validateOnly: Optional. If set, validate the request and preview the
       review, but do not actually apply it.
   """
 
-  etag = _messages.StringField(1)
-  validateOnly = _messages.BooleanField(2)
+  boostConfig = _messages.StringField(1)
+  etag = _messages.StringField(2)
+  validateOnly = _messages.BooleanField(3)
 
 
 class Status(_messages.Message):
@@ -1369,6 +1424,10 @@ class Workstation(_messages.Message):
     name: Identifier. Full name of this workstation.
     reconciling: Output only. Indicates whether this workstation is currently
       being updated to match its intended state.
+    runtimeHost: Optional. Output only. Runtime host for the workstation when
+      in STATE_RUNNING.
+    sourceWorkstation: Optional. The source workstation from which this
+      workstation's persistent directories were cloned on creation.
     startTime: Output only. Time when this workstation was most recently
       successfully started, regardless of the workstation's initial state.
     state: Output only. Current state of the workstation.
@@ -1483,10 +1542,12 @@ class Workstation(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 9)
   name = _messages.StringField(10)
   reconciling = _messages.BooleanField(11)
-  startTime = _messages.StringField(12)
-  state = _messages.EnumField('StateValueValuesEnum', 13)
-  uid = _messages.StringField(14)
-  updateTime = _messages.StringField(15)
+  runtimeHost = _messages.MessageField('RuntimeHost', 12)
+  sourceWorkstation = _messages.StringField(13)
+  startTime = _messages.StringField(14)
+  state = _messages.EnumField('StateValueValuesEnum', 15)
+  uid = _messages.StringField(16)
+  updateTime = _messages.StringField(17)
 
 
 class WorkstationCluster(_messages.Message):
@@ -1500,8 +1561,9 @@ class WorkstationCluster(_messages.Message):
       [Labels](https://cloud.google.com/workstations/docs/label-resources)
       that are applied to the workstation cluster and that are also propagated
       to the underlying Compute Engine resources.
-    TagsValue: Optional. Tag keys/values directly bound to this resource. For
-      example: "123/environment": "production", "123/costCenter": "marketing"
+    TagsValue: Optional. Input only. Immutable. Tag keys/values directly bound
+      to this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
 
   Fields:
     annotations: Optional. Client-specified annotations.
@@ -1514,7 +1576,8 @@ class WorkstationCluster(_messages.Message):
     createTime: Output only. Time when this workstation cluster was created.
     degraded: Output only. Whether this workstation cluster is in degraded
       mode, in which case it may require user action to restore full
-      functionality. Details can be found in conditions.
+      functionality. The conditions field contains detailed information about
+      the status of the cluster.
     deleteTime: Output only. Time when this workstation cluster was soft-
       deleted.
     displayName: Optional. Human-readable name for this workstation cluster.
@@ -1522,6 +1585,7 @@ class WorkstationCluster(_messages.Message):
     etag: Optional. Checksum computed by the server. May be sent on update and
       delete requests to make sure that the client has an up-to-date value
       before proceeding.
+    gatewayConfig: Optional. Configuration options for Cluster HTTP Gateway.
     labels: Optional.
       [Labels](https://cloud.google.com/workstations/docs/label-resources)
       that are applied to the workstation cluster and that are also propagated
@@ -1536,8 +1600,9 @@ class WorkstationCluster(_messages.Message):
     subnetwork: Immutable. Name of the Compute Engine subnetwork in which
       instances associated with this workstation cluster will be created. Must
       be part of the subnetwork specified for this workstation cluster.
-    tags: Optional. Tag keys/values directly bound to this resource. For
-      example: "123/environment": "production", "123/costCenter": "marketing"
+    tags: Optional. Input only. Immutable. Tag keys/values directly bound to
+      this resource. For example: "123/environment": "production",
+      "123/costCenter": "marketing"
     uid: Output only. A system-assigned unique identifier for this workstation
       cluster.
     updateTime: Output only. Time when this workstation cluster was most
@@ -1597,8 +1662,9 @@ class WorkstationCluster(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class TagsValue(_messages.Message):
-    r"""Optional. Tag keys/values directly bound to this resource. For
-    example: "123/environment": "production", "123/costCenter": "marketing"
+    r"""Optional. Input only. Immutable. Tag keys/values directly bound to
+    this resource. For example: "123/environment": "production",
+    "123/costCenter": "marketing"
 
     Messages:
       AdditionalProperty: An additional property for a TagsValue object.
@@ -1629,15 +1695,16 @@ class WorkstationCluster(_messages.Message):
   displayName = _messages.StringField(7)
   domainConfig = _messages.MessageField('DomainConfig', 8)
   etag = _messages.StringField(9)
-  labels = _messages.MessageField('LabelsValue', 10)
-  name = _messages.StringField(11)
-  network = _messages.StringField(12)
-  privateClusterConfig = _messages.MessageField('PrivateClusterConfig', 13)
-  reconciling = _messages.BooleanField(14)
-  subnetwork = _messages.StringField(15)
-  tags = _messages.MessageField('TagsValue', 16)
-  uid = _messages.StringField(17)
-  updateTime = _messages.StringField(18)
+  gatewayConfig = _messages.MessageField('GatewayConfig', 10)
+  labels = _messages.MessageField('LabelsValue', 11)
+  name = _messages.StringField(12)
+  network = _messages.StringField(13)
+  privateClusterConfig = _messages.MessageField('PrivateClusterConfig', 14)
+  reconciling = _messages.BooleanField(15)
+  subnetwork = _messages.StringField(16)
+  tags = _messages.MessageField('TagsValue', 17)
+  uid = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
 
 
 class WorkstationConfig(_messages.Message):
@@ -1663,15 +1730,16 @@ class WorkstationConfig(_messages.Message):
       Allowed ports must be one of 22, 80, or within range 1024-65535. If not
       specified defaults to ports 22, 80, and ports 1024-65535.
     annotations: Optional. Client-specified annotations.
-    conditions: Output only. Status conditions describing the current resource
-      state.
+    conditions: Output only. Status conditions describing the workstation
+      configuration's current state.
     container: Optional. Container that runs upon startup for each workstation
       using this workstation configuration.
     createTime: Output only. Time when this workstation configuration was
       created.
-    degraded: Output only. Whether this resource is degraded, in which case it
-      may require user action to restore full functionality. See also the
-      conditions field.
+    degraded: Output only. Whether this workstation configuration is in
+      degraded mode, in which case it may require user action to restore full
+      functionality. The conditions field contains detailed information about
+      the status of the configuration.
     deleteTime: Output only. Time when this workstation configuration was
       soft-deleted.
     disableTcpConnections: Optional. Disables support for plain TCP
@@ -1865,6 +1933,9 @@ class WorkstationsProjectsLocationsListRequest(_messages.Message):
   r"""A WorkstationsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1875,10 +1946,11 @@ class WorkstationsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class WorkstationsProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -1922,12 +1994,20 @@ class WorkstationsProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class WorkstationsProjectsLocationsWorkstationClustersCreateRequest(_messages.Message):
@@ -1982,15 +2062,18 @@ class WorkstationsProjectsLocationsWorkstationClustersListRequest(_messages.Mess
   r"""A WorkstationsProjectsLocationsWorkstationClustersListRequest object.
 
   Fields:
+    filter: Optional. Filter the WorkstationClusters to be listed. Possible
+      filters are described in https://google.aip.dev/160.
     pageSize: Optional. Maximum number of items to return.
     pageToken: Optional. next_page_token value returned from a previous List
       request, if any.
     parent: Required. Parent resource name.
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class WorkstationsProjectsLocationsWorkstationClustersPatchRequest(_messages.Message):
@@ -2101,15 +2184,18 @@ class WorkstationsProjectsLocationsWorkstationClustersWorkstationConfigsListRequ
   Request object.
 
   Fields:
+    filter: Optional. Filter the WorkstationConfigs to be listed. Possible
+      filters are described in https://google.aip.dev/160.
     pageSize: Optional. Maximum number of items to return.
     pageToken: Optional. next_page_token value returned from a previous List
       request, if any.
     parent: Required. Parent resource name.
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class WorkstationsProjectsLocationsWorkstationClustersWorkstationConfigsListUsableRequest(_messages.Message):
@@ -2279,15 +2365,18 @@ class WorkstationsProjectsLocationsWorkstationClustersWorkstationConfigsWorkstat
   stationsListRequest object.
 
   Fields:
+    filter: Optional. Filter the Workstations to be listed. Possible filters
+      are described in https://google.aip.dev/160.
     pageSize: Optional. Maximum number of items to return.
     pageToken: Optional. next_page_token value returned from a previous List
       request, if any.
     parent: Required. Parent resource name.
   """
 
-  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(2)
-  parent = _messages.StringField(3, required=True)
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class WorkstationsProjectsLocationsWorkstationClustersWorkstationConfigsWorkstationsListUsableRequest(_messages.Message):

@@ -171,6 +171,9 @@ class AzureBlobStorageData(_messages.Message):
       azure#secret_manager) for more information. If `credentials_secret` is
       specified, do not specify azure_credentials. Format:
       `projects/{project_number}/secrets/{secret_name}`
+    federatedIdentityConfig: Optional. Federated identity config of a user
+      registered Azure application. If `federated_identity_config` is
+      specified, do not specify azure_credentials or credentials_secret.
     path: Root path to transfer objects. Must be an empty string or full path
       name that ends with a '/'. This field is treated as an object prefix. As
       such, it should generally not begin with a '/'.
@@ -180,8 +183,9 @@ class AzureBlobStorageData(_messages.Message):
   azureCredentials = _messages.MessageField('AzureCredentials', 1)
   container = _messages.StringField(2)
   credentialsSecret = _messages.StringField(3)
-  path = _messages.StringField(4)
-  storageAccount = _messages.StringField(5)
+  federatedIdentityConfig = _messages.MessageField('FederatedIdentityConfig', 4)
+  path = _messages.StringField(5)
+  storageAccount = _messages.StringField(6)
 
 
 class AzureCredentials(_messages.Message):
@@ -251,11 +255,11 @@ class Empty(_messages.Message):
 
 
 class ErrorLogEntry(_messages.Message):
-  r"""An entry describing an error that has occurred.
+  r"""LINT.IfChange An entry describing an error that has occurred.
 
   Fields:
-    errorDetails: A list of messages that carry the error details.
-    url: Required. A URL that refers to the target (a data source, a data
+    errorDetails: Optional. A list of messages that carry the error details.
+    url: Output only. A URL that refers to the target (a data source, a data
       sink, or an object) with which the error is associated.
   """
 
@@ -412,6 +416,27 @@ class EventStream(_messages.Message):
   name = _messages.StringField(3)
 
 
+class FederatedIdentityConfig(_messages.Message):
+  r"""The identity of an Azure application through which Storage Transfer
+  Service can authenticate requests using Azure workload identity federation.
+  Storage Transfer Service can issue requests to Azure Storage through
+  registered Azure applications, eliminating the need to pass credentials to
+  Storage Transfer Service directly. To configure federated identity, see
+  [Configure access to Microsoft Azure
+  Storage](https://cloud.google.com/storage-transfer/docs/source-microsoft-
+  azure#option_3_authenticate_using_federated_identity).
+
+  Fields:
+    clientId: Required. The client (application) ID of the application with
+      federated credentials.
+    tenantId: Required. The tenant (directory) ID of the application with
+      federated credentials.
+  """
+
+  clientId = _messages.StringField(1)
+  tenantId = _messages.StringField(2)
+
+
 class GcsData(_messages.Message):
   r"""In a GcsData resource, an object's name is the Cloud Storage object's
   name and its "last modification time" refers to the object's `updated`
@@ -490,8 +515,9 @@ class HttpData(_messages.Message):
 
   Fields:
     listUrl: Required. The URL that points to the file that stores the object
-      list entries. This file must allow public access. Currently, only URLs
-      with HTTP and HTTPS schemes are supported.
+      list entries. This file must allow public access. The URL is either an
+      HTTP/HTTPS address (e.g. `https://example.com/urllist.tsv`) or a Cloud
+      Storage path (e.g. `gs://my-bucket/urllist.tsv`).
   """
 
   listUrl = _messages.StringField(1)
@@ -516,10 +542,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListTransferJobsResponse(_messages.Message):
@@ -565,10 +596,13 @@ class LoggingConfig(_messages.Message):
         are logged as INFO.
       FAILED: `LoggableAction` terminated in an error state. `FAILED` actions
         are logged as ERROR.
+      SKIPPED: The `COPY` action was skipped for this file. Only supported for
+        agent-based transfers. `SKIPPED` actions are logged as INFO.
     """
     LOGGABLE_ACTION_STATE_UNSPECIFIED = 0
     SUCCEEDED = 1
     FAILED = 2
+    SKIPPED = 3
 
   class LogActionsValueListEntryValuesEnum(_messages.Enum):
     r"""LogActionsValueListEntryValuesEnum enum type.
@@ -577,7 +611,7 @@ class LoggingConfig(_messages.Message):
       LOGGABLE_ACTION_UNSPECIFIED: Default value. This value is unused.
       FIND: Listing objects in a bucket.
       DELETE: Deleting objects at the source or the destination.
-      COPY: Copying objects to Google Cloud Storage.
+      COPY: Copying objects to the destination.
     """
     LOGGABLE_ACTION_UNSPECIFIED = 0
     FIND = 1
@@ -905,8 +939,14 @@ class ObjectConditions(_messages.Message):
   modification time" refers to the time of the last change to the object's
   content or metadata - specifically, this is the `updated` property of Cloud
   Storage objects, the `LastModified` field of S3 objects, and the `Last-
-  Modified` header of Azure blobs. Transfers with a PosixFilesystem source or
-  destination don't support `ObjectConditions`.
+  Modified` header of Azure blobs. For S3 objects, the `LastModified` value is
+  the time the object begins uploading. If the object meets your "last
+  modification time" criteria, but has not finished uploading, the object is
+  not transferred. See [Transfer from Amazon S3 to Cloud
+  Storage](https://cloud.google.com/storage-transfer/docs/create-
+  transfers/agentless/s3#transfer_options) for more information. Transfers
+  with a PosixFilesystem source or destination don't support
+  `ObjectConditions`.
 
   Fields:
     excludePrefixes: If you specify `exclude_prefixes`, Storage Transfer
@@ -1239,8 +1279,8 @@ class Schedule(_messages.Message):
       scheduled. Combined with schedule_end_date, `end_time_of_day` specifies
       the end date and time for starting new transfer operations. This field
       must be greater than or equal to the timestamp corresponding to the
-      combintation of schedule_start_date and start_time_of_day, and is
-      subject to the following: * If `end_time_of_day` is not set and
+      combination of schedule_start_date and start_time_of_day, and is subject
+      to the following: * If `end_time_of_day` is not set and
       `schedule_end_date` is set, then a default value of `23:59:59` is used
       for `end_time_of_day`. * If `end_time_of_day` is set and
       `schedule_end_date` is not set, then INVALID_ARGUMENT is returned.
@@ -1612,12 +1652,20 @@ class StoragetransferTransferOperationsListRequest(_messages.Message):
       `transferOperations`.
     pageSize: The list page size. The max allowed value is 256.
     pageToken: The list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1, required=True)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class StoragetransferTransferOperationsPauseRequest(_messages.Message):
@@ -1792,6 +1840,17 @@ class TransferJob(_messages.Message):
       field. When the field is not set, the job never executes a transfer,
       unless you invoke RunTransferJob or update the job to have a non-empty
       schedule.
+    serviceAccount: Optional. The user-managed service account to which to
+      delegate service agent permissions. You can grant Cloud Storage bucket
+      permissions to this service account instead of to the Transfer Service
+      service agent. Format is
+      `projects/-/serviceAccounts/ACCOUNT_EMAIL_OR_UNIQUEID` Either the
+      service account email
+      (`SERVICE_ACCOUNT_NAME@PROJECT_ID.iam.gserviceaccount.com`) or the
+      unique ID (`123456789012345678901`) are accepted in the string. The `-`
+      wildcard character is required; replacing it with a project ID is
+      invalid. See https://cloud.google.com//storage-transfer/docs/delegate-
+      service-agent-permissions for required permissions.
     status: Status of the job. This value MUST be specified for
       `CreateTransferJobRequests`. **Note:** The effect of the new job status
       takes place during a subsequent job run. For example, if you change the
@@ -1835,8 +1894,9 @@ class TransferJob(_messages.Message):
   projectId = _messages.StringField(10)
   replicationSpec = _messages.MessageField('ReplicationSpec', 11)
   schedule = _messages.MessageField('Schedule', 12)
-  status = _messages.EnumField('StatusValueValuesEnum', 13)
-  transferSpec = _messages.MessageField('TransferSpec', 14)
+  serviceAccount = _messages.StringField(13)
+  status = _messages.EnumField('StatusValueValuesEnum', 14)
+  transferSpec = _messages.MessageField('TransferSpec', 15)
 
 
 class TransferManifest(_messages.Message):
@@ -1930,7 +1990,7 @@ class TransferOptions(_messages.Message):
       job.
     overwriteObjectsAlreadyExistingInSink: When to overwrite objects that
       already exist in the sink. The default is that only objects that are
-      different from the source are ovewritten. If true, all objects in the
+      different from the source are overwritten. If true, all objects in the
       sink whose name matches an object in the source are overwritten with the
       source object.
     overwriteWhen: When to overwrite objects that already exist in the sink.
@@ -1969,24 +2029,24 @@ class TransferSpec(_messages.Message):
   r"""Configuration for running a transfer.
 
   Fields:
-    awsS3CompatibleDataSource: An AWS S3 compatible data source.
-    awsS3DataSource: An AWS S3 data source.
-    azureBlobStorageDataSource: An Azure Blob Storage data source.
-    gcsDataSink: A Cloud Storage data sink.
-    gcsDataSource: A Cloud Storage data source.
+    awsS3CompatibleDataSource: Optional. An AWS S3 compatible data source.
+    awsS3DataSource: Optional. An AWS S3 data source.
+    azureBlobStorageDataSource: Optional. An Azure Blob Storage data source.
+    gcsDataSink: Optional. A Cloud Storage data sink.
+    gcsDataSource: Optional. A Cloud Storage data source.
     gcsIntermediateDataLocation: For transfers between file systems, specifies
       a Cloud Storage bucket to be used as an intermediate location through
       which to transfer data. See [Transfer data between file
       systems](https://cloud.google.com/storage-transfer/docs/file-to-file)
       for more information.
-    hdfsDataSource: An HDFS cluster data source.
-    httpDataSource: An HTTP URL data source.
+    hdfsDataSource: Optional. An HDFS cluster data source.
+    httpDataSource: Optional. An HTTP URL data source.
     objectConditions: Only objects that satisfy these object conditions are
       included in the set of data source and data sink objects. Object
       conditions based on objects' "last modification time" do not exclude
       objects in a data sink.
-    posixDataSink: A POSIX Filesystem data sink.
-    posixDataSource: A POSIX Filesystem data source.
+    posixDataSink: Optional. A POSIX Filesystem data sink.
+    posixDataSource: Optional. A POSIX Filesystem data source.
     sinkAgentPoolName: Specifies the agent pool name associated with the posix
       data sink. When unspecified, the default name is used.
     sourceAgentPoolName: Specifies the agent pool name associated with the

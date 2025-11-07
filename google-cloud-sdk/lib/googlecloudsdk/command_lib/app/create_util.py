@@ -30,6 +30,21 @@ Creating an App Engine application for a project is irreversible and the region
 cannot be changed. More information about regions is at
 <https://cloud.google.com/appengine/docs/locations>.
 """
+DEFAULT_MAX_INSTANCES_FORWARD_CHANGE_WARNING = """\
+Starting from March, 2025, App Engine sets the automatic scaling maximum instances
+default for standard environment deployments to 20. This change doesn't impact
+existing apps. To override the default, specify the new max_instances value in your
+app.yaml file, and deploy a new version or redeploy over an existing version.
+For more details on max_instances, see
+<https://cloud.google.com/appengine/docs/standard/reference/app-yaml.md#scaling_elements>.
+"""
+
+TRY_CLOUD_RUN_NUDGE_MSG = """\
+Cloud Run offers the most modern fully managed application hosting experience
+with lower minimum billable times and support for GPUs on demand for your AI/ML workloads.
+Deploy code written in any programming language supported by App Engine on Cloud Run.
+Learn more at https://cloud.google.com/run/docs/quickstarts#build-and-deploy-a-web-service
+"""
 
 
 class UnspecifiedRegionError(exceptions.Error):
@@ -62,6 +77,11 @@ def AddAppCreateFlags(parser):
           App Engine Default Service Account,
           https://cloud.google.com/appengine/docs/standard/python3/service-account
           outlines the limitation of that service account."""),
+  )
+  parser.add_argument(
+      '--ssl-policy',
+      choices=['TLS_VERSION_1_0', 'TLS_VERSION_1_2'],
+      help='The app-level SSL policy to create the app with.',
   )
 
 
@@ -114,10 +134,12 @@ def CreateApp(
   """
 
   ssl_policy_enum = {
-      'default': (
+      'TLS_VERSION_1_0': (
           api_client.messages.Application.SslPolicyValueValuesEnum.DEFAULT
       ),
-      'modern': api_client.messages.Application.SslPolicyValueValuesEnum.MODERN,
+      'TLS_VERSION_1_2': (
+          api_client.messages.Application.SslPolicyValueValuesEnum.MODERN
+      ),
   }.get(ssl_policy)
 
   if not suppress_warning:
@@ -138,6 +160,10 @@ def CreateApp(
           )
       )
     log.warning(APP_CREATE_WARNING)
+    # TODO: b/388712720 - Cleanup warning once backend experiments are cleaned
+    log.warning(DEFAULT_MAX_INSTANCES_FORWARD_CHANGE_WARNING)
+
+    log.status.Print('NOTE: ' + TRY_CLOUD_RUN_NUDGE_MSG)
   try:
     api_client.CreateApp(
         region, service_account=service_account, ssl_policy=ssl_policy_enum
@@ -188,15 +214,21 @@ def CreateAppInteractively(
   """
   log.status.Print('You are creating an app for project [{}].'.format(project))
   log.warning(APP_CREATE_WARNING)
+  # TODO: b/388712720 - Cleanup warning once backend experiments are cleaned
+  log.warning(DEFAULT_MAX_INSTANCES_FORWARD_CHANGE_WARNING)
 
+  log.status.Print('NOTE: ' + TRY_CLOUD_RUN_NUDGE_MSG)
   regions = regions or sorted(set(api_client.ListRegions()), key=str)
   if extra_warning:
     log.warning(extra_warning)
   idx = console_io.PromptChoice(
       regions,
-      message=('Please choose the region where you want your App Engine '
-               'application located:\n\n'),
-      cancel_option=True)
+      message=(
+          'Please choose the region where you want your App Engine '
+          'application located:\n\n'
+      ),
+      cancel_option=True,
+  )
   region = regions[idx]
   CreateApp(
       api_client,

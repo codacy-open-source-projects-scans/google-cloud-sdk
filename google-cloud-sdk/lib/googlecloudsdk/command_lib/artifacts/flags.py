@@ -60,6 +60,12 @@ def LocationAttributeConfig():
       fallthroughs=fts)
 
 
+def PackageAttributeConfig():
+  return concepts.ResourceParameterAttributeConfig(
+      name='package',
+      help_text='Package of the {resource}.')
+
+
 def GetRepoResourceSpec():
   return concepts.ResourceSpec(
       'artifactregistry.projects.locations.repositories',
@@ -103,6 +109,38 @@ def GetAttachmentResourceSpec():
       projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
       locationsId=LocationAttributeConfig(),
       repositoriesId=RepoAttributeConfig(),
+  )
+
+
+def GetPackageResourceSpec():
+  return concepts.ResourceSpec(
+      'artifactregistry.projects.locations.repositories.packages',
+      resource_name='package',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      repositoriesId=RepoAttributeConfig(),
+  )
+
+
+def GetVersionResourceSpec():
+  return concepts.ResourceSpec(
+      'artifactregistry.projects.locations.repositories.packages.versions',
+      resource_name='version',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      repositoriesId=RepoAttributeConfig(),
+      packagesId=PackageAttributeConfig(),
+  )
+
+
+def GetTagResourceSpec():
+  return concepts.ResourceSpec(
+      'artifactregistry.projects.locations.repositories.packages.tags',
+      resource_name='tag',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      repositoriesId=RepoAttributeConfig(),
+      packagesId=PackageAttributeConfig(),
   )
 
 
@@ -216,6 +254,24 @@ def GetOptionalAttachmentFlag():
       GetAttachmentResourceSpec(),
       'The Artifact Registry attachment name.',
       required=False,
+  )
+
+
+def GetRequiredVersionFlag():
+  return concept_parsers.ConceptParser.ForResource(
+      'version',
+      GetVersionResourceSpec(),
+      'The Artifact Registry version name.',
+      required=True,
+  )
+
+
+def GetRequiredTagFlag():
+  return concept_parsers.ConceptParser.ForResource(
+      'tag',
+      GetTagResourceSpec(),
+      'The Artifact Registry tag name.',
+      required=True,
   )
 
 

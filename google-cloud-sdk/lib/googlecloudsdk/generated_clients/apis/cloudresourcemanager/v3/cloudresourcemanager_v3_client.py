@@ -40,10 +40,14 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         additional_http_headers=additional_http_headers,
         response_encoding=response_encoding)
     self.effectiveTags = self.EffectiveTagsService(self)
+    self.folders_capabilities = self.FoldersCapabilitiesService(self)
     self.folders_effectiveSettings = self.FoldersEffectiveSettingsService(self)
     self.folders_settings = self.FoldersSettingsService(self)
     self.folders = self.FoldersService(self)
     self.liens = self.LiensService(self)
+    self.locations_effectiveTagBindingCollections = self.LocationsEffectiveTagBindingCollectionsService(self)
+    self.locations_tagBindingCollections = self.LocationsTagBindingCollectionsService(self)
+    self.locations = self.LocationsService(self)
     self.operations = self.OperationsService(self)
     self.organizations_effectiveSettings = self.OrganizationsEffectiveSettingsService(self)
     self.organizations_settings = self.OrganizationsSettingsService(self)
@@ -89,6 +93,70 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         request_field='',
         request_type_name='CloudresourcemanagerEffectiveTagsListRequest',
         response_type_name='ListEffectiveTagsResponse',
+        supports_download=False,
+    )
+
+  class FoldersCapabilitiesService(base_api.BaseApiService):
+    """Service class for the folders_capabilities resource."""
+
+    _NAME = 'folders_capabilities'
+
+    def __init__(self, client):
+      super(CloudresourcemanagerV3.FoldersCapabilitiesService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Get(self, request, global_params=None):
+      r"""Retrieves the Capability identified by the supplied resource name.
+
+      Args:
+        request: (CloudresourcemanagerFoldersCapabilitiesGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Capability) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3/folders/{foldersId}/capabilities/{capabilitiesId}',
+        http_method='GET',
+        method_id='cloudresourcemanager.folders.capabilities.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v3/{+name}',
+        request_field='',
+        request_type_name='CloudresourcemanagerFoldersCapabilitiesGetRequest',
+        response_type_name='Capability',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates the Capability.
+
+      Args:
+        request: (CloudresourcemanagerFoldersCapabilitiesPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3/folders/{foldersId}/capabilities/{capabilitiesId}',
+        http_method='PATCH',
+        method_id='cloudresourcemanager.folders.capabilities.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v3/{+name}',
+        request_field='capability',
+        request_type_name='CloudresourcemanagerFoldersCapabilitiesPatchRequest',
+        response_type_name='Operation',
         supports_download=False,
     )
 
@@ -140,7 +208,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
           }
 
     def Clear(self, request, global_params=None):
-      r"""Clears the setting. This method is equivalent to updating the setting with an empty value.
+      r"""Clears the setting.
 
       Args:
         request: (CloudresourcemanagerFoldersSettingsClearRequest) input message
@@ -167,7 +235,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def Get(self, request, global_params=None):
-      r"""Returns a specified setting.
+      r"""Returns a specified setting. If the setting has been cleared or never been updated, the default value of the setting will be returned.
 
       Args:
         request: (CloudresourcemanagerFoldersSettingsGetRequest) input message
@@ -194,7 +262,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def List(self, request, global_params=None):
-      r"""Lists all the settings that are available on the project / folder / organization resource in the request.
+      r"""Lists all the settings that are configured on the project / folder / organization resource in the request. Settings which has been cleared or never been updated will not be listed.
 
       Args:
         request: (CloudresourcemanagerFoldersSettingsListRequest) input message
@@ -212,7 +280,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         method_id='cloudresourcemanager.folders.settings.list',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken'],
+        query_params=[],
         relative_path='v3/{+parent}/settings',
         request_field='',
         request_type_name='CloudresourcemanagerFoldersSettingsListRequest',
@@ -667,6 +735,117 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class LocationsEffectiveTagBindingCollectionsService(base_api.BaseApiService):
+    """Service class for the locations_effectiveTagBindingCollections resource."""
+
+    _NAME = 'locations_effectiveTagBindingCollections'
+
+    def __init__(self, client):
+      super(CloudresourcemanagerV3.LocationsEffectiveTagBindingCollectionsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Get(self, request, global_params=None):
+      r"""Returns effective tag bindings on a GCP resource.
+
+      Args:
+        request: (CloudresourcemanagerLocationsEffectiveTagBindingCollectionsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (EffectiveTagBindingCollection) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3/locations/{locationsId}/effectiveTagBindingCollections/{effectiveTagBindingCollectionsId}',
+        http_method='GET',
+        method_id='cloudresourcemanager.locations.effectiveTagBindingCollections.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v3/{+name}',
+        request_field='',
+        request_type_name='CloudresourcemanagerLocationsEffectiveTagBindingCollectionsGetRequest',
+        response_type_name='EffectiveTagBindingCollection',
+        supports_download=False,
+    )
+
+  class LocationsTagBindingCollectionsService(base_api.BaseApiService):
+    """Service class for the locations_tagBindingCollections resource."""
+
+    _NAME = 'locations_tagBindingCollections'
+
+    def __init__(self, client):
+      super(CloudresourcemanagerV3.LocationsTagBindingCollectionsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Get(self, request, global_params=None):
+      r"""Returns tag bindings directly attached to a GCP resource.
+
+      Args:
+        request: (CloudresourcemanagerLocationsTagBindingCollectionsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (TagBindingCollection) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3/locations/{locationsId}/tagBindingCollections/{tagBindingCollectionsId}',
+        http_method='GET',
+        method_id='cloudresourcemanager.locations.tagBindingCollections.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v3/{+name}',
+        request_field='',
+        request_type_name='CloudresourcemanagerLocationsTagBindingCollectionsGetRequest',
+        response_type_name='TagBindingCollection',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates tag bindings directly attached to a GCP resource. Update_mask can be kept empty or "*".
+
+      Args:
+        request: (CloudresourcemanagerLocationsTagBindingCollectionsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3/locations/{locationsId}/tagBindingCollections/{tagBindingCollectionsId}',
+        http_method='PATCH',
+        method_id='cloudresourcemanager.locations.tagBindingCollections.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v3/{+name}',
+        request_field='tagBindingCollection',
+        request_type_name='CloudresourcemanagerLocationsTagBindingCollectionsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+  class LocationsService(base_api.BaseApiService):
+    """Service class for the locations resource."""
+
+    _NAME = 'locations'
+
+    def __init__(self, client):
+      super(CloudresourcemanagerV3.LocationsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
   class OperationsService(base_api.BaseApiService):
     """Service class for the operations resource."""
 
@@ -752,7 +931,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
           }
 
     def Clear(self, request, global_params=None):
-      r"""Clears the setting. This method is equivalent to updating the setting with an empty value.
+      r"""Clears the setting.
 
       Args:
         request: (CloudresourcemanagerOrganizationsSettingsClearRequest) input message
@@ -779,7 +958,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def Get(self, request, global_params=None):
-      r"""Returns a specified setting.
+      r"""Returns a specified setting. If the setting has been cleared or never been updated, the default value of the setting will be returned.
 
       Args:
         request: (CloudresourcemanagerOrganizationsSettingsGetRequest) input message
@@ -806,7 +985,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def List(self, request, global_params=None):
-      r"""Lists all the settings that are available on the project / folder / organization resource in the request.
+      r"""Lists all the settings that are configured on the project / folder / organization resource in the request. Settings which has been cleared or never been updated will not be listed.
 
       Args:
         request: (CloudresourcemanagerOrganizationsSettingsListRequest) input message
@@ -824,7 +1003,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         method_id='cloudresourcemanager.organizations.settings.list',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken'],
+        query_params=[],
         relative_path='v3/{+parent}/settings',
         request_field='',
         request_type_name='CloudresourcemanagerOrganizationsSettingsListRequest',
@@ -1051,7 +1230,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
           }
 
     def Clear(self, request, global_params=None):
-      r"""Clears the setting. This method is equivalent to updating the setting with an empty value.
+      r"""Clears the setting.
 
       Args:
         request: (CloudresourcemanagerProjectsSettingsClearRequest) input message
@@ -1078,7 +1257,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def Get(self, request, global_params=None):
-      r"""Returns a specified setting.
+      r"""Returns a specified setting. If the setting has been cleared or never been updated, the default value of the setting will be returned.
 
       Args:
         request: (CloudresourcemanagerProjectsSettingsGetRequest) input message
@@ -1105,7 +1284,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def List(self, request, global_params=None):
-      r"""Lists all the settings that are available on the project / folder / organization resource in the request.
+      r"""Lists all the settings that are configured on the project / folder / organization resource in the request. Settings which has been cleared or never been updated will not be listed.
 
       Args:
         request: (CloudresourcemanagerProjectsSettingsListRequest) input message
@@ -1123,7 +1302,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
         method_id='cloudresourcemanager.projects.settings.list',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken'],
+        query_params=[],
         relative_path='v3/{+parent}/settings',
         request_field='',
         request_type_name='CloudresourcemanagerProjectsSettingsListRequest',
@@ -1195,7 +1374,7 @@ class CloudresourcemanagerV3(base_api.BaseApiClient):
     )
 
     def Delete(self, request, global_params=None):
-      r"""Marks the project identified by the specified `name` (for example, `projects/415104041262`) for deletion. This method will only affect the project if it has a lifecycle state of ACTIVE. This method changes the Project's lifecycle state from ACTIVE to DELETE_REQUESTED. The deletion starts at an unspecified time, at which point the Project is no longer accessible. Until the deletion completes, you can check the lifecycle state checked by retrieving the project with GetProject, and the project remains visible to ListProjects. However, you cannot update the project. After the deletion completes, the project is not retrievable by the GetProject, ListProjects, and SearchProjects methods. This method behaves idempotently, such that deleting a `DELETE_REQUESTED` project will not cause an error, but also won't do anything. The caller must have `resourcemanager.projects.delete` permissions for this project.
+      r"""Marks the project identified by the specified `name` (for example, `projects/415104041262`) for deletion. This method will only affect the project if it has a lifecycle state of ACTIVE. This method changes the Project's lifecycle state from ACTIVE to DELETE_REQUESTED. The deletion starts at an unspecified time, at which point the Project is no longer accessible. Until the deletion completes, you can check the lifecycle state checked by retrieving the project with GetProject, and the project remains visible to ListProjects. However, you cannot update the project. After the deletion completes, the project is not retrievable by the GetProject, ListProjects, and SearchProjects methods. The caller must have `resourcemanager.projects.delete` permissions for this project.
 
       Args:
         request: (CloudresourcemanagerProjectsDeleteRequest) input message

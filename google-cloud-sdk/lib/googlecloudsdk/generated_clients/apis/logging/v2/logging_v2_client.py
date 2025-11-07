@@ -913,7 +913,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.billingAccounts.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}/operations',
         request_field='',
         request_type_name='LoggingBillingAccountsLocationsOperationsListRequest',
@@ -1159,7 +1159,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.billingAccounts.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v2/{+name}/locations',
         request_field='',
         request_type_name='LoggingBillingAccountsLocationsListRequest',
@@ -1178,7 +1178,7 @@ class LoggingV2(base_api.BaseApiClient):
           }
 
     def Delete(self, request, global_params=None):
-      r"""Deletes all the log entries in a log for the _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
+      r"""Deletes all the log entries in a log for the global _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
 
       Args:
         request: (LoggingBillingAccountsLogsDeleteRequest) input message
@@ -1504,7 +1504,7 @@ class LoggingV2(base_api.BaseApiClient):
     )
 
     def QueryLocal(self, request, global_params=None):
-      r"""Runs a (possibly multi-step) SQL query asynchronously in the customer project and returns handles that can be used to fetch the results of each step. View references are translated to linked dataset tables, and references to other raw BigQuery tables are permitted.
+      r"""Deprecated: Use QueryData instead.Runs a (possibly multi-step) SQL query asynchronously in the customer project and returns handles that can be used to fetch the results of each step. View references are translated to linked dataset tables, and references to other raw BigQuery tables are permitted.
 
       Args:
         request: (QueryDataLocalRequest) input message
@@ -1529,8 +1529,34 @@ class LoggingV2(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def QuerySync(self, request, global_params=None):
+      r"""Attempts to run the query synchronously and return all query results. If the query cannot be executed synchronously, returns query handle that can be used to fetch the results via ReadQueryResults. All tables must be referenced in the form of Observability Views.
+
+      Args:
+        request: (QueryDataRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (QueryResults) The response message.
+      """
+      config = self.GetMethodConfig('QuerySync')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    QuerySync.method_config = lambda: base_api.ApiMethodInfo(
+        http_method='POST',
+        method_id='logging.data.querySync',
+        ordered_params=[],
+        path_params=[],
+        query_params=[],
+        relative_path='v2/data:querySync',
+        request_field='<request>',
+        request_type_name='QueryDataRequest',
+        response_type_name='QueryResults',
+        supports_download=False,
+    )
+
     def ReadQueryResults(self, request, global_params=None):
-      r"""Retrieves the results from a single step of a previous call to QueryData or QueryDataLocal. If retrieving results from QueryDataLocal, then the same credentials must be used that were provided in the previous call.
+      r"""Retrieves the results from a single step of a previous call to QueryData, QueryDataSync or QueryDataLocal. If retrieving results from QueryDataLocal, then the same credentials must be used that were provided in the previous call.
 
       Args:
         request: (ReadQueryResultsRequest) input message
@@ -2874,7 +2900,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.folders.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}/operations',
         request_field='',
         request_type_name='LoggingFoldersLocationsOperationsListRequest',
@@ -3120,7 +3146,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.folders.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v2/{+name}/locations',
         request_field='',
         request_type_name='LoggingFoldersLocationsListRequest',
@@ -3139,7 +3165,7 @@ class LoggingV2(base_api.BaseApiClient):
           }
 
     def Delete(self, request, global_params=None):
-      r"""Deletes all the log entries in a log for the _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
+      r"""Deletes all the log entries in a log for the global _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
 
       Args:
         request: (LoggingFoldersLogsDeleteRequest) input message
@@ -4162,7 +4188,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}/operations',
         request_field='',
         request_type_name='LoggingLocationsOperationsListRequest',
@@ -4226,7 +4252,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v2/{+name}/locations',
         request_field='',
         request_type_name='LoggingLocationsListRequest',
@@ -4245,7 +4271,7 @@ class LoggingV2(base_api.BaseApiClient):
           }
 
     def Delete(self, request, global_params=None):
-      r"""Deletes all the log entries in a log for the _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
+      r"""Deletes all the log entries in a log for the global _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
 
       Args:
         request: (LoggingLogsDeleteRequest) input message
@@ -5368,7 +5394,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.organizations.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}/operations',
         request_field='',
         request_type_name='LoggingOrganizationsLocationsOperationsListRequest',
@@ -5614,7 +5640,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.organizations.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v2/{+name}/locations',
         request_field='',
         request_type_name='LoggingOrganizationsLocationsListRequest',
@@ -5633,7 +5659,7 @@ class LoggingV2(base_api.BaseApiClient):
           }
 
     def Delete(self, request, global_params=None):
-      r"""Deletes all the log entries in a log for the _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
+      r"""Deletes all the log entries in a log for the global _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
 
       Args:
         request: (LoggingOrganizationsLogsDeleteRequest) input message
@@ -6448,33 +6474,6 @@ class LoggingV2(base_api.BaseApiClient):
         supports_download=False,
     )
 
-    def ReadMetadata(self, request, global_params=None):
-      r"""Retrieves metadata about a view.
-
-      Args:
-        request: (LoggingProjectsLocationsBucketsViewsReadMetadataRequest) input message
-        global_params: (StandardQueryParameters, default: None) global arguments
-      Returns:
-        (ReadViewMetadataResponse) The response message.
-      """
-      config = self.GetMethodConfig('ReadMetadata')
-      return self._RunMethod(
-          config, request, global_params=global_params)
-
-    ReadMetadata.method_config = lambda: base_api.ApiMethodInfo(
-        flat_path='v2/projects/{projectsId}/locations/{locationsId}/buckets/{bucketsId}/views/{viewsId}:readMetadata',
-        http_method='GET',
-        method_id='logging.projects.locations.buckets.views.readMetadata',
-        ordered_params=['name'],
-        path_params=['name'],
-        query_params=[],
-        relative_path='v2/{+name}:readMetadata',
-        request_field='',
-        request_type_name='LoggingProjectsLocationsBucketsViewsReadMetadataRequest',
-        response_type_name='ReadViewMetadataResponse',
-        supports_download=False,
-    )
-
     def SetIamPolicy(self, request, global_params=None):
       r"""Sets the access control policy on the specified resource. Replaces any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED errors.
 
@@ -7037,7 +7036,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v2/{+name}/operations',
         request_field='',
         request_type_name='LoggingProjectsLocationsOperationsListRequest',
@@ -7283,7 +7282,7 @@ class LoggingV2(base_api.BaseApiClient):
         method_id='logging.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v2/{+name}/locations',
         request_field='',
         request_type_name='LoggingProjectsLocationsListRequest',
@@ -7302,7 +7301,7 @@ class LoggingV2(base_api.BaseApiClient):
           }
 
     def Delete(self, request, global_params=None):
-      r"""Deletes all the log entries in a log for the _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
+      r"""Deletes all the log entries in a log for the global _Default Log Bucket. The log reappears if it receives new entries. Log entries written shortly before the delete operation might not be deleted. Entries received after the delete operation with a timestamp before the operation will be deleted.
 
       Args:
         request: (LoggingProjectsLogsDeleteRequest) input message
@@ -7799,7 +7798,7 @@ class LoggingV2(base_api.BaseApiClient):
     )
 
     def ValidateLocal(self, request, global_params=None):
-      r"""Validates a query before passing it to QueryDataLocal and returns query metadata synchronously.
+      r"""Deprecated: Use ValidateQuery instead.Validates a query before passing it to QueryDataLocal and returns query metadata synchronously.
 
       Args:
         request: (QueryDataLocalRequest) input message

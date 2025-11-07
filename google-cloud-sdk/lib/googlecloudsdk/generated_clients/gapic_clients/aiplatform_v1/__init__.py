@@ -21,6 +21,10 @@ __version__ = package_version.__version__
 from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
 
+from .types.api_auth import ApiAuth
+from .types.auth import AuthConfig
+from .types.auth import AuthType
+from .types.auth import HttpElementLocation
 from .types.content import Blob
 from .types.content import Candidate
 from .types.content import Citation
@@ -32,14 +36,24 @@ from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
+from .types.content import ModalityTokenCount
+from .types.content import ModelArmorConfig
 from .types.content import Part
+from .types.content import PrebuiltVoiceConfig
+from .types.content import ProactivityConfig
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import SpeechConfig
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
+from .types.content import VoiceConfig
 from .types.content import HarmCategory
+from .types.content import Modality
+from .types.encryption_spec import EncryptionSpec
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
 from .types.explanation import Examples
@@ -65,8 +79,13 @@ from .types.io import BigQuerySource
 from .types.io import ContainerRegistryDestination
 from .types.io import CsvDestination
 from .types.io import CsvSource
+from .types.io import DirectUploadSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
+from .types.io import GoogleDriveSource
+from .types.io import JiraSource
+from .types.io import SharePointSources
+from .types.io import SlackSource
 from .types.io import TFRecordDestination
 from .types.openapi import Schema
 from .types.openapi import Type
@@ -82,6 +101,7 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import FetchPredictOperationRequest
 from .types.prediction_service import GenerateContentRequest
 from .types.prediction_service import GenerateContentResponse
+from .types.prediction_service import GenerateVideoResponse
 from .types.prediction_service import PredictLongRunningRequest
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
@@ -95,15 +115,23 @@ from .types.prediction_service import StreamingPredictResponse
 from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
+from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import EnterpriseWebSearch
+from .types.tool import ExecutableCode
+from .types.tool import ExternalApi
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import GoogleMaps
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
+from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.types import BoolArray
@@ -111,10 +139,28 @@ from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
 from .types.types import Tensor
+from .types.vertex_rag_data import CorpusStatus
+from .types.vertex_rag_data import FileStatus
+from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
+from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagEmbeddingModelConfig
+from .types.vertex_rag_data import RagEngineConfig
+from .types.vertex_rag_data import RagFile
+from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileParsingConfig
+from .types.vertex_rag_data import RagFileTransformationConfig
+from .types.vertex_rag_data import RagManagedDbConfig
+from .types.vertex_rag_data import RagVectorDbConfig
+from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 
 __all__ = (
     'PredictionServiceAsyncClient',
+'ApiAuth',
 'Attribution',
+'AuthConfig',
+'AuthType',
 'AvroSource',
 'BigQueryDestination',
 'BigQuerySource',
@@ -125,8 +171,10 @@ __all__ = (
 'ChatCompletionsRequest',
 'Citation',
 'CitationMetadata',
+'CodeExecutionResult',
 'ContainerRegistryDestination',
 'Content',
+'CorpusStatus',
 'CountTokensRequest',
 'CountTokensResponse',
 'CsvDestination',
@@ -135,11 +183,15 @@ __all__ = (
 'DirectPredictResponse',
 'DirectRawPredictRequest',
 'DirectRawPredictResponse',
+'DirectUploadSource',
 'DoubleArray',
 'DynamicRetrievalConfig',
+'EncryptionSpec',
+'EnterpriseWebSearch',
 'Examples',
 'ExamplesOverride',
 'ExamplesRestrictionsNamespace',
+'ExecutableCode',
 'ExplainRequest',
 'ExplainResponse',
 'Explanation',
@@ -148,9 +200,11 @@ __all__ = (
 'ExplanationParameters',
 'ExplanationSpec',
 'ExplanationSpecOverride',
+'ExternalApi',
 'FeatureNoiseSigma',
 'FetchPredictOperationRequest',
 'FileData',
+'FileStatus',
 'FunctionCall',
 'FunctionCallingConfig',
 'FunctionDeclaration',
@@ -159,25 +213,48 @@ __all__ = (
 'GcsSource',
 'GenerateContentRequest',
 'GenerateContentResponse',
+'GenerateVideoResponse',
 'GenerationConfig',
+'GoogleDriveSource',
+'GoogleMaps',
 'GoogleSearchRetrieval',
 'GroundingChunk',
 'GroundingMetadata',
 'GroundingSupport',
 'HarmCategory',
+'HttpElementLocation',
+'ImportRagFilesConfig',
 'Int64Array',
 'IntegratedGradientsAttribution',
+'JiraSource',
 'LogprobsResult',
+'Modality',
+'ModalityTokenCount',
+'ModelArmorConfig',
 'ModelExplanation',
 'Neighbor',
 'Part',
+'PrebuiltVoiceConfig',
 'PredictLongRunningRequest',
 'PredictRequest',
 'PredictResponse',
 'PredictionServiceClient',
 'Presets',
+'ProactivityConfig',
+'RagChunk',
+'RagCorpus',
+'RagEmbeddingModelConfig',
+'RagEngineConfig',
+'RagFile',
+'RagFileChunkingConfig',
+'RagFileParsingConfig',
+'RagFileTransformationConfig',
+'RagManagedDbConfig',
+'RagRetrievalConfig',
+'RagVectorDbConfig',
 'RawPredictRequest',
 'Retrieval',
+'RetrievalConfig',
 'RetrievalMetadata',
 'SafetyRating',
 'SafetySetting',
@@ -185,7 +262,10 @@ __all__ = (
 'Schema',
 'SearchEntryPoint',
 'Segment',
+'SharePointSources',
+'SlackSource',
 'SmoothGradConfig',
+'SpeechConfig',
 'StreamDirectPredictRequest',
 'StreamDirectPredictResponse',
 'StreamDirectRawPredictRequest',
@@ -201,8 +281,14 @@ __all__ = (
 'Tool',
 'ToolConfig',
 'Type',
+'UploadRagFileConfig',
+'UrlContext',
+'UrlContextMetadata',
+'UrlMetadata',
 'VertexAISearch',
+'VertexAiSearchConfig',
 'VertexRagStore',
 'VideoMetadata',
+'VoiceConfig',
 'XraiAttribution',
 )

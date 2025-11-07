@@ -121,16 +121,37 @@ class ResourcePromptFallthrough(PromptFallthrough):
     return ''
 
 
+class RegionPromptFallthrough(PromptFallthrough):
+  """Fall through to reading the region from an interactive prompt."""
+
+  def __init__(self):
+    super(RegionPromptFallthrough, self).__init__(
+        'specify the region from an interactive prompt'
+    )
+
+  def _Prompt(self, parsed_args):
+    client = global_methods.GetServerlessClientInstance()
+    all_regions = global_methods.ListRegions(client)
+    idx = console_io.PromptChoice(
+        all_regions,
+        message='Please specify a region:\n',
+        cancel_option=True,
+        allow_freeform=True,
+    )
+    region = all_regions[idx]
+    log.status.Print(
+        'To make this the default region, run '
+        '`gcloud config set run/region {}`.\n'.format(region)
+    )
+    if region:
+      parsed_args.region = region
+    return region
+
+
 class ServicePromptFallthrough(ResourcePromptFallthrough):
 
   def __init__(self):
     super(ServicePromptFallthrough, self).__init__('service')
-
-
-class WorkerPromptFallthrough(ResourcePromptFallthrough):
-
-  def __init__(self):
-    super(WorkerPromptFallthrough, self).__init__('worker')
 
 
 class WorkerPoolPromptFallthrough(ResourcePromptFallthrough):
@@ -228,19 +249,6 @@ def ServiceAttributeConfig(prompt=False):
   )
 
 
-def WorkerAttributeConfig(prompt=False):
-  """Attribute config with fallthrough prompt only if requested."""
-  if prompt:
-    fallthroughs = [WorkerPromptFallthrough()]
-  else:
-    fallthroughs = []
-  return concepts.ResourceParameterAttributeConfig(
-      name='worker',
-      help_text='Worker for the {resource}.',
-      fallthroughs=fallthroughs,
-  )
-
-
 def WorkerPoolAttributeConfig(prompt=False):
   """Attribute config with fallthrough prompt only if requested."""
   if prompt:
@@ -248,7 +256,7 @@ def WorkerPoolAttributeConfig(prompt=False):
   else:
     fallthroughs = []
   return concepts.ResourceParameterAttributeConfig(
-      name='workerpool',
+      name='worker-pool',
       help_text='WorkerPool for the {resource}.',
       fallthroughs=fallthroughs,
   )
@@ -341,6 +349,7 @@ def LocationAttributeConfig():
       fallthroughs=[
           deps.ArgFallthrough('--region'),
           deps.PropertyFallthrough(properties.VALUES.run.region),
+          RegionPromptFallthrough(),
       ],
   )
 
@@ -548,10 +557,13 @@ def GetRouteResourceSpec():
   )
 
 
-def GetRevisionResourceSpec():
+# For Worker Pool revisions, we don't use the namespace attribute.
+def GetRevisionResourceSpec(is_worker_pool_revision=False):
   return concepts.ResourceSpec(
       'run.namespaces.revisions',
-      namespacesId=NamespaceAttributeConfig(),
+      namespacesId=NamespaceAttributeConfig()
+      if not is_worker_pool_revision
+      else concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
       revisionsId=RevisionAttributeConfig(),
       resource_name='revision',
   )
@@ -596,25 +608,35 @@ def GetTaskResourceSpec(prompt=False):
   )
 
 
-# TODO(b/322180968): Once Worker API is ready, replace Service related
-# references.
-def GetWorkerResourceSpec(prompt=False):
+def GetV1WorkerPoolResourceSpec(prompt=False):
   return concepts.ResourceSpec(
-      'run.namespaces.services',
+      'run.namespaces.workerpools',
       namespacesId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
-      servicesId=WorkerAttributeConfig(prompt),
-      resource_name='worker',
+      workerpoolsId=WorkerPoolAttributeConfig(prompt),
+      resource_name='WorkerPool',
       api_version='v1',
   )
 
 
-def GetWorkerPoolResourceSpec(prompt=False):
+def GetV2WorkerPoolResourceSpec(prompt=False):
   return concepts.ResourceSpec(
       'run.projects.locations.workerPools',
       projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
       locationsId=LocationAttributeConfig(),
       workerPoolsId=WorkerPoolAttributeConfig(prompt),
       resource_name='WorkerPool',
+      api_version='v2',
+  )
+
+
+def GetV2WorkerPoolRevisionResourceSpec(prompt=False):
+  return concepts.ResourceSpec(
+      'run.projects.locations.workerPools.revisions',
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      locationsId=LocationAttributeConfig(),
+      workerPoolsId=WorkerPoolAttributeConfig(prompt),
+      revisionsId=RevisionAttributeConfig(),
+      resource_name='WorkerPoolRevision',
       api_version='v2',
   )
 
@@ -660,6 +682,15 @@ CLUSTER_PRESENTATION = presentation_specs.ResourcePresentationSpec(
     '--cluster',
     GetClusterResourceSpec(),
     'Kubernetes Engine cluster to connect to.',
+    hidden=True,
+    required=False,
+    prefixes=True,
+)
+
+REGION_PRESENTATION = presentation_specs.ResourcePresentationSpec(
+    '--region',
+    GetRegionResourceSpec(),
+    'Cloud region to use.',
     hidden=True,
     required=False,
     prefixes=True,

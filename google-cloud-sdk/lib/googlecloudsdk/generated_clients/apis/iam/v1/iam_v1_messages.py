@@ -106,72 +106,6 @@ class AttestationRule(_messages.Message):
   googleCloudResource = _messages.StringField(1)
 
 
-class AttributeTranslatorCEL(_messages.Message):
-  r"""Specifies a list of output attribute names and the corresponding input
-  attribute to use for that output attribute. Each defined output attribute is
-  populated with the value of the specified input attribute.
-
-  Messages:
-    AttributesValue: Each entry specifies the desired output attribute and a
-      CEL field selector expression for the corresponding input to read. This
-      field supports a subset of the CEL functionality to select fields from
-      the input (no boolean expressions, functions or arithmetics). Output
-      attributes must match `(google.sub|a-z_*)`. The output attribute
-      google.sub is interpreted to be the "identity" of the requesting user.
-      For example, to copy the inbound attribute "sub" into the output
-      `google.sub` add an entry `google.sub` -> `inclaim.sub` or `google.sub`
-      -> `inclaim[\"sub\"]`. See https://github.com/google/cel-spec for more
-      details. If the input does not exist the output attribute will be null.
-
-  Fields:
-    attributes: Each entry specifies the desired output attribute and a CEL
-      field selector expression for the corresponding input to read. This
-      field supports a subset of the CEL functionality to select fields from
-      the input (no boolean expressions, functions or arithmetics). Output
-      attributes must match `(google.sub|a-z_*)`. The output attribute
-      google.sub is interpreted to be the "identity" of the requesting user.
-      For example, to copy the inbound attribute "sub" into the output
-      `google.sub` add an entry `google.sub` -> `inclaim.sub` or `google.sub`
-      -> `inclaim[\"sub\"]`. See https://github.com/google/cel-spec for more
-      details. If the input does not exist the output attribute will be null.
-  """
-
-  @encoding.MapUnrecognizedFields('additionalProperties')
-  class AttributesValue(_messages.Message):
-    r"""Each entry specifies the desired output attribute and a CEL field
-    selector expression for the corresponding input to read. This field
-    supports a subset of the CEL functionality to select fields from the input
-    (no boolean expressions, functions or arithmetics). Output attributes must
-    match `(google.sub|a-z_*)`. The output attribute google.sub is interpreted
-    to be the "identity" of the requesting user. For example, to copy the
-    inbound attribute "sub" into the output `google.sub` add an entry
-    `google.sub` -> `inclaim.sub` or `google.sub` -> `inclaim[\"sub\"]`. See
-    https://github.com/google/cel-spec for more details. If the input does not
-    exist the output attribute will be null.
-
-    Messages:
-      AdditionalProperty: An additional property for a AttributesValue object.
-
-    Fields:
-      additionalProperties: Additional properties of type AttributesValue
-    """
-
-    class AdditionalProperty(_messages.Message):
-      r"""An additional property for a AttributesValue object.
-
-      Fields:
-        key: Name of the additional property.
-        value: A string attribute.
-      """
-
-      key = _messages.StringField(1)
-      value = _messages.StringField(2)
-
-    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
-
-  attributes = _messages.MessageField('AttributesValue', 1)
-
-
 class AuditConfig(_messages.Message):
   r"""Specifies the audit configuration for a service. The configuration
   determines which permission types are logged, and what identities, if any,
@@ -402,25 +336,6 @@ class CreateRoleRequest(_messages.Message):
 
   role = _messages.MessageField('Role', 1)
   roleId = _messages.StringField(2)
-
-
-class CreateServiceAccountIdentityBindingRequest(_messages.Message):
-  r"""The service account identity binding create request.
-
-  Fields:
-    acceptanceFilter: A CEL expression that is evaluated to determine whether
-      a credential should be accepted. To accept any credential, specify
-      "true". See: https://github.com/google/cel-spec . The input claims are
-      available using "inclaim[\"attribute_name\"]". The output attributes
-      calculated by the translator are available using
-      "outclaim[\"attribute_name\"]"
-    cel: A set of output attributes and corresponding input attribute names.
-    oidc: An OIDC reference with Discovery.
-  """
-
-  acceptanceFilter = _messages.StringField(1)
-  cel = _messages.MessageField('AttributeTranslatorCEL', 2)
-  oidc = _messages.MessageField('IDPReferenceOIDC', 3)
 
 
 class CreateServiceAccountKeyRequest(_messages.Message):
@@ -693,27 +608,40 @@ class GoogleIamAdminV1WorkforcePoolProviderExtraAttributesOAuth2Client(_messages
     Values:
       ATTRIBUTES_TYPE_UNSPECIFIED: No AttributesType specified.
       AZURE_AD_GROUPS_MAIL: Used to get the user's group claims from the
-        Microsoft Entra ID identity provider using configuration provided in
-        ExtraAttributesOAuth2Client and `mail` property of the
+        Microsoft Entra ID identity provider using the configuration provided
+        in ExtraAttributesOAuth2Client. The `mail` property of the
         `microsoft.graph.group` object is used for claim mapping. See
         https://learn.microsoft.com/en-
         us/graph/api/resources/group?view=graph-rest-1.0#properties for more
-        details on `microsoft.graph.group` properties. The attributes obtained
-        from idntity provider are mapped to `assertion.groups`.
+        details on `microsoft.graph.group` properties. The group mail
+        addresses of the user's groups that are returned from Microsoft Entra
+        ID can be mapped by using the following attributes: * OIDC:
+        `assertion.groups` * SAML: `assertion.attributes.groups`
       AZURE_AD_GROUPS_ID: Used to get the user's group claims from the
-        Microsoft Entra ID identity provider using configuration provided in
-        ExtraAttributesOAuth2Client and `id` property of the
+        Microsoft Entra ID identity provider using the configuration provided
+        in ExtraAttributesOAuth2Client. The `id` property of the
         `microsoft.graph.group` object is used for claim mapping. See
         https://learn.microsoft.com/en-
         us/graph/api/resources/group?view=graph-rest-1.0#properties for more
-        details on `microsoft.graph.group` properties. The group IDs obtained
-        from Microsoft Entra ID are present in `assertion. groups` for OIDC
-        providers and `assertion.attributes.groups` for SAML providers for
-        attribute mapping.
+        details on `microsoft.graph.group` properties. The group IDs of the
+        user's groups that are returned from Microsoft Entra ID can be mapped
+        by using the following attributes: * OIDC: `assertion.groups` * SAML:
+        `assertion.attributes.groups`
+      AZURE_AD_GROUPS_DISPLAY_NAME: Used to get the user's group claims from
+        the Microsoft Entra ID identity provider using the configuration
+        provided in ExtraAttributesOAuth2Client. The `displayName` property of
+        the `microsoft.graph.group` object is used for claim mapping. See
+        https://learn.microsoft.com/en-
+        us/graph/api/resources/group?view=graph-rest-1.0#properties for more
+        details on `microsoft.graph.group` properties. The display names of
+        the user's groups that are returned from Microsoft Entra ID can be
+        mapped by using the following attributes: * OIDC: `assertion.groups` *
+        SAML: `assertion.attributes.groups`
     """
     ATTRIBUTES_TYPE_UNSPECIFIED = 0
     AZURE_AD_GROUPS_MAIL = 1
     AZURE_AD_GROUPS_ID = 2
+    AZURE_AD_GROUPS_DISPLAY_NAME = 3
 
   attributesType = _messages.EnumField('AttributesTypeValueValuesEnum', 1)
   clientId = _messages.StringField(2)
@@ -727,13 +655,22 @@ class GoogleIamAdminV1WorkforcePoolProviderExtraAttributesOAuth2ClientQueryParam
   IdP.
 
   Fields:
-    filter: Optional. The filter used to request specific records from IdP. In
-      case of attributes type as AZURE_AD_GROUPS_MAIL, it represents the
-      filter used to request specific groups for users from IdP. By default,
-      all of the groups associated with the user are fetched. The groups
-      should be mail enabled and security enabled. See
-      https://learn.microsoft.com/en-us/graph/search-query-parameter for more
-      details.
+    filter: Optional. The filter used to request specific records from the
+      IdP. By default, all of the groups that are associated with a user are
+      fetched. For Microsoft Entra ID, you can add `$search` query parameters
+      using [Keyword Query Language] (https://learn.microsoft.com/en-
+      us/sharepoint/dev/general-development/keyword-query-language-kql-syntax-
+      reference). To learn more about `$search` querying in Microsoft Entra
+      ID, see [Use the `$search` query parameter]
+      (https://learn.microsoft.com/en-us/graph/search-query-parameter).
+      Additionally, Workforce Identity Federation automatically adds the
+      following [`$filter` query parameters] (https://learn.microsoft.com/en-
+      us/graph/filter-query-parameter), based on the value of
+      `attributes_type`. Values passed to `filter` are converted to `$search`
+      query parameters. Additional `$filter` query parameters cannot be added
+      using this field. * `AZURE_AD_GROUPS_MAIL`: `mailEnabled` and
+      `securityEnabled` filters are applied. * `AZURE_AD_GROUPS_ID`:
+      `securityEnabled` filter is applied.
   """
 
   filter = _messages.StringField(1)
@@ -870,7 +807,7 @@ class GoogleIamAdminV1WorkforcePoolProviderSaml(_messages.Message):
       the following constraints: 1) Must contain an Identity Provider Entity
       ID. 2) Must contain at least one non-expired signing key certificate. 3)
       For each signing key: a) Valid from should be no more than 7 days from
-      now. b) Valid to should be no more than 20 years in the future. 4) Up to
+      now. b) Valid to should be no more than 25 years in the future. 4) Up to
       3 IdP signing keys are allowed in the metadata xml. When updating the
       provider's metadata xml, at least one non-expired signing key must
       overlap with the existing metadata. This requirement is skipped if there
@@ -878,40 +815,6 @@ class GoogleIamAdminV1WorkforcePoolProviderSaml(_messages.Message):
   """
 
   idpMetadataXml = _messages.StringField(1)
-
-
-class IDPReferenceOIDC(_messages.Message):
-  r"""Represents a reference to an OIDC provider.
-
-  Fields:
-    audience: Optional. The acceptable audience. Default is the unique_id of
-      the Service Account.
-    maxTokenLifetimeSeconds: This optional field allows enforcing a maximum
-      lifetime for tokens. Using a lifetime that is as short as possible
-      improves security since it prevents use of exfiltrated tokens after a
-      certain amount of time. All tokens must specify both exp and iat or they
-      will be rejected. If "nbf" is present we will reject tokens that are not
-      yet valid. Expiration and lifetime will be enforced in the following
-      way: - "exp" > "current time" is always required (expired tokens are
-      rejected) - "iat" < "current time" + 300 seconds is required (tokens
-      from the future . are rejected although a small amount of clock skew is
-      tolerated). - If max_token_lifetime_seconds is set: "exp" - "iat" <
-      max_token_lifetime_seconds will be checked - The default is otherwise to
-      accept a max_token_lifetime_seconds of 3600 (1 hour)
-    oidcJwks: Optional. OIDC verification keys in JWKS format (RFC 7517). It
-      contains a list of OIDC verification keys that can be used to verify
-      OIDC JWTs. When OIDC verification key is provided, it will be directly
-      used to verify the OIDC JWT asserted by the IDP.
-    url: The OpenID Connect URL. To use this Identity Binding, JWT 'iss' field
-      should match this field. When URL is set, public keys will be fetched
-      from the provided URL for credentials verification unless `oidc_jwks`
-      field is set.
-  """
-
-  audience = _messages.StringField(1)
-  maxTokenLifetimeSeconds = _messages.IntegerField(2)
-  oidcJwks = _messages.BytesField(3)
-  url = _messages.StringField(4)
 
 
 class IamLocationsWorkforcePoolsCreateRequest(_messages.Message):
@@ -1045,7 +948,7 @@ class IamLocationsWorkforcePoolsInstalledAppsPatchRequest(_messages.Message):
   r"""A IamLocationsWorkforcePoolsInstalledAppsPatchRequest object.
 
   Fields:
-    name: Immutable. The resource name of the workforce pool installed app.
+    name: Identifier. The resource name of the workforce pool installed app.
       Format: `locations/{location}/workforcePools/{workforce_pool}/installedA
       pps/{installed_app}`
     updateMask: Required. The list of fields to update.
@@ -1079,9 +982,8 @@ class IamLocationsWorkforcePoolsListRequest(_messages.Message):
 
   Fields:
     location: The location of the pool. Format: `locations/{location}`.
-    pageSize: The maximum number of pools to return. If unspecified, at most
-      50 pools will be returned. The maximum value is 1000; values above 1000
-      are truncated to 1000.
+    pageSize: The maximum number of pools to return. The default value is 50.
+      The maximum value is 100.
     pageToken: A page token, received from a previous `ListWorkforcePools`
       call. Provide this to retrieve the subsequent page.
     parent: Required. The parent resource to list pools for. Format:
@@ -1110,7 +1012,7 @@ class IamLocationsWorkforcePoolsPatchRequest(_messages.Message):
   r"""A IamLocationsWorkforcePoolsPatchRequest object.
 
   Fields:
-    name: Output only. The resource name of the pool. Format:
+    name: Identifier. The resource name of the pool. Format:
       `locations/{location}/workforcePools/{workforce_pool_id}`
     updateMask: Required. The list of fields to update.
     workforcePool: A WorkforcePool resource to be passed as the request body.
@@ -1280,8 +1182,8 @@ class IamLocationsWorkforcePoolsProvidersPatchRequest(_messages.Message):
   r"""A IamLocationsWorkforcePoolsProvidersPatchRequest object.
 
   Fields:
-    name: Output only. The resource name of the provider. Format: `locations/{
-      location}/workforcePools/{workforce_pool_id}/providers/{provider_id}`
+    name: Identifier. The resource name of the provider. Format: `locations/{l
+      ocation}/workforcePools/{workforce_pool_id}/providers/{provider_id}`
     updateMask: Required. The list of fields to update.
     workforcePoolProvider: A WorkforcePoolProvider resource to be passed as
       the request body.
@@ -1290,6 +1192,212 @@ class IamLocationsWorkforcePoolsProvidersPatchRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
   updateMask = _messages.StringField(2)
   workforcePoolProvider = _messages.MessageField('WorkforcePoolProvider', 3)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsCreateRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsCreateRequest object.
+
+  Fields:
+    parent: Required. Agentspace only. The parent to create SCIM tenant.
+      Format: 'locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}'
+    workforcePoolProviderScimTenant: A WorkforcePoolProviderScimTenant
+      resource to be passed as the request body.
+    workforcePoolProviderScimTenantId: Required. Agentspace only. The ID to
+      use for the SCIM tenant, which becomes the final component of the
+      resource name. This value should be 4-32 characters, containing the
+      characters [a-z0-9-].
+  """
+
+  parent = _messages.StringField(1, required=True)
+  workforcePoolProviderScimTenant = _messages.MessageField('WorkforcePoolProviderScimTenant', 2)
+  workforcePoolProviderScimTenantId = _messages.StringField(3)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsDeleteRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsDeleteRequest object.
+
+  Fields:
+    hardDelete: Optional. Deletes the SCIM tenant immediately. This operation
+      cannot be undone.
+    name: Required. Agentspace only. The name of the scim tenant to delete.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}`
+  """
+
+  hardDelete = _messages.BooleanField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsGetRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsGetRequest object.
+
+  Fields:
+    name: Required. Agentspace only. The name of the SCIM tenant to retrieve.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsListRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsListRequest object.
+
+  Fields:
+    pageSize: Optional. Agentspace only. The maximum number of SCIM tenants to
+      return. If unspecified, at most 1 scim tenant will be returned.
+    pageToken: Optional. Agentspace only. A page token, received from a
+      previous `ListScimTenants` call. Provide this to retrieve the subsequent
+      page.
+    parent: Required. Agentspace only. The parent to list SCIM tenants.
+      Format: 'locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}'
+    showDeleted: Optional. Agentspace only. Whether to return soft-deleted
+      SCIM tenants.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  showDeleted = _messages.BooleanField(4)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsPatchRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsPatchRequest object.
+
+  Fields:
+    name: Identifier. Agentspace only. The resource name of the SCIM Tenant.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {workforce_pool_provider}/scimTenants/{scim_tenant}`
+    updateMask: Optional. Agentspace only. The list of fields to update.
+    workforcePoolProviderScimTenant: A WorkforcePoolProviderScimTenant
+      resource to be passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  updateMask = _messages.StringField(2)
+  workforcePoolProviderScimTenant = _messages.MessageField('WorkforcePoolProviderScimTenant', 3)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensCreateRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensCreateRequest
+  object.
+
+  Fields:
+    parent: Required. Agentspace only. The parent tenant to create SCIM token.
+      Format: 'locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}'
+    workforcePoolProviderScimToken: A WorkforcePoolProviderScimToken resource
+      to be passed as the request body.
+    workforcePoolProviderScimTokenId: Required. Agentspace only. The ID to use
+      for the SCIM token, which becomes the final component of the resource
+      name. This value should be 4-32 characters and follow the pattern:
+      "([a-z]([a-z0-9\\-]{2,30}[a-z0-9]))"
+  """
+
+  parent = _messages.StringField(1, required=True)
+  workforcePoolProviderScimToken = _messages.MessageField('WorkforcePoolProviderScimToken', 2)
+  workforcePoolProviderScimTokenId = _messages.StringField(3)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensDeleteRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensDeleteRequest
+  object.
+
+  Fields:
+    name: Required. Agentspace only. The name of the SCIM token to delete.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}/tokens/{token}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensGetRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensGetRequest object.
+
+  Fields:
+    name: Required. Agentspace only. The name of the SCIM token to retrieve.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}/tokens/{token}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensListRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensListRequest
+  object.
+
+  Fields:
+    pageSize: Optional. Agentspace only. The maximum number of scim tokens to
+      return. If unspecified, at most 2 SCIM tokens will be returned.
+    pageToken: Optional. Agentspace only. A page token, received from a
+      previous `ListWorkforcePoolProviderScimTokens` call. Provide this to
+      retrieve the subsequent page.
+    parent: Required. Agentspace only. The parent to list SCIM tokens. Format:
+      'locations/{location}/workforcePools/{workforce_pool}/providers/{provide
+      r}/scimTenants/{scim_tenant}'
+    showDeleted: Optional. Agentspace only. Whether to return soft-deleted
+      scim tokens.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  showDeleted = _messages.BooleanField(4)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensPatchRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensPatchRequest
+  object.
+
+  Fields:
+    name: Identifier. Agentspace only. The resource name of the SCIM Token.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {workforce_pool_provider}/scimTenants/{scim_tenant}/tokens/{token}`
+    updateMask: Optional. Agentspace only. The list of fields to update.
+    workforcePoolProviderScimToken: A WorkforcePoolProviderScimToken resource
+      to be passed as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  updateMask = _messages.StringField(2)
+  workforcePoolProviderScimToken = _messages.MessageField('WorkforcePoolProviderScimToken', 3)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsTokensUndeleteRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsTokensUndeleteRequest
+  object.
+
+  Fields:
+    name: Required. Agentspace only. The name of the SCIM token to undelete.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}/tokens/{token}`
+    undeleteWorkforcePoolProviderScimTokenRequest: A
+      UndeleteWorkforcePoolProviderScimTokenRequest resource to be passed as
+      the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  undeleteWorkforcePoolProviderScimTokenRequest = _messages.MessageField('UndeleteWorkforcePoolProviderScimTokenRequest', 2)
+
+
+class IamLocationsWorkforcePoolsProvidersScimTenantsUndeleteRequest(_messages.Message):
+  r"""A IamLocationsWorkforcePoolsProvidersScimTenantsUndeleteRequest object.
+
+  Fields:
+    name: Required. Agentspace only. The name of the SCIM tenant to undelete.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {provider}/scimTenants/{scim_tenant}`
+    undeleteWorkforcePoolProviderScimTenantRequest: A
+      UndeleteWorkforcePoolProviderScimTenantRequest resource to be passed as
+      the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  undeleteWorkforcePoolProviderScimTenantRequest = _messages.MessageField('UndeleteWorkforcePoolProviderScimTenantRequest', 2)
 
 
 class IamLocationsWorkforcePoolsProvidersUndeleteRequest(_messages.Message):
@@ -1699,9 +1807,9 @@ class IamProjectsLocationsOauthClientsCredentialsPatchRequest(_messages.Message)
   r"""A IamProjectsLocationsOauthClientsCredentialsPatchRequest object.
 
   Fields:
-    name: Immutable. The resource name of the OauthClientCredential. Format: `
-      projects/{project}/locations/{location}/oauthClients/{oauth_client}/cred
-      entials/{credential}`
+    name: Immutable. Identifier. The resource name of the
+      OauthClientCredential. Format: `projects/{project}/locations/{location}/
+      oauthClients/{oauth_client}/credentials/{credential}`
     oauthClientCredential: A OauthClientCredential resource to be passed as
       the request body.
     updateMask: Required. The list of fields to update.
@@ -1760,8 +1868,8 @@ class IamProjectsLocationsOauthClientsPatchRequest(_messages.Message):
   r"""A IamProjectsLocationsOauthClientsPatchRequest object.
 
   Fields:
-    name: Immutable. The resource name of the OauthClient. Format:`projects/{p
-      roject}/locations/{location}/oauthClients/{oauth_client}`.
+    name: Immutable. Identifier. The resource name of the OauthClient. Format:
+      `projects/{project}/locations/{location}/oauthClients/{oauth_client}`.
     oauthClient: A OauthClient resource to be passed as the request body.
     updateMask: Required. The list of fields to update.
   """
@@ -1783,6 +1891,21 @@ class IamProjectsLocationsOauthClientsUndeleteRequest(_messages.Message):
 
   name = _messages.StringField(1, required=True)
   undeleteOauthClientRequest = _messages.MessageField('UndeleteOauthClientRequest', 2)
+
+
+class IamProjectsLocationsWorkloadIdentityPoolsAddAttestationRuleRequest(_messages.Message):
+  r"""A IamProjectsLocationsWorkloadIdentityPoolsAddAttestationRuleRequest
+  object.
+
+  Fields:
+    addAttestationRuleRequest: A AddAttestationRuleRequest resource to be
+      passed as the request body.
+    resource: Required. The resource name of the managed identity or namespace
+      resource to add an attestation rule to.
+  """
+
+  addAttestationRuleRequest = _messages.MessageField('AddAttestationRuleRequest', 1)
+  resource = _messages.StringField(2, required=True)
 
 
 class IamProjectsLocationsWorkloadIdentityPoolsCreateRequest(_messages.Message):
@@ -1838,6 +1961,32 @@ class IamProjectsLocationsWorkloadIdentityPoolsGetRequest(_messages.Message):
   """
 
   name = _messages.StringField(1, required=True)
+
+
+class IamProjectsLocationsWorkloadIdentityPoolsListAttestationRulesRequest(_messages.Message):
+  r"""A IamProjectsLocationsWorkloadIdentityPoolsListAttestationRulesRequest
+  object.
+
+  Fields:
+    filter: Optional. A query filter. Supports the following function: *
+      `container_ids()`: Returns only the AttestationRules under the specific
+      container ids. The function expects a comma-delimited list with only
+      project numbers and must use the format `projects/`. For example:
+      `container_ids(projects/, projects/,...)`.
+    pageSize: Optional. The maximum number of AttestationRules to return. If
+      unspecified, at most 50 AttestationRules are returned. The maximum value
+      is 100; values above 100 are truncated to 100.
+    pageToken: Optional. A page token, received from a previous
+      `ListWorkloadIdentityPoolProviderKeys` call. Provide this to retrieve
+      the subsequent page.
+    resource: Required. The resource name of the managed identity or namespace
+      resource to list attestation rules of.
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  resource = _messages.StringField(4, required=True)
 
 
 class IamProjectsLocationsWorkloadIdentityPoolsListRequest(_messages.Message):
@@ -2719,6 +2868,36 @@ class IamProjectsLocationsWorkloadIdentityPoolsProvidersUndeleteRequest(_message
   undeleteWorkloadIdentityPoolProviderRequest = _messages.MessageField('UndeleteWorkloadIdentityPoolProviderRequest', 2)
 
 
+class IamProjectsLocationsWorkloadIdentityPoolsRemoveAttestationRuleRequest(_messages.Message):
+  r"""A IamProjectsLocationsWorkloadIdentityPoolsRemoveAttestationRuleRequest
+  object.
+
+  Fields:
+    removeAttestationRuleRequest: A RemoveAttestationRuleRequest resource to
+      be passed as the request body.
+    resource: Required. The resource name of the managed identity or namespace
+      resource to remove an attestation rule from.
+  """
+
+  removeAttestationRuleRequest = _messages.MessageField('RemoveAttestationRuleRequest', 1)
+  resource = _messages.StringField(2, required=True)
+
+
+class IamProjectsLocationsWorkloadIdentityPoolsSetAttestationRulesRequest(_messages.Message):
+  r"""A IamProjectsLocationsWorkloadIdentityPoolsSetAttestationRulesRequest
+  object.
+
+  Fields:
+    resource: Required. The resource name of the managed identity or namespace
+      resource to add an attestation rule to.
+    setAttestationRulesRequest: A SetAttestationRulesRequest resource to be
+      passed as the request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setAttestationRulesRequest = _messages.MessageField('SetAttestationRulesRequest', 2)
+
+
 class IamProjectsLocationsWorkloadIdentityPoolsSetIamPolicyRequest(_messages.Message):
   r"""A IamProjectsLocationsWorkloadIdentityPoolsSetIamPolicyRequest object.
 
@@ -3104,94 +3283,6 @@ class IamProjectsServiceAccountsGetRequest(_messages.Message):
     name: Required. The resource name of the service account. Use one of the
       following formats: *
       `projects/{PROJECT_ID}/serviceAccounts/{EMAIL_ADDRESS}` *
-      `projects/{PROJECT_ID}/serviceAccounts/{UNIQUE_ID}` As an alternative,
-      you can use the `-` wildcard character instead of the project ID: *
-      `projects/-/serviceAccounts/{EMAIL_ADDRESS}` *
-      `projects/-/serviceAccounts/{UNIQUE_ID}` When possible, avoid using the
-      `-` wildcard character, because it can cause response messages to
-      contain misleading error codes. For example, if you try to access the
-      service account `projects/-/serviceAccounts/fake@example.com`, which
-      does not exist, the response contains an HTTP `403 Forbidden` error
-      instead of a `404 Not Found` error.
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class IamProjectsServiceAccountsIdentityBindingsCreateRequest(_messages.Message):
-  r"""A IamProjectsServiceAccountsIdentityBindingsCreateRequest object.
-
-  Fields:
-    createServiceAccountIdentityBindingRequest: A
-      CreateServiceAccountIdentityBindingRequest resource to be passed as the
-      request body.
-    name: The resource name of the service account. Use one of the following
-      formats: * `projects/{PROJECT_ID}/serviceAccounts/{EMAIL_ADDRESS}` *
-      `projects/{PROJECT_ID}/serviceAccounts/{UNIQUE_ID}` As an alternative,
-      you can use the `-` wildcard character instead of the project ID: *
-      `projects/-/serviceAccounts/{EMAIL_ADDRESS}` *
-      `projects/-/serviceAccounts/{UNIQUE_ID}` When possible, avoid using the
-      `-` wildcard character, because it can cause response messages to
-      contain misleading error codes. For example, if you try to access the
-      service account `projects/-/serviceAccounts/fake@example.com`, which
-      does not exist, the response contains an HTTP `403 Forbidden` error
-      instead of a `404 Not Found` error.
-  """
-
-  createServiceAccountIdentityBindingRequest = _messages.MessageField('CreateServiceAccountIdentityBindingRequest', 1)
-  name = _messages.StringField(2, required=True)
-
-
-class IamProjectsServiceAccountsIdentityBindingsDeleteRequest(_messages.Message):
-  r"""A IamProjectsServiceAccountsIdentityBindingsDeleteRequest object.
-
-  Fields:
-    name: The resource name of the service account identity binding. Use one
-      of the following formats: * `projects/{PROJECT_ID}/serviceAccounts/{EMAI
-      L_ADDRESS}/identityBindings/{BINDING}` * `projects/{PROJECT_ID}/serviceA
-      ccounts/{UNIQUE_ID}/identityBindings/{BINDING}` As an alternative, you
-      can use the `-` wildcard character instead of the project ID: *
-      `projects/-/serviceAccounts/{EMAIL_ADDRESS}/identityBindings/{BINDING}`
-      * `projects/-/serviceAccounts/{UNIQUE_ID}/identityBindings/{BINDING}`
-      When possible, avoid using the `-` wildcard character, because it can
-      cause response messages to contain misleading error codes. For example,
-      if you try to access the service account identity binding
-      `projects/-/serviceAccounts/fake@example.com/identityBindings/fake-
-      binding`, which does not exist, the response contains an HTTP `403
-      Forbidden` error instead of a `404 Not Found` error.
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class IamProjectsServiceAccountsIdentityBindingsGetRequest(_messages.Message):
-  r"""A IamProjectsServiceAccountsIdentityBindingsGetRequest object.
-
-  Fields:
-    name: The resource name of the service account identity binding. Use one
-      of the following formats: * `projects/{PROJECT_ID}/serviceAccounts/{EMAI
-      L_ADDRESS}/identityBindings/{BINDING}` * `projects/{PROJECT_ID}/serviceA
-      ccounts/{UNIQUE_ID}/identityBindings/{BINDING}` As an alternative, you
-      can use the `-` wildcard character instead of the project ID: *
-      `projects/-/serviceAccounts/{EMAIL_ADDRESS}/identityBindings/{BINDING}`
-      * `projects/-/serviceAccounts/{UNIQUE_ID}/identityBindings/{BINDING}`
-      When possible, avoid using the `-` wildcard character, because it can
-      cause response messages to contain misleading error codes. For example,
-      if you try to access the service account identity binding
-      `projects/-/serviceAccounts/fake@example.com/identityBindings/fake-
-      binding`, which does not exist, the response contains an HTTP `403
-      Forbidden` error instead of a `404 Not Found` error.
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class IamProjectsServiceAccountsIdentityBindingsListRequest(_messages.Message):
-  r"""A IamProjectsServiceAccountsIdentityBindingsListRequest object.
-
-  Fields:
-    name: The resource name of the service account. Use one of the following
-      formats: * `projects/{PROJECT_ID}/serviceAccounts/{EMAIL_ADDRESS}` *
       `projects/{PROJECT_ID}/serviceAccounts/{UNIQUE_ID}` As an alternative,
       you can use the `-` wildcard character instead of the project ID: *
       `projects/-/serviceAccounts/{EMAIL_ADDRESS}` *
@@ -3687,44 +3778,54 @@ class InlineCertificateIssuanceConfig(_messages.Message):
   Enums:
     KeyAlgorithmValueValuesEnum: Optional. Key algorithm to use when
       generating the key pair. This key pair will be used to create the
-      certificate. If unspecified, this will default to ECDSA_P256.
+      certificate. If not specified, this will default to ECDSA_P256.
 
   Messages:
-    CaPoolsValue: Optional. A required mapping of a cloud region to the CA
-      pool resource located in that region used for certificate issuance,
-      adhering to these constraints: * Key format: A supported cloud region
-      name equivalent to the location identifier in the corresponding map
-      entry's value. * Value format: A valid CA pool resource path format
-      like: "projects/{project}/locations/{location}/caPools/{ca_pool}" *
-      Region Matching: Workloads are ONLY issued certificates from CA pools
-      within the same region. Also the CA pool region (in value) must match
-      the workload's region (key).
+    CaPoolsValue: Optional. A required mapping of a Google Cloud region to the
+      CA pool resource located in that region. The CA pool is used for
+      certificate issuance, adhering to the following constraints: * Key
+      format: A supported cloud region name equivalent to the location
+      identifier in the corresponding map entry's value. * Value format: A
+      valid CA pool resource path format like:
+      "projects/{project}/locations/{location}/caPools/{ca_pool}" * Region
+      Matching: Workloads are ONLY issued certificates from CA pools within
+      the same region. Also the CA pool region (in value) must match the
+      workload's region (key).
 
   Fields:
-    caPools: Optional. A required mapping of a cloud region to the CA pool
-      resource located in that region used for certificate issuance, adhering
-      to these constraints: * Key format: A supported cloud region name
-      equivalent to the location identifier in the corresponding map entry's
-      value. * Value format: A valid CA pool resource path format like:
+    caPools: Optional. A required mapping of a Google Cloud region to the CA
+      pool resource located in that region. The CA pool is used for
+      certificate issuance, adhering to the following constraints: * Key
+      format: A supported cloud region name equivalent to the location
+      identifier in the corresponding map entry's value. * Value format: A
+      valid CA pool resource path format like:
       "projects/{project}/locations/{location}/caPools/{ca_pool}" * Region
       Matching: Workloads are ONLY issued certificates from CA pools within
       the same region. Also the CA pool region (in value) must match the
       workload's region (key).
     keyAlgorithm: Optional. Key algorithm to use when generating the key pair.
-      This key pair will be used to create the certificate. If unspecified,
+      This key pair will be used to create the certificate. If not specified,
       this will default to ECDSA_P256.
     lifetime: Optional. Lifetime of the workload certificates issued by the CA
-      pool. Must be between 10 hours - 30 days. If unspecified, this will be
-      defaulted to 24 hours.
-    rotationWindowPercentage: Optional. Rotation window percentage indicating
-      when certificate rotation should be initiated based on remaining
-      lifetime. Must be between 10 - 80. If unspecified, this will be
-      defaulted to 50.
+      pool. Must be between 24 hours and 30 days. If not specified, this will
+      be defaulted to 24 hours.
+    rotationWindowPercentage: Optional. Rotation window percentage, the
+      percentage of remaining lifetime after which certificate rotation is
+      initiated. Must be between 50 and 80. If no value is specified, rotation
+      window percentage is defaulted to 50.
+    useDefaultSharedCa: Optional. If set to true, the trust domain will
+      utilize the GCP-provisioned default CA. A default CA in the same region
+      as the workload will be selected to issue the certificate. Enabling this
+      will clear any existing `ca_pools` configuration to provision the
+      certificates. NOTE: This field is mutually exclusive with `ca_pools`. If
+      this flag is enabled, certificates will be automatically provisioned
+      from the default shared CAs. This flag should not be set if you want to
+      use your own CA pools to provision the certificates.
   """
 
   class KeyAlgorithmValueValuesEnum(_messages.Enum):
     r"""Optional. Key algorithm to use when generating the key pair. This key
-    pair will be used to create the certificate. If unspecified, this will
+    pair will be used to create the certificate. If not specified, this will
     default to ECDSA_P256.
 
     Values:
@@ -3745,11 +3846,12 @@ class InlineCertificateIssuanceConfig(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class CaPoolsValue(_messages.Message):
-    r"""Optional. A required mapping of a cloud region to the CA pool resource
-    located in that region used for certificate issuance, adhering to these
-    constraints: * Key format: A supported cloud region name equivalent to the
-    location identifier in the corresponding map entry's value. * Value
-    format: A valid CA pool resource path format like:
+    r"""Optional. A required mapping of a Google Cloud region to the CA pool
+    resource located in that region. The CA pool is used for certificate
+    issuance, adhering to the following constraints: * Key format: A supported
+    cloud region name equivalent to the location identifier in the
+    corresponding map entry's value. * Value format: A valid CA pool resource
+    path format like:
     "projects/{project}/locations/{location}/caPools/{ca_pool}" * Region
     Matching: Workloads are ONLY issued certificates from CA pools within the
     same region. Also the CA pool region (in value) must match the workload's
@@ -3779,6 +3881,7 @@ class InlineCertificateIssuanceConfig(_messages.Message):
   keyAlgorithm = _messages.EnumField('KeyAlgorithmValueValuesEnum', 2)
   lifetime = _messages.StringField(3)
   rotationWindowPercentage = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  useDefaultSharedCa = _messages.BooleanField(5)
 
 
 class InlineTrustConfig(_messages.Message):
@@ -3790,35 +3893,37 @@ class InlineTrustConfig(_messages.Message):
 
   Messages:
     AdditionalTrustBundlesValue: Optional. Maps specific trust domains (e.g.,
-      "example.com") to their corresponding TrustStore objects, which contain
-      the trusted root certificates for that domain. Note that a trust domain
-      automatically trusts itself and don't need to be specified here. If
-      however, this WorkloadIdentityPool's trust domain contains any trust
-      anchors in the additional_trust_bundles map, those trust anchors will be
-      *appended to* the Trust Bundle automatically derived from your
+      "example.com") to their corresponding TrustStore, which contain the
+      trusted root certificates for that domain. There can be a maximum of 10
+      trust domain entries in this map. Note that a trust domain automatically
+      trusts itself and don't need to be specified here. If however, this
+      WorkloadIdentityPool's trust domain contains any trust anchors in the
+      additional_trust_bundles map, those trust anchors will be *appended to*
+      the trust bundle automatically derived from your
       InlineCertificateIssuanceConfig's ca_pools.
 
   Fields:
     additionalTrustBundles: Optional. Maps specific trust domains (e.g.,
-      "example.com") to their corresponding TrustStore objects, which contain
-      the trusted root certificates for that domain. Note that a trust domain
-      automatically trusts itself and don't need to be specified here. If
-      however, this WorkloadIdentityPool's trust domain contains any trust
-      anchors in the additional_trust_bundles map, those trust anchors will be
-      *appended to* the Trust Bundle automatically derived from your
+      "example.com") to their corresponding TrustStore, which contain the
+      trusted root certificates for that domain. There can be a maximum of 10
+      trust domain entries in this map. Note that a trust domain automatically
+      trusts itself and don't need to be specified here. If however, this
+      WorkloadIdentityPool's trust domain contains any trust anchors in the
+      additional_trust_bundles map, those trust anchors will be *appended to*
+      the trust bundle automatically derived from your
       InlineCertificateIssuanceConfig's ca_pools.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AdditionalTrustBundlesValue(_messages.Message):
     r"""Optional. Maps specific trust domains (e.g., "example.com") to their
-    corresponding TrustStore objects, which contain the trusted root
-    certificates for that domain. Note that a trust domain automatically
-    trusts itself and don't need to be specified here. If however, this
-    WorkloadIdentityPool's trust domain contains any trust anchors in the
-    additional_trust_bundles map, those trust anchors will be *appended to*
-    the Trust Bundle automatically derived from your
-    InlineCertificateIssuanceConfig's ca_pools.
+    corresponding TrustStore, which contain the trusted root certificates for
+    that domain. There can be a maximum of 10 trust domain entries in this
+    map. Note that a trust domain automatically trusts itself and don't need
+    to be specified here. If however, this WorkloadIdentityPool's trust domain
+    contains any trust anchors in the additional_trust_bundles map, those
+    trust anchors will be *appended to* the trust bundle automatically derived
+    from your InlineCertificateIssuanceConfig's ca_pools.
 
     Messages:
       AdditionalProperty: An additional property for a
@@ -3865,6 +3970,7 @@ class KeyData(_messages.Message):
     KeySpecValueValuesEnum: Required. The specifications for the key.
 
   Fields:
+    createTime: Output only. The timestamp when this key was created.
     format: Output only. The format of the key.
     key: Output only. The key data. The format of the key is represented by
       the format field.
@@ -3905,11 +4011,12 @@ class KeyData(_messages.Message):
     RSA_3072 = 2
     RSA_4096 = 3
 
-  format = _messages.EnumField('FormatValueValuesEnum', 1)
-  key = _messages.StringField(2)
-  keySpec = _messages.EnumField('KeySpecValueValuesEnum', 3)
-  notAfterTime = _messages.StringField(4)
-  notBeforeTime = _messages.StringField(5)
+  createTime = _messages.StringField(1)
+  format = _messages.EnumField('FormatValueValuesEnum', 2)
+  key = _messages.StringField(3)
+  keySpec = _messages.EnumField('KeySpecValueValuesEnum', 4)
+  notAfterTime = _messages.StringField(5)
+  notBeforeTime = _messages.StringField(6)
 
 
 class LintPolicyRequest(_messages.Message):
@@ -4067,17 +4174,6 @@ class ListRolesResponse(_messages.Message):
   roles = _messages.MessageField('Role', 2, repeated=True)
 
 
-class ListServiceAccountIdentityBindingsResponse(_messages.Message):
-  r"""The service account identity bindings list response.
-
-  Fields:
-    identityBinding: The identity bindings trusted to assert the service
-      account.
-  """
-
-  identityBinding = _messages.MessageField('ServiceAccountIdentityBinding', 1, repeated=True)
-
-
 class ListServiceAccountKeysResponse(_messages.Message):
   r"""The service account keys list response.
 
@@ -4127,6 +4223,38 @@ class ListWorkforcePoolProviderKeysResponse(_messages.Message):
 
   nextPageToken = _messages.StringField(1)
   workforcePoolProviderKeys = _messages.MessageField('WorkforcePoolProviderKey', 2, repeated=True)
+
+
+class ListWorkforcePoolProviderScimTenantsResponse(_messages.Message):
+  r"""Agentspace only. Response message for
+  ListWorkforcePoolProviderScimTenants.
+
+  Fields:
+    nextPageToken: Optional. Agentspace only. A token, which can be sent as
+      `page_token` to retrieve the next page. If this field is omitted, there
+      are no subsequent pages.
+    workforcePoolProviderScimTenants: Output only. Agentspace only. A list of
+      SCIM tenants.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  workforcePoolProviderScimTenants = _messages.MessageField('WorkforcePoolProviderScimTenant', 2, repeated=True)
+
+
+class ListWorkforcePoolProviderScimTokensResponse(_messages.Message):
+  r"""Agentspace only. Response message for
+  ListWorkforcePoolProviderScimTokens.
+
+  Fields:
+    nextPageToken: Optional. Agentspace only. A token, which can be sent as
+      `page_token` to retrieve the next page. If this field is omitted, there
+      are no subsequent pages.
+    workforcePoolProviderScimTokens: Output only. Agentspace only. A list of
+      SCIM tokens.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  workforcePoolProviderScimTokens = _messages.MessageField('WorkforcePoolProviderScimToken', 2, repeated=True)
 
 
 class ListWorkforcePoolProvidersResponse(_messages.Message):
@@ -4255,7 +4383,10 @@ class OauthClient(_messages.Message):
       allowed to request during OAuth flows. The following scopes are
       supported: * `https://www.googleapis.com/auth/cloud-platform`: See,
       edit, configure, and delete your Google Cloud data and see the email
-      address for your Google Account.
+      address for your Google Account. * `openid`: The OAuth client can
+      associate you with your personal information on Google Cloud. * `email`:
+      The OAuth client can read a federated identity's email address. *
+      `groups`: The OAuth client can read a federated identity's groups.
     clientId: Output only. The system-generated OauthClient id.
     clientType: Immutable. The type of OauthClient. Either public or private.
       For private clients, the client secret can be managed using the
@@ -4268,8 +4399,11 @@ class OauthClient(_messages.Message):
       Cannot exceed 32 characters.
     expireTime: Output only. Time after which the OauthClient will be
       permanently purged and cannot be recovered.
-    name: Immutable. The resource name of the OauthClient. Format:`projects/{p
-      roject}/locations/{location}/oauthClients/{oauth_client}`.
+    name: Immutable. Identifier. The resource name of the OauthClient. Format:
+      `projects/{project}/locations/{location}/oauthClients/{oauth_client}`.
+    pkceEnforced: Optional. Indicates whether to enforce PKCE (RFC 7636) for
+      the OauthClient. If not set, the default value is false. Public clients
+      must set this field to true.
     state: Output only. The state of the OauthClient.
   """
 
@@ -4323,7 +4457,8 @@ class OauthClient(_messages.Message):
   displayName = _messages.StringField(8)
   expireTime = _messages.StringField(9)
   name = _messages.StringField(10)
-  state = _messages.EnumField('StateValueValuesEnum', 11)
+  pkceEnforced = _messages.BooleanField(11)
+  state = _messages.EnumField('StateValueValuesEnum', 12)
 
 
 class OauthClientCredential(_messages.Message):
@@ -4344,9 +4479,9 @@ class OauthClientCredential(_messages.Message):
       cannot use a disabled OauthClientCredential.
     displayName: Optional. A user-specified display name of the
       OauthClientCredential. Cannot exceed 32 characters.
-    name: Immutable. The resource name of the OauthClientCredential. Format: `
-      projects/{project}/locations/{location}/oauthClients/{oauth_client}/cred
-      entials/{credential}`
+    name: Immutable. Identifier. The resource name of the
+      OauthClientCredential. Format: `projects/{project}/locations/{location}/
+      oauthClients/{oauth_client}/credentials/{credential}`
     updateTime: Output only. The timestamp for the last update of the
       OauthClientCredential. If no updates have been made, the creation time
       will serve as the designated value.
@@ -4364,16 +4499,19 @@ class Oidc(_messages.Message):
   r"""Represents an OpenId Connect 1.0 identity provider.
 
   Fields:
-    allowedAudiences: Acceptable values for the `aud` field (audience) in the
-      OIDC token. Token exchange requests are rejected if the token audience
-      does not match one of the configured values. Each audience may be at
-      most 256 characters. A maximum of 10 audiences may be configured. If
-      this list is empty, the OIDC token audience must be equal to the full
-      canonical resource name of the WorkloadIdentityPoolProvider, with or
-      without the HTTPS prefix. For example: ``` //iam.googleapis.com/projects
-      //locations//workloadIdentityPools//providers/ https://iam.googleapis.co
-      m/projects//locations//workloadIdentityPools//providers/ ```
-    issuerUri: Required. The OIDC issuer URL. Must be an HTTPS endpoint.
+    allowedAudiences: Optional. Acceptable values for the `aud` field
+      (audience) in the OIDC token. Token exchange requests are rejected if
+      the token audience does not match one of the configured values. Each
+      audience may be at most 256 characters. A maximum of 10 audiences may be
+      configured. If this list is empty, the OIDC token audience must be equal
+      to the full canonical resource name of the WorkloadIdentityPoolProvider,
+      with or without the HTTPS prefix. For example: ``` //iam.googleapis.com/
+      projects//locations//workloadIdentityPools//providers/ https://iam.googl
+      eapis.com/projects//locations//workloadIdentityPools//providers/ ```
+    issuerUri: Required. The OIDC issuer URL. Must be an HTTPS endpoint. Per
+      OpenID Connect Discovery 1.0 spec, the OIDC issuer URL is used to locate
+      the provider's public keys (via `jwks_uri`) for verifying tokens like
+      the OIDC ID token. These public key types must be 'EC' or 'RSA'.
     jwksJson: Optional. OIDC JWKs in JSON String format. For details on the
       definition of a JWK, see https://tools.ietf.org/html/rfc7517. If not
       set, the `jwks_uri` from the discovery document(fetched from the .well-
@@ -4741,10 +4879,11 @@ class QueryGrantableRolesRequest(_messages.Message):
     ViewValueValuesEnum:
 
   Fields:
-    fullResourceName: Required. The full resource name to query from the list
-      of grantable roles. The name follows the Google Cloud Platform resource
-      format. For example, a Cloud Platform project with id `my-project` will
-      be named `//cloudresourcemanager.googleapis.com/projects/my-project`.
+    fullResourceName: Required. Required. The full resource name to query from
+      the list of grantable roles. The name follows the Google Cloud Platform
+      resource format. For example, a Cloud Platform project with id `my-
+      project` will be named
+      `//cloudresourcemanager.googleapis.com/projects/my-project`.
     pageSize: Optional limit on the number of roles to include in the
       response. The default is 300, and the maximum is 2,000.
     pageToken: Optional pagination token returned in an earlier
@@ -4931,7 +5070,7 @@ class Saml(_messages.Message):
       following constraints: * Must contain an IdP Entity ID. * Must contain
       at least one non-expired signing certificate. * For each signing
       certificate, the expiration must be: * From no more than 7 days in the
-      future. * To no more than 20 years in the future. * Up to three IdP
+      future. * To no more than 25 years in the future. * Up to three IdP
       signing keys are allowed. When updating the provider's metadata XML, at
       least one non-expired signing key must overlap with the existing
       metadata. This requirement is skipped if there are no non-expired
@@ -4990,36 +5129,6 @@ class ServiceAccount(_messages.Message):
   oauth2ClientId = _messages.StringField(7)
   projectId = _messages.StringField(8)
   uniqueId = _messages.StringField(9)
-
-
-class ServiceAccountIdentityBinding(_messages.Message):
-  r"""Represents a service account identity provider reference. A service
-  account has at most one identity binding for the EAP. This is an alternative
-  to service account keys and enables the service account to be configured to
-  trust an external IDP through the provided identity binding.
-
-  Fields:
-    acceptanceFilter: A CEL expression that is evaluated to determine whether
-      a credential should be accepted. To accept any credential, specify
-      "true". See: https://github.com/google/cel-spec . This field supports a
-      subset of the CEL functionality to select fields and evaluate boolean
-      expressions based on the input (no functions or arithmetics). The values
-      for input claims are available using `inclaim.attribute_name` or
-      `inclaim[\"attribute_name\"]`. The values for output attributes
-      calculated by the translator are available using
-      `outclaim.attribute_name` or `outclaim[\"attribute_name\"]`.
-    cel: A set of output attributes and corresponding input attribute
-      expressions.
-    name: The resource name of the service account identity binding in the
-      following format `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/identi
-      tyBindings/{BINDING}`.
-    oidc: OIDC with discovery.
-  """
-
-  acceptanceFilter = _messages.StringField(1)
-  cel = _messages.MessageField('AttributeTranslatorCEL', 2)
-  name = _messages.StringField(3)
-  oidc = _messages.MessageField('IDPReferenceOIDC', 4)
 
 
 class ServiceAccountKey(_messages.Message):
@@ -5454,19 +5563,25 @@ class TrustAnchor(_messages.Message):
 
 class TrustStore(_messages.Message):
   r"""Trust store that contains trust anchors and optional intermediate CAs
-  used in PKI to build trust chain and verify client's identity.
+  used in PKI to build a trust chain(trust hierarchy) and verify a client's
+  identity.
 
   Fields:
     intermediateCas: Optional. Set of intermediate CA certificates used for
-      building the trust chain to trust anchor. IMPORTANT: * Intermediate CAs
-      are only supported when configuring x509 federation.
-    trustAnchors: Required. List of Trust Anchors to be used while performing
+      building the trust chain to the trust anchor. Important: Intermediate
+      CAs are only supported for X.509 federation.
+    trustAnchors: Required. List of trust anchors to be used while performing
       validation against a given TrustStore. The incoming end entity's
-      certificate must be chained up to one of the trust anchors here.
+      certificate must be in the trust chain of one of the trust anchors here.
+    trustDefaultSharedCa: Optional. If set to True, the trust bundle will
+      include the private ca managed identity regional root public
+      certificates. Important: `trust_default_shared_ca` is only supported for
+      managed identity trust domain resource.
   """
 
   intermediateCas = _messages.MessageField('IntermediateCA', 1, repeated=True)
   trustAnchors = _messages.MessageField('TrustAnchor', 2, repeated=True)
+  trustDefaultSharedCa = _messages.BooleanField(3)
 
 
 class UndeleteOauthClientRequest(_messages.Message):
@@ -5523,6 +5638,20 @@ class UndeleteWorkforcePoolProviderRequest(_messages.Message):
   r"""Request message for UndeleteWorkforcePoolProvider."""
 
 
+class UndeleteWorkforcePoolProviderScimTenantRequest(_messages.Message):
+  r"""Agentspace only. Request message for
+  UndeleteWorkforcePoolProviderScimTenant.
+  """
+
+
+
+class UndeleteWorkforcePoolProviderScimTokenRequest(_messages.Message):
+  r"""Agentspace only. Request message for
+  UndeleteWorkforcePoolProviderScimToken.
+  """
+
+
+
 class UndeleteWorkforcePoolRequest(_messages.Message):
   r"""Request message for UndeleteWorkforcePool."""
 
@@ -5576,16 +5705,16 @@ class WorkforcePool(_messages.Message):
       workforce pool users. This is an optional field. If specified web sign-
       in can be restricted to given set of services or programmatic sign-in
       can be disabled for pool users.
-    description: Optional. A user-specified description of the pool. Cannot
-      exceed 256 characters.
+    description: Optional. A description of the pool. Cannot exceed 256
+      characters.
     disabled: Optional. Disables the workforce pool. You cannot use a disabled
       pool to exchange tokens, or use existing tokens to access resources. If
       the pool is re-enabled, existing tokens grant access again.
-    displayName: Optional. A user-specified display name of the pool in Google
-      Cloud Console. Cannot exceed 32 characters.
+    displayName: Optional. A display name for the pool. Cannot exceed 32
+      characters.
     expireTime: Output only. Time after which the workforce pool will be
       permanently purged and cannot be recovered.
-    name: Output only. The resource name of the pool. Format:
+    name: Identifier. The resource name of the pool. Format:
       `locations/{location}/workforcePools/{workforce_pool_id}`
     parent: Immutable. The resource name of the parent. Format:
       `organizations/{org-id}`.
@@ -5644,13 +5773,13 @@ class WorkforcePoolInstalledApp(_messages.Message):
       app was created.
     deleteTime: Output only. The timestamp that the workforce pool installed
       app was soft deleted.
-    description: Optional. A user-specified description of the workforce pool
-      installed app. Cannot exceed 256 characters.
-    displayName: Optional. A user-specified display name of the workforce pool
-      installed app Cannot exceed 32 characters.
+    description: Optional. A description of the workforce pool installed app.
+      Cannot exceed 256 characters.
+    displayName: Optional. A display name of the workforce pool installed app
+      Cannot exceed 32 characters.
     expireTime: Output only. Time after which the workforce pool installed app
       will be permanently purged and cannot be recovered.
-    name: Immutable. The resource name of the workforce pool installed app.
+    name: Identifier. The resource name of the workforce pool installed app.
       Format: `locations/{location}/workforcePools/{workforce_pool}/installedA
       pps/{installed_app}`
     state: Output only. The state of the workforce pool installed app.
@@ -5688,6 +5817,12 @@ class WorkforcePoolProvider(_messages.Message):
   r"""A configuration for an external identity provider.
 
   Enums:
+    ScimUsageValueValuesEnum: Optional. Agentspace only. Specifies whether the
+      workforce identity pool provider uses SCIM-managed groups instead of the
+      `google.groups` attribute mapping for authorization checks. The
+      `scim_usage` and `extended_attributes_oauth2_client` fields are mutually
+      exclusive. A request that enables both fields on the same workforce
+      identity pool provider will produce an error.
     StateValueValuesEnum: Output only. The state of the provider.
 
   Messages:
@@ -5732,10 +5867,10 @@ class WorkforcePoolProvider(_messages.Message):
       expression to access a JSON representation of the authentication
       credential issued by the provider. The maximum length of an attribute
       mapping expression is 2048 characters. When evaluated, the total size of
-      all mapped attributes must not exceed 4KB. For OIDC providers, you must
-      supply a custom mapping that includes the `google.subject` attribute.
-      For example, the following maps the `sub` claim of the incoming
-      credential to the `subject` attribute on a Google token: ```
+      all mapped attributes must not exceed 16 KB. For OIDC providers, you
+      must supply a custom mapping that includes the `google.subject`
+      attribute. For example, the following maps the `sub` claim of the
+      incoming credential to the `subject` attribute on a Google token: ```
       {"google.subject": "assertion.sub"} ```
 
   Fields:
@@ -5795,13 +5930,20 @@ class WorkforcePoolProvider(_messages.Message):
       expression to access a JSON representation of the authentication
       credential issued by the provider. The maximum length of an attribute
       mapping expression is 2048 characters. When evaluated, the total size of
-      all mapped attributes must not exceed 4KB. For OIDC providers, you must
-      supply a custom mapping that includes the `google.subject` attribute.
-      For example, the following maps the `sub` claim of the incoming
-      credential to the `subject` attribute on a Google token: ```
+      all mapped attributes must not exceed 16 KB. For OIDC providers, you
+      must supply a custom mapping that includes the `google.subject`
+      attribute. For example, the following maps the `sub` claim of the
+      incoming credential to the `subject` attribute on a Google token: ```
       {"google.subject": "assertion.sub"} ```
-    description: Optional. A user-specified description of the provider.
-      Cannot exceed 256 characters.
+    attributeSyncInterval: Optional. An interval that determines how often
+      user attributes are synced from the IdP. Must be between 30 minutes
+      (1800s) and 12 hours (43200s). This configuration is used only when the
+      Google Cloud session length policy is configured. When Google Cloud
+      session length policy is configured and `attribute_sync_interval` is not
+      configured, attributes are synced after a default interval of 12 hours
+      (43200 seconds).
+    description: Optional. A description of the provider. Cannot exceed 256
+      characters.
     detailedAuditLogging: Optional. If true, populates additional debug
       information in Cloud Audit Logs for this provider. Logged attribute
       mappings and values can be found in `sts.googleapis.com` data access
@@ -5809,20 +5951,53 @@ class WorkforcePoolProvider(_messages.Message):
     disabled: Optional. Disables the workforce pool provider. You cannot use a
       disabled provider to exchange tokens. However, existing tokens still
       grant access.
-    displayName: Optional. A user-specified display name for the provider.
-      Cannot exceed 32 characters.
-    expireTime: Output only. Time after which the workload pool provider will
-      be permanently purged and cannot be recovered.
+    displayName: Optional. A display name for the provider. Cannot exceed 32
+      characters.
+    expireTime: Output only. Time after which the workforce identity pool
+      provider will be permanently purged and cannot be recovered.
+    extendedAttributesOauth2Client: Optional. The configuration for OAuth 2.0
+      client used to get the extended group memberships for user identities.
+      Only the `AZURE_AD_GROUPS_ID` attribute type is supported. Extended
+      groups supports a subset of Google Cloud services. When the user
+      accesses these services, extended group memberships override the mapped
+      `google.groups` attribute. Extended group memberships cannot be used in
+      attribute mapping or attribute condition expressions. To keep extended
+      group memberships up to date, extended groups are retrieved when the
+      user signs in and at regular intervals during the user's active session.
+      Each user identity in the workforce identity pool must map to a unique
+      Microsoft Entra ID user.
     extraAttributesOauth2Client: Optional. The configuration for OAuth 2.0
       client used to get the additional user attributes. This should be used
       when users can't get the desired claims in authentication credentials.
       Currently this configuration is only supported with OIDC protocol.
-    name: Output only. The resource name of the provider. Format: `locations/{
-      location}/workforcePools/{workforce_pool_id}/providers/{provider_id}`
+    name: Identifier. The resource name of the provider. Format: `locations/{l
+      ocation}/workforcePools/{workforce_pool_id}/providers/{provider_id}`
     oidc: An OpenId Connect 1.0 identity provider configuration.
     saml: A SAML identity provider configuration.
+    scimUsage: Optional. Agentspace only. Specifies whether the workforce
+      identity pool provider uses SCIM-managed groups instead of the
+      `google.groups` attribute mapping for authorization checks. The
+      `scim_usage` and `extended_attributes_oauth2_client` fields are mutually
+      exclusive. A request that enables both fields on the same workforce
+      identity pool provider will produce an error.
     state: Output only. The state of the provider.
   """
+
+  class ScimUsageValueValuesEnum(_messages.Enum):
+    r"""Optional. Agentspace only. Specifies whether the workforce identity
+    pool provider uses SCIM-managed groups instead of the `google.groups`
+    attribute mapping for authorization checks. The `scim_usage` and
+    `extended_attributes_oauth2_client` fields are mutually exclusive. A
+    request that enables both fields on the same workforce identity pool
+    provider will produce an error.
+
+    Values:
+      SCIM_USAGE_UNSPECIFIED: Agentspace only. Do not use SCIM data.
+      ENABLED_FOR_GROUPS: Agentspace only. SCIM sync is enabled and SCIM-
+        managed groups are used for authorization checks.
+    """
+    SCIM_USAGE_UNSPECIFIED = 0
+    ENABLED_FOR_GROUPS = 1
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The state of the provider.
@@ -5881,7 +6056,7 @@ class WorkforcePoolProvider(_messages.Message):
     expression to access a JSON representation of the authentication
     credential issued by the provider. The maximum length of an attribute
     mapping expression is 2048 characters. When evaluated, the total size of
-    all mapped attributes must not exceed 4KB. For OIDC providers, you must
+    all mapped attributes must not exceed 16 KB. For OIDC providers, you must
     supply a custom mapping that includes the `google.subject` attribute. For
     example, the following maps the `sub` claim of the incoming credential to
     the `subject` attribute on a Google token: ``` {"google.subject":
@@ -5911,16 +6086,19 @@ class WorkforcePoolProvider(_messages.Message):
 
   attributeCondition = _messages.StringField(1)
   attributeMapping = _messages.MessageField('AttributeMappingValue', 2)
-  description = _messages.StringField(3)
-  detailedAuditLogging = _messages.BooleanField(4)
-  disabled = _messages.BooleanField(5)
-  displayName = _messages.StringField(6)
-  expireTime = _messages.StringField(7)
-  extraAttributesOauth2Client = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderExtraAttributesOAuth2Client', 8)
-  name = _messages.StringField(9)
-  oidc = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderOidc', 10)
-  saml = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderSaml', 11)
-  state = _messages.EnumField('StateValueValuesEnum', 12)
+  attributeSyncInterval = _messages.StringField(3)
+  description = _messages.StringField(4)
+  detailedAuditLogging = _messages.BooleanField(5)
+  disabled = _messages.BooleanField(6)
+  displayName = _messages.StringField(7)
+  expireTime = _messages.StringField(8)
+  extendedAttributesOauth2Client = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderExtraAttributesOAuth2Client', 9)
+  extraAttributesOauth2Client = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderExtraAttributesOAuth2Client', 10)
+  name = _messages.StringField(11)
+  oidc = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderOidc', 12)
+  saml = _messages.MessageField('GoogleIamAdminV1WorkforcePoolProviderSaml', 13)
+  scimUsage = _messages.EnumField('ScimUsageValueValuesEnum', 14)
+  state = _messages.EnumField('StateValueValuesEnum', 15)
 
 
 class WorkforcePoolProviderKey(_messages.Message):
@@ -5930,6 +6108,8 @@ class WorkforcePoolProviderKey(_messages.Message):
   encrypted tokens.
 
   Enums:
+    SigningAlgorithmValueValuesEnum: Optional. The signature algorithm to use
+      for signing. Required for request signing.
     StateValueValuesEnum: Output only. The state of the key.
     UseValueValuesEnum: Required. The purpose of the key.
 
@@ -5938,10 +6118,26 @@ class WorkforcePoolProviderKey(_messages.Message):
       deleted and cannot be recovered. Note that the key may get purged before
       this time if the total limit of keys per provider is exceeded.
     keyData: Immutable. Public half of the asymmetric key.
-    name: Output only. The resource name of the key.
+    name: Identifier. The resource name of the key. Format: `locations/{locati
+      on}/workforcePools/{workforce_pool_id}/providers/{provider_id}/keys/{key
+      _id}`
+    signingAlgorithm: Optional. The signature algorithm to use for signing.
+      Required for request signing.
     state: Output only. The state of the key.
     use: Required. The purpose of the key.
   """
+
+  class SigningAlgorithmValueValuesEnum(_messages.Enum):
+    r"""Optional. The signature algorithm to use for signing. Required for
+    request signing.
+
+    Values:
+      SIGNATURE_ALGORITHM_UNSPECIFIED: The signature algorithm is not
+        specified.
+      RSA_SHA256: RSA-SHA256 signature algorithm.
+    """
+    SIGNATURE_ALGORITHM_UNSPECIFIED = 0
+    RSA_SHA256 = 1
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The state of the key.
@@ -5961,17 +6157,144 @@ class WorkforcePoolProviderKey(_messages.Message):
     r"""Required. The purpose of the key.
 
     Values:
-      KEY_USE_UNSPECIFIED: KeyUse unspecified.
+      KEY_USE_UNSPECIFIED: KeyUse unspecified. Do not use. The purpose of the
+        key must be specified.
       ENCRYPTION: The key is used for encryption.
+      SIGNING: The key is used for signing.
     """
     KEY_USE_UNSPECIFIED = 0
     ENCRYPTION = 1
+    SIGNING = 2
 
   expireTime = _messages.StringField(1)
   keyData = _messages.MessageField('KeyData', 2)
   name = _messages.StringField(3)
+  signingAlgorithm = _messages.EnumField('SigningAlgorithmValueValuesEnum', 4)
+  state = _messages.EnumField('StateValueValuesEnum', 5)
+  use = _messages.EnumField('UseValueValuesEnum', 6)
+
+
+class WorkforcePoolProviderScimTenant(_messages.Message):
+  r"""Agentspace only. Represents a SCIM tenant. Used for provisioning and
+  managing identity data (such as Users and Groups) in cross-domain
+  environments.
+
+  Enums:
+    StateValueValuesEnum: Output only. Agentspace only. The state of the
+      tenant.
+
+  Messages:
+    ClaimMappingValue: Optional. Agentspace only. Maps BYOID claims to SCIM
+      claims.
+
+  Fields:
+    baseUri: Output only. Agentspace only. Represents the base URI as defined
+      in [RFC 7644, Section
+      1.3](https://datatracker.ietf.org/doc/html/rfc7644#section-1.3). Clients
+      must use this as the root address for managing resources under the
+      tenant. Format: https://iamscim.googleapis.com/{version}/{tenant_id}/
+    claimMapping: Optional. Agentspace only. Maps BYOID claims to SCIM claims.
+    description: Optional. Agentspace only. The description of the SCIM
+      tenant. Cannot exceed 256 characters.
+    displayName: Optional. Agentspace only. The display name of the SCIM
+      tenant. Cannot exceed 32 characters.
+    name: Identifier. Agentspace only. The resource name of the SCIM Tenant.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {workforce_pool_provider}/scimTenants/{scim_tenant}`
+    purgeTime: Output only. Agentspace only. The timestamp that represents the
+      time when the SCIM tenant is purged.
+    serviceAgent: Output only. Service Agent created by SCIM Tenant API. SCIM
+      tokens created under this tenant will be attached to this service agent.
+    state: Output only. Agentspace only. The state of the tenant.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. Agentspace only. The state of the tenant.
+
+    Values:
+      STATE_UNSPECIFIED: Agentspace only. State unspecified.
+      ACTIVE: Agentspace only. The tenant is active and may be used to
+        provision users and groups.
+      DELETED: Agentspace only. The tenant is soft-deleted. Soft-deleted
+        tenants are permanently deleted after approximately 30 days.
+    """
+    STATE_UNSPECIFIED = 0
+    ACTIVE = 1
+    DELETED = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ClaimMappingValue(_messages.Message):
+    r"""Optional. Agentspace only. Maps BYOID claims to SCIM claims.
+
+    Messages:
+      AdditionalProperty: An additional property for a ClaimMappingValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type ClaimMappingValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ClaimMappingValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  baseUri = _messages.StringField(1)
+  claimMapping = _messages.MessageField('ClaimMappingValue', 2)
+  description = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  name = _messages.StringField(5)
+  purgeTime = _messages.StringField(6)
+  serviceAgent = _messages.StringField(7)
+  state = _messages.EnumField('StateValueValuesEnum', 8)
+
+
+class WorkforcePoolProviderScimToken(_messages.Message):
+  r"""Agentspace only. Represents a token for the
+  WorkforcePoolProviderScimTenant. Used for authenticating SCIM provisioning
+  requests.
+
+  Enums:
+    StateValueValuesEnum: Output only. Agentspace only. The state of the
+      token.
+
+  Fields:
+    displayName: Optional. Agentspace only. The display name of the SCIM
+      token. Cannot exceed 32 characters.
+    name: Identifier. Agentspace only. The resource name of the SCIM Token.
+      Format: `locations/{location}/workforcePools/{workforce_pool}/providers/
+      {workforce_pool_provider}/scimTenants/{scim_tenant}/tokens/{token}`
+    securityToken: Output only. Agentspace only. The token string. Provide
+      this to the IdP for authentication. Will be set only during creation.
+    state: Output only. Agentspace only. The state of the token.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. Agentspace only. The state of the token.
+
+    Values:
+      STATE_UNSPECIFIED: Agentspace only. State unspecified.
+      ACTIVE: Agentspace only. The token is active and may be used to
+        provision users and groups.
+      DELETED: Agentspace only. The token is soft-deleted. Soft-deleted tokens
+        are permanently deleted after approximately 30 days.
+    """
+    STATE_UNSPECIFIED = 0
+    ACTIVE = 1
+    DELETED = 2
+
+  displayName = _messages.StringField(1)
+  name = _messages.StringField(2)
+  securityToken = _messages.StringField(3)
   state = _messages.EnumField('StateValueValuesEnum', 4)
-  use = _messages.EnumField('UseValueValuesEnum', 5)
 
 
 class WorkloadIdentityPool(_messages.Message):
@@ -5983,11 +6306,19 @@ class WorkloadIdentityPool(_messages.Message):
     StateValueValuesEnum: Output only. The state of the pool.
 
   Fields:
-    description: A description of the pool. Cannot exceed 256 characters.
-    disabled: Whether the pool is disabled. You cannot use a disabled pool to
-      exchange tokens, or use existing tokens to access resources. If the pool
-      is re-enabled, existing tokens grant access again.
-    displayName: A display name for the pool. Cannot exceed 32 characters.
+    description: Optional. A description of the pool. Cannot exceed 256
+      characters.
+    disabled: Optional. Whether the pool is disabled. You cannot use a
+      disabled pool to exchange tokens, or use existing tokens to access
+      resources. If the pool is re-enabled, existing tokens grant access
+      again.
+    displayName: Optional. A display name for the pool. Cannot exceed 32
+      characters.
+    enableMeshCaCompatibility: Optional. If set to true, - the generated trust
+      bundle for the workloads in this trust domain will include the Cloud
+      Service Mesh certificate authority's root CA certificates. - the
+      certificate chain for the workload in this trust domain will be signed
+      by the Cloud Service Mesh certificate authority root CA.
     expireTime: Output only. Time after which the workload identity pool will
       be permanently purged and cannot be recovered.
     inlineCertificateIssuanceConfig: Optional. Defines the Certificate
@@ -6016,19 +6347,19 @@ class WorkloadIdentityPool(_messages.Message):
     Values:
       MODE_UNSPECIFIED: State unspecified. New pools should not use this mode.
         Pools with an unspecified mode will operate as if they are in
-        FEDERATION_ONLY mode.
-      FEDERATION_ONLY: FEDERATION_ONLY mode pools can only be used for
-        federating external workload identities into Google Cloud. Unless
-        otherwise noted, no structure or format constraints are applied to
-        workload identities in a FEDERATION_ONLY mode pool, and you may not
+        federation-only mode.
+      FEDERATION_ONLY: Federation-only mode. Federation-only pools can only be
+        used for federating external workload identities into Google Cloud.
+        Unless otherwise noted, no structure or format constraints are applied
+        to workload identities in a federation-only pool, and you cannot
         create any resources within the pool besides providers.
-      TRUST_DOMAIN: TRUST_DOMAIN mode pools can be used to assign identities
-        to either external workloads or those hosted on Google Cloud. All
-        identities within a TRUST_DOMAIN mode pool must consist of a single
-        namespace and individual workload identifier. The subject identifier
-        for all identities must conform to the following format: `ns//sa/`
-        WorkloadIdentityPoolProviders cannot be created within TRUST_DOMAIN
-        mode pools.
+      TRUST_DOMAIN: Trust-domain mode. Trust-domain pools can be used to
+        assign identities to Google Cloud workloads. All identities within a
+        trust-domain pool must consist of a single namespace and individual
+        workload identifier. The subject identifier for all identities must
+        conform to the following format: `ns//sa/`
+        WorkloadIdentityPoolProviders cannot be created within trust-domain
+        pools.
     """
     MODE_UNSPECIFIED = 0
     FEDERATION_ONLY = 1
@@ -6055,13 +6386,14 @@ class WorkloadIdentityPool(_messages.Message):
   description = _messages.StringField(1)
   disabled = _messages.BooleanField(2)
   displayName = _messages.StringField(3)
-  expireTime = _messages.StringField(4)
-  inlineCertificateIssuanceConfig = _messages.MessageField('InlineCertificateIssuanceConfig', 5)
-  inlineTrustConfig = _messages.MessageField('InlineTrustConfig', 6)
-  mode = _messages.EnumField('ModeValueValuesEnum', 7)
-  name = _messages.StringField(8)
-  sessionDuration = _messages.StringField(9)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
+  enableMeshCaCompatibility = _messages.BooleanField(4)
+  expireTime = _messages.StringField(5)
+  inlineCertificateIssuanceConfig = _messages.MessageField('InlineCertificateIssuanceConfig', 6)
+  inlineTrustConfig = _messages.MessageField('InlineTrustConfig', 7)
+  mode = _messages.EnumField('ModeValueValuesEnum', 8)
+  name = _messages.StringField(9)
+  sessionDuration = _messages.StringField(10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
 
 
 class WorkloadIdentityPoolManagedIdentity(_messages.Message):
@@ -6071,9 +6403,9 @@ class WorkloadIdentityPoolManagedIdentity(_messages.Message):
     StateValueValuesEnum: Output only. The state of the managed identity.
 
   Fields:
-    description: A description of the managed identity. Cannot exceed 256
-      characters.
-    disabled: Whether the managed identity is disabled. If disabled,
+    description: Optional. A description of the managed identity. Cannot
+      exceed 256 characters.
+    disabled: Optional. Whether the managed identity is disabled. If disabled,
       credentials may no longer be issued for the identity, however existing
       credentials will still be accepted until they expire.
     expireTime: Output only. Time after which the managed identity will be
@@ -6113,10 +6445,12 @@ class WorkloadIdentityPoolNamespace(_messages.Message):
     StateValueValuesEnum: Output only. The state of the namespace.
 
   Fields:
-    description: A description of the namespace. Cannot exceed 256 characters.
-    disabled: Whether the namespace is disabled. If disabled, credentials may
-      no longer be issued for identities within this namespace, however
-      existing credentials will still be accepted until they expire.
+    description: Optional. A description of the namespace. Cannot exceed 256
+      characters.
+    disabled: Optional. Whether the namespace is disabled. If disabled,
+      credentials may no longer be issued for identities within this
+      namespace, however existing credentials will still be accepted until
+      they expire.
     expireTime: Output only. Time after which the namespace will be
       permanently purged and cannot be recovered.
     name: Output only. The resource name of the namespace.
@@ -6160,13 +6494,13 @@ class WorkloadIdentityPoolProvider(_messages.Message):
     StateValueValuesEnum: Output only. The state of the provider.
 
   Messages:
-    AttributeMappingValue:  Maps attributes from authentication credentials
-      issued by an external identity provider to Google Cloud attributes, such
-      as `subject` and `segment`. Each key must be a string specifying the
-      Google Cloud IAM attribute to map to. The following keys are supported:
-      * `google.subject`: The principal IAM is authenticating. You can
-      reference this value in IAM bindings. This is also the subject that
-      appears in Cloud Logging logs. Cannot exceed 127 bytes. *
+    AttributeMappingValue: Optional. Maps attributes from authentication
+      credentials issued by an external identity provider to Google Cloud
+      attributes, such as `subject` and `segment`. Each key must be a string
+      specifying the Google Cloud IAM attribute to map to. The following keys
+      are supported: * `google.subject`: The principal IAM is authenticating.
+      You can reference this value in IAM bindings. This is also the subject
+      that appears in Cloud Logging logs. Cannot exceed 127 bytes. *
       `google.groups`: Groups the external identity belongs to. You can grant
       groups access to resources using an IAM `principalSet` binding; access
       applies to all members of the group. You can also provide custom
@@ -6203,7 +6537,7 @@ class WorkloadIdentityPoolProvider(_messages.Message):
       token: ``` {"google.subject": "assertion.sub"} ```
 
   Fields:
-    attributeCondition: [A Common Expression
+    attributeCondition: Optional. [A Common Expression
       Language](https://opensource.google/projects/cel) expression, in plain
       text, to restrict what otherwise valid authentication credentials issued
       by the provider should not be accepted. The expression must output a
@@ -6217,39 +6551,39 @@ class WorkloadIdentityPoolProvider(_messages.Message):
       valid authentication credential are accepted. The following example
       shows how to only allow credentials with a mapped `google.groups` value
       of `admins`: ``` "'admins' in google.groups" ```
-    attributeMapping:  Maps attributes from authentication credentials issued
-      by an external identity provider to Google Cloud attributes, such as
-      `subject` and `segment`. Each key must be a string specifying the Google
-      Cloud IAM attribute to map to. The following keys are supported: *
-      `google.subject`: The principal IAM is authenticating. You can reference
-      this value in IAM bindings. This is also the subject that appears in
-      Cloud Logging logs. Cannot exceed 127 bytes. * `google.groups`: Groups
-      the external identity belongs to. You can grant groups access to
-      resources using an IAM `principalSet` binding; access applies to all
-      members of the group. You can also provide custom attributes by
-      specifying `attribute.{custom_attribute}`, where `{custom_attribute}` is
-      the name of the custom attribute to be mapped. You can define a maximum
-      of 50 custom attributes. The maximum length of a mapped attribute key is
-      100 characters, and the key may only contain the characters [a-z0-9_].
-      You can reference these attributes in IAM policies to define fine-
-      grained access for a workload to Google Cloud resources. For example: *
-      `google.subject`: `principal://iam.googleapis.com/projects/{project}/loc
-      ations/{location}/workloadIdentityPools/{pool}/subject/{value}` *
-      `google.groups`: `principalSet://iam.googleapis.com/projects/{project}/l
-      ocations/{location}/workloadIdentityPools/{pool}/group/{value}` *
-      `attribute.{custom_attribute}`: `principalSet://iam.googleapis.com/proje
-      cts/{project}/locations/{location}/workloadIdentityPools/{pool}/attribut
-      e.{custom_attribute}/{value}` Each value must be a [Common Expression
-      Language] (https://opensource.google/projects/cel) function that maps an
-      identity provider credential to the normalized attribute specified by
-      the corresponding map key. You can use the `assertion` keyword in the
-      expression to access a JSON representation of the authentication
-      credential issued by the provider. The maximum length of an attribute
-      mapping expression is 2048 characters. When evaluated, the total size of
-      all mapped attributes must not exceed 8KB. For AWS providers, if no
-      attribute mapping is defined, the following default mapping applies: ```
-      { "google.subject":"assertion.arn", "attribute.aws_role":
-      "assertion.arn.contains('assumed-role')" " ?
+    attributeMapping: Optional. Maps attributes from authentication
+      credentials issued by an external identity provider to Google Cloud
+      attributes, such as `subject` and `segment`. Each key must be a string
+      specifying the Google Cloud IAM attribute to map to. The following keys
+      are supported: * `google.subject`: The principal IAM is authenticating.
+      You can reference this value in IAM bindings. This is also the subject
+      that appears in Cloud Logging logs. Cannot exceed 127 bytes. *
+      `google.groups`: Groups the external identity belongs to. You can grant
+      groups access to resources using an IAM `principalSet` binding; access
+      applies to all members of the group. You can also provide custom
+      attributes by specifying `attribute.{custom_attribute}`, where
+      `{custom_attribute}` is the name of the custom attribute to be mapped.
+      You can define a maximum of 50 custom attributes. The maximum length of
+      a mapped attribute key is 100 characters, and the key may only contain
+      the characters [a-z0-9_]. You can reference these attributes in IAM
+      policies to define fine-grained access for a workload to Google Cloud
+      resources. For example: * `google.subject`: `principal://iam.googleapis.
+      com/projects/{project}/locations/{location}/workloadIdentityPools/{pool}
+      /subject/{value}` * `google.groups`: `principalSet://iam.googleapis.com/
+      projects/{project}/locations/{location}/workloadIdentityPools/{pool}/gro
+      up/{value}` * `attribute.{custom_attribute}`: `principalSet://iam.google
+      apis.com/projects/{project}/locations/{location}/workloadIdentityPools/{
+      pool}/attribute.{custom_attribute}/{value}` Each value must be a [Common
+      Expression Language] (https://opensource.google/projects/cel) function
+      that maps an identity provider credential to the normalized attribute
+      specified by the corresponding map key. You can use the `assertion`
+      keyword in the expression to access a JSON representation of the
+      authentication credential issued by the provider. The maximum length of
+      an attribute mapping expression is 2048 characters. When evaluated, the
+      total size of all mapped attributes must not exceed 8KB. For AWS
+      providers, if no attribute mapping is defined, the following default
+      mapping applies: ``` { "google.subject":"assertion.arn",
+      "attribute.aws_role": "assertion.arn.contains('assumed-role')" " ?
       assertion.arn.extract('{account_arn}assumed-role/')" " + 'assumed-
       role/'" " + assertion.arn.extract('assumed-role/{role_name}/')" " :
       assertion.arn", } ``` If any custom attribute mappings are defined, they
@@ -6259,11 +6593,13 @@ class WorkloadIdentityPoolProvider(_messages.Message):
       claim of the incoming credential to the `subject` attribute on a Google
       token: ``` {"google.subject": "assertion.sub"} ```
     aws: An Amazon Web Services identity provider.
-    description: A description for the provider. Cannot exceed 256 characters.
-    disabled: Whether the provider is disabled. You cannot use a disabled
-      provider to exchange tokens. However, existing tokens still grant
-      access.
-    displayName: A display name for the provider. Cannot exceed 32 characters.
+    description: Optional. A description for the provider. Cannot exceed 256
+      characters.
+    disabled: Optional. Whether the provider is disabled. You cannot use a
+      disabled provider to exchange tokens. However, existing tokens still
+      grant access.
+    displayName: Optional. A display name for the provider. Cannot exceed 32
+      characters.
     expireTime: Output only. Time after which the workload identity pool
       provider will be permanently purged and cannot be recovered.
     name: Output only. The resource name of the provider.
@@ -6292,9 +6628,9 @@ class WorkloadIdentityPoolProvider(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class AttributeMappingValue(_messages.Message):
-    r""" Maps attributes from authentication credentials issued by an external
-    identity provider to Google Cloud attributes, such as `subject` and
-    `segment`. Each key must be a string specifying the Google Cloud IAM
+    r"""Optional. Maps attributes from authentication credentials issued by an
+    external identity provider to Google Cloud attributes, such as `subject`
+    and `segment`. Each key must be a string specifying the Google Cloud IAM
     attribute to map to. The following keys are supported: * `google.subject`:
     The principal IAM is authenticating. You can reference this value in IAM
     bindings. This is also the subject that appears in Cloud Logging logs.
@@ -6454,10 +6790,10 @@ class X509(_messages.Message):
   a client identity if the client has a certificate that chains up to this CA.
 
   Fields:
-    trustStore: Required. A Trust store, use this trust store as a wrapper to
+    trustStore: Required. A TrustStore. Use this trust store as a wrapper to
       config the trust anchor and optional intermediate cas to help build the
-      trust chain for the incoming end entity certificate. Follow the x509
-      guidelines to define those PEM encoded certs. Only 1 trust store is
+      trust chain for the incoming end entity certificate. Follow the X.509
+      guidelines to define those PEM encoded certs. Only one trust store is
       currently supported.
   """
 

@@ -37,11 +37,7 @@ class BlockchainNode(_messages.Message):
     privateServiceConnectEnabled: Optional. When true, the node is only
       accessible via Private Service Connect; no public endpoints are exposed.
       Otherwise, the node is only accessible via public endpoints. Warning:
-      Private Service Connect enabled nodes may require a manual migration
-      effort to remain compatible with future versions of the product. If this
-      feature is enabled, you will be notified of these changes along with any
-      required action to avoid disruption. See
-      https://cloud.google.com/vpc/docs/private-service-connect.
+      These nodes are deprecated, please use public endpoints instead.
     state: Output only. A status representing the state of the node.
     updateTime: Output only. The timestamp at which the blockchain node was
       last updated.
@@ -252,6 +248,9 @@ class BlockchainnodeengineProjectsLocationsListRequest(_messages.Message):
   r"""A BlockchainnodeengineProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -262,10 +261,11 @@ class BlockchainnodeengineProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class BlockchainnodeengineProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -309,12 +309,20 @@ class BlockchainnodeengineProjectsLocationsOperationsListRequest(_messages.Messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class CancelOperationRequest(_messages.Message):
@@ -557,10 +565,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):

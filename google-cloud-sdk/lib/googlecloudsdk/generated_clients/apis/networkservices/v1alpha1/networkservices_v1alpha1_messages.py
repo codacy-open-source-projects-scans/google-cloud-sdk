@@ -106,8 +106,8 @@ class AuthzExtension(_messages.Message):
       `EXTERNAL_MANAGED`. For more information, refer to [Backend services
       overview](https://cloud.google.com/load-balancing/docs/backend-service).
     WireFormatValueValuesEnum: Optional. The format of communication supported
-      by the callout extension. If not specified, the default is
-      `EXT_PROC_GRPC`.
+      by the callout extension. If not specified, the default value
+      `EXT_PROC_GRPC` is used.
 
   Messages:
     LabelsValue: Optional. Set of labels associated with the `AuthzExtension`
@@ -170,7 +170,7 @@ class AuthzExtension(_messages.Message):
       the stream. The timeout must be between 10-10000 milliseconds.
     updateTime: Output only. The timestamp when the resource was updated.
     wireFormat: Optional. The format of communication supported by the callout
-      extension. If not specified, the default is `EXT_PROC_GRPC`.
+      extension. If not specified, the default value `EXT_PROC_GRPC` is used.
   """
 
   class LoadBalancingSchemeValueValuesEnum(_messages.Enum):
@@ -193,15 +193,15 @@ class AuthzExtension(_messages.Message):
 
   class WireFormatValueValuesEnum(_messages.Enum):
     r"""Optional. The format of communication supported by the callout
-    extension. If not specified, the default is `EXT_PROC_GRPC`.
+    extension. If not specified, the default value `EXT_PROC_GRPC` is used.
 
     Values:
       WIRE_FORMAT_UNSPECIFIED: Not specified.
-      EXT_PROC_GRPC: The extension service uses ExtProc GRPC API over a gRPC
+      EXT_PROC_GRPC: The extension service uses ext_proc gRPC API over a gRPC
         stream. This is the default value if the wire format is not specified.
         The backend service for the extension must use HTTP2 or H2C as the
-        protocol. All `supported_events` for a client request will be sent as
-        part of the same gRPC stream.
+        protocol. All `supported_events` for a client request are sent as part
+        of the same gRPC stream.
     """
     WIRE_FORMAT_UNSPECIFIED = 0
     EXT_PROC_GRPC = 1
@@ -418,7 +418,7 @@ class CDNPolicy(_messages.Message):
       set to USE_ORIGIN_HEADERS or BYPASS_CACHE, you must omit this field.
     defaultTtl: Optional. Specifies the default TTL for cached content served
       by this origin for responses that do not have an existing valid TTL
-      (max-age or s-max-age). Defaults to `3600s` (1 hour). - The TTL must be
+      (max-age or s-maxage). Defaults to `3600s` (1 hour). - The TTL must be
       >= `0` and <= `31,536,000` seconds (1 year) - Setting a TTL of `0` means
       "always revalidate" (equivalent to must-revalidate) - The value of
       `default_ttl` cannot be set to a value greater than that of max_ttl. -
@@ -436,9 +436,8 @@ class CDNPolicy(_messages.Message):
       directive. - The TTL must be >= `0` and <= `31,536,000` seconds (1 year)
       - Setting a TTL of `0` means "always revalidate" - The value of
       `max_ttl` must be equal to or greater than default_ttl. - Fractions of a
-      second are not allowed. When CacheMode is set to
-      [USE_ORIGIN_HEADERS].[CacheMode.USE_ORIGIN_HEADERS], FORCE_CACHE_ALL, or
-      BYPASS_CACHE, you must omit this field.
+      second are not allowed. When CacheMode is set to USE_ORIGIN_HEADERS,
+      FORCE_CACHE_ALL, or BYPASS_CACHE, you must omit this field.
     negativeCaching: Optional. Negative caching allows setting per-status code
       TTLs, in order to apply fine-grained caching for common errors or
       redirects. This can reduce the load on your origin and improve end-user
@@ -793,7 +792,7 @@ class CORSPolicy(_messages.Message):
       response header. You can specify up to five allowed methods.
     allowOrigins: Optional. A list of origins that are allowed to do CORS
       requests. This translates to the `Access-Control-Allow-Origin` response
-      header. You can specify up to 25 allowed origins.
+      header. You can specify up to 100 allowed origins.
     disabled: Optional. If `true`, specifies that the CORS policy is disabled.
       The default value is `false`, which indicates that the CORS policy is in
       effect.
@@ -832,7 +831,8 @@ class Connection(_messages.Message):
     connectionType: Required. The VPC connection type.
     nccHub: Optional. The resource name of the
       [NCC](https://cloud.google.com/network-connectivity-center) hub. Use the
-      following format: `projects/{project}/locations/global/hubs/{hub}`.
+      following format: `projects/{project}/locations/global/hubs/{hub}`. Only
+      required if `connection_type` is NCC.
   """
 
   class ConnectionTypeValueValuesEnum(_messages.Enum):
@@ -954,6 +954,9 @@ class EdgeCacheOrigin(_messages.Message):
       are both valid paths to an `EdgeCacheOrigin` resource: * `projects/my-
       project/locations/global/edgeCacheOrigins/my-origin` * `my-origin` The
       value of max_attempts_timeout dictates the timeout across all origins.
+    flexShielding: Optional. The flexible shielding options to be used for all
+      routes to this origin. If not set, defaults to a global caching layer in
+      front of the origin.
     labels: Optional. A set of label tags associated with the EdgeCacheOrigin
       resource.
     maxAttempts: Optional. The maximum number of attempts to cache fill from
@@ -1091,17 +1094,18 @@ class EdgeCacheOrigin(_messages.Message):
   createTime = _messages.StringField(2)
   description = _messages.StringField(3)
   failoverOrigin = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  maxAttempts = _messages.IntegerField(6, variant=_messages.Variant.INT32)
-  name = _messages.StringField(7)
-  originAddress = _messages.StringField(8)
-  originOverrideAction = _messages.MessageField('OriginOverrideAction', 9)
-  originRedirect = _messages.MessageField('OriginRedirect', 10)
-  port = _messages.IntegerField(11, variant=_messages.Variant.INT32)
-  protocol = _messages.EnumField('ProtocolValueValuesEnum', 12)
-  retryConditions = _messages.EnumField('RetryConditionsValueListEntryValuesEnum', 13, repeated=True)
-  timeout = _messages.MessageField('Timeout', 14)
-  updateTime = _messages.StringField(15)
+  flexShielding = _messages.MessageField('FlexShieldingOptions', 5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  maxAttempts = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  name = _messages.StringField(8)
+  originAddress = _messages.StringField(9)
+  originOverrideAction = _messages.MessageField('OriginOverrideAction', 10)
+  originRedirect = _messages.MessageField('OriginRedirect', 11)
+  port = _messages.IntegerField(12, variant=_messages.Variant.INT32)
+  protocol = _messages.EnumField('ProtocolValueValuesEnum', 13)
+  retryConditions = _messages.EnumField('RetryConditionsValueListEntryValuesEnum', 14, repeated=True)
+  timeout = _messages.MessageField('Timeout', 15)
+  updateTime = _messages.StringField(16)
 
 
 class EdgeCacheService(_messages.Message):
@@ -1258,8 +1262,7 @@ class EndpointPolicy(_messages.Message):
     labels: Optional. Set of label tags associated with the EndpointPolicy
       resource.
     name: Identifier. Name of the EndpointPolicy resource. It matches pattern
-      `projects/{project}/locations/global/endpointPolicies/{endpoint_policy}`
-      .
+      `projects/{project}/locations/*/endpointPolicies/{endpoint_policy}`.
     securityPolicy: Optional. A URL referring to a SecurityPolicy resource.
       SecurityPolicy is used to enforce rate limiting policy on the inbound
       traffic at the identified backends. If this field is not set, rate
@@ -1374,8 +1377,8 @@ class ExtensionChain(_messages.Message):
     extensions: Required. A set of extensions to execute for the matching
       request. At least one extension is required. Up to 3 extensions can be
       defined for each extension chain for `LbTrafficExtension` resource.
-      `LbRouteExtension` chains are limited to 1 extension per extension
-      chain.
+      `LbRouteExtension` and `LbEdgeExtension` chains are limited to 1
+      extension per extension chain.
     matchCondition: Required. Conditions under which this chain is invoked for
       a request.
     name: Required. The name for this extension chain. The name is logged as
@@ -1394,20 +1397,56 @@ class ExtensionChainExtension(_messages.Message):
   r"""A single extension in the chain to execute for the matching request.
 
   Enums:
+    RequestBodySendModeValueValuesEnum: Optional. Configures the send mode for
+      request body processing. The field can only be set if `supported_events`
+      includes `REQUEST_BODY`. If `supported_events` includes `REQUEST_BODY`,
+      but `request_body_send_mode` is unset, the default value `STREAMED` is
+      used. When this field is set to `FULL_DUPLEX_STREAMED`,
+      `supported_events` must include both `REQUEST_BODY` and
+      `REQUEST_TRAILERS`. This field can be set only for `LbTrafficExtension`
+      and `LbRouteExtension` resources, and only when the `service` field of
+      the extension points to a `BackendService`. Only `FULL_DUPLEX_STREAMED`
+      mode is supported for `LbRouteExtension` resources.
+    ResponseBodySendModeValueValuesEnum: Optional. Configures the send mode
+      for response processing. If unspecified, the default value `STREAMED` is
+      used. The field can only be set if `supported_events` includes
+      `RESPONSE_BODY`. If `supported_events` includes `RESPONSE_BODY`, but
+      `response_body_send_mode` is unset, the default value `STREAMED` is
+      used. When this field is set to `FULL_DUPLEX_STREAMED`,
+      `supported_events` must include both `RESPONSE_BODY` and
+      `RESPONSE_TRAILERS`. This field can be set only for `LbTrafficExtension`
+      resources, and only when the `service` field of the extension points to
+      a `BackendService`.
     SupportedEventsValueListEntryValuesEnum:
 
   Messages:
     MetadataValue: Optional. The metadata provided here is included as part of
       the `metadata_context` (of type `google.protobuf.Struct`) in the
-      `ProcessingRequest` message sent to the extension server. The metadata
-      is available under the namespace `com.google....`. For example:
+      `ProcessingRequest` message sent to the extension server. For
+      `AuthzExtension` resources, the metadata is available under the
+      namespace `com.google.authz_extension.`. For other types of extensions,
+      the metadata is available under the namespace `com.google....`. For
+      example:
       `com.google.lb_traffic_extension.lbtrafficextension1.chain1.ext1`. The
       following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
+      qualified resource name. This field must not be set for plugin
+      extensions. Setting it results in a validation error. You can set
+      metadata at either the resource level or the extension level. The
+      extension level metadata is recommended because you can pass a different
+      set of metadata through each extension to the backend. This field is
+      subject to following limitations: * The total size of the metadata must
+      be less than 1KiB. * The total number of keys in the metadata must be
+      less than 16. * The length of each key must be less than 64 characters.
+      * The length of each value must be less than 1024 characters. * All
+      values must be strings.
 
   Fields:
+    allowDynamicForwarding: Optional. When set to `TRUE`, the response from an
+      extension service is allowed to set the
+      `com.google.envoy.dynamic_forwarding` namespace in the dynamic metadata.
+      This field is not supported for plugin extensions or AuthzExtensions.
+      Setting it results in a validation error.
     authority: Optional. The `:authority` header in the gRPC request sent from
       Envoy to the extension service. Required for Callout extensions. This
       field is not supported for plugin extensions. Setting it results in a
@@ -1427,18 +1466,60 @@ class ExtensionChainExtension(_messages.Message):
       sent. Each element is a string indicating the header name.
     metadata: Optional. The metadata provided here is included as part of the
       `metadata_context` (of type `google.protobuf.Struct`) in the
-      `ProcessingRequest` message sent to the extension server. The metadata
-      is available under the namespace `com.google....`. For example:
+      `ProcessingRequest` message sent to the extension server. For
+      `AuthzExtension` resources, the metadata is available under the
+      namespace `com.google.authz_extension.`. For other types of extensions,
+      the metadata is available under the namespace `com.google....`. For
+      example:
       `com.google.lb_traffic_extension.lbtrafficextension1.chain1.ext1`. The
       following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
-    name: Required. The name for this extension. The name is logged as part of
+      qualified resource name. This field must not be set for plugin
+      extensions. Setting it results in a validation error. You can set
+      metadata at either the resource level or the extension level. The
+      extension level metadata is recommended because you can pass a different
+      set of metadata through each extension to the backend. This field is
+      subject to following limitations: * The total size of the metadata must
+      be less than 1KiB. * The total number of keys in the metadata must be
+      less than 16. * The length of each key must be less than 64 characters.
+      * The length of each value must be less than 1024 characters. * All
+      values must be strings.
+    name: Optional. The name for this extension. The name is logged as part of
       the HTTP request logs. The name must conform with RFC-1034, is
       restricted to lower-cased letters, numbers and hyphens, and can have a
       maximum length of 63 characters. Additionally, the first character must
-      be a letter and the last a letter or a number.
+      be a letter and the last a letter or a number. This field is required
+      except for AuthzExtension.
+    observabilityMode: Optional. When set to `TRUE`, enables
+      `observability_mode` on the `ext_proc` filter. This makes `ext_proc`
+      calls asynchronous. Envoy doesn't check for the response from `ext_proc`
+      calls. For more information about the filter, see: https://www.envoyprox
+      y.io/docs/envoy/v1.32.3/api-
+      v3/extensions/filters/http/ext_proc/v3/ext_proc.proto#extensions-
+      filters-http-ext-proc-v3-externalprocessor This field is helpful when
+      you want to try out the extension in async log-only mode. Supported by
+      regional `LbTrafficExtension` and `LbRouteExtension` resources. Only
+      `STREAMED` (default) body processing mode is supported.
+    requestBodySendMode: Optional. Configures the send mode for request body
+      processing. The field can only be set if `supported_events` includes
+      `REQUEST_BODY`. If `supported_events` includes `REQUEST_BODY`, but
+      `request_body_send_mode` is unset, the default value `STREAMED` is used.
+      When this field is set to `FULL_DUPLEX_STREAMED`, `supported_events`
+      must include both `REQUEST_BODY` and `REQUEST_TRAILERS`. This field can
+      be set only for `LbTrafficExtension` and `LbRouteExtension` resources,
+      and only when the `service` field of the extension points to a
+      `BackendService`. Only `FULL_DUPLEX_STREAMED` mode is supported for
+      `LbRouteExtension` resources.
+    responseBodySendMode: Optional. Configures the send mode for response
+      processing. If unspecified, the default value `STREAMED` is used. The
+      field can only be set if `supported_events` includes `RESPONSE_BODY`. If
+      `supported_events` includes `RESPONSE_BODY`, but
+      `response_body_send_mode` is unset, the default value `STREAMED` is
+      used. When this field is set to `FULL_DUPLEX_STREAMED`,
+      `supported_events` must include both `RESPONSE_BODY` and
+      `RESPONSE_TRAILERS`. This field can be set only for `LbTrafficExtension`
+      resources, and only when the `service` field of the extension points to
+      a `BackendService`.
     service: Required. The reference to the service that runs the extension.
       To configure a callout extension, `service` must be a fully-qualified
       reference to a [backend service](https://cloud.google.com/compute/docs/r
@@ -1453,16 +1534,82 @@ class ExtensionChainExtension(_messages.Message):
       `projects/{project}/locations/{location}/wasmPlugins/{plugin}` or `//net
       workservices.googleapis.com/projects/{project}/locations/{location}/wasm
       Plugins/{wasmPlugin}`. Plugin extensions are currently supported for the
-      `LbTrafficExtension` and the `LbRouteExtension` resources.
+      `LbTrafficExtension`, the `LbRouteExtension`, and the `LbEdgeExtension`
+      resources.
     supportedEvents: Optional. A set of events during request or response
-      processing for which this extension is called. This field is required
-      for the `LbTrafficExtension` resource. It must not be set for the
-      `LbRouteExtension` resource, otherwise a validation error is returned.
+      processing for which this extension is called. For the
+      `LbTrafficExtension` resource, this field is required. For the
+      `LbRouteExtension` resource, this field is optional. If unspecified,
+      `REQUEST_HEADERS` event is assumed as supported. For the
+      `LbEdgeExtension` resource, this field is required and must only contain
+      `REQUEST_HEADERS` event. For the `AuthzExtension` resource, this field
+      is optional. `REQUEST_HEADERS` is the only supported event. If
+      unspecified, `REQUEST_HEADERS` event is assumed as supported.
     timeout: Optional. Specifies the timeout for each individual message on
-      the stream. The timeout must be between `10`-`1000` milliseconds.
+      the stream. The timeout must be between `10`-`10000` milliseconds.
       Required for callout extensions. This field is not supported for plugin
       extensions. Setting it results in a validation error.
   """
+
+  class RequestBodySendModeValueValuesEnum(_messages.Enum):
+    r"""Optional. Configures the send mode for request body processing. The
+    field can only be set if `supported_events` includes `REQUEST_BODY`. If
+    `supported_events` includes `REQUEST_BODY`, but `request_body_send_mode`
+    is unset, the default value `STREAMED` is used. When this field is set to
+    `FULL_DUPLEX_STREAMED`, `supported_events` must include both
+    `REQUEST_BODY` and `REQUEST_TRAILERS`. This field can be set only for
+    `LbTrafficExtension` and `LbRouteExtension` resources, and only when the
+    `service` field of the extension points to a `BackendService`. Only
+    `FULL_DUPLEX_STREAMED` mode is supported for `LbRouteExtension` resources.
+
+    Values:
+      BODY_SEND_MODE_UNSPECIFIED: Default value. Do not use.
+      BODY_SEND_MODE_STREAMED: Calls to the extension are executed in the
+        streamed mode. Subsequent chunks will be sent only after the previous
+        chunks have been processed. The content of the body chunks is sent one
+        way to the extension. Extension may send modified chunks back. This is
+        the default value if the processing mode is not specified.
+      BODY_SEND_MODE_FULL_DUPLEX_STREAMED: Calls are executed in the full
+        duplex mode. Subsequent chunks will be sent for processing without
+        waiting for the response for the previous chunk or for the response
+        for `REQUEST_HEADERS` event. Extension can freely modify or chunk the
+        body contents. If the extension doesn't send the body contents back,
+        the next extension in the chain or the upstream will receive an empty
+        body.
+    """
+    BODY_SEND_MODE_UNSPECIFIED = 0
+    BODY_SEND_MODE_STREAMED = 1
+    BODY_SEND_MODE_FULL_DUPLEX_STREAMED = 2
+
+  class ResponseBodySendModeValueValuesEnum(_messages.Enum):
+    r"""Optional. Configures the send mode for response processing. If
+    unspecified, the default value `STREAMED` is used. The field can only be
+    set if `supported_events` includes `RESPONSE_BODY`. If `supported_events`
+    includes `RESPONSE_BODY`, but `response_body_send_mode` is unset, the
+    default value `STREAMED` is used. When this field is set to
+    `FULL_DUPLEX_STREAMED`, `supported_events` must include both
+    `RESPONSE_BODY` and `RESPONSE_TRAILERS`. This field can be set only for
+    `LbTrafficExtension` resources, and only when the `service` field of the
+    extension points to a `BackendService`.
+
+    Values:
+      BODY_SEND_MODE_UNSPECIFIED: Default value. Do not use.
+      BODY_SEND_MODE_STREAMED: Calls to the extension are executed in the
+        streamed mode. Subsequent chunks will be sent only after the previous
+        chunks have been processed. The content of the body chunks is sent one
+        way to the extension. Extension may send modified chunks back. This is
+        the default value if the processing mode is not specified.
+      BODY_SEND_MODE_FULL_DUPLEX_STREAMED: Calls are executed in the full
+        duplex mode. Subsequent chunks will be sent for processing without
+        waiting for the response for the previous chunk or for the response
+        for `REQUEST_HEADERS` event. Extension can freely modify or chunk the
+        body contents. If the extension doesn't send the body contents back,
+        the next extension in the chain or the upstream will receive an empty
+        body.
+    """
+    BODY_SEND_MODE_UNSPECIFIED = 0
+    BODY_SEND_MODE_STREAMED = 1
+    BODY_SEND_MODE_FULL_DUPLEX_STREAMED = 2
 
   class SupportedEventsValueListEntryValuesEnum(_messages.Enum):
     r"""SupportedEventsValueListEntryValuesEnum enum type.
@@ -1494,13 +1641,22 @@ class ExtensionChainExtension(_messages.Message):
   class MetadataValue(_messages.Message):
     r"""Optional. The metadata provided here is included as part of the
     `metadata_context` (of type `google.protobuf.Struct`) in the
-    `ProcessingRequest` message sent to the extension server. The metadata is
-    available under the namespace `com.google....`. For example:
+    `ProcessingRequest` message sent to the extension server. For
+    `AuthzExtension` resources, the metadata is available under the namespace
+    `com.google.authz_extension.`. For other types of extensions, the metadata
+    is available under the namespace `com.google....`. For example:
     `com.google.lb_traffic_extension.lbtrafficextension1.chain1.ext1`. The
     following variables are supported in the metadata: `{forwarding_rule_id}`
     - substituted with the forwarding rule's fully qualified resource name.
-    This field is not supported for plugin extensions. Setting it results in a
-    validation error.
+    This field must not be set for plugin extensions. Setting it results in a
+    validation error. You can set metadata at either the resource level or the
+    extension level. The extension level metadata is recommended because you
+    can pass a different set of metadata through each extension to the
+    backend. This field is subject to following limitations: * The total size
+    of the metadata must be less than 1KiB. * The total number of keys in the
+    metadata must be less than 16. * The length of each key must be less than
+    64 characters. * The length of each value must be less than 1024
+    characters. * All values must be strings.
 
     Messages:
       AdditionalProperty: An additional property for a MetadataValue object.
@@ -1522,14 +1678,18 @@ class ExtensionChainExtension(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  authority = _messages.StringField(1)
-  failOpen = _messages.BooleanField(2)
-  forwardHeaders = _messages.StringField(3, repeated=True)
-  metadata = _messages.MessageField('MetadataValue', 4)
-  name = _messages.StringField(5)
-  service = _messages.StringField(6)
-  supportedEvents = _messages.EnumField('SupportedEventsValueListEntryValuesEnum', 7, repeated=True)
-  timeout = _messages.StringField(8)
+  allowDynamicForwarding = _messages.BooleanField(1)
+  authority = _messages.StringField(2)
+  failOpen = _messages.BooleanField(3)
+  forwardHeaders = _messages.StringField(4, repeated=True)
+  metadata = _messages.MessageField('MetadataValue', 5)
+  name = _messages.StringField(6)
+  observabilityMode = _messages.BooleanField(7)
+  requestBodySendMode = _messages.EnumField('RequestBodySendModeValueValuesEnum', 8)
+  responseBodySendMode = _messages.EnumField('ResponseBodySendModeValueValuesEnum', 9)
+  service = _messages.StringField(10)
+  supportedEvents = _messages.EnumField('SupportedEventsValueListEntryValuesEnum', 11, repeated=True)
+  timeout = _messages.StringField(12)
 
 
 class ExtensionChainMatchCondition(_messages.Message):
@@ -1546,12 +1706,41 @@ class ExtensionChainMatchCondition(_messages.Message):
   celExpression = _messages.StringField(1)
 
 
+class FlexShieldingOptions(_messages.Message):
+  r"""Defines the caching layer to use in front of the origin.
+
+  Enums:
+    FlexShieldingRegionsValueListEntryValuesEnum:
+
+  Fields:
+    flexShieldingRegions: Optional. Content is fetched from the origin and
+      cached in or near the specified region. Specify exactly one flexible
+      shielding region.
+  """
+
+  class FlexShieldingRegionsValueListEntryValuesEnum(_messages.Enum):
+    r"""FlexShieldingRegionsValueListEntryValuesEnum enum type.
+
+    Values:
+      FLEX_SHIELDING_REGION_UNSPECIFIED: This value indicates an error due to
+        a region not being specified.
+      AFRICA_SOUTH1: Content is fetched from an origin or cache near `africa-
+        south1`.
+      ME_CENTRAL1: Content is fetched from an origin or cache near `me-
+        central1`.
+    """
+    FLEX_SHIELDING_REGION_UNSPECIFIED = 0
+    AFRICA_SOUTH1 = 1
+    ME_CENTRAL1 = 2
+
+  flexShieldingRegions = _messages.EnumField('FlexShieldingRegionsValueListEntryValuesEnum', 1, repeated=True)
+
+
 class Gateway(_messages.Message):
   r"""Gateway represents the configuration for a proxy, typically a load
   balancer. It captures the ip:port over which the services are exposed by the
   proxy, along with any policy configurations. Routes have reference to to
-  Gateways to dictate how requests should be routed by this Gateway. Next id:
-  33
+  Gateways to dictate how requests should be routed by this Gateway.
 
   Enums:
     EnvoyHeadersValueValuesEnum: Optional. Determines if envoy will insert
@@ -1575,6 +1764,9 @@ class Gateway(_messages.Message):
       subnetwork is allocated This field only applies to gateways of type
       'SECURE_WEB_GATEWAY'. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for
       IPv4 and :: for IPv6.
+    allowGlobalAccess: Optional. If true, the gateway will allow traffic from
+      clients outside of the region where the gateway is located. This field
+      is configurable only for gateways of type SECURE_WEB_GATEWAY.
     authorizationPolicy: Optional. A fully-qualified AuthorizationPolicy URL
       reference. Specifies how traffic is authorized. If empty, authorization
       checks are disabled.
@@ -1604,7 +1796,7 @@ class Gateway(_messages.Message):
       specific to gateways of type 'SECURE_WEB_GATEWAY'.
     ports: Required. One or more port numbers (1-65535), on which the Gateway
       will receive traffic. The proxy binds to the specified ports. Gateways
-      of type 'SECURE_WEB_GATEWAY' are limited to 1 port. Gateways of type
+      of type 'SECURE_WEB_GATEWAY' are limited to 5 ports. Gateways of type
       'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support
       multiple ports.
     routingMode: Optional. The routing mode of the Gateway. This field is
@@ -1613,8 +1805,9 @@ class Gateway(_messages.Message):
     scope: Optional. Scope determines how configuration across multiple
       Gateway instances are merged. The configuration for multiple Gateway
       instances with the same scope will be merged as presented as a single
-      coniguration to the proxy/load balancer. Max length 64 characters. Scope
-      should start with a letter and can only have letters, numbers, hyphens.
+      configuration to the proxy/load balancer. Max length 64 characters.
+      Scope should start with a letter and can only have letters, numbers,
+      hyphens.
     securityPolicy: Optional. A fully-qualified GatewaySecurityPolicy URL
       reference. Defines how a server should apply security policy to inbound
       (VM to Proxy) initiated connections. This policy is specific to gateways
@@ -1722,25 +1915,26 @@ class Gateway(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   addresses = _messages.StringField(1, repeated=True)
-  authorizationPolicy = _messages.StringField(2)
-  certificateUrls = _messages.StringField(3, repeated=True)
-  createTime = _messages.StringField(4)
-  description = _messages.StringField(5)
-  envoyHeaders = _messages.EnumField('EnvoyHeadersValueValuesEnum', 6)
-  gatewaySecurityPolicy = _messages.StringField(7)
-  ipVersion = _messages.EnumField('IpVersionValueValuesEnum', 8)
-  labels = _messages.MessageField('LabelsValue', 9)
-  name = _messages.StringField(10)
-  network = _messages.StringField(11)
-  ports = _messages.IntegerField(12, repeated=True, variant=_messages.Variant.INT32)
-  routingMode = _messages.EnumField('RoutingModeValueValuesEnum', 13)
-  scope = _messages.StringField(14)
-  securityPolicy = _messages.StringField(15)
-  selfLink = _messages.StringField(16)
-  serverTlsPolicy = _messages.StringField(17)
-  subnetwork = _messages.StringField(18)
-  type = _messages.EnumField('TypeValueValuesEnum', 19)
-  updateTime = _messages.StringField(20)
+  allowGlobalAccess = _messages.BooleanField(2)
+  authorizationPolicy = _messages.StringField(3)
+  certificateUrls = _messages.StringField(4, repeated=True)
+  createTime = _messages.StringField(5)
+  description = _messages.StringField(6)
+  envoyHeaders = _messages.EnumField('EnvoyHeadersValueValuesEnum', 7)
+  gatewaySecurityPolicy = _messages.StringField(8)
+  ipVersion = _messages.EnumField('IpVersionValueValuesEnum', 9)
+  labels = _messages.MessageField('LabelsValue', 10)
+  name = _messages.StringField(11)
+  network = _messages.StringField(12)
+  ports = _messages.IntegerField(13, repeated=True, variant=_messages.Variant.INT32)
+  routingMode = _messages.EnumField('RoutingModeValueValuesEnum', 14)
+  scope = _messages.StringField(15)
+  securityPolicy = _messages.StringField(16)
+  selfLink = _messages.StringField(17)
+  serverTlsPolicy = _messages.StringField(18)
+  subnetwork = _messages.StringField(19)
+  type = _messages.EnumField('TypeValueValuesEnum', 20)
+  updateTime = _messages.StringField(21)
 
 
 class GatewayRouteView(_messages.Message):
@@ -1749,7 +1943,7 @@ class GatewayRouteView(_messages.Message):
   Fields:
     name: Output only. Identifier. Full path name of the GatewayRouteView
       resource. Format: projects/{project_number}/locations/{location}/gateway
-      s/{gateway_name}/routeViews/{route_view_name}
+      s/{gateway}/routeViews/{route_view}
     routeId: Output only. The resource id for the route.
     routeLocation: Output only. Location where the route exists.
     routeProjectNumber: Output only. Project number where the route exists.
@@ -1779,7 +1973,7 @@ class GrpcRoute(_messages.Message):
     gateways: Optional. Gateways defines a list of gateways this GrpcRoute is
       attached to, as one of the routing rules to route the requests served by
       the gateway. Each gateway reference should match the pattern:
-      `projects/*/locations/global/gateways/`
+      `projects/*/locations/*/gateways/`
     hostnames: Required. Service hostnames with an optional port for which
       this route describes traffic. Format: [:] Hostname is the fully
       qualified domain name of a network host. This matches the RFC 1123
@@ -1806,9 +2000,9 @@ class GrpcRoute(_messages.Message):
     meshes: Optional. Meshes defines a list of meshes this GrpcRoute is
       attached to, as one of the routing rules to route the requests served by
       the mesh. Each mesh reference should match the pattern:
-      `projects/*/locations/global/meshes/`
+      `projects/*/locations/*/meshes/`
     name: Identifier. Name of the GrpcRoute resource. It matches pattern
-      `projects/*/locations/global/grpcRoutes/`
+      `projects/*/locations/*/grpcRoutes/`
     rules: Required. A list of detailed rules defining how to route traffic.
       Within a single GrpcRoute, the GrpcRoute.RouteAction associated with the
       first matching GrpcRoute.RouteRule will be executed. At least one rule
@@ -2100,7 +2294,8 @@ class GrpcRouteStatefulSessionAffinityPolicy(_messages.Message):
   Fields:
     cookieTtl: Required. The cookie TTL value for the Set-Cookie header
       generated by the data plane. The lifetime of the cookie may be set to a
-      value from 1 to 86400 seconds (24 hours) inclusive.
+      value from 0 to 86400 seconds (24 hours) inclusive. Set this to 0s to
+      use a session cookie and disable cookie expiration.
   """
 
   cookieTtl = _messages.StringField(1)
@@ -2231,12 +2426,14 @@ class HttpFilter(_messages.Message):
       resource.
 
   Fields:
-    config: Required. The configuration needed to enable the HTTP filter. The
+    config: Optional. The configuration needed to enable the HTTP filter. The
       configuration must be JSON formatted and only contain fields defined in
-      the protobuf identified in config_type_url.
-    configTypeUrl: Required. The fully qualified versioned proto3 type url
+      the protobuf identified in config_type_url. This field will be ignored
+      if the `typed_config` field is set.
+    configTypeUrl: Optional. The fully qualified versioned proto3 type url
       that the filter expects for its configuration. For example:
-      'type.googleapis.com/envoy.config.wasm.v2.WasmService'.
+      'type.googleapis.com/envoy.config.wasm.v2.WasmService'. This field will
+      be ignored if the `typed_config` field is set.
     createTime: Output only. The timestamp when the resource was created.
     description: Optional. A free-text description of the resource. Max length
       1024 characters.
@@ -2319,7 +2516,7 @@ class HttpRoute(_messages.Message):
     gateways: Optional. Gateways defines a list of gateways this HttpRoute is
       attached to, as one of the routing rules to route the requests served by
       the gateway. Each gateway reference should match the pattern:
-      `projects/*/locations/global/gateways/`
+      `projects/*/locations/*/gateways/`
     hostnames: Required. Hostnames define a set of hosts that should match
       against the HTTP host header to select a HttpRoute to process the
       request. Hostname is the fully qualified domain name of a network host,
@@ -2344,10 +2541,10 @@ class HttpRoute(_messages.Message):
     meshes: Optional. Meshes defines a list of meshes this HttpRoute is
       attached to, as one of the routing rules to route the requests served by
       the mesh. Each mesh reference should match the pattern:
-      `projects/*/locations/global/meshes/` The attached Mesh should be of a
-      type SIDECAR
+      `projects/*/locations/*/meshes/` The attached Mesh should be of a type
+      SIDECAR
     name: Identifier. Name of the HttpRoute resource. It matches pattern
-      `projects/*/locations/global/httpRoutes/http_route_name>`.
+      `projects/*/locations/*/httpRoutes/http_route_name>`.
     rules: Required. Rules that define how traffic is routed and handled.
       Rules will be matched sequentially based on the RouteMatch specified for
       the rule.
@@ -2727,7 +2924,8 @@ class HttpRouteRequestMirrorPolicy(_messages.Message):
   r"""Specifies the policy on how requests are shadowed to a separate mirrored
   destination service. The proxy does not wait for responses from the shadow
   service. Prior to sending traffic to the shadow service, the host/authority
-  header is suffixed with -shadow.
+  header is suffixed with -shadow. Mirroring is currently not supported for
+  Cloud Run destinations.
 
   Fields:
     destination: The destination the requests will be mirrored to. The weight
@@ -2895,7 +3093,8 @@ class HttpRouteStatefulSessionAffinityPolicy(_messages.Message):
   Fields:
     cookieTtl: Required. The cookie TTL value for the Set-Cookie header
       generated by the data plane. The lifetime of the cookie may be set to a
-      value from 1 to 86400 seconds (24 hours) inclusive.
+      value from 0 to 86400 seconds (24 hours) inclusive. Set this to 0s to
+      use a session cookie and disable cookie expiration.
   """
 
   cookieTtl = _messages.StringField(1)
@@ -2945,6 +3144,100 @@ class InvalidateCacheRequest(_messages.Message):
 
 class InvalidateCacheResponse(_messages.Message):
   r"""The response used by the `InvalidateCache` method."""
+
+
+class LbEdgeExtension(_messages.Message):
+  r"""`LbEdgeExtension` is a resource that lets the extension service
+  influence the selection of backend services and Cloud CDN cache keys by
+  modifying request headers.
+
+  Enums:
+    LoadBalancingSchemeValueValuesEnum: Required. All forwarding rules
+      referenced by this extension must share the same load balancing scheme.
+      Supported values: `EXTERNAL_MANAGED`.
+
+  Messages:
+    LabelsValue: Optional. Set of labels associated with the `LbEdgeExtension`
+      resource. The format must comply with [the requirements for
+      labels](https://cloud.google.com/compute/docs/labeling-
+      resources#requirements) for Google Cloud resources.
+
+  Fields:
+    createTime: Output only. The timestamp when the resource was created.
+    description: Optional. A human-readable description of the resource.
+    extensionChains: Required. A set of ordered extension chains that contain
+      the match conditions and extensions to execute. Match conditions for
+      each extension chain are evaluated in sequence for a given request. The
+      first extension chain that has a condition that matches the request is
+      executed. Any subsequent extension chains do not execute. Limited to 5
+      extension chains per resource.
+    forwardingRules: Required. A list of references to the forwarding rules to
+      which this service extension is attached. At least one forwarding rule
+      is required. Only one `LbEdgeExtension` resource can be associated with
+      a forwarding rule.
+    labels: Optional. Set of labels associated with the `LbEdgeExtension`
+      resource. The format must comply with [the requirements for
+      labels](https://cloud.google.com/compute/docs/labeling-
+      resources#requirements) for Google Cloud resources.
+    loadBalancingScheme: Required. All forwarding rules referenced by this
+      extension must share the same load balancing scheme. Supported values:
+      `EXTERNAL_MANAGED`.
+    name: Required. Identifier. Name of the `LbEdgeExtension` resource in the
+      following format: `projects/{project}/locations/{location}/lbEdgeExtensi
+      ons/{lb_edge_extension}`.
+    updateTime: Output only. The timestamp when the resource was updated.
+  """
+
+  class LoadBalancingSchemeValueValuesEnum(_messages.Enum):
+    r"""Required. All forwarding rules referenced by this extension must share
+    the same load balancing scheme. Supported values: `EXTERNAL_MANAGED`.
+
+    Values:
+      LOAD_BALANCING_SCHEME_UNSPECIFIED: Default value. Do not use.
+      INTERNAL_MANAGED: Signifies that this is used for Internal HTTP(S) Load
+        Balancing.
+      EXTERNAL_MANAGED: Signifies that this is used for External Managed
+        HTTP(S) Load Balancing.
+    """
+    LOAD_BALANCING_SCHEME_UNSPECIFIED = 0
+    INTERNAL_MANAGED = 1
+    EXTERNAL_MANAGED = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Set of labels associated with the `LbEdgeExtension`
+    resource. The format must comply with [the requirements for
+    labels](https://cloud.google.com/compute/docs/labeling-
+    resources#requirements) for Google Cloud resources.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  extensionChains = _messages.MessageField('ExtensionChain', 3, repeated=True)
+  forwardingRules = _messages.StringField(4, repeated=True)
+  labels = _messages.MessageField('LabelsValue', 5)
+  loadBalancingScheme = _messages.EnumField('LoadBalancingSchemeValueValuesEnum', 6)
+  name = _messages.StringField(7)
+  updateTime = _messages.StringField(8)
 
 
 class LbObservabilityExtension(_messages.Message):
@@ -3158,11 +3451,16 @@ class LbRouteExtension(_messages.Message):
     MetadataValue: Optional. The metadata provided here is included as part of
       the `metadata_context` (of type `google.protobuf.Struct`) in the
       `ProcessingRequest` message sent to the extension server. The metadata
-      is available under the namespace `com.google.lb_route_extension.`. The
-      following variables are supported in the metadata Struct:
+      applies to all extensions in all extensions chains in this resource. The
+      metadata is available under the key `com.google.lb_route_extension.`.
+      The following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
+      qualified resource name. This field must not be set if at least one of
+      the extension chains contains plugin extensions. Setting it results in a
+      validation error. You can set metadata at either the resource level or
+      the extension level. The extension level metadata is recommended because
+      you can pass a different set of metadata through each extension to the
+      backend.
 
   Fields:
     createTime: Output only. The timestamp when the resource was created.
@@ -3175,8 +3473,8 @@ class LbRouteExtension(_messages.Message):
       extension chains per resource.
     forwardingRules: Required. A list of references to the forwarding rules to
       which this service extension is attached. At least one forwarding rule
-      is required. There can be only one `LbRouteExtension` resource per
-      forwarding rule.
+      is required. Only one `LbRouteExtension` resource can be associated with
+      a forwarding rule.
     labels: Optional. Set of labels associated with the `LbRouteExtension`
       resource. The format must comply with [the requirements for
       labels](https://cloud.google.com/compute/docs/labeling-
@@ -3189,11 +3487,16 @@ class LbRouteExtension(_messages.Message):
     metadata: Optional. The metadata provided here is included as part of the
       `metadata_context` (of type `google.protobuf.Struct`) in the
       `ProcessingRequest` message sent to the extension server. The metadata
-      is available under the namespace `com.google.lb_route_extension.`. The
-      following variables are supported in the metadata Struct:
+      applies to all extensions in all extensions chains in this resource. The
+      metadata is available under the key `com.google.lb_route_extension.`.
+      The following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
+      qualified resource name. This field must not be set if at least one of
+      the extension chains contains plugin extensions. Setting it results in a
+      validation error. You can set metadata at either the resource level or
+      the extension level. The extension level metadata is recommended because
+      you can pass a different set of metadata through each extension to the
+      backend.
     name: Required. Identifier. Name of the `LbRouteExtension` resource in the
       following format: `projects/{project}/locations/{location}/lbRouteExtens
       ions/{lb_route_extension}`.
@@ -3249,12 +3552,16 @@ class LbRouteExtension(_messages.Message):
   class MetadataValue(_messages.Message):
     r"""Optional. The metadata provided here is included as part of the
     `metadata_context` (of type `google.protobuf.Struct`) in the
-    `ProcessingRequest` message sent to the extension server. The metadata is
-    available under the namespace `com.google.lb_route_extension.`. The
-    following variables are supported in the metadata Struct:
-    `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-    qualified resource name. This field is not supported for plugin
-    extensions. Setting it results in a validation error.
+    `ProcessingRequest` message sent to the extension server. The metadata
+    applies to all extensions in all extensions chains in this resource. The
+    metadata is available under the key `com.google.lb_route_extension.`. The
+    following variables are supported in the metadata: `{forwarding_rule_id}`
+    - substituted with the forwarding rule's fully qualified resource name.
+    This field must not be set if at least one of the extension chains
+    contains plugin extensions. Setting it results in a validation error. You
+    can set metadata at either the resource level or the extension level. The
+    extension level metadata is recommended because you can pass a different
+    set of metadata through each extension to the backend.
 
     Messages:
       AdditionalProperty: An additional property for a MetadataValue object.
@@ -3287,6 +3594,108 @@ class LbRouteExtension(_messages.Message):
   updateTime = _messages.StringField(9)
 
 
+class LbTcpExtension(_messages.Message):
+  r"""`LbTcpExtension` is a resource that allows traffic forwarding to
+  different backend services to make allow/deny decisions on TCP connections
+  for all L7 Load Balancers within a network. Currently only internal load-
+  balancers are supported.
+
+  Enums:
+    LoadBalancingSchemeValueValuesEnum: Required. All backend services and
+      forwarding rules referenced by this extension must share the same load
+      balancing scheme. Supported values: `INTERNAL_MANAGED`. For more
+      information, refer to [Backend services
+      overview](https://cloud.google.com/load-balancing/docs/backend-service).
+
+  Messages:
+    LabelsValue: Optional. Set of labels associated with the `LbTcpExtension`
+      resource. The format must comply with [the requirements for
+      labels](/compute/docs/labeling-resources#requirements) for Google Cloud
+      resources.
+
+  Fields:
+    createTime: Output only. The timestamp when the resource was created.
+    description: Optional. A human-readable description of the resource.
+    extensionChains: Required. A set of ordered extension chains that contain
+      the match conditions and extensions to execute. Match conditions for
+      each extension chain are evaluated in sequence for a given request. The
+      first extension chain that has a condition that matches the request is
+      executed. Any subsequent extension chains do not execute. Limited to 5
+      extension chains per resource.
+    labels: Optional. Set of labels associated with the `LbTcpExtension`
+      resource. The format must comply with [the requirements for
+      labels](/compute/docs/labeling-resources#requirements) for Google Cloud
+      resources.
+    loadBalancingScheme: Required. All backend services and forwarding rules
+      referenced by this extension must share the same load balancing scheme.
+      Supported values: `INTERNAL_MANAGED`. For more information, refer to
+      [Backend services overview](https://cloud.google.com/load-
+      balancing/docs/backend-service).
+    name: Required. Identifier. Name of the `LbTcpExtension` resource in the
+      following format: `projects/{project}/locations/{location}/LbTcpExtensio
+      n/{lb_tcp_extension}`
+    networks: Optional. If set, this `LbTcpExtension` resource applies to all
+      `ForwardingRule` resources in these VPC networks. Values should be
+      relative resource names identifying VPC networks, for example
+      `projects/*/global/networks/network-1`. Currently limited to 1 network
+      per resource. Limited to 1 network per resource.
+    updateTime: Output only. The timestamp when the resource was updated.
+  """
+
+  class LoadBalancingSchemeValueValuesEnum(_messages.Enum):
+    r"""Required. All backend services and forwarding rules referenced by this
+    extension must share the same load balancing scheme. Supported values:
+    `INTERNAL_MANAGED`. For more information, refer to [Backend services
+    overview](https://cloud.google.com/load-balancing/docs/backend-service).
+
+    Values:
+      LOAD_BALANCING_SCHEME_UNSPECIFIED: Default value. Do not use.
+      INTERNAL_MANAGED: Signifies that this is used for Internal HTTP(S) Load
+        Balancing.
+      EXTERNAL_MANAGED: Signifies that this is used for External Managed
+        HTTP(S) Load Balancing.
+    """
+    LOAD_BALANCING_SCHEME_UNSPECIFIED = 0
+    INTERNAL_MANAGED = 1
+    EXTERNAL_MANAGED = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Set of labels associated with the `LbTcpExtension` resource.
+    The format must comply with [the requirements for
+    labels](/compute/docs/labeling-resources#requirements) for Google Cloud
+    resources.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  extensionChains = _messages.MessageField('ExtensionChain', 3, repeated=True)
+  labels = _messages.MessageField('LabelsValue', 4)
+  loadBalancingScheme = _messages.EnumField('LoadBalancingSchemeValueValuesEnum', 5)
+  name = _messages.StringField(6)
+  networks = _messages.StringField(7, repeated=True)
+  updateTime = _messages.StringField(8)
+
+
 class LbTrafficExtension(_messages.Message):
   r"""`LbTrafficExtension` is a resource that lets the extension service
   modify the headers and payloads of both requests and responses without
@@ -3296,7 +3705,7 @@ class LbTrafficExtension(_messages.Message):
   Enums:
     LoadBalancingSchemeValueValuesEnum: Required. All backend services and
       forwarding rules referenced by this extension must share the same load
-      balancing scheme. Supported values: `INTERNAL_MANAGED`,
+      balancing scheme. Supported values: `INTERNAL_MANAGED` and
       `EXTERNAL_MANAGED`. For more information, refer to [Backend services
       overview](https://cloud.google.com/load-balancing/docs/backend-service).
 
@@ -3305,13 +3714,19 @@ class LbTrafficExtension(_messages.Message):
       `LbTrafficExtension` resource. The format must comply with [the
       requirements for labels](https://cloud.google.com/compute/docs/labeling-
       resources#requirements) for Google Cloud resources.
-    MetadataValue: Optional. The metadata provided here is included in the
-      `ProcessingRequest.metadata_context.filter_metadata` map field. The
+    MetadataValue: Optional. The metadata provided here is included as part of
+      the `metadata_context` (of type `google.protobuf.Struct`) in the
+      `ProcessingRequest` message sent to the extension server. The metadata
+      applies to all extensions in all extensions chains in this resource. The
       metadata is available under the key `com.google.lb_traffic_extension.`.
       The following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
+      qualified resource name. This field must not be set if at least one of
+      the extension chains contains plugin extensions. Setting it results in a
+      validation error. You can set metadata at either the resource level or
+      the extension level. The extension level metadata is recommended because
+      you can pass a different set of metadata through each extension to the
+      backend.
 
   Fields:
     createTime: Output only. The timestamp when the resource was created.
@@ -3324,24 +3739,30 @@ class LbTrafficExtension(_messages.Message):
       extension chains per resource.
     forwardingRules: Optional. A list of references to the forwarding rules to
       which this service extension is attached. At least one forwarding rule
-      is required. There can be only one `LBTrafficExtension` resource per
-      forwarding rule.
+      is required. Only one `LbTrafficExtension` resource can be associated
+      with a forwarding rule.
     labels: Optional. Set of labels associated with the `LbTrafficExtension`
       resource. The format must comply with [the requirements for
       labels](https://cloud.google.com/compute/docs/labeling-
       resources#requirements) for Google Cloud resources.
     loadBalancingScheme: Required. All backend services and forwarding rules
       referenced by this extension must share the same load balancing scheme.
-      Supported values: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`. For more
+      Supported values: `INTERNAL_MANAGED` and `EXTERNAL_MANAGED`. For more
       information, refer to [Backend services
       overview](https://cloud.google.com/load-balancing/docs/backend-service).
-    metadata: Optional. The metadata provided here is included in the
-      `ProcessingRequest.metadata_context.filter_metadata` map field. The
+    metadata: Optional. The metadata provided here is included as part of the
+      `metadata_context` (of type `google.protobuf.Struct`) in the
+      `ProcessingRequest` message sent to the extension server. The metadata
+      applies to all extensions in all extensions chains in this resource. The
       metadata is available under the key `com.google.lb_traffic_extension.`.
       The following variables are supported in the metadata:
       `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-      qualified resource name. This field is not supported for plugin
-      extensions. Setting it results in a validation error.
+      qualified resource name. This field must not be set if at least one of
+      the extension chains contains plugin extensions. Setting it results in a
+      validation error. You can set metadata at either the resource level or
+      the extension level. The extension level metadata is recommended because
+      you can pass a different set of metadata through each extension to the
+      backend.
     name: Required. Identifier. Name of the `LbTrafficExtension` resource in
       the following format: `projects/{project}/locations/{location}/lbTraffic
       Extensions/{lb_traffic_extension}`.
@@ -3351,7 +3772,7 @@ class LbTrafficExtension(_messages.Message):
   class LoadBalancingSchemeValueValuesEnum(_messages.Enum):
     r"""Required. All backend services and forwarding rules referenced by this
     extension must share the same load balancing scheme. Supported values:
-    `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`. For more information, refer to
+    `INTERNAL_MANAGED` and `EXTERNAL_MANAGED`. For more information, refer to
     [Backend services overview](https://cloud.google.com/load-
     balancing/docs/backend-service).
 
@@ -3395,13 +3816,19 @@ class LbTrafficExtension(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class MetadataValue(_messages.Message):
-    r"""Optional. The metadata provided here is included in the
-    `ProcessingRequest.metadata_context.filter_metadata` map field. The
+    r"""Optional. The metadata provided here is included as part of the
+    `metadata_context` (of type `google.protobuf.Struct`) in the
+    `ProcessingRequest` message sent to the extension server. The metadata
+    applies to all extensions in all extensions chains in this resource. The
     metadata is available under the key `com.google.lb_traffic_extension.`.
     The following variables are supported in the metadata:
     `{forwarding_rule_id}` - substituted with the forwarding rule's fully
-    qualified resource name. This field is not supported for plugin
-    extensions. Setting it results in a validation error.
+    qualified resource name. This field must not be set if at least one of the
+    extension chains contains plugin extensions. Setting it results in a
+    validation error. You can set metadata at either the resource level or the
+    extension level. The extension level metadata is recommended because you
+    can pass a different set of metadata through each extension to the
+    backend.
 
     Messages:
       AdditionalProperty: An additional property for a MetadataValue object.
@@ -3458,10 +3885,14 @@ class ListEdgeCacheKeysetsResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       page_token.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   edgeCacheKeysets = _messages.MessageField('EdgeCacheKeyset', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListEdgeCacheOriginsResponse(_messages.Message):
@@ -3473,10 +3904,14 @@ class ListEdgeCacheOriginsResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       page_token.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   edgeCacheOrigins = _messages.MessageField('EdgeCacheOrigin', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListEdgeCacheServicesResponse(_messages.Message):
@@ -3488,10 +3923,14 @@ class ListEdgeCacheServicesResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       page_token.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   edgeCacheServices = _messages.MessageField('EdgeCacheService', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListEndpointPoliciesResponse(_messages.Message):
@@ -3503,10 +3942,14 @@ class ListEndpointPoliciesResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request opts into
+      return_partial_success and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   endpointPolicies = _messages.MessageField('EndpointPolicy', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListGatewayRouteViewsResponse(_messages.Message):
@@ -3516,10 +3959,14 @@ class ListGatewayRouteViewsResponse(_messages.Message):
     gatewayRouteViews: List of GatewayRouteView resources.
     nextPageToken: A token, which can be sent as `page_token` to retrieve the
       next page. If this field is omitted, there are no subsequent pages.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   gatewayRouteViews = _messages.MessageField('GatewayRouteView', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListGatewaysResponse(_messages.Message):
@@ -3548,10 +3995,14 @@ class ListGrpcRoutesResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request opts into
+      return_partial_success and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   grpcRoutes = _messages.MessageField('GrpcRoute', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListHttpFiltersResponse(_messages.Message):
@@ -3563,10 +4014,14 @@ class ListHttpFiltersResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   httpFilters = _messages.MessageField('HttpFilter', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListHttpRoutesResponse(_messages.Message):
@@ -3578,10 +4033,29 @@ class ListHttpRoutesResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request opts into
+      return_partial_success and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   httpRoutes = _messages.MessageField('HttpRoute', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListLbEdgeExtensionsResponse(_messages.Message):
+  r"""Message for response to listing `LbEdgeExtension` resources.
+
+  Fields:
+    lbEdgeExtensions: The list of `LbEdgeExtension` resources.
+    nextPageToken: A token identifying a page of results that the server
+      returns.
+    unreachable: Locations that could not be reached.
+  """
+
+  lbEdgeExtensions = _messages.MessageField('LbEdgeExtension', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListLbObservabilityExtensionsResponse(_messages.Message):
@@ -3611,6 +4085,21 @@ class ListLbRouteExtensionsResponse(_messages.Message):
   """
 
   lbRouteExtensions = _messages.MessageField('LbRouteExtension', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListLbTcpExtensionsResponse(_messages.Message):
+  r"""Message for response to listing `LbTcpExtension` resources.
+
+  Fields:
+    lbTcpExtensions: The list of `LbTcpExtension` resources.
+    nextPageToken: A token identifying a page of results that the server
+      returns.
+    unreachable: Locations that could not be reached.
+  """
+
+  lbTcpExtensions = _messages.MessageField('LbTcpExtension', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
 
@@ -3650,10 +4139,14 @@ class ListMeshRouteViewsResponse(_messages.Message):
     meshRouteViews: List of MeshRouteView resources.
     nextPageToken: A token, which can be sent as `page_token` to retrieve the
       next page. If this field is omitted, there are no subsequent pages.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   meshRouteViews = _messages.MessageField('MeshRouteView', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListMeshesResponse(_messages.Message):
@@ -3665,10 +4158,14 @@ class ListMeshesResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request opts into
+      `return_partial_success` and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   meshes = _messages.MessageField('Mesh', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListMulticastConsumerAssociationsResponse(_messages.Message):
@@ -3779,6 +4276,37 @@ class ListMulticastGroupProducerActivationsResponse(_messages.Message):
   unreachable = _messages.StringField(3, repeated=True)
 
 
+class ListMulticastGroupRangeActivationsResponse(_messages.Message):
+  r"""Response message for ListMulticastGroupRangeActivations.
+
+  Fields:
+    multicastGroupRangeActivations: The list of multicast group range
+      activations.
+    nextPageToken: A page token from an earlier query, as returned in
+      `next_page_token`.
+    unreachable: Locations that could not be reached.
+  """
+
+  multicastGroupRangeActivations = _messages.MessageField('MulticastGroupRangeActivation', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListMulticastGroupRangesResponse(_messages.Message):
+  r"""Response message for ListMulticastGroupRanges.
+
+  Fields:
+    multicastGroupRanges: The list of multicast group ranges.
+    nextPageToken: A page token from an earlier query, as returned in
+      `next_page_token`.
+    unreachable: Locations that could not be reached.
+  """
+
+  multicastGroupRanges = _messages.MessageField('MulticastGroupRange', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
 class ListMulticastGroupsResponse(_messages.Message):
   r"""Response message for ListMulticastGroups.
 
@@ -3819,10 +4347,14 @@ class ListObservabilityPoliciesResponse(_messages.Message):
       results, call this method again using the value of `next_page_token` as
       `page_token`.
     observabilityPolicies: List of ObservabilityPolicy resources.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   nextPageToken = _messages.StringField(1)
   observabilityPolicies = _messages.MessageField('ObservabilityPolicy', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListOperationsResponse(_messages.Message):
@@ -3832,10 +4364,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListServiceBindingsResponse(_messages.Message):
@@ -3847,10 +4384,14 @@ class ListServiceBindingsResponse(_messages.Message):
       results, call this method again using the value of `next_page_token` as
       `page_token`.
     serviceBindings: List of ServiceBinding resources.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   nextPageToken = _messages.StringField(1)
   serviceBindings = _messages.MessageField('ServiceBinding', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListServiceLbPoliciesResponse(_messages.Message):
@@ -3862,10 +4403,29 @@ class ListServiceLbPoliciesResponse(_messages.Message):
       results, call this method again using the value of `next_page_token` as
       `page_token`.
     serviceLbPolicies: List of ServiceLbPolicy resources.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
   """
 
   nextPageToken = _messages.StringField(1)
   serviceLbPolicies = _messages.MessageField('ServiceLbPolicy', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListSwpSecurityExtensionsResponse(_messages.Message):
+  r"""Message for response to listing `SwpSecurityExtension` resources.
+
+  Fields:
+    nextPageToken: A token identifying a page of results that the server
+      returns.
+    swpSecurityExtensions: The list of `SwpSecurityExtension` resources.
+    unreachable: Locations that could not be reached.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  swpSecurityExtensions = _messages.MessageField('SwpSecurityExtension', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListTcpRoutesResponse(_messages.Message):
@@ -3877,10 +4437,14 @@ class ListTcpRoutesResponse(_messages.Message):
       results, call this method again using the value of `next_page_token` as
       `page_token`.
     tcpRoutes: List of TcpRoute resources.
+    unreachable: Unreachable resources. Populated when the request opts into
+      return_partial_success and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   tcpRoutes = _messages.MessageField('TcpRoute', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListTlsRoutesResponse(_messages.Message):
@@ -3892,10 +4456,14 @@ class ListTlsRoutesResponse(_messages.Message):
       results, call this method again using the value of `next_page_token` as
       `page_token`.
     tlsRoutes: List of TlsRoute resources.
+    unreachable: Unreachable resources. Populated when the request opts into
+      return_partial_success and reading across collections e.g. when
+      attempting to list all resources across all supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   tlsRoutes = _messages.MessageField('TlsRoute', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListWasmActionsResponse(_messages.Message):
@@ -3921,11 +4489,15 @@ class ListWasmPluginVersionsResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
     wasmPluginVersions: List of `WasmPluginVersion` resources.
   """
 
   nextPageToken = _messages.StringField(1)
-  wasmPluginVersions = _messages.MessageField('WasmPluginVersion', 2, repeated=True)
+  unreachable = _messages.StringField(2, repeated=True)
+  wasmPluginVersions = _messages.MessageField('WasmPluginVersion', 3, repeated=True)
 
 
 class ListWasmPluginsResponse(_messages.Message):
@@ -3936,11 +4508,15 @@ class ListWasmPluginsResponse(_messages.Message):
       response, then `next_page_token` is included. To get the next set of
       results, call this method again using the value of `next_page_token` as
       `page_token`.
+    unreachable: Unreachable resources. Populated when the request attempts to
+      list all resources across all supported locations, while some locations
+      are temporarily unavailable.
     wasmPlugins: List of `WasmPlugin` resources.
   """
 
   nextPageToken = _messages.StringField(1)
-  wasmPlugins = _messages.MessageField('WasmPlugin', 2, repeated=True)
+  unreachable = _messages.StringField(2, repeated=True)
+  wasmPlugins = _messages.MessageField('WasmPlugin', 3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -4042,7 +4618,7 @@ class LogConfig(_messages.Message):
 
 
 class LoggingConfig(_messages.Message):
-  r"""The configuration for Platform Telemetry logging for Eventarc Avdvanced
+  r"""The configuration for Platform Telemetry logging for Eventarc Advanced
   resources.
 
   Enums:
@@ -4155,6 +4731,10 @@ class Mesh(_messages.Message):
     envoyHeaders: Optional. Determines if envoy will insert internal debug
       headers into upstream requests. Other Envoy headers may still be
       injected. By default, envoy will not insert any debug headers.
+    forwardProxyServiceAttachments: Optional. Specifies a list of service
+      attachments containing forward proxies facilitating cross-network
+      connectivity. Format: projects/{project}/regions/{region}/serviceAttachm
+      ents/{service_attachment}
     interceptionPort: Optional. If set to a valid TCP port (1-65535),
       instructs the SIDECAR proxy to listen on the specified port of localhost
       (127.0.0.1) address. The SIDECAR proxy will expect all traffic to be
@@ -4163,7 +4743,7 @@ class Mesh(_messages.Message):
       applicable only for sidecar proxy deployments.
     labels: Optional. Set of label tags associated with the Mesh resource.
     name: Identifier. Name of the Mesh resource. It matches pattern
-      `projects/*/locations/global/meshes/`.
+      `projects/*/locations/*/meshes/`.
     selfLink: Output only. Server-defined URL of this resource
     updateTime: Output only. The timestamp when the resource was updated.
   """
@@ -4212,11 +4792,12 @@ class Mesh(_messages.Message):
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
   envoyHeaders = _messages.EnumField('EnvoyHeadersValueValuesEnum', 3)
-  interceptionPort = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  labels = _messages.MessageField('LabelsValue', 5)
-  name = _messages.StringField(6)
-  selfLink = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  forwardProxyServiceAttachments = _messages.StringField(4, repeated=True)
+  interceptionPort = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  selfLink = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
 
 
 class MeshRouteView(_messages.Message):
@@ -4225,7 +4806,7 @@ class MeshRouteView(_messages.Message):
   Fields:
     name: Output only. Identifier. Full path name of the MeshRouteView
       resource. Format: projects/{project_number}/locations/{location}/meshes/
-      {mesh_name}/routeViews/{route_view_name}
+      {mesh}/routeViews/{route_view}
     routeId: Output only. The resource id for the route.
     routeLocation: Output only. Location where the route exists.
     routeProjectNumber: Output only. Project number where the route exists.
@@ -4327,8 +4908,8 @@ class MulticastConsumerAssociation(_messages.Message):
   r"""Multicast consumer association resource.
 
   Enums:
-    ResourceStateValueValuesEnum: Output only. The resource state of the
-      multicast consumer association.
+    ResourceStateValueValuesEnum: Output only. [Deprecated] The resource state
+      of the multicast consumer association. Use the state field instead.
 
   Messages:
     LabelsValue: Optional. Labels as key-value pairs
@@ -4338,22 +4919,22 @@ class MulticastConsumerAssociation(_messages.Message):
       consumer association was created.
     description: Optional. An optional text description of the multicast
       consumer association.
-    domainActivation: Reference to the domain activation in the same zone as
-      the consumer association. [Deprecated] Use multicast_domain_activation
-      instead.
     labels: Optional. Labels as key-value pairs
-    multicastDomainActivation: Optional. The resource name of the multicast
-      domain activation that is in the same zone as this multicast consumer
-      association. Use the following format: //
-      `projects/*/locations/*/multicastConsumerAssociations/*`.
+    multicastDomainActivation: A string attribute.
     name: Identifier. The resource name of the multicast consumer association.
       Use the following format:
       `projects/*/locations/*/multicastConsumerAssociations/*`.
     network: Required. The resource name of the multicast consumer VPC
       network. Use following format:
       `projects/{project}/locations/global/networks/{network}`.
-    resourceState: Output only. The resource state of the multicast consumer
-      association.
+    placementPolicy: Output only. [Output only] A Compute Engine (placement
+      policy)[https://cloud.google.com/compute/docs/instances/placement-
+      policies-overview] that can be used to place virtual machine (VM)
+      instances as multicast consumers close to the multicast infrastructure
+      created for this domain, on a best effort basis.
+    resourceState: Output only. [Deprecated] The resource state of the
+      multicast consumer association. Use the state field instead.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast consumer association
       resources. If a consumer association is deleted and another with the
@@ -4364,13 +4945,14 @@ class MulticastConsumerAssociation(_messages.Message):
   """
 
   class ResourceStateValueValuesEnum(_messages.Enum):
-    r"""Output only. The resource state of the multicast consumer association.
+    r"""Output only. [Deprecated] The resource state of the multicast consumer
+    association. Use the state field instead.
 
     Values:
       CONSUMER_RESOURCE_STATE_UNSPECIFIED: The consumer resource state is not
         specified.
       ACTIVE: The consumer resource state is active.
-      OBSOLETE: The associted admin resource has been deleted. The consumer
+      OBSOLETE: The associated admin resource has been deleted. The consumer
         resource state becomes obsolete.
     """
     CONSUMER_RESOURCE_STATE_UNSPECIFIED = 0
@@ -4403,14 +4985,15 @@ class MulticastConsumerAssociation(_messages.Message):
 
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
-  domainActivation = _messages.StringField(3)
-  labels = _messages.MessageField('LabelsValue', 4)
-  multicastDomainActivation = _messages.StringField(5)
-  name = _messages.StringField(6)
-  network = _messages.StringField(7)
+  labels = _messages.MessageField('LabelsValue', 3)
+  multicastDomainActivation = _messages.StringField(4)
+  name = _messages.StringField(5)
+  network = _messages.StringField(6)
+  placementPolicy = _messages.StringField(7)
   resourceState = _messages.EnumField('ResourceStateValueValuesEnum', 8)
-  uniqueId = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  state = _messages.MessageField('MulticastResourceState', 9)
+  uniqueId = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
 
 
 class MulticastDomain(_messages.Message):
@@ -4434,9 +5017,9 @@ class MulticastDomain(_messages.Message):
       /locations/global/multicastDomainGroups/{multicast_domain_group}`.
     name: Identifier. The resource name of the multicast domain. Use the
       following format: `projects/*/locations/global/multicastDomains/*`
-    network: Optional. [Deprecated] Use `admin_network` instead. The resource
-      name of the multicast producer VPC network. Use following format:
-      `projects/{project}/locations/global/networks/{network}`.
+    state: Output only. [Output only] The state of the resource.
+    ullMulticastDomain: Optional. Information for an Ultra-Low-Latency
+      multicast domain.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast domain resources. If
       a domain is deleted and another with the same name is created, the new
@@ -4476,9 +5059,10 @@ class MulticastDomain(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 5)
   multicastDomainGroup = _messages.StringField(6)
   name = _messages.StringField(7)
-  network = _messages.StringField(8)
-  uniqueId = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  state = _messages.MessageField('MulticastResourceState', 8)
+  ullMulticastDomain = _messages.MessageField('UllMulticastDomain', 9)
+  uniqueId = _messages.StringField(10)
+  updateTime = _messages.StringField(11)
 
 
 class MulticastDomainActivation(_messages.Message):
@@ -4493,8 +5077,9 @@ class MulticastDomainActivation(_messages.Message):
       domain activation was created.
     description: Optional. An optional text description of the multicast
       domain activation.
-    domain: Reference to the domain that is being activated. [Deprecated] Use
-      multicast_domain instead.
+    disablePlacementPolicy: Optional. Option to allow disabling placement
+      policy for multicast infrastructure. Only applicable if the activation
+      is for a domain associating with a multicast domain group.
     labels: Optional. Labels as key-value pairs
     multicastConsumerAssociations: Output only. The resource names of
       associated multicast consumer associations. Use the following format:
@@ -4505,6 +5090,9 @@ class MulticastDomainActivation(_messages.Message):
     name: Identifier. The resource name of the multicast domain activation.
       Use the following format:
       `projects/*/locations/*/multicastDomainActivations/*`.
+    state: Output only. [Output only] The state of the resource.
+    trafficSpec: Optional. The traffic specification for the multicast domain
+      activation.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast domain activation
       resources. If a domain activation is deleted and another with the same
@@ -4541,13 +5129,15 @@ class MulticastDomainActivation(_messages.Message):
   adminNetwork = _messages.StringField(1)
   createTime = _messages.StringField(2)
   description = _messages.StringField(3)
-  domain = _messages.StringField(4)
+  disablePlacementPolicy = _messages.BooleanField(4)
   labels = _messages.MessageField('LabelsValue', 5)
   multicastConsumerAssociations = _messages.StringField(6, repeated=True)
   multicastDomain = _messages.StringField(7)
   name = _messages.StringField(8)
-  uniqueId = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  state = _messages.MessageField('MulticastResourceState', 9)
+  trafficSpec = _messages.MessageField('TrafficSpec', 10)
+  uniqueId = _messages.StringField(11)
+  updateTime = _messages.StringField(12)
 
 
 class MulticastDomainGroup(_messages.Message):
@@ -4566,6 +5156,7 @@ class MulticastDomainGroup(_messages.Message):
       with the group. There can be at most 2 multicast domains in a group.
     name: Identifier. The resource name of the multicast domain group. Use the
       following format: `projects/*/locations/global/multicastDomainGroups/*`
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast domain group
       resources. If a domain is deleted and another with the same name is
@@ -4603,8 +5194,9 @@ class MulticastDomainGroup(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 3)
   multicastDomains = _messages.StringField(4, repeated=True)
   name = _messages.StringField(5)
-  uniqueId = _messages.StringField(6)
-  updateTime = _messages.StringField(7)
+  state = _messages.MessageField('MulticastResourceState', 6)
+  uniqueId = _messages.StringField(7)
+  updateTime = _messages.StringField(8)
 
 
 class MulticastGroup(_messages.Message):
@@ -4618,13 +5210,16 @@ class MulticastGroup(_messages.Message):
       group was created.
     description: Optional. An optional text description of the multicast
       group.
-    domainActivation: Reference to the domain activation in the same zone as
-      the group. [Deprecated] Use multicast_domain_activation instead.
-    groupDefinition: Optional. Reference to the global group definition for
-      the group. [Deprecated] Use multicast_group_definition instead.
     ipCidrRange: Output only. [Output only] The multicast group IP address
       range.
     labels: Optional. Labels as key-value pairs.
+    logConfig: Optional. Specifies the logging options for the activities
+      performed regarding the multicast group. Defaults to false. If not
+      specified, inherit the logging options from the global multicast group
+      definition resource. If logging is enabled, logs are exported to Cloud
+      Logging. If the log config is explicitly set for the multicast group,
+      regardless if it is enabled or not, the value overrides what is
+      configured by the multicast group definition resource.
     multicastDomainActivation: Optional. The resource name of a multicast
       domain activation that is in the same zone as this multicast group. Use
       the following format:
@@ -4637,6 +5232,7 @@ class MulticastGroup(_messages.Message):
       `projects/*/locations/global/multicastGroupDefinitions/*`
     name: Identifier. The resource name of the multicast group. Use the
       following format: `projects/*/locations/*/multicastGroups/*`.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast group resources. If
       a group is deleted and another with the same name is created, the new
@@ -4671,14 +5267,14 @@ class MulticastGroup(_messages.Message):
 
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
-  domainActivation = _messages.StringField(3)
-  groupDefinition = _messages.StringField(4)
-  ipCidrRange = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  multicastDomainActivation = _messages.StringField(7)
-  multicastGroupConsumerActivations = _messages.StringField(8, repeated=True)
-  multicastGroupDefinition = _messages.StringField(9)
-  name = _messages.StringField(10)
+  ipCidrRange = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  logConfig = _messages.MessageField('MulticastLogConfig', 5)
+  multicastDomainActivation = _messages.StringField(6)
+  multicastGroupConsumerActivations = _messages.StringField(7, repeated=True)
+  multicastGroupDefinition = _messages.StringField(8)
+  name = _messages.StringField(9)
+  state = _messages.MessageField('MulticastResourceState', 10)
   uniqueId = _messages.StringField(11)
   updateTime = _messages.StringField(12)
 
@@ -4687,8 +5283,8 @@ class MulticastGroupConsumerActivation(_messages.Message):
   r"""Multicast group consumer activation resource.
 
   Enums:
-    ResourceStateValueValuesEnum: Output only. The resource state of the
-      multicast group consumer activation.
+    ResourceStateValueValuesEnum: Output only. [Deprecated] The resource state
+      of the multicast group consumer activation. Use the state field instead.
 
   Messages:
     LabelsValue: Optional. Labels as key-value pairs
@@ -4699,6 +5295,9 @@ class MulticastGroupConsumerActivation(_messages.Message):
     description: Optional. An optional text description of the multicast group
       consumer activation.
     labels: Optional. Labels as key-value pairs
+    logConfig: Optional. Specifies the logging options for the activities
+      performed related to the multicast group consumer activation. Defaults
+      to false. If logging is enabled, logs are exported to Cloud Logging.
     multicastConsumerAssociation: Required. The resource name of the multicast
       consumer association that is in the same zone as this multicast group
       consumer activation. Use the following format:
@@ -4707,11 +5306,16 @@ class MulticastGroupConsumerActivation(_messages.Message):
       by the admin in the same zone as this multicast group consumer
       activation. Use the following format: //
       `projects/*/locations/*/multicastGroups/*`.
+    multicastGroupRangeActivation: Required. The resource name of the
+      multicast group range activation created by the admin in the same zone
+      as this multicast group consumer activation. Use the following format:
+      // `projects/*/locations/*/multicastGroupRangeActivations/*`.
     name: Identifier. The resource name of the multicast group consumer
       activation. Use the following format:
       `projects/*/locations/*/multicastGroupConsumerActivations/*`.
-    resourceState: Output only. The resource state of the multicast group
-      consumer activation.
+    resourceState: Output only. [Deprecated] The resource state of the
+      multicast group consumer activation. Use the state field instead.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast group consumer
       activation resources. If a group consumer activation is deleted and
@@ -4722,14 +5326,14 @@ class MulticastGroupConsumerActivation(_messages.Message):
   """
 
   class ResourceStateValueValuesEnum(_messages.Enum):
-    r"""Output only. The resource state of the multicast group consumer
-    activation.
+    r"""Output only. [Deprecated] The resource state of the multicast group
+    consumer activation. Use the state field instead.
 
     Values:
       CONSUMER_RESOURCE_STATE_UNSPECIFIED: The consumer resource state is not
         specified.
       ACTIVE: The consumer resource state is active.
-      OBSOLETE: The associted admin resource has been deleted. The consumer
+      OBSOLETE: The associated admin resource has been deleted. The consumer
         resource state becomes obsolete.
     """
     CONSUMER_RESOURCE_STATE_UNSPECIFIED = 0
@@ -4763,12 +5367,15 @@ class MulticastGroupConsumerActivation(_messages.Message):
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
   labels = _messages.MessageField('LabelsValue', 3)
-  multicastConsumerAssociation = _messages.StringField(4)
-  multicastGroup = _messages.StringField(5)
-  name = _messages.StringField(6)
-  resourceState = _messages.EnumField('ResourceStateValueValuesEnum', 7)
-  uniqueId = _messages.StringField(8)
-  updateTime = _messages.StringField(9)
+  logConfig = _messages.MessageField('MulticastLogConfig', 4)
+  multicastConsumerAssociation = _messages.StringField(5)
+  multicastGroup = _messages.StringField(6)
+  multicastGroupRangeActivation = _messages.StringField(7)
+  name = _messages.StringField(8)
+  resourceState = _messages.EnumField('ResourceStateValueValuesEnum', 9)
+  state = _messages.MessageField('MulticastResourceState', 10)
+  uniqueId = _messages.StringField(11)
+  updateTime = _messages.StringField(12)
 
 
 class MulticastGroupDefinition(_messages.Message):
@@ -4782,8 +5389,9 @@ class MulticastGroupDefinition(_messages.Message):
       to subscribe to the multicast IP addresses within the range defined by
       this MulticastGroupDefinition. The project can be specified using its
       project ID or project number. If left empty, then all consumer projects
-      are allowed once they have VPC networks associated to the multicast
-      domain. The current max length of the accept list is 100.
+      are allowed (unless require_explicit_accept is set to true) once they
+      have VPC networks associated to the multicast domain. The current max
+      length of the accept list is 100.
     createTime: Output only. [Output only] The timestamp when the multicast
       group definition was created.
     description: Optional. An optional text description of the multicast group
@@ -4791,17 +5399,24 @@ class MulticastGroupDefinition(_messages.Message):
     ipCidrRange: Output only. [Output only] The multicast group IP address
       range.
     labels: Optional. Labels as key-value pairs.
+    logConfig: Optional. Specifies the logging options for the activities
+      performed related to all the multicast groups associated with the
+      multicast group definition. Defaults to false. If logging is enabled,
+      logs are exported to Cloud Logging.
     multicastDomain: Required. The resource name of the multicast domain in
       which to create this multicast group definition. Use the following
       format: `projects/*/locations/global/multicastDomains/*`.
     name: Identifier. The resource name of the multicast group definition. Use
       the following format:
       `projects/*/locations/global/multicastGroupDefinitions/*`.
+    requireExplicitAccept: Optional. Whether an empty consumer_accept_list
+      will deny all consumer projects.
     reservedInternalRange: Required. The resource name of the internal range
       reserved for this multicast group definition. The internal range must be
       a Class D address (224.0.0.0 to 239.255.255.255) and have a prefix
       length >= 23. Use the following format:
       `projects/*/locations/global/internalRanges/*`.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast group definition
       resources. If a group definition is deleted and another with the same
@@ -4840,11 +5455,14 @@ class MulticastGroupDefinition(_messages.Message):
   description = _messages.StringField(3)
   ipCidrRange = _messages.StringField(4)
   labels = _messages.MessageField('LabelsValue', 5)
-  multicastDomain = _messages.StringField(6)
-  name = _messages.StringField(7)
-  reservedInternalRange = _messages.StringField(8)
-  uniqueId = _messages.StringField(9)
-  updateTime = _messages.StringField(10)
+  logConfig = _messages.MessageField('MulticastLogConfig', 6)
+  multicastDomain = _messages.StringField(7)
+  name = _messages.StringField(8)
+  requireExplicitAccept = _messages.BooleanField(9)
+  reservedInternalRange = _messages.StringField(10)
+  state = _messages.MessageField('MulticastResourceState', 11)
+  uniqueId = _messages.StringField(12)
+  updateTime = _messages.StringField(13)
 
 
 class MulticastGroupProducerActivation(_messages.Message):
@@ -4863,6 +5481,10 @@ class MulticastGroupProducerActivation(_messages.Message):
       by the admin in the same zone as this multicast group producer
       activation. Use the following format: //
       `projects/*/locations/*/multicastGroups/*`.
+    multicastGroupRangeActivation: Required. The resource name of the
+      multicast group range activationcreated by the admin in the same zone as
+      this multicast group producer activation. Use the following format: //
+      `projects/*/locations/*/multicastGroupRangeActivations/*`.
     multicastProducerAssociation: Required. The resource name of the multicast
       producer association that is in the same zone as this multicast group
       producer activation. Use the following format:
@@ -4870,6 +5492,7 @@ class MulticastGroupProducerActivation(_messages.Message):
     name: Identifier. The resource name of the multicast group producer
       activation. Use the following format:
       `projects/*/locations/*/multicastGroupProducerActivations/*`.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast group producer
       activation resources. If a group producer activation is deleted and
@@ -4907,10 +5530,215 @@ class MulticastGroupProducerActivation(_messages.Message):
   description = _messages.StringField(2)
   labels = _messages.MessageField('LabelsValue', 3)
   multicastGroup = _messages.StringField(4)
-  multicastProducerAssociation = _messages.StringField(5)
-  name = _messages.StringField(6)
-  uniqueId = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  multicastGroupRangeActivation = _messages.StringField(5)
+  multicastProducerAssociation = _messages.StringField(6)
+  name = _messages.StringField(7)
+  state = _messages.MessageField('MulticastResourceState', 8)
+  uniqueId = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
+
+
+class MulticastGroupRange(_messages.Message):
+  r"""Multicast group range resource.
+
+  Enums:
+    DistributionScopeValueValuesEnum: Optional. Multicast group range's
+      distribution scope. Intra-zone or intra-region cross-zone is supported,
+      with default value being intra-region. Cross region distribution is not
+      supported.
+
+  Messages:
+    LabelsValue: Optional. Labels as key-value pairs.
+
+  Fields:
+    consumerAcceptList: Optional. A list of consumer projects that are allowed
+      to subscribe to the multicast IP addresses within the range defined by
+      this MulticastGroupRange. The project can be specified using its project
+      ID or project number. If left empty, then all consumer projects are
+      allowed (unless require_explicit_accept is set to true) once they have
+      VPC networks associated to the multicast domain. The current max length
+      of the accept list is 100.
+    createTime: Output only. [Output only] The timestamp when the multicast
+      group range was created.
+    description: Optional. An optional text description of the multicast group
+      range.
+    distributionScope: Optional. Multicast group range's distribution scope.
+      Intra-zone or intra-region cross-zone is supported, with default value
+      being intra-region. Cross region distribution is not supported.
+    ipCidrRange: Output only. [Output only] The multicast group IP address
+      range.
+    labels: Optional. Labels as key-value pairs.
+    logConfig: Optional. Specifies the logging options for the activities
+      performed related to all the multicast group range activations
+      associated with the multicast group range. Defaults to false. If logging
+      is enabled, logs are exported to Cloud Logging.
+    multicastDomain: Required. The resource name of the multicast domain in
+      which to create this multicast group range. Use the following format:
+      `projects/*/locations/global/multicastDomains/*`.
+    name: Identifier. The resource name of the multicast group range. Use the
+      following format: `projects/*/locations/global/multicastGroupRanges/*`.
+    requireExplicitAccept: Optional. Whether an empty consumer_accept_list
+      will deny all consumer projects.
+    reservedInternalRange: Required. The resource name of the internal range
+      reserved for this multicast group range. The internal range must be a
+      Class D address (224.0.0.0 to 239.255.255.255) and have a prefix length
+      >= 23. Use the following format:
+      `projects/*/locations/global/internalRanges/*`.
+    state: Output only. [Output only] The state of the resource.
+    uniqueId: Output only. [Output only] The Google-generated UUID for the
+      resource. This value is unique across all multicast group range
+      resources. If a group range is deleted and another with the same name is
+      created, the new group range is assigned a different unique_id.
+    updateTime: Output only. [Output only] The timestamp when the multicast
+      group range was most recently updated.
+  """
+
+  class DistributionScopeValueValuesEnum(_messages.Enum):
+    r"""Optional. Multicast group range's distribution scope. Intra-zone or
+    intra-region cross-zone is supported, with default value being intra-
+    region. Cross region distribution is not supported.
+
+    Values:
+      DISTRIBUTION_SCOPE_UNSPECIFIED: Unspecified value means no restriction,
+        hence the broadest scope supported by the system applies.
+      INTRA_ZONE: Multicast traffic is distributed from source to only
+        subscribers in the same zone.
+      INTRA_REGION: Multicast traffic is distributed from source to
+        subscribers in any zone in the same region.
+    """
+    DISTRIBUTION_SCOPE_UNSPECIFIED = 0
+    INTRA_ZONE = 1
+    INTRA_REGION = 2
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels as key-value pairs.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  consumerAcceptList = _messages.StringField(1, repeated=True)
+  createTime = _messages.StringField(2)
+  description = _messages.StringField(3)
+  distributionScope = _messages.EnumField('DistributionScopeValueValuesEnum', 4)
+  ipCidrRange = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  logConfig = _messages.MessageField('MulticastLogConfig', 7)
+  multicastDomain = _messages.StringField(8)
+  name = _messages.StringField(9)
+  requireExplicitAccept = _messages.BooleanField(10)
+  reservedInternalRange = _messages.StringField(11)
+  state = _messages.MessageField('MulticastResourceState', 12)
+  uniqueId = _messages.StringField(13)
+  updateTime = _messages.StringField(14)
+
+
+class MulticastGroupRangeActivation(_messages.Message):
+  r"""Multicast group range activation resource.
+
+  Messages:
+    LabelsValue: Optional. Labels as key-value pairs.
+
+  Fields:
+    createTime: Output only. [Output only] The timestamp when the multicast
+      group range activation was created.
+    description: Optional. An optional text description of the multicast group
+      range activation.
+    ipCidrRange: Output only. [Output only] The multicast group IP address
+      range.
+    labels: Optional. Labels as key-value pairs.
+    logConfig: Optional. Specifies the logging options for the activities
+      performed regarding the multicast group range activation. Defaults to
+      false. If not specified, inherit the logging options from the global
+      multicast group range resource. If logging is enabled, logs are exported
+      to Cloud Logging. If the log config is explicitly set for the multicast
+      group range activation, regardless if it is enabled or not, the value
+      overrides what is configured by the multicast group range resource.
+    multicastDomainActivation: Optional. The resource name of a multicast
+      domain activation that is in the same zone as this multicast group. Use
+      the following format:
+      `projects/*/locations/*/multicastDomainActivations/*`
+    multicastGroupConsumerActivations: Output only. The resource names of
+      associated multicast group consumer activations. Use the following
+      format: `projects/*/locations/*/multicastGroupConsumerActivations/*`.
+    multicastGroupRange: Optional. The resource name of the global multicast
+      group range for the group. Use the following format:
+      `projects/*/locations/global/multicastGroupRanges/*`
+    name: Identifier. The resource name of the multicast group range
+      activation. Use the following format:
+      `projects/*/locations/*/multicastGroupRangeActivations/*`.
+    state: Output only. [Output only] The state of the resource.
+    uniqueId: Output only. [Output only] The Google-generated UUID for the
+      resource. This value is unique across all multicast group resources. If
+      a group is deleted and another with the same name is created, the new
+      group is assigned a different unique_id.
+    updateTime: Output only. [Output only] The timestamp when the multicast
+      group range activation was most recently updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels as key-value pairs.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  ipCidrRange = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  logConfig = _messages.MessageField('MulticastLogConfig', 5)
+  multicastDomainActivation = _messages.StringField(6)
+  multicastGroupConsumerActivations = _messages.StringField(7, repeated=True)
+  multicastGroupRange = _messages.StringField(8)
+  name = _messages.StringField(9)
+  state = _messages.MessageField('MulticastResourceState', 10)
+  uniqueId = _messages.StringField(11)
+  updateTime = _messages.StringField(12)
+
+
+class MulticastLogConfig(_messages.Message):
+  r"""The logging configuration.
+
+  Fields:
+    enabled: Optional. Whether to enable logging or not.
+  """
+
+  enabled = _messages.BooleanField(1)
 
 
 class MulticastProducerAssociation(_messages.Message):
@@ -4935,6 +5763,7 @@ class MulticastProducerAssociation(_messages.Message):
     network: Required. The resource name of the multicast producer VPC
       network. Use following format:
       `projects/{project}/locations/global/networks/{network}`.
+    state: Output only. [Output only] The state of the resource.
     uniqueId: Output only. [Output only] The Google-generated UUID for the
       resource. This value is unique across all multicast producer association
       resources. If a producer association is deleted and another with the
@@ -4974,8 +5803,45 @@ class MulticastProducerAssociation(_messages.Message):
   multicastDomainActivation = _messages.StringField(4)
   name = _messages.StringField(5)
   network = _messages.StringField(6)
-  uniqueId = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  state = _messages.MessageField('MulticastResourceState', 7)
+  uniqueId = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
+
+
+class MulticastResourceState(_messages.Message):
+  r"""The multicast resource's state.
+
+  Enums:
+    StateValueValuesEnum: Optional. The state of the multicast resource.
+
+  Fields:
+    state: Optional. The state of the multicast resource.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Optional. The state of the multicast resource.
+
+    Values:
+      STATE_ENUM_UNSPECIFIED: The resource is in unspecified state.
+      CREATING: The resource is being created.
+      ACTIVE: The resource is in a normal state and ready to use.
+      DELETING: The resource is being deleted.
+      DELETE_FAILED: The resource is failed to be deleted.
+      UPDATING: The resource is being updated.
+      UPDATE_FAILED: The resource is failed to be updated.
+      INACTIVE: The multicast consumer resource that is deactivated by the
+        multicast administrator.
+    """
+    STATE_ENUM_UNSPECIFIED = 0
+    CREATING = 1
+    ACTIVE = 2
+    DELETING = 3
+    DELETE_FAILED = 4
+    UPDATING = 5
+    UPDATE_FAILED = 6
+    INACTIVE = 7
+
+  state = _messages.EnumField('StateValueValuesEnum', 1)
 
 
 class NetworkservicesProjectsLocationsAuthzExtensionsCreateRequest(_messages.Message):
@@ -4991,13 +5857,12 @@ class NetworkservicesProjectsLocationsAuthzExtensionsCreateRequest(_messages.Mes
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -5017,13 +5882,12 @@ class NetworkservicesProjectsLocationsAuthzExtensionsDeleteRequest(_messages.Mes
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes after the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -5048,15 +5912,15 @@ class NetworkservicesProjectsLocationsAuthzExtensionsListRequest(_messages.Messa
 
   Fields:
     filter: Optional. Filtering results.
-    orderBy: Optional. Hint for how to order the results.
+    orderBy: Optional. Hint about how to order the results.
     pageSize: Optional. Requested page size. The server might return fewer
       items than requested. If unspecified, the server picks an appropriate
       default.
     pageToken: Optional. A token identifying a page of results that the server
       returns.
     parent: Required. The project and location from which the `AuthzExtension`
-      resources are listed, specified in the following format:
-      `projects/{project}/locations/{location}`.
+      resources are listed. These values are specified in the following
+      format: `projects/{project}/locations/{location}`.
   """
 
   filter = _messages.StringField(1)
@@ -5078,13 +5942,12 @@ class NetworkservicesProjectsLocationsAuthzExtensionsPatchRequest(_messages.Mess
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
     updateMask: Required. Used to specify the fields to be overwritten in the
       `AuthzExtension` resource by the update. The fields specified in the
@@ -5553,7 +6416,7 @@ class NetworkservicesProjectsLocationsEndpointPoliciesCreateRequest(_messages.Me
     endpointPolicyId: Required. Short name of the EndpointPolicy resource to
       be created. E.g. "CustomECS".
     parent: Required. The parent resource of the EndpointPolicy. Must be in
-      the format `projects/*/locations/global`.
+      the format `projects/*/locations/*`.
   """
 
   endpointPolicy = _messages.MessageField('EndpointPolicy', 1)
@@ -5566,7 +6429,7 @@ class NetworkservicesProjectsLocationsEndpointPoliciesDeleteRequest(_messages.Me
 
   Fields:
     name: Required. A name of the EndpointPolicy to delete. Must be in the
-      format `projects/*/locations/global/endpointPolicies/*`.
+      format `projects/*/locations/*/endpointPolicies/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5577,7 +6440,7 @@ class NetworkservicesProjectsLocationsEndpointPoliciesGetRequest(_messages.Messa
 
   Fields:
     name: Required. A name of the EndpointPolicy to get. Must be in the format
-      `projects/*/locations/global/endpointPolicies/*`.
+      `projects/*/locations/*/endpointPolicies/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5592,12 +6455,16 @@ class NetworkservicesProjectsLocationsEndpointPoliciesListRequest(_messages.Mess
       Indicates that this is a continuation of a prior `ListEndpointPolicies`
       call, and that the system should return the next page of data.
     parent: Required. The project and location from which the EndpointPolicies
-      should be listed, specified in the format `projects/*/locations/global`.
+      should be listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsEndpointPoliciesPatchRequest(_messages.Message):
@@ -5607,8 +6474,7 @@ class NetworkservicesProjectsLocationsEndpointPoliciesPatchRequest(_messages.Mes
     endpointPolicy: A EndpointPolicy resource to be passed as the request
       body.
     name: Identifier. Name of the EndpointPolicy resource. It matches pattern
-      `projects/{project}/locations/global/endpointPolicies/{endpoint_policy}`
-      .
+      `projects/{project}/locations/*/endpointPolicies/{endpoint_policy}`.
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the EndpointPolicy resource by the update. The fields
       specified in the update_mask are relative to the resource, not the full
@@ -5699,8 +6565,8 @@ class NetworkservicesProjectsLocationsGatewaysRouteViewsGetRequest(_messages.Mes
 
   Fields:
     name: Required. Name of the GatewayRouteView resource. Formats: projects/{
-      project_number}/locations/{location}/gateways/{gateway_name}/routeViews/
-      {route_view_name}
+      project_number}/locations/{location}/gateways/{gateway}/routeViews/{rout
+      e_view}
   """
 
   name = _messages.StringField(1, required=True)
@@ -5715,7 +6581,7 @@ class NetworkservicesProjectsLocationsGatewaysRouteViewsListRequest(_messages.Me
       Indicates that this is a continuation of a prior `ListGatewayRouteViews`
       call, and that the system should return the next page of data.
     parent: Required. The Gateway to which a Route is associated. Formats:
-      projects/{project_number}/locations/{location}/gateways/{gateway_name}
+      projects/{project_number}/locations/{location}/gateways/{gateway}
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -5774,7 +6640,7 @@ class NetworkservicesProjectsLocationsGrpcRoutesCreateRequest(_messages.Message)
     grpcRoute: A GrpcRoute resource to be passed as the request body.
     grpcRouteId: Required. Short name of the GrpcRoute resource to be created.
     parent: Required. The parent resource of the GrpcRoute. Must be in the
-      format `projects/*/locations/global`.
+      format `projects/*/locations/*`.
   """
 
   grpcRoute = _messages.MessageField('GrpcRoute', 1)
@@ -5787,7 +6653,7 @@ class NetworkservicesProjectsLocationsGrpcRoutesDeleteRequest(_messages.Message)
 
   Fields:
     name: Required. A name of the GrpcRoute to delete. Must be in the format
-      `projects/*/locations/global/grpcRoutes/*`.
+      `projects/*/locations/*/grpcRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5798,7 +6664,7 @@ class NetworkservicesProjectsLocationsGrpcRoutesGetRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the GrpcRoute to get. Must be in the format
-      `projects/*/locations/global/grpcRoutes/*`.
+      `projects/*/locations/*/grpcRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5813,12 +6679,16 @@ class NetworkservicesProjectsLocationsGrpcRoutesListRequest(_messages.Message):
       Indicates that this is a continuation of a prior `ListGrpcRoutes` call,
       and that the system should return the next page of data.
     parent: Required. The project and location from which the GrpcRoutes
-      should be listed, specified in the format `projects/*/locations/global`.
+      should be listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsGrpcRoutesPatchRequest(_messages.Message):
@@ -5827,7 +6697,7 @@ class NetworkservicesProjectsLocationsGrpcRoutesPatchRequest(_messages.Message):
   Fields:
     grpcRoute: A GrpcRoute resource to be passed as the request body.
     name: Identifier. Name of the GrpcRoute resource. It matches pattern
-      `projects/*/locations/global/grpcRoutes/`
+      `projects/*/locations/*/grpcRoutes/`
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the GrpcRoute resource by the update. The fields
       specified in the update_mask are relative to the resource, not the full
@@ -5921,7 +6791,7 @@ class NetworkservicesProjectsLocationsHttpRoutesCreateRequest(_messages.Message)
     httpRoute: A HttpRoute resource to be passed as the request body.
     httpRouteId: Required. Short name of the HttpRoute resource to be created.
     parent: Required. The parent resource of the HttpRoute. Must be in the
-      format `projects/*/locations/global`.
+      format `projects/*/locations/*`.
   """
 
   httpRoute = _messages.MessageField('HttpRoute', 1)
@@ -5934,7 +6804,7 @@ class NetworkservicesProjectsLocationsHttpRoutesDeleteRequest(_messages.Message)
 
   Fields:
     name: Required. A name of the HttpRoute to delete. Must be in the format
-      `projects/*/locations/global/httpRoutes/*`.
+      `projects/*/locations/*/httpRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5945,7 +6815,7 @@ class NetworkservicesProjectsLocationsHttpRoutesGetRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the HttpRoute to get. Must be in the format
-      `projects/*/locations/global/httpRoutes/*`.
+      `projects/*/locations/*/httpRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -5960,12 +6830,16 @@ class NetworkservicesProjectsLocationsHttpRoutesListRequest(_messages.Message):
       Indicates that this is a continuation of a prior `ListHttpRoutes` call,
       and that the system should return the next page of data.
     parent: Required. The project and location from which the HttpRoutes
-      should be listed, specified in the format `projects/*/locations/global`.
+      should be listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsHttpRoutesPatchRequest(_messages.Message):
@@ -5974,7 +6848,7 @@ class NetworkservicesProjectsLocationsHttpRoutesPatchRequest(_messages.Message):
   Fields:
     httpRoute: A HttpRoute resource to be passed as the request body.
     name: Identifier. Name of the HttpRoute resource. It matches pattern
-      `projects/*/locations/global/httpRoutes/http_route_name>`.
+      `projects/*/locations/*/httpRoutes/http_route_name>`.
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the HttpRoute resource by the update. The fields
       specified in the update_mask are relative to the resource, not the full
@@ -5985,6 +6859,124 @@ class NetworkservicesProjectsLocationsHttpRoutesPatchRequest(_messages.Message):
   httpRoute = _messages.MessageField('HttpRoute', 1)
   name = _messages.StringField(2, required=True)
   updateMask = _messages.StringField(3)
+
+
+class NetworkservicesProjectsLocationsLbEdgeExtensionsCreateRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbEdgeExtensionsCreateRequest object.
+
+  Fields:
+    lbEdgeExtension: A LbEdgeExtension resource to be passed as the request
+      body.
+    lbEdgeExtensionId: Required. User-provided ID of the `LbEdgeExtension`
+      resource to be created.
+    parent: Required. The parent resource of the `LbEdgeExtension` resource.
+      Must be in the format `projects/{project}/locations/{location}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  lbEdgeExtension = _messages.MessageField('LbEdgeExtension', 1)
+  lbEdgeExtensionId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsLbEdgeExtensionsDeleteRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbEdgeExtensionsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the `LbEdgeExtension` resource to delete. Must
+      be in the format `projects/{project}/locations/{location}/lbEdgeExtensio
+      ns/{lb_edge_extension}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkservicesProjectsLocationsLbEdgeExtensionsGetRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbEdgeExtensionsGetRequest object.
+
+  Fields:
+    name: Required. A name of the `LbEdgeExtension` resource to get. Must be
+      in the format `projects/{project}/locations/{location}/lbEdgeExtensions/
+      {lb_edge_extension}`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkservicesProjectsLocationsLbEdgeExtensionsListRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbEdgeExtensionsListRequest object.
+
+  Fields:
+    filter: Optional. Filtering results.
+    orderBy: Optional. Hint about how to order the results.
+    pageSize: Optional. Requested page size. The server might return fewer
+      items than requested. If unspecified, the server picks an appropriate
+      default.
+    pageToken: Optional. A token identifying a page of results that the server
+      returns.
+    parent: Required. The project and location from which the
+      `LbEdgeExtension` resources are listed. These values are specified in
+      the following format: `projects/{project}/locations/{location}`.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkservicesProjectsLocationsLbEdgeExtensionsPatchRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbEdgeExtensionsPatchRequest object.
+
+  Fields:
+    lbEdgeExtension: A LbEdgeExtension resource to be passed as the request
+      body.
+    name: Required. Identifier. Name of the `LbEdgeExtension` resource in the
+      following format: `projects/{project}/locations/{location}/lbEdgeExtensi
+      ons/{lb_edge_extension}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. Used to specify the fields to be overwritten in the
+      `LbEdgeExtension` resource by the update. The fields specified in the
+      `update_mask` are relative to the resource, not the full request. A
+      field is overwritten if it is in the mask. If the user does not specify
+      a mask, then all fields are overwritten.
+  """
+
+  lbEdgeExtension = _messages.MessageField('LbEdgeExtension', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
 
 
 class NetworkservicesProjectsLocationsLbObservabilityExtensionsCreateRequest(_messages.Message):
@@ -6002,13 +6994,12 @@ class NetworkservicesProjectsLocationsLbObservabilityExtensionsCreateRequest(_me
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6029,13 +7020,12 @@ class NetworkservicesProjectsLocationsLbObservabilityExtensionsDeleteRequest(_me
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes after the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6062,15 +7052,16 @@ class NetworkservicesProjectsLocationsLbObservabilityExtensionsListRequest(_mess
 
   Fields:
     filter: Optional. Filtering results.
-    orderBy: Optional. Hint for how to order the results.
+    orderBy: Optional. Hint about how to order the results.
     pageSize: Optional. Requested page size. The server might return fewer
       items than requested. If unspecified, the server picks an appropriate
       default.
     pageToken: Optional. A token identifying a page of results that the server
       returns.
     parent: Required. The project and location from which the
-      `LbObservabilityExtension` resources are listed, specified in the
-      following format: `projects/{project}/locations/{location}`.
+      `LbObservabilityExtension` resources are listed. These values are
+      specified in the following format:
+      `projects/{project}/locations/{location}`.
   """
 
   filter = _messages.StringField(1)
@@ -6093,13 +7084,12 @@ class NetworkservicesProjectsLocationsLbObservabilityExtensionsPatchRequest(_mes
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
     updateMask: Optional. Used to specify the fields to be overwritten in the
       `LbObservabilityExtension` resource by the update. The fields specified
@@ -6127,13 +7117,12 @@ class NetworkservicesProjectsLocationsLbRouteExtensionsCreateRequest(_messages.M
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6153,13 +7142,12 @@ class NetworkservicesProjectsLocationsLbRouteExtensionsDeleteRequest(_messages.M
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes after the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6184,15 +7172,15 @@ class NetworkservicesProjectsLocationsLbRouteExtensionsListRequest(_messages.Mes
 
   Fields:
     filter: Optional. Filtering results.
-    orderBy: Optional. Hint for how to order the results.
+    orderBy: Optional. Hint about how to order the results.
     pageSize: Optional. Requested page size. The server might return fewer
       items than requested. If unspecified, the server picks an appropriate
       default.
     pageToken: Optional. A token identifying a page of results that the server
       returns.
     parent: Required. The project and location from which the
-      `LbRouteExtension` resources are listed, specified in the following
-      format: `projects/{project}/locations/{location}`.
+      `LbRouteExtension` resources are listed. These values are specified in
+      the following format: `projects/{project}/locations/{location}`.
   """
 
   filter = _messages.StringField(1)
@@ -6214,13 +7202,12 @@ class NetworkservicesProjectsLocationsLbRouteExtensionsPatchRequest(_messages.Me
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
     updateMask: Optional. Used to specify the fields to be overwritten in the
       `LbRouteExtension` resource by the update. The fields specified in the
@@ -6230,6 +7217,127 @@ class NetworkservicesProjectsLocationsLbRouteExtensionsPatchRequest(_messages.Me
   """
 
   lbRouteExtension = _messages.MessageField('LbRouteExtension', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsLbTcpExtensionsCreateRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbTcpExtensionsCreateRequest object.
+
+  Fields:
+    lbTcpExtension: A LbTcpExtension resource to be passed as the request
+      body.
+    lbTcpExtensionId: Required. User-provided ID of the `LbTcpExtension`
+      resource to be created.
+    parent: Required. The parent resource of the `LbTcpExtension` resource.
+      Must be in the format `projects/{project}/locations/{location}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for at least 60 minutes since the first request. For
+      example, consider a situation where you make an initial request and the
+      request times out. If you make the request again with the same request
+      ID, the server can check if original operation with the same request ID
+      was received, and if so, ignores the second request. This prevents
+      clients from accidentally creating duplicate commitments. The request ID
+      must be a valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  lbTcpExtension = _messages.MessageField('LbTcpExtension', 1)
+  lbTcpExtensionId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsLbTcpExtensionsDeleteRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbTcpExtensionsDeleteRequest object.
+
+  Fields:
+    name: Required. The name of the `LbTcpExtension` resource to delete. Must
+      be in the format `projects/{project}/locations/{location}/LbTcpExtension
+      s/{lb_tcp_extension}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for at least 60 minutes after the first request. For
+      example, consider a situation where you make an initial request and the
+      request times out. If you make the request again with the same request
+      ID, the server can check if original operation with the same request ID
+      was received, and if so, ignores the second request. This prevents
+      clients from accidentally creating duplicate commitments. The request ID
+      must be a valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkservicesProjectsLocationsLbTcpExtensionsGetRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbTcpExtensionsGetRequest object.
+
+  Fields:
+    name: Required. A name of the `LbTcpExtension` resource to get. Must be in
+      the format `projects/{project}/locations/{location}/LbTcpExtensions/{lb_
+      tcp_extension}`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkservicesProjectsLocationsLbTcpExtensionsListRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbTcpExtensionsListRequest object.
+
+  Fields:
+    filter: Optional. Filtering results.
+    orderBy: Optional. Hint for how to order the results.
+    pageSize: Optional. Requested page size. The server might return fewer
+      items than requested. If unspecified, the server picks an appropriate
+      default.
+    pageToken: Optional. A token identifying a page of results that the server
+      returns.
+    parent: Required. The project and location from which the `LbTcpExtension`
+      resources are listed, specified in the following format:
+      `projects/{project}/locations/{location}`.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkservicesProjectsLocationsLbTcpExtensionsPatchRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsLbTcpExtensionsPatchRequest object.
+
+  Fields:
+    lbTcpExtension: A LbTcpExtension resource to be passed as the request
+      body.
+    name: Required. Identifier. Name of the `LbTcpExtension` resource in the
+      following format: `projects/{project}/locations/{location}/LbTcpExtensio
+      n/{lb_tcp_extension}`
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for at least 60 minutes since the first request. For
+      example, consider a situation where you make an initial request and the
+      request times out. If you make the request again with the same request
+      ID, the server can check if original operation with the same request ID
+      was received, and if so, ignores the second request. This prevents
+      clients from accidentally creating duplicate commitments. The request ID
+      must be a valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. Used to specify the fields to be overwritten in the
+      `LbTcpExtension` resource by the update. The fields specified in the
+      update_mask are relative to the resource, not the full request. A field
+      is overwritten if it is in the mask. If the user does not specify a
+      mask, then all fields are overwritten.
+  """
+
+  lbTcpExtension = _messages.MessageField('LbTcpExtension', 1)
   name = _messages.StringField(2, required=True)
   requestId = _messages.StringField(3)
   updateMask = _messages.StringField(4)
@@ -6250,13 +7358,12 @@ class NetworkservicesProjectsLocationsLbTrafficExtensionsCreateRequest(_messages
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6277,13 +7384,12 @@ class NetworkservicesProjectsLocationsLbTrafficExtensionsDeleteRequest(_messages
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes after the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
   """
 
@@ -6308,15 +7414,15 @@ class NetworkservicesProjectsLocationsLbTrafficExtensionsListRequest(_messages.M
 
   Fields:
     filter: Optional. Filtering results.
-    orderBy: Optional. Hint for how to order the results.
+    orderBy: Optional. Hint about how to order the results.
     pageSize: Optional. Requested page size. The server might return fewer
       items than requested. If unspecified, the server picks an appropriate
       default.
     pageToken: Optional. A token identifying a page of results that the server
       returns.
     parent: Required. The project and location from which the
-      `LbTrafficExtension` resources are listed, specified in the following
-      format: `projects/{project}/locations/{location}`.
+      `LbTrafficExtension` resources are listed. These values are specified in
+      the following format: `projects/{project}/locations/{location}`.
   """
 
   filter = _messages.StringField(1)
@@ -6339,13 +7445,12 @@ class NetworkservicesProjectsLocationsLbTrafficExtensionsPatchRequest(_messages.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       can ignore the request if it has already been completed. The server
-      guarantees that for at least 60 minutes since the first request. For
-      example, consider a situation where you make an initial request and the
-      request times out. If you make the request again with the same request
-      ID, the server can check if original operation with the same request ID
-      was received, and if so, ignores the second request. This prevents
-      clients from accidentally creating duplicate commitments. The request ID
-      must be a valid UUID with the exception that zero UUID is not supported
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
       (00000000-0000-0000-0000-000000000000).
     updateMask: Optional. Used to specify the fields to be overwritten in the
       `LbTrafficExtension` resource by the update. The fields specified in the
@@ -6364,6 +7469,9 @@ class NetworkservicesProjectsLocationsListRequest(_messages.Message):
   r"""A NetworkservicesProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -6374,10 +7482,11 @@ class NetworkservicesProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class NetworkservicesProjectsLocationsMeshesCreateRequest(_messages.Message):
@@ -6387,7 +7496,7 @@ class NetworkservicesProjectsLocationsMeshesCreateRequest(_messages.Message):
     mesh: A Mesh resource to be passed as the request body.
     meshId: Required. Short name of the Mesh resource to be created.
     parent: Required. The parent resource of the Mesh. Must be in the format
-      `projects/*/locations/global`.
+      `projects/*/locations/*`.
   """
 
   mesh = _messages.MessageField('Mesh', 1)
@@ -6400,7 +7509,7 @@ class NetworkservicesProjectsLocationsMeshesDeleteRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the Mesh to delete. Must be in the format
-      `projects/*/locations/global/meshes/*`.
+      `projects/*/locations/*/meshes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -6411,7 +7520,7 @@ class NetworkservicesProjectsLocationsMeshesGetRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the Mesh to get. Must be in the format
-      `projects/*/locations/global/meshes/*`.
+      `projects/*/locations/*/meshes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -6426,12 +7535,16 @@ class NetworkservicesProjectsLocationsMeshesListRequest(_messages.Message):
       that this is a continuation of a prior `ListMeshes` call, and that the
       system should return the next page of data.
     parent: Required. The project and location from which the Meshes should be
-      listed, specified in the format `projects/*/locations/global`.
+      listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsMeshesPatchRequest(_messages.Message):
@@ -6440,7 +7553,7 @@ class NetworkservicesProjectsLocationsMeshesPatchRequest(_messages.Message):
   Fields:
     mesh: A Mesh resource to be passed as the request body.
     name: Identifier. Name of the Mesh resource. It matches pattern
-      `projects/*/locations/global/meshes/`.
+      `projects/*/locations/*/meshes/`.
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the Mesh resource by the update. The fields specified in
       the update_mask are relative to the resource, not the full request. A
@@ -6458,8 +7571,7 @@ class NetworkservicesProjectsLocationsMeshesRouteViewsGetRequest(_messages.Messa
 
   Fields:
     name: Required. Name of the MeshRouteView resource. Format: projects/{proj
-      ect_number}/locations/{location}/meshes/{mesh_name}/routeViews/{route_vi
-      ew_name}
+      ect_number}/locations/{location}/meshes/{mesh}/routeViews/{route_view}
   """
 
   name = _messages.StringField(1, required=True)
@@ -6474,7 +7586,7 @@ class NetworkservicesProjectsLocationsMeshesRouteViewsListRequest(_messages.Mess
       Indicates that this is a continuation of a prior `ListMeshRouteViews`
       call, and that the system should return the next page of data.
     parent: Required. The Mesh to which a Route is associated. Format:
-      projects/{project_number}/locations/{location}/meshes/{mesh_name}
+      projects/{project_number}/locations/{location}/meshes/{mesh}
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -7423,6 +8535,276 @@ class NetworkservicesProjectsLocationsMulticastGroupProducerActivationsPatchRequ
   updateMask = _messages.StringField(4)
 
 
+class NetworkservicesProjectsLocationsMulticastGroupRangeActivationsCreateRequest(_messages.Message):
+  r"""A
+  NetworkservicesProjectsLocationsMulticastGroupRangeActivationsCreateRequest
+  object.
+
+  Fields:
+    multicastGroupRangeActivation: A MulticastGroupRangeActivation resource to
+      be passed as the request body.
+    multicastGroupRangeActivationId: Required. A unique name for the multicast
+      group range activation. The name is restricted to letters, numbers, and
+      hyphen, with the first character a letter, and the last a letter or a
+      number. The name must not exceed 48 characters.
+    parent: Required. The parent resource of the multicast group range
+      activation. Use the following format: `projects/*/locations/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+  """
+
+  multicastGroupRangeActivation = _messages.MessageField('MulticastGroupRangeActivation', 1)
+  multicastGroupRangeActivationId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangeActivationsDeleteRequest(_messages.Message):
+  r"""A
+  NetworkservicesProjectsLocationsMulticastGroupRangeActivationsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the multicast group range activation
+      to delete. Use the following format:
+      `projects/*/locations/*/multicastGroupRangeActivations/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangeActivationsGetRequest(_messages.Message):
+  r"""A
+  NetworkservicesProjectsLocationsMulticastGroupRangeActivationsGetRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the multicast group range activation
+      to get. Use the following format:
+      `projects/*/locations/*/multicastGroupRangeActivations/*`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangeActivationsListRequest(_messages.Message):
+  r"""A
+  NetworkservicesProjectsLocationsMulticastGroupRangeActivationsListRequest
+  object.
+
+  Fields:
+    filter: Optional. A filter expression that filters the resources listed in
+      the response. The expression must be of the form ` ` where operators:
+      `<`, `>`, `<=`, `>=`, `!=`, `=`, `:` are supported (colon `:` represents
+      a HAS operator which is roughly synonymous with equality). can refer to
+      a proto or JSON field, or a synthetic field. Field names can be
+      camelCase or snake_case. Examples: * Filter by name: name =
+      "RESOURCE_NAME" * Filter by labels: * Resources that have a key named
+      `foo` labels.foo:* * Resources that have a key named `foo` whose value
+      is `bar` labels.foo = bar
+    orderBy: Optional. A field used to sort the results by a certain order.
+    pageSize: Optional. The maximum number of multicast group range
+      activations to return per call.
+    pageToken: Optional. A page token from an earlier query, as returned in
+      `next_page_token`.
+    parent: Required. The parent resource for which to list multicast group
+      range activations. Use the following format: `projects/*/locations/*`.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangeActivationsPatchRequest(_messages.Message):
+  r"""A
+  NetworkservicesProjectsLocationsMulticastGroupRangeActivationsPatchRequest
+  object.
+
+  Fields:
+    multicastGroupRangeActivation: A MulticastGroupRangeActivation resource to
+      be passed as the request body.
+    name: Identifier. The resource name of the multicast group range
+      activation. Use the following format:
+      `projects/*/locations/*/multicastGroupRangeActivations/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. The field mask specifies the fields to overwrite in
+      the multicast group range activation resource by the update. The fields
+      specified in the `update_mask` are relative to the resource, not the
+      full request. If a field is in the mask, then it is overwritten. If the
+      you do not provide a mask, then all fields are overwritten.
+  """
+
+  multicastGroupRangeActivation = _messages.MessageField('MulticastGroupRangeActivation', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangesCreateRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsMulticastGroupRangesCreateRequest
+  object.
+
+  Fields:
+    multicastGroupRange: A MulticastGroupRange resource to be passed as the
+      request body.
+    multicastGroupRangeId: Required. A unique name for the multicast group
+      range. The name is restricted to letters, numbers, and hyphen, with the
+      first character a letter, and the last a letter or a number. The name
+      must not exceed 48 characters.
+    parent: Required. The parent resource of the multicast group range. Use
+      the following format: `projects/*/locations/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+  """
+
+  multicastGroupRange = _messages.MessageField('MulticastGroupRange', 1)
+  multicastGroupRangeId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangesDeleteRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsMulticastGroupRangesDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the multicast group range to delete.
+      Use the following format:
+      `projects/*/locations/global/multicastGroupRanges/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangesGetRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsMulticastGroupRangesGetRequest object.
+
+  Fields:
+    name: Required. The resource name of the multicast group range to get. Use
+      the following format: `projects/*/locations/*/multicastGroupRanges/*`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangesListRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsMulticastGroupRangesListRequest
+  object.
+
+  Fields:
+    filter: Optional. A filter expression that filters the resources listed in
+      the response. The expression must be of the form ` ` where operators:
+      `<`, `>`, `<=`, `>=`, `!=`, `=`, `:` are supported (colon `:` represents
+      a HAS operator which is roughly synonymous with equality). can refer to
+      a proto or JSON field, or a synthetic field. Field names can be
+      camelCase or snake_case. Examples: * Filter by name: name =
+      "RESOURCE_NAME" * Filter by labels: * Resources that have a key named
+      `foo` labels.foo:* * Resources that have a key named `foo` whose value
+      is `bar` labels.foo = bar
+    orderBy: Optional. A field used to sort the results by a certain order.
+    pageSize: Optional. The maximum number of multicast group ranges to return
+      per call.
+    pageToken: Optional. A page token from an earlier query, as returned in
+      `next_page_token`.
+    parent: Required. The parent resource for which to list multicast group
+      ranges. Use the following format: `projects/*/locations/*`.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkservicesProjectsLocationsMulticastGroupRangesPatchRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsMulticastGroupRangesPatchRequest
+  object.
+
+  Fields:
+    multicastGroupRange: A MulticastGroupRange resource to be passed as the
+      request body.
+    name: Identifier. The resource name of the multicast group range. Use the
+      following format: `projects/*/locations/global/multicastGroupRanges/*`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      will know to ignore the request if it has already been completed. The
+      server will guarantee that for at least 60 minutes after the first
+      request. For example, consider a situation where you make an initial
+      request and the request times out. If you make the request again with
+      the same request ID, the server can check if original operation with the
+      same request ID was received, and if so, will ignore the second request.
+      This prevents clients from accidentally creating duplicate commitments.
+      The request ID must be a valid UUID with the exception that zero UUID is
+      not supported (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. The field mask specifies the fields to overwrite in
+      the multicast group range resource by the update. The fields specified
+      in the `update_mask` are relative to the resource, not the full request.
+      If a field is in the mask, then it is overwritten. If the you do not
+      provide a mask, then all fields are overwritten.
+  """
+
+  multicastGroupRange = _messages.MessageField('MulticastGroupRange', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
 class NetworkservicesProjectsLocationsMulticastGroupsCreateRequest(_messages.Message):
   r"""A NetworkservicesProjectsLocationsMulticastGroupsCreateRequest object.
 
@@ -7812,12 +9194,20 @@ class NetworkservicesProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class NetworkservicesProjectsLocationsServiceBindingsCreateRequest(_messages.Message):
@@ -7825,7 +9215,7 @@ class NetworkservicesProjectsLocationsServiceBindingsCreateRequest(_messages.Mes
 
   Fields:
     parent: Required. The parent resource of the ServiceBinding. Must be in
-      the format `projects/*/locations/global`.
+      the format `projects/*/locations/*`.
     serviceBinding: A ServiceBinding resource to be passed as the request
       body.
     serviceBindingId: Required. Short name of the ServiceBinding resource to
@@ -7842,7 +9232,7 @@ class NetworkservicesProjectsLocationsServiceBindingsDeleteRequest(_messages.Mes
 
   Fields:
     name: Required. A name of the ServiceBinding to delete. Must be in the
-      format `projects/*/locations/global/serviceBindings/*`.
+      format `projects/*/locations/*/serviceBindings/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -7853,7 +9243,7 @@ class NetworkservicesProjectsLocationsServiceBindingsGetRequest(_messages.Messag
 
   Fields:
     name: Required. A name of the ServiceBinding to get. Must be in the format
-      `projects/*/locations/global/serviceBindings/*`.
+      `projects/*/locations/*/serviceBindings/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -7868,12 +9258,32 @@ class NetworkservicesProjectsLocationsServiceBindingsListRequest(_messages.Messa
       Indicates that this is a continuation of a prior `ListRouters` call, and
       that the system should return the next page of data.
     parent: Required. The project and location from which the ServiceBindings
-      should be listed, specified in the format `projects/*/locations/global`.
+      should be listed, specified in the format `projects/*/locations/*`.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+
+
+class NetworkservicesProjectsLocationsServiceBindingsPatchRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsServiceBindingsPatchRequest object.
+
+  Fields:
+    name: Identifier. Name of the ServiceBinding resource. It matches pattern
+      `projects/*/locations/*/serviceBindings/`.
+    serviceBinding: A ServiceBinding resource to be passed as the request
+      body.
+    updateMask: Optional. Field mask is used to specify the fields to be
+      overwritten in the ServiceBinding resource by the update. The fields
+      specified in the update_mask are relative to the resource, not the full
+      request. A field will be overwritten if it is in the mask. If the user
+      does not provide a mask then all fields will be overwritten.
+  """
+
+  name = _messages.StringField(1, required=True)
+  serviceBinding = _messages.MessageField('ServiceBinding', 2)
+  updateMask = _messages.StringField(3)
 
 
 class NetworkservicesProjectsLocationsServiceLbPoliciesCreateRequest(_messages.Message):
@@ -7956,12 +9366,136 @@ class NetworkservicesProjectsLocationsServiceLbPoliciesPatchRequest(_messages.Me
   updateMask = _messages.StringField(3)
 
 
+class NetworkservicesProjectsLocationsSwpSecurityExtensionsCreateRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsSwpSecurityExtensionsCreateRequest
+  object.
+
+  Fields:
+    parent: Required. The parent resource of the `SwpSecurityExtension`
+      resource. Must be in the format
+      `projects/{project}/locations/{location}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    swpSecurityExtension: A SwpSecurityExtension resource to be passed as the
+      request body.
+    swpSecurityExtensionId: Required. User-provided ID of the
+      `SwpSecurityExtension` resource to be created.
+  """
+
+  parent = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+  swpSecurityExtension = _messages.MessageField('SwpSecurityExtension', 3)
+  swpSecurityExtensionId = _messages.StringField(4)
+
+
+class NetworkservicesProjectsLocationsSwpSecurityExtensionsDeleteRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsSwpSecurityExtensionsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The name of the `SwpSecurityExtension` resource to delete.
+      Must be in the format `projects/{project}/locations/{location}/swpSecuri
+      tyExtensions/{swp_security_extension}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes after the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkservicesProjectsLocationsSwpSecurityExtensionsGetRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsSwpSecurityExtensionsGetRequest
+  object.
+
+  Fields:
+    name: Required. A name of the `SwpSecurityExtension` resource to get. Must
+      be in the format `projects/{project}/locations/{location}/SwpSecurityExt
+      ensions/{swp_security_extension}`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkservicesProjectsLocationsSwpSecurityExtensionsListRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsSwpSecurityExtensionsListRequest
+  object.
+
+  Fields:
+    filter: Optional. Filtering results.
+    orderBy: Optional. Hint about how to order the results.
+    pageSize: Optional. Requested page size. The server might return fewer
+      items than requested. If unspecified, the server picks an appropriate
+      default.
+    pageToken: Optional. A token identifying a page of results that the server
+      returns.
+    parent: Required. The project and location from which the
+      `SwpSecurityExtension` resources are listed. These values are specified
+      in the following format: `projects/{project}/locations/{location}`.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkservicesProjectsLocationsSwpSecurityExtensionsPatchRequest(_messages.Message):
+  r"""A NetworkservicesProjectsLocationsSwpSecurityExtensionsPatchRequest
+  object.
+
+  Fields:
+    name: Required. Identifier. Name of the `SwpSecurityExtension` resource in
+      the following format: `projects/{project}/locations/{location}/swpSecuri
+      tyExtensions/{swp_security_extension}`.
+    requestId: Optional. An optional request ID to identify requests. Specify
+      a unique request ID so that if you must retry your request, the server
+      can ignore the request if it has already been completed. The server
+      guarantees that for 60 minutes since the first request. For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server ignores the second request This prevents clients from
+      accidentally creating duplicate commitments. The request ID must be a
+      valid UUID with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    swpSecurityExtension: A SwpSecurityExtension resource to be passed as the
+      request body.
+    updateMask: Optional. Used to specify the fields to be overwritten in the
+      `SwpSecurityExtension` resource by the update. The fields specified in
+      the `update_mask` are relative to the resource, not the full request. A
+      field is overwritten if it is in the mask. If the user does not specify
+      a mask, then all fields are overwritten.
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+  swpSecurityExtension = _messages.MessageField('SwpSecurityExtension', 3)
+  updateMask = _messages.StringField(4)
+
+
 class NetworkservicesProjectsLocationsTcpRoutesCreateRequest(_messages.Message):
   r"""A NetworkservicesProjectsLocationsTcpRoutesCreateRequest object.
 
   Fields:
     parent: Required. The parent resource of the TcpRoute. Must be in the
-      format `projects/*/locations/global`.
+      format `projects/*/locations/*`.
     tcpRoute: A TcpRoute resource to be passed as the request body.
     tcpRouteId: Required. Short name of the TcpRoute resource to be created.
   """
@@ -7976,7 +9510,7 @@ class NetworkservicesProjectsLocationsTcpRoutesDeleteRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the TcpRoute to delete. Must be in the format
-      `projects/*/locations/global/tcpRoutes/*`.
+      `projects/*/locations/*/tcpRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -7987,7 +9521,7 @@ class NetworkservicesProjectsLocationsTcpRoutesGetRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the TcpRoute to get. Must be in the format
-      `projects/*/locations/global/tcpRoutes/*`.
+      `projects/*/locations/*/tcpRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -8002,12 +9536,16 @@ class NetworkservicesProjectsLocationsTcpRoutesListRequest(_messages.Message):
       Indicates that this is a continuation of a prior `ListTcpRoutes` call,
       and that the system should return the next page of data.
     parent: Required. The project and location from which the TcpRoutes should
-      be listed, specified in the format `projects/*/locations/global`.
+      be listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsTcpRoutesPatchRequest(_messages.Message):
@@ -8015,7 +9553,7 @@ class NetworkservicesProjectsLocationsTcpRoutesPatchRequest(_messages.Message):
 
   Fields:
     name: Identifier. Name of the TcpRoute resource. It matches pattern
-      `projects/*/locations/global/tcpRoutes/tcp_route_name>`.
+      `projects/*/locations/*/tcpRoutes/tcp_route_name>`.
     tcpRoute: A TcpRoute resource to be passed as the request body.
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the TcpRoute resource by the update. The fields specified
@@ -8034,7 +9572,7 @@ class NetworkservicesProjectsLocationsTlsRoutesCreateRequest(_messages.Message):
 
   Fields:
     parent: Required. The parent resource of the TlsRoute. Must be in the
-      format `projects/*/locations/global`.
+      format `projects/*/locations/*`.
     tlsRoute: A TlsRoute resource to be passed as the request body.
     tlsRouteId: Required. Short name of the TlsRoute resource to be created.
   """
@@ -8049,7 +9587,7 @@ class NetworkservicesProjectsLocationsTlsRoutesDeleteRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the TlsRoute to delete. Must be in the format
-      `projects/*/locations/global/tlsRoutes/*`.
+      `projects/*/locations/*/tlsRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -8060,7 +9598,7 @@ class NetworkservicesProjectsLocationsTlsRoutesGetRequest(_messages.Message):
 
   Fields:
     name: Required. A name of the TlsRoute to get. Must be in the format
-      `projects/*/locations/global/tlsRoutes/*`.
+      `projects/*/locations/*/tlsRoutes/*`.
   """
 
   name = _messages.StringField(1, required=True)
@@ -8075,12 +9613,16 @@ class NetworkservicesProjectsLocationsTlsRoutesListRequest(_messages.Message):
       Indicates that this is a continuation of a prior `ListTlsRoutes` call,
       and that the system should return the next page of data.
     parent: Required. The project and location from which the TlsRoutes should
-      be listed, specified in the format `projects/*/locations/global`.
+      be listed, specified in the format `projects/*/locations/*`.
+    returnPartialSuccess: Optional. If true, allow partial responses for
+      multi-regional Aggregated List requests. Otherwise if one of the
+      locations is down or unreachable, the Aggregated List request will fail.
   """
 
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+  returnPartialSuccess = _messages.BooleanField(4)
 
 
 class NetworkservicesProjectsLocationsTlsRoutesPatchRequest(_messages.Message):
@@ -8088,7 +9630,7 @@ class NetworkservicesProjectsLocationsTlsRoutesPatchRequest(_messages.Message):
 
   Fields:
     name: Identifier. Name of the TlsRoute resource. It matches pattern
-      `projects/*/locations/global/tlsRoutes/tls_route_name>`.
+      `projects/*/locations/*/tlsRoutes/tls_route_name>`.
     tlsRoute: A TlsRoute resource to be passed as the request body.
     updateMask: Optional. Field mask is used to specify the fields to be
       overwritten in the TlsRoute resource by the update. The fields specified
@@ -8933,8 +10475,11 @@ class Secret(_messages.Message):
 
 
 class ServiceBinding(_messages.Message):
-  r"""ServiceBinding is the resource that defines a Service Directory Service
-  to be used in a BackendService resource.
+  r"""ServiceBinding can be used to: - Bind a Service Directory Service to be
+  used in a BackendService resource. This feature will be deprecated soon. -
+  Bind a Private Service Connect producer service to be used in consumer Cloud
+  Service Mesh or Application Load Balancers. - Bind a Cloud Run service to be
+  used in consumer Cloud Service Mesh or Application Load Balancers.
 
   Messages:
     LabelsValue: Optional. Set of label tags associated with the
@@ -8947,13 +10492,15 @@ class ServiceBinding(_messages.Message):
     labels: Optional. Set of label tags associated with the ServiceBinding
       resource.
     name: Identifier. Name of the ServiceBinding resource. It matches pattern
-      `projects/*/locations/global/serviceBindings/service_binding_name`.
-    service: Required. The full Service Directory Service name of the format
-      projects/*/locations/*/namespaces/*/services/*
+      `projects/*/locations/*/serviceBindings/`.
+    service: Optional. The full Service Directory Service name of the format
+      `projects/*/locations/*/namespaces/*/services/*`. This field is for
+      Service Directory integration which will be deprecated soon.
     serviceId: Output only. The unique identifier of the Service Directory
-      Service against which the Service Binding resource is validated. This is
+      Service against which the ServiceBinding resource is validated. This is
       populated when the Service Binding resource is used in another resource
-      (like Backend Service). This is of the UUID4 format.
+      (like Backend Service). This is of the UUID4 format. This field is for
+      Service Directory integration which will be deprecated soon.
     updateTime: Output only. The timestamp when the resource was updated.
   """
 
@@ -9025,6 +10572,8 @@ class ServiceLbPolicy(_messages.Message):
     description: Optional. A free-text description of the resource. Max length
       1024 characters.
     failoverConfig: Optional. Configuration related to health based failover.
+    isolationConfig: Optional. Configuration to provide isolation support for
+      the associated Backend Service.
     labels: Optional. Set of label tags associated with the ServiceLbPolicy
       resource.
     loadBalancingAlgorithm: Optional. The type of load balancing algorithm to
@@ -9090,10 +10639,11 @@ class ServiceLbPolicy(_messages.Message):
   createTime = _messages.StringField(2)
   description = _messages.StringField(3)
   failoverConfig = _messages.MessageField('ServiceLbPolicyFailoverConfig', 4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  loadBalancingAlgorithm = _messages.EnumField('LoadBalancingAlgorithmValueValuesEnum', 6)
-  name = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  isolationConfig = _messages.MessageField('ServiceLbPolicyIsolationConfig', 5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  loadBalancingAlgorithm = _messages.EnumField('LoadBalancingAlgorithmValueValuesEnum', 7)
+  name = _messages.StringField(8)
+  updateTime = _messages.StringField(9)
 
 
 class ServiceLbPolicyAutoCapacityDrain(_messages.Message):
@@ -9126,6 +10676,53 @@ class ServiceLbPolicyFailoverConfig(_messages.Message):
   """
 
   failoverHealthThreshold = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+
+
+class ServiceLbPolicyIsolationConfig(_messages.Message):
+  r"""Configuration to provide isolation support for the associated Backend
+  Service.
+
+  Enums:
+    IsolationGranularityValueValuesEnum: Optional. The isolation granularity
+      of the load balancer.
+    IsolationModeValueValuesEnum: Optional. The isolation mode of the load
+      balancer.
+
+  Fields:
+    isolationGranularity: Optional. The isolation granularity of the load
+      balancer.
+    isolationMode: Optional. The isolation mode of the load balancer.
+  """
+
+  class IsolationGranularityValueValuesEnum(_messages.Enum):
+    r"""Optional. The isolation granularity of the load balancer.
+
+    Values:
+      ISOLATION_GRANULARITY_UNSPECIFIED: No isolation is configured for the
+        backend service. Traffic can overflow based on the load balancing
+        algorithm.
+      REGION: Traffic for this service will be isolated at the cloud region
+        level.
+    """
+    ISOLATION_GRANULARITY_UNSPECIFIED = 0
+    REGION = 1
+
+  class IsolationModeValueValuesEnum(_messages.Enum):
+    r"""Optional. The isolation mode of the load balancer.
+
+    Values:
+      ISOLATION_MODE_UNSPECIFIED: No isolation mode is configured for the
+        backend service.
+      NEAREST: Traffic will be sent to the nearest region.
+      STRICT: Traffic will fail if no serving backends are available in the
+        same region as the load balancer.
+    """
+    ISOLATION_MODE_UNSPECIFIED = 0
+    NEAREST = 1
+    STRICT = 2
+
+  isolationGranularity = _messages.EnumField('IsolationGranularityValueValuesEnum', 1)
+  isolationMode = _messages.EnumField('IsolationModeValueValuesEnum', 2)
 
 
 class ServiceObserver(_messages.Message):
@@ -9328,6 +10925,76 @@ class Status(_messages.Message):
   message = _messages.StringField(3)
 
 
+class SwpSecurityExtension(_messages.Message):
+  r"""`SwpSecurityExtension` is a resource that allows traffic forwarding to a
+  callout backend to enhance security.
+
+  Messages:
+    LabelsValue: Optional. Set of labels associated with the
+      `SwpSecurityExtension` resource. The format must comply with [the
+      requirements for labels](/compute/docs/labeling-resources#requirements)
+      for Google Cloud resources.
+
+  Fields:
+    createTime: Output only. The timestamp when the resource was created.
+    description: Optional. A human-readable description of the resource.
+    extensionChains: Required. A set of ordered extension chains that contain
+      the match conditions and extensions to execute. Match conditions for
+      each extension chain are evaluated in sequence for a given request. The
+      first extension chain that has a condition that matches the request is
+      executed. Any subsequent extension chains do not execute. Limited to 5
+      extension chains per resource.
+    gateways: Required. References to the [SecureWebGateway
+      resource](https://cloud.google.com/secure-web-proxy/docs/overview) to
+      which this service extension is attached. There can be at most one
+      `SwpSecurityExtension` resource referencing a given `Gateway` resource
+      of type SecureWebGateway.
+    labels: Optional. Set of labels associated with the `SwpSecurityExtension`
+      resource. The format must comply with [the requirements for
+      labels](/compute/docs/labeling-resources#requirements) for Google Cloud
+      resources.
+    name: Required. Identifier. Name of the `SwpSecurityExtension` resource in
+      the following format: `projects/{project}/locations/{location}/swpSecuri
+      tyExtensions/{swp_security_extension}`.
+    updateTime: Output only. The timestamp when the resource was updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Set of labels associated with the `SwpSecurityExtension`
+    resource. The format must comply with [the requirements for
+    labels](/compute/docs/labeling-resources#requirements) for Google Cloud
+    resources.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  extensionChains = _messages.MessageField('ExtensionChain', 3, repeated=True)
+  gateways = _messages.StringField(4, repeated=True)
+  labels = _messages.MessageField('LabelsValue', 5)
+  name = _messages.StringField(6)
+  updateTime = _messages.StringField(7)
+
+
 class TcpRoute(_messages.Message):
   r"""TcpRoute is the resource defining how TCP traffic should be routed by a
   Mesh/Gateway resource.
@@ -9343,15 +11010,15 @@ class TcpRoute(_messages.Message):
     gateways: Optional. Gateways defines a list of gateways this TcpRoute is
       attached to, as one of the routing rules to route the requests served by
       the gateway. Each gateway reference should match the pattern:
-      `projects/*/locations/global/gateways/`
+      `projects/*/locations/*/gateways/`
     labels: Optional. Set of label tags associated with the TcpRoute resource.
     meshes: Optional. Meshes defines a list of meshes this TcpRoute is
       attached to, as one of the routing rules to route the requests served by
       the mesh. Each mesh reference should match the pattern:
-      `projects/*/locations/global/meshes/` The attached Mesh should be of a
-      type SIDECAR
+      `projects/*/locations/*/meshes/` The attached Mesh should be of a type
+      SIDECAR
     name: Identifier. Name of the TcpRoute resource. It matches pattern
-      `projects/*/locations/global/tcpRoutes/tcp_route_name>`.
+      `projects/*/locations/*/tcpRoutes/tcp_route_name>`.
     rules: Required. Rules that define how traffic is routed and handled. At
       least one RouteRule must be supplied. If there are multiple rules then
       the action taken will be the first rule to match.
@@ -9555,15 +11222,15 @@ class TlsRoute(_messages.Message):
     gateways: Optional. Gateways defines a list of gateways this TlsRoute is
       attached to, as one of the routing rules to route the requests served by
       the gateway. Each gateway reference should match the pattern:
-      `projects/*/locations/global/gateways/`
+      `projects/*/locations/*/gateways/`
     labels: Optional. Set of label tags associated with the TlsRoute resource.
     meshes: Optional. Meshes defines a list of meshes this TlsRoute is
       attached to, as one of the routing rules to route the requests served by
       the mesh. Each mesh reference should match the pattern:
-      `projects/*/locations/global/meshes/` The attached Mesh should be of a
-      type SIDECAR
+      `projects/*/locations/*/meshes/` The attached Mesh should be of a type
+      SIDECAR
     name: Identifier. Name of the TlsRoute resource. It matches pattern
-      `projects/*/locations/global/tlsRoutes/tls_route_name>`.
+      `projects/*/locations/*/tlsRoutes/tls_route_name>`.
     rules: Required. Rules that define how traffic is routed and handled. At
       least one RouteRule must be supplied. If there are multiple rules then
       the action taken will be the first rule to match.
@@ -9628,7 +11295,7 @@ class TlsRouteRouteDestination(_messages.Message):
 
   Fields:
     serviceName: Required. The URL of a BackendService to route traffic to.
-    weight: Optional. Specifies the proportion of requests forwareded to the
+    weight: Optional. Specifies the proportion of requests forwarded to the
       backend referenced by the service_name field. This is computed as: -
       weight/Sum(weights in destinations) Weights in all destinations does not
       need to sum up to 100.
@@ -9640,8 +11307,7 @@ class TlsRouteRouteDestination(_messages.Message):
 
 class TlsRouteRouteMatch(_messages.Message):
   r"""RouteMatch defines the predicate used to match requests to a given
-  action. Multiple match types are "AND"ed for evaluation. If no routeMatch
-  field is specified, this rule will unconditionally match traffic.
+  action. Multiple match types are "AND"ed for evaluation.
 
   Fields:
     alpn: Optional. ALPN (Application-Layer Protocol Negotiation) to match
@@ -9667,6 +11333,7 @@ class TlsRouteRouteRule(_messages.Message):
     action: Required. The detailed rule defining how to route matched traffic.
     matches: Required. RouteMatch defines the predicate used to match requests
       to a given action. Multiple match types are "OR"ed for evaluation.
+      Atleast one RouteMatch must be supplied.
   """
 
   action = _messages.MessageField('TlsRouteRouteAction', 1)
@@ -9684,6 +11351,45 @@ class TrafficPortSelector(_messages.Message):
   """
 
   ports = _messages.StringField(1, repeated=True)
+
+
+class TrafficSpec(_messages.Message):
+  r"""Specifies the traffic volume and multicast group scale parameters that
+  are used to set up multicast infrastructure for a multicast domain in a
+  zone.
+
+  Fields:
+    aggrEgressPps: Optional. Aggregated egress Packet-Per-Second for all
+      multicast groups in the domain in this zone.
+    aggrIngressPps: Optional. Aggregated ingress Packet-Per-Second for all
+      multicast groups in the domain in this zone. Default to
+      (aggregated_egress_pps / max_per_group_subscribers) * 2.
+    avgPacketSize: Optional. Average packet size (Default to 512 bytes).
+    maxPerGroupIngressPps: Optional. Maximum ingress Packet-Per-Second for a
+      single multicast group in this zone. Default to aggregated_ingress_pps /
+      2.
+    maxPerGroupSubscribers: Optional. Maximum number of subscribers for a
+      single multicast group in this zone. Default to max(50,
+      aggregated_egress_pps / aggregated_ingress_pps).
+  """
+
+  aggrEgressPps = _messages.IntegerField(1)
+  aggrIngressPps = _messages.IntegerField(2)
+  avgPacketSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  maxPerGroupIngressPps = _messages.IntegerField(4)
+  maxPerGroupSubscribers = _messages.IntegerField(5)
+
+
+class UllMulticastDomain(_messages.Message):
+  r"""Information for an Ultra-Low-Latency multicast domain. This is only
+  available in specific locations and allowlisted projects.
+
+  Fields:
+    preconfiguredUllDomain: Optional. The preconfigured Ultra-Low-Latency
+      domain name.
+  """
+
+  preconfiguredUllDomain = _messages.StringField(1)
 
 
 class UrlRedirect(_messages.Message):
@@ -9993,17 +11699,17 @@ class WasmPluginLogConfig(_messages.Message):
   If logging is enabled, plugin logs are exported to Cloud Logging.
 
   Enums:
-    MinLogLevelValueValuesEnum: Non-empty default. Specificies the lowest
-      level of the plugin logs that are exported to Cloud Logging. This
-      setting relates to the logs generated by using logging statements in
-      your Wasm code. This field is can be set only if logging is enabled for
-      the plugin. If the field is not provided when logging is enabled, it is
-      set to `INFO` by default.
+    MinLogLevelValueValuesEnum: Non-empty default. Specifies the lowest level
+      of the plugin logs that are exported to Cloud Logging. This setting
+      relates to the logs generated by using logging statements in your Wasm
+      code. This field is can be set only if logging is enabled for the
+      plugin. If the field is not provided when logging is enabled, it is set
+      to `INFO` by default.
 
   Fields:
     enable: Optional. Specifies whether to enable logging for activity by this
       plugin. Defaults to `false`.
-    minLogLevel: Non-empty default. Specificies the lowest level of the plugin
+    minLogLevel: Non-empty default. Specifies the lowest level of the plugin
       logs that are exported to Cloud Logging. This setting relates to the
       logs generated by using logging statements in your Wasm code. This field
       is can be set only if logging is enabled for the plugin. If the field is
@@ -10018,11 +11724,11 @@ class WasmPluginLogConfig(_messages.Message):
   """
 
   class MinLogLevelValueValuesEnum(_messages.Enum):
-    r"""Non-empty default. Specificies the lowest level of the plugin logs
-    that are exported to Cloud Logging. This setting relates to the logs
-    generated by using logging statements in your Wasm code. This field is can
-    be set only if logging is enabled for the plugin. If the field is not
-    provided when logging is enabled, it is set to `INFO` by default.
+    r"""Non-empty default. Specifies the lowest level of the plugin logs that
+    are exported to Cloud Logging. This setting relates to the logs generated
+    by using logging statements in your Wasm code. This field is can be set
+    only if logging is enabled for the plugin. If the field is not provided
+    when logging is enabled, it is set to `INFO` by default.
 
     Values:
       LOG_LEVEL_UNSPECIFIED: Unspecified value. Defaults to `LogLevel.INFO`.
@@ -10070,16 +11776,25 @@ class WasmPluginVersion(_messages.Message):
   Fields:
     createTime: Output only. The timestamp when the resource was created.
     description: Optional. A human-readable description of the resource.
-    imageDigest: Output only. The resolved digest for the image specified in
-      the `image` field. The digest is resolved during the creation of
-      `WasmPluginVersion` resource. This field holds the digest value,
-      regardless of whether a tag or digest was originally specified in the
-      `image` field.
-    imageUri: Optional. URI of the container image containing the plugin,
-      stored in the Artifact Registry. When a new `WasmPluginVersion` resource
-      is created, the digest of the container image is saved in the
-      `image_digest` field. When downloading an image, the digest value is
-      used instead of an image tag.
+    imageDigest: Output only. This field holds the digest (usually checksum)
+      value for the plugin image. The value is calculated based on the
+      `image_uri` field. If the `image_uri` field refers to a container image,
+      the digest value is obtained from the container image. If the
+      `image_uri` field refers to a generic artifact, the digest value is
+      calculated based on the contents of the file.
+    imageUri: Optional. URI of the image containing the Wasm module, stored in
+      Artifact Registry. The URI can refer to one of the following repository
+      formats: * Container images: the `image_uri` must point to a container
+      that contains a single file with the name `plugin.wasm`. When a new
+      `WasmPluginVersion` resource is created, the digest of the image is
+      saved in the `image_digest` field. When pulling a container image from
+      Artifact Registry, the digest value is used instead of an image tag. *
+      Generic artifacts: the `image_uri` must be in this format:
+      `projects/{project}/locations/{location}/repositories/{repository}/
+      genericArtifacts/{package}:{version}`. The specified package and version
+      must contain a file with the name `plugin.wasm`. When a new
+      `WasmPluginVersion` resource is created, the checksum of the contents of
+      the file is saved in the `image_digest` field.
     labels: Optional. Set of labels associated with the `WasmPluginVersion`
       resource.
     name: Identifier. Name of the `WasmPluginVersion` resource in the
@@ -10092,14 +11807,23 @@ class WasmPluginVersion(_messages.Message):
       contents is saved in the `plugin_config_digest` field.
     pluginConfigDigest: Output only. This field holds the digest (usually
       checksum) value for the plugin configuration. The value is calculated
-      based on the contents of `plugin_config_data` or the container image
-      defined by the `plugin_config_uri` field.
+      based on the contents of `plugin_config_data` field or the image defined
+      by the `plugin_config_uri` field.
     pluginConfigUri: URI of the plugin configuration stored in the Artifact
       Registry. The configuration is provided to the plugin at runtime through
-      the `ON_CONFIGURE` callback. The container image must contain only a
-      single file with the name `plugin.config`. When a new
-      `WasmPluginVersion` resource is created, the digest of the container
-      image is saved in the `plugin_config_digest` field.
+      the `ON_CONFIGURE` callback. The URI can refer to one of the following
+      repository formats: * Container images: the `plugin_config_uri` must
+      point to a container that contains a single file with the name
+      `plugin.config`. When a new `WasmPluginVersion` resource is created, the
+      digest of the image is saved in the `plugin_config_digest` field. When
+      pulling a container image from Artifact Registry, the digest value is
+      used instead of an image tag. * Generic artifacts: the
+      `plugin_config_uri` must be in this format:
+      `projects/{project}/locations/{location}/repositories/{repository}/
+      genericArtifacts/{package}:{version}`. The specified package and version
+      must contain a file with the name `plugin.config`. When a new
+      `WasmPluginVersion` resource is created, the checksum of the contents of
+      the file is saved in the `plugin_config_digest` field.
     updateTime: Output only. The timestamp when the resource was updated.
   """
 
@@ -10151,16 +11875,25 @@ class WasmPluginVersionDetails(_messages.Message):
   Fields:
     createTime: Output only. The timestamp when the resource was created.
     description: Optional. A human-readable description of the resource.
-    imageDigest: Output only. The resolved digest for the image specified in
-      `image`. The digest is resolved during the creation of a
-      `WasmPluginVersion` resource. This field holds the digest value
-      regardless of whether a tag or digest was originally specified in the
-      `image` field.
-    imageUri: Optional. URI of the container image containing the Wasm module,
-      stored in the Artifact Registry. The container image must contain only a
-      single file with the name `plugin.wasm`. When a new `WasmPluginVersion`
-      resource is created, the URI gets resolved to an image digest and saved
-      in the `image_digest` field.
+    imageDigest: Output only. This field holds the digest (usually checksum)
+      value for the plugin image. The value is calculated based on the
+      `image_uri` field. If the `image_uri` field refers to a container image,
+      the digest value is obtained from the container image. If the
+      `image_uri` field refers to a generic artifact, the digest value is
+      calculated based on the contents of the file.
+    imageUri: Optional. URI of the image containing the Wasm module, stored in
+      Artifact Registry. The URI can refer to one of the following repository
+      formats: * Container images: the `image_uri` must point to a container
+      that contains a single file with the name `plugin.wasm`. When a new
+      `WasmPluginVersion` resource is created, the digest of the image is
+      saved in the `image_digest` field. When pulling a container image from
+      Artifact Registry, the digest value is used instead of an image tag. *
+      Generic artifacts: the `image_uri` must be in this format:
+      `projects/{project}/locations/{location}/repositories/{repository}/
+      genericArtifacts/{package}:{version}`. The specified package and version
+      must contain a file with the name `plugin.wasm`. When a new
+      `WasmPluginVersion` resource is created, the checksum of the contents of
+      the file is saved in the `image_digest` field.
     labels: Optional. Set of labels associated with the `WasmPluginVersion`
       resource.
     pluginConfigData: Configuration for the plugin. The configuration is
@@ -10169,14 +11902,23 @@ class WasmPluginVersionDetails(_messages.Message):
       contents is saved in the `plugin_config_digest` field.
     pluginConfigDigest: Output only. This field holds the digest (usually
       checksum) value for the plugin configuration. The value is calculated
-      based on the contents of the `plugin_config_data` field or the container
-      image defined by the `plugin_config_uri` field.
+      based on the contents of `plugin_config_data` field or the image defined
+      by the `plugin_config_uri` field.
     pluginConfigUri: URI of the plugin configuration stored in the Artifact
       Registry. The configuration is provided to the plugin at runtime through
-      the `ON_CONFIGURE` callback. The container image must contain only a
-      single file with the name `plugin.config`. When a new
-      `WasmPluginVersion` resource is created, the digest of the container
-      image is saved in the `plugin_config_digest` field.
+      the `ON_CONFIGURE` callback. The URI can refer to one of the following
+      repository formats: * Container images: the `plugin_config_uri` must
+      point to a container that contains a single file with the name
+      `plugin.config`. When a new `WasmPluginVersion` resource is created, the
+      digest of the image is saved in the `plugin_config_digest` field. When
+      pulling a container image from Artifact Registry, the digest value is
+      used instead of an image tag. * Generic artifacts: the
+      `plugin_config_uri` must be in this format:
+      `projects/{project}/locations/{location}/repositories/{repository}/
+      genericArtifacts/{package}:{version}`. The specified package and version
+      must contain a file with the name `plugin.config`. When a new
+      `WasmPluginVersion` resource is created, the checksum of the contents of
+      the file is saved in the `plugin_config_digest` field.
     updateTime: Output only. The timestamp when the resource was updated.
   """
 

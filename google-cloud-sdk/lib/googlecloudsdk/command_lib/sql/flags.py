@@ -34,6 +34,9 @@ from googlecloudsdk.api_lib.util import apis
 from googlecloudsdk.calliope import actions
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
+from googlecloudsdk.calliope import parser_extensions
+from googlecloudsdk.command_lib.kms import resource_args as kms_resource_args
+from googlecloudsdk.command_lib.sql import constants
 from googlecloudsdk.command_lib.util import completers
 from googlecloudsdk.core import properties
 
@@ -211,9 +214,10 @@ def AddPromptForPassword(parser):
   )
 
 
-def AddType(parser):
+def AddType(parser, required=False):
   parser.add_argument(
       '--type',
+      required=required,
       help=(
           "Cloud SQL user's type. It determines "
           'the method to authenticate the user during login. '
@@ -367,8 +371,7 @@ def AddEnableFinalBackup(parser):
       '--enable-final-backup',
       required=False,
       action='store_true',
-      default=False,
-      hidden=True,
+      default=None,
       help=(
           'Enables the final backup to be taken at the time of instance'
           ' deletion.'
@@ -376,17 +379,31 @@ def AddEnableFinalBackup(parser):
   )
 
 
-def AddFinalbackupRetentionDays(parser):
+def AddFinalBackup(parser, hidden=False):
+  parser.add_argument(
+      '--final-backup',
+      required=False,
+      action=arg_parsers.StoreTrueFalseAction,
+      hidden=hidden,
+      help=(
+          'Enables the final backup to be taken at the time of instance'
+          ' deletion.'
+      ),
+  )
+
+
+def AddFinalbackupRetentionDays(parser, hidden=False):
   help_text = (
       'Specifies number of days to retain final backup. The valid range is'
-      ' between 1 and 365. Default value is 30 days.'
+      ' between 1 and 365. For instances managed by BackupDR, the valid range'
+      ' is between 1 day and 99 years. Default value is 30 days.'
   )
   parser.add_argument(
       '--final-backup-retention-days',
-      type=arg_parsers.BoundedInt(1, 365, unlimited=False),
+      type=arg_parsers.BoundedInt(1, 365 * 99, unlimited=False),
       required=False,
+      hidden=hidden,
       help=help_text,
-      hidden=True,
   )
 
 
@@ -401,7 +418,6 @@ def AddBackupTtlDays(parser):
       required=False,
       type=arg_parsers.BoundedInt(1, 365, unlimited=False),
       default=None,
-      hidden=True,
       help=(
           ' Specifies the number of days to retain the final backup.'
           ' The valid range is between 1 and 365. The Default value is 30 days.'
@@ -414,7 +430,6 @@ def AddFinalbackupDescription(parser):
   parser.add_argument(
       '--final-backup-description',
       required=False,
-      hidden=True,
       help='Provides description for the final backup going to be taken.',
   )
 
@@ -423,7 +438,6 @@ def AddBackupDescription(parser):
   parser.add_argument(
       '--backup-description',
       required=False,
-      hidden=True,
       help='Provides description for the backup going to be taken.',
   )
 
@@ -433,10 +447,10 @@ def AddFinalBackupExpiryTimeArgument(parser):
       '--final-backup-expiry-time',
       type=arg_parsers.Datetime.Parse,
       required=False,
-      hidden=True,
       help=(
           'Specifies the time at which the final backup will expire. Maximum'
-          ' time allowed is 365 days from now. Format: YYYY-MM-DDTHH:MM:SS.'
+          ' time allowed is 365 days. For instances managed by BackupDR, the'
+          ' maximum time allowed is 99 years. Format: YYYY-MM-DDTHH:MM:SS.'
       ),
   )
 
@@ -452,7 +466,6 @@ def AddBackupExpiryTime(parser):
       required=False,
       type=arg_parsers.Datetime.Parse,
       default=None,
-      hidden=True,
       help=(
           'Specifies when the final backup expires. The Maximum'
           ' time allowed is 365 days from now. Format: YYYY-MM-DDTHH:MM:SS.'
@@ -522,8 +535,28 @@ def AddDatabaseFlags(parser, update=False, hidden=False):
   )
 
 
+def AddTags(parser, hidden=False):
+  """Adds the `--tags` flag."""
+  help_ = (
+      'Comma-separated list of tags to set on the instance. Use an equals sign'
+      'to separate tag name and value.(e.g., `--tags tag1:value1,tag2=value2`)'
+  )
+  parser.add_argument(
+      '--tags',
+      type=arg_parsers.ArgDict(min_length=1),
+      metavar='TAG=VALUE',
+      required=False,
+      help=help_,
+      hidden=hidden,
+  )
+
+
 def AddDatabaseVersion(
-    parser, restrict_choices=True, hidden=False, support_default_version=True
+    parser,
+    restrict_choices=True,
+    hidden=False,
+    support_default_version=True,
+    additional_help_text=None,
 ):
   """Adds `--database-version` to the parser with choices restricted or not."""
   # Section for engine-specific content.
@@ -543,6 +576,7 @@ def AddDatabaseVersion(
       'POSTGRES_15',
       'POSTGRES_16',
       'POSTGRES_17',
+      'POSTGRES_18',
       'SQLSERVER_2017_EXPRESS',
       'SQLSERVER_2017_WEB',
       'SQLSERVER_2017_STANDARD',
@@ -575,6 +609,8 @@ def AddDatabaseVersion(
         ' Apart from listed major versions, DATABASE_VERSION also accepts'
         ' supported minor versions.'
     )
+  if additional_help_text:
+    help_text += additional_help_text
 
   parser.add_argument(
       '--database-version',
@@ -588,11 +624,15 @@ def AddDatabaseVersion(
   )
 
 
-def AddIncludeReplicasForMajorVersionUpgrade(parser, hidden=True):
+def AddIncludeReplicasForMajorVersionUpgrade(parser, hidden=False):
   """Adds `--include-replicas-for-major-version-upgrade` to the parser with boolean choice."""
-  help_text = """ Boolean determining whether an in-place major version upgrade
-                of replicas happens when an in-place major version upgrade
-                of a primary instance is initiated."""
+  help_text = (
+      'Enable the major version upgrade of replicas when the in-place '
+      'major version upgrade of a primary instance is initated with '
+      '`--database-version`. Use '
+      '`--include-replicas-for-major-version-upgrade`  to enable and '
+      '`--no-include-replicas-for-major--version-upgrade` to disable.'
+  )
   parser.add_argument(
       '--include-replicas-for-major-version-upgrade',
       action=arg_parsers.StoreTrueFalseAction,
@@ -607,10 +647,13 @@ def AddCPU(parser, hidden=False):
       type=int,
       required=False,
       help=(
-          'Whole number value indicating how many cores are desired in '
-          'the machine. Both --cpu and --memory must be specified if a '
-          'custom machine type is desired, and the --tier flag must be '
-          'omitted.'
+          'Whole number value indicating how many cores are desired in the'
+          ' machine. Both --cpu and --memory must be specified if a custom'
+          ' machine type is desired, and the --tier flag must be omitted.'
+          '--cpu and --memory flags are not compatible with the Enterprise Plus'
+          ' edition. These flags should not be used when creating an Enterprise'
+          ' Plus edition, as the machine configuration is determined by the'
+          ' --tier flag instead.'
       ),
       hidden=hidden,
   )
@@ -842,9 +885,10 @@ def AddStorageType(parser, hidden=False):
   parser.add_argument(
       '--storage-type',
       required=False,
-      # TODO(b/339092559): Remove SSD from the list for non-default universe
       choices=(
-          ['SSD', 'HDD'] if properties.IsDefaultUniverse() else ['SSD', 'HDB']
+          ['SSD', 'HDD', 'HYPERDISK_BALANCED']
+          if properties.IsDefaultUniverse()
+          else ['HYPERDISK_BALANCED']
       ),
       default=None,
       hidden=hidden,
@@ -984,10 +1028,11 @@ def AddInsightsConfigQueryStringLength(parser, hidden=False):
   parser.add_argument(
       '--insights-config-query-string-length',
       required=False,
-      type=arg_parsers.BoundedInt(lower_bound=256, upper_bound=4500),
-      help="""Query string length in bytes to be stored by the query insights
-        feature. Default length is 1024 bytes. Allowed range: 256 to 4500
-        bytes.""",
+      type=arg_parsers.BoundedInt(lower_bound=256, upper_bound=100000),
+      help="""Sets the default query length limit. For Cloud SQL Enterprise edition,
+      the range is from 256 to 4500 (in bytes) and the default query length is 1024
+      bytes. For Cloud SQL Enterprise Plus edition, the range is from 1024 to 100,000
+      (in bytes) and the default query length is 10,000 bytes.""",
       hidden=hidden,
   )
 
@@ -1037,11 +1082,14 @@ def AddMemory(parser, hidden=False):
       type=arg_parsers.BinarySize(),
       required=False,
       help=(
-          'Whole number value indicating how much memory is desired in '
-          'the machine. A size unit should be provided (eg. 3072MiB or '
-          '9GiB) - if no units are specified, GiB is assumed. Both --cpu '
-          'and --memory must be specified if a custom machine type is '
-          'desired, and the --tier flag must be omitted.'
+          'Whole number value indicating how much memory is desired in the'
+          ' machine. A size unit should be provided (eg. 3072MiB or 9GiB) - if'
+          ' no units are specified, GiB is assumed. Both --cpu and --memory'
+          ' must be specified if a custom machine type is desired, and the'
+          ' --tier flag must be omitted. --cpu and --memory flags are not'
+          ' compatible with the Enterprise Plus edition. These flags should not'
+          ' be used when creating an Enterprise Plus edition, as the machine'
+          ' configuration is determined by the --tier flag instead.'
       ),
       hidden=hidden,
   )
@@ -1060,6 +1108,33 @@ def AddNetwork(parser, hidden=False):
           '`--network`=`projects/testproject/global/networks/'
           'testsharednetwork`'
       ),
+      hidden=hidden,
+  )
+
+
+def AddClearNetwork(parser, hidden=False):
+  """Adds the `--clear-network` flag to the parser."""
+  parser.add_argument(
+      '--clear-network',
+      required=False,
+      action='store_true',
+      help=(
+          'Clears the network setting. This is useful to restore a backup to a'
+          ' different project or region where the original network'
+          " configuration isn't available."
+      ),
+      hidden=hidden,
+  )
+
+
+def AddClearDiskEncryption(
+    parser: parser_extensions.Namespace, hidden: bool = False
+) -> None:
+  """Adds the `--clear-disk-encryption` flag to the parser."""
+  parser.add_argument(
+      '--clear-disk-encryption',
+      required=False,
+      help='Disables CMEK in the restored instance.',
       hidden=hidden,
   )
 
@@ -1097,6 +1172,21 @@ def AddSimulateMaintenanceEvent(parser):
           'Simulate a maintenance event without changing the version. Only'
           ' applicable to instances that support near-zero downtime planned'
           ' maintenance.'
+      ),
+  )
+
+
+def AddReconcilePsaNetworking(parser):
+  """Adds the `--reconcile-psa-networking` flag to the parser."""
+  parser.add_argument(
+      '--reconcile-psa-networking',
+      action='store_true',
+      required=False,
+      help=(
+          "Reconciles the instance's PSA networking configuration. If the "
+          'instance is already on a PSA network, the DNS zone and records '
+          'associated with the PSA write endpoint are either added if missing '
+          'or updated if incorrect.'
       ),
   )
 
@@ -1188,7 +1278,7 @@ def AddStorageSize(parser, hidden=False):
   )
 
 
-def AddStorageProvisionedIops(parser):
+def AddStorageProvisionedIops(parser, hidden=False):
   help_text = (
       'Indicates how many IOPS to provision for the data disk. This sets the'
       ' number of I/O operations per second that the disk can handle.'
@@ -1198,11 +1288,11 @@ def AddStorageProvisionedIops(parser):
       type=arg_parsers.BoundedInt(lower_bound=1, unlimited=True),
       required=False,
       help=help_text,
-      hidden=True,
+      hidden=hidden,
   )
 
 
-def AddStorageProvisionedThroughput(parser):
+def AddStorageProvisionedThroughput(parser, hidden=False):
   help_text = (
       'Indicates how much throughput to provision for the data disk. This sets'
       ' the throughput in MB per second that the disk can handle.'
@@ -1212,7 +1302,7 @@ def AddStorageProvisionedThroughput(parser):
       type=arg_parsers.BoundedInt(lower_bound=1, unlimited=True),
       required=False,
       help=help_text,
-      hidden=True,
+      hidden=hidden,
   )
 
 
@@ -1753,7 +1843,7 @@ def AddBakImportNoRecoveryArgument(parser):
       action='store_true',
       help=(
           'Whether or not the SQL Server import '
-          'is execueted with NORECOVERY keyword.'
+          'is executed with NORECOVERY keyword.'
       ),
   )
 
@@ -1827,7 +1917,6 @@ def AddBakImportKeepEncryptedArgument(parser):
       action='store_true',
       required=False,
       default=False,
-      hidden=True,
       help='Whether or not to decrypt the imported encrypted BAK file.',
   )
 
@@ -1884,8 +1973,10 @@ def AddBackupRunId(parser):
 def AddBackupId(
     parser,
     help_text=(
-        'The ID of the backup run. To find the ID, run the following command: '
-        '$ gcloud sql backups list -i {instance}.'
+        'The ID of the backup run. To find the ID, run the following command: $'
+        ' gcloud sql backups list -i {instance}.Or, the NAME of the backup. To'
+        ' find the NAME, run the following command: '
+        ' $ gcloud sql backups list --filter=instance:{instance}'
     ),
 ):
   """Add the flag for the ID of the backup run.
@@ -1910,7 +2001,7 @@ def AddBackupName(parser):
       'name',
       help=(
           'The NAME of the backup. To find the NAME, run the following command:'
-          ' $ gcloud sql backups list.'
+          ' $ gcloud sql backups list  --filter=type:FINAL instance:{instance}.'
       ),
   )
 
@@ -2098,7 +2189,6 @@ def AddPasswordPolicyAllowedFailedAttempts(parser):
       default=None,
       help=(
           'Number of failed login attempts allowed before a user is locked out.'
-          ' This flag is available only for MySQL.'
       ),
   )
 
@@ -2117,7 +2207,7 @@ def AddPasswordPolicyPasswordExpirationDuration(parser):
       help="""\
         Expiration duration after a password is updated, for example,
         2d for 2 days. See `gcloud topic datetimes` for information on
-        duration formats. This flag is available only for MySQL.
+        duration formats.
       """,
   )
 
@@ -2135,10 +2225,7 @@ def AddPasswordPolicyEnableFailedAttemptsCheck(
   parser.add_argument(
       '--password-policy-enable-failed-attempts-check',
       required=False,
-      help=(
-          'Enables the failed login attempts check if set to true. This flag is'
-          ' available only for MySQL.'
-      ),
+      help='Enables the failed login attempts check if set to true.',
       **kwargs
   )
 
@@ -2156,10 +2243,7 @@ def AddPasswordPolicyEnablePasswordVerification(
   parser.add_argument(
       '--password-policy-enable-password-verification',
       required=False,
-      help=(
-          'The current password must be specified when altering the password.'
-          ' This flag is available only for MySQL.'
-      ),
+      help='The current password must be specified when altering the password.',
       **kwargs
   )
 
@@ -2387,18 +2471,6 @@ OPERATION_FORMAT_BETA = """
   )
 """
 
-OPERATION_FORMAT_BETA_WITH_INSERT_TIME = """
-  table(
-    name,
-    operationType:label=TYPE,
-    insertTime.iso():label=INSERTED_AT,
-    startTime.iso():label=START,
-    endTime.iso():label=END,
-    error.errors[0].code.yesno(no="-"):label=ERROR,
-    status:label=STATUS
-  )
-"""
-
 CLIENT_CERTS_FORMAT = """
   table(
     commonName:label=NAME,
@@ -2465,6 +2537,121 @@ def AddActiveDirectoryDomain(parser, hidden=False):
       '--active-directory-domain',
       help=help_text,
       hidden=hidden,
+  )
+
+
+def AddActiveDirectorySecretManagerKey(parser, hidden=False):
+  """Adds the '--active-directory-secret-manager-key' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
+  """
+  help_text = (
+      'The secret manager key storing administrator credentials. Only available'
+      ' for SQL Server instances.'
+  )
+  parser.add_argument(
+      '--active-directory-secret-manager-key',
+      help=help_text,
+      hidden=hidden,
+  )
+
+
+def ClearActiveDirectoryDNSServers(parser, hidden=False):
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--clear-active-directory-dns-servers',
+      required=False,
+      help=(
+          'Removes the list of DNS Servers from the Active Directory Config.'
+      ),
+      hidden=hidden,
+      **kwargs
+  )
+
+
+def AddActiveDirectoryMode(parser, hidden=False):
+  """Adds the '--active-directory-mode' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
+  """
+  choices = [
+      messages.SqlActiveDirectoryConfig.ModeValueValuesEnum.MANAGED_ACTIVE_DIRECTORY.name,
+      messages.SqlActiveDirectoryConfig.ModeValueValuesEnum.CUSTOMER_MANAGED_ACTIVE_DIRECTORY.name,
+  ]
+  help_text = (
+      'Defines the Active Directory mode. Only available for SQL Server'
+      ' instances.'
+  )
+  parser.add_argument(
+      '--active-directory-mode',
+      choices=choices,
+      required=False,
+      help=help_text,
+      hidden=hidden,
+  )
+
+
+def AddActiveDirectoryDNSServers(parser, hidden=False):
+  """Adds the '--active-directory-dns-servers' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
+  """
+  help_text = (
+      'A comma-separated list of the DNS servers to be used for Active'
+      ' Directory. Only available for SQL Server instances. E.g:'
+      ' 10.0.0.1,10.0.0.2'
+  )
+
+  parser.add_argument(
+      '--active-directory-dns-servers',
+      type=arg_parsers.ArgList(),
+      metavar='DNS_SERVER_IP_ADDRESS',
+      help=help_text,
+      hidden=hidden,
+      action=arg_parsers.FlattenAction(),
+  )
+
+
+def AddActiveDirectoryOrganizationalUnit(parser, hidden=False):
+  """Adds the '--active-directory-organizational-unit' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
+  """
+  help_text = (
+      'Defines the organizational unit to be used for Active Directory. Only'
+      ' available for SQL Server instances. E.g:'
+      ' OU=Cloud,DC=ad,DC=example,DC=com'
+  )
+
+  parser.add_argument(
+      '--active-directory-organizational-unit',
+      help=help_text,
+      hidden=hidden,
+  )
+
+
+def AddClearActiveDirectory(parser, hidden=False):
+  """Adds the '--clear-active-directory' flag to the parser.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
+  """
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--clear-active-directory',
+      required=False,
+      help='Clears the Active Directory configuration.',
+      hidden=hidden,
+      **kwargs
   )
 
 
@@ -2593,12 +2780,11 @@ def AddPscAutoConnections(parser, hidden=False):
       ),
       required=False,
       help=(
-          'A comma-separated list of networks or a comma-separated list of '
-          'network-project pairs. Each project in this list is represented '
-          'by a project number (numeric) or by a project ID (alphanumeric).'
-          ' This allows Private Service Connect connections to be created '
-          'automatically for the specified networks. For example, this'
-          ' connection uses "the form'
+          'A comma-separated list of networks or network-project pairs. Each'
+          ' project is represented by a project number (numeric) or by a'
+          ' project ID (alphanumeric). This allows Private Service Connect'
+          ' connections to be created automatically for the specified networks.'
+          ' For example, this connection uses "the form'
           ' `psc-auto-connections`=`network=projects/testproject1/global/'
           'networks/testnetwork1`" or "the form'
           ' `psc-auto-connections`=`project=testproject1,network=projects/'
@@ -2615,7 +2801,7 @@ def AddClearPscAutoConnections(parser, hidden=False):
       '--clear-psc-auto-connections',
       required=False,
       help=(
-          'This removes all connections created automatically. Cloud SQL'
+          'This removes all automatically created connections. Cloud SQL'
           ' uses these connections to connect to an instance using Private'
           ' Service Connect.'
       ),
@@ -2625,13 +2811,21 @@ def AddClearPscAutoConnections(parser, hidden=False):
 
 
 def AddCustomSubjectAlternativeNames(parser, hidden=False):
+  """Adds --custom-subject-alternative-names argument."""
   parser.add_argument(
       '--custom-subject-alternative-names',
       type=arg_parsers.ArgList(min_length=1, max_length=3),
       metavar='DNS',
       required=False,
       help=(
-          'A comma-separated list of customer specified DNS names.'
+          "A comma-separated list of DNS names to add to the instance's SSL"
+          ' certificate. A custom SAN is a structured way to add additional'
+          ' DNS names (host names) that are not managed by Cloud SQL to an'
+          ' instance. It allows for hostname verification during establishment'
+          ' of a database connection using the DNS name over SSL/TLS.'
+          ' When you create and/or update an instance, you can add a'
+          ' comma-separated list of up to three DNS names to the server'
+          ' certificate of your instance.'
       ),
       hidden=hidden,
       action=arg_parsers.FlattenAction(),
@@ -2643,9 +2837,7 @@ def AddClearCustomSubjectAlternativeNames(parser, hidden=False):
   parser.add_argument(
       '--clear-custom-subject-alternative-names',
       required=False,
-      help=(
-          'This will clear the customer specified DNS names.'
-      ),
+      help='This clears the customer specified DNS names.',
       hidden=hidden,
       **kwargs
   )
@@ -2683,6 +2875,18 @@ def AddUpgradeSqlNetworkArchitecture(parser):
   )
 
 
+def AddForceSqlNetworkArchitecture(parser, hidden=False):
+  """Adds --enforce-new-sql-network-architecture flag."""
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--enforce-new-sql-network-architecture',
+      required=False,
+      help="""Force the instance to use the new network architecture.""",
+      hidden=hidden,
+      **kwargs
+  )
+
+
 def AddCascadableReplica(parser, hidden=False):
   """Adds --cascadable-replica flag."""
   kwargs = _GetKwargsForBoolFlag(False)
@@ -2713,6 +2917,104 @@ def AddEnableDataCache(parser, show_negated_in_help=True, hidden=False):
       ),
       hidden=hidden,
       **kwargs
+  )
+
+
+def AddEnableDbAlignedAtomicWrites(parser):
+  """Adds '--enable-db-aligned-atomic-writes' flag to the parser."""
+  parser.add_argument(
+      '--enable-db-aligned-atomic-writes',
+      action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      help=(
+          'Enabling DB Aligned Atomic Writes will reformat the underlying'
+          ' filesystem to use write block size similar to the DB block size.'
+      ),
+      hidden=True,
+  )
+
+
+def AddEnableAutoUpgrade(parser, hidden=False):
+  """Adds '--enable-auto-upgrade-minor-version' flag to the parser."""
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--enable-auto-upgrade-minor-version',
+      # action=arg_parsers.StoreTrueFalseAction,
+      required=False,
+      help=(
+          'Enables auto-upgrade for MySQL 8.0 minor versions. The MySQL version'
+          ' must be 8.0.35 or higher.'
+      ),
+      hidden=hidden,
+      **kwargs
+  )
+
+
+def AddReadPoolAutoScaleConfig(parser, hidden=False):
+  """Adds flags for read pool auto-scale config."""
+  read_pool_auto_scale_group = parser.add_group(
+      help='Options for configuring read pool auto scale.', hidden=hidden
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-enabled',
+      action=arg_parsers.StoreTrueFalseAction,
+      help='Enables read pool auto scaling. Supports automatically increasing'
+      ' and decreasing the read pool\'s node count based on need.',
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-min-node-count',
+      type=arg_parsers.BoundedInt(lower_bound=1),
+      help='Minimum number of read pool nodes to be maintained.',
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-max-node-count',
+      type=arg_parsers.BoundedInt(lower_bound=1),
+      help='Maximum number of read pool nodes to be maintained.',
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-target-metrics',
+      type=arg_parsers.ArgDict(
+          spec={
+              'AVERAGE_CPU_UTILIZATION': float,
+              'AVERAGE_DB_CONNECTIONS': float,
+          }
+      ),
+      metavar='METRIC=VALUE',
+      help=(
+          'Target metrics for read pool auto scaling. Options are:'
+          ' AVERAGE_CPU_UTILIZATION and AVERAGE_DB_CONNECTIONS. Example:'
+          ' --auto-scale-target-metrics=AVERAGE_CPU_UTILIZATION=0.8'
+      ),
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-disable-scale-in',
+      action=arg_parsers.StoreTrueFalseAction,
+      help=(
+          'Disables automatic read pool scale-in. When disabled, read pool auto'
+          ' scaling only supports increasing the read pool node count. By'
+          ' default, both automatic read pool scale-in and scale-out are'
+          ' enabled.'
+      ),
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-in-cooldown-seconds',
+      type=arg_parsers.BoundedInt(lower_bound=60),
+      help=(
+          'The cooldown period for automatic read pool scale-in. '
+          'Minimum time between scale-in events. Must be an integer value. For'
+          ' example, if the value is 60, then a scale-in event will not be'
+          ' triggered within 60 seconds of the last scale-in event.'
+      ),
+  )
+  read_pool_auto_scale_group.add_argument(
+      '--auto-scale-out-cooldown-seconds',
+      type=arg_parsers.BoundedInt(lower_bound=60),
+      help=(
+          'The cooldown period for automatic read pool scale-out. '
+          'Minimum time between scale-out events. Must be an integer value. For'
+          ' example, if the value is 60, then a scale-out event will not be'
+          ' triggered within 60 seconds of the last scale-out event.'
+      ),
   )
 
 
@@ -2814,7 +3116,8 @@ def AddEnableGoogleMLIntegration(parser, hidden=False):
       hidden=hidden,
       help=(
           'Enable Vertex AI integration for Google Cloud SQL. '
-          'Currently, only PostgreSQL is supported.'
+          'You can integrate Vertex AI with Cloud SQL for MySQL and Cloud SQL '
+          'for PostgreSQL instances only.'
       ),
       action=arg_parsers.StoreTrueFalseAction,
   )
@@ -2943,19 +3246,20 @@ def AddTdeFlags(parser):
   )
 
 
-def AddRetainBackupsOnDelete(parser):
+def AddRetainBackupsOnDelete(parser, hidden=False):
   """Adds --retain-backups-on-delete flag.
 
   Args:
     parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
   """
   parser.add_argument(
       '--retain-backups-on-delete',
       required=False,
-      hidden=True,
+      hidden=hidden,
       help=(
-          'Enable retaining existing automated/ondemand backups of the instance'
-          ' even after the instance is deleted.'
+          'Retain automated/ondemand backups of the instance after the instance'
+          ' is deleted.'
       ),
       action=arg_parsers.StoreTrueFalseAction,
   )
@@ -2970,9 +3274,45 @@ def AddEnableConnectionPooling(parser):
   parser.add_argument(
       '--enable-connection-pooling',
       required=False,
-      hidden=True,
+      hidden=False,
       help='Enable connection pooling for the instance.',
       action=arg_parsers.StoreTrueFalseAction,
+  )
+
+
+def AddConnectionPoolFlags(parser, update=False):
+  """Adds the `--connection-pool-flags` flag."""
+  help_ = (
+      'Comma-separated list of connection pool flags to set on the instance'
+      ' connection pool. Use an equals sign to separate flag name and value.'
+      ' More information on available flags can be found here:'
+      ' https://cloud.google.com/sql/docs/mysql/managed-connection-pooling#configuration-options'
+      ' for MySQL and'
+      ' https://cloud.google.com/sql/docs/postgres/managed-connection-pooling#configuration-options'
+      ' for PostgreSQL. (e.g.,'
+      ' `--connection-pool-flags max_pool_size=1000,max_client_connections=20`)'
+  )
+  if update:
+    help_ += (
+        '\n\nThe value given for this argument *replaces* the existing list.'
+    )
+  parser.add_argument(
+      '--connection-pool-flags',
+      type=arg_parsers.ArgDict(min_length=1),
+      metavar='FLAG=VALUE',
+      required=False,
+      help=help_,
+      hidden=False,
+  )
+
+
+def AddClearConnectionPoolFlags(parser):
+  kwargs = _GetKwargsForBoolFlag(False)
+  parser.add_argument(
+      '--clear-connection-pool-flags',
+      required=False,
+      help='This will clear the connection pool flags set on the instance.',
+      **kwargs
   )
 
 
@@ -2992,6 +3332,14 @@ def AddConnectionPoolingPoolMode(parser):
       default=None,
       help='The pool mode for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-pool-mode',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
@@ -3008,6 +3356,14 @@ def AddConnectionPoolingPoolSize(parser):
       default=None,
       help='The pool size for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-pool-size',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
@@ -3024,6 +3380,14 @@ def AddConnectionPoolingMaxClientConnections(parser):
       default=None,
       help='The max client connections for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-max-client-connections',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
@@ -3039,6 +3403,14 @@ def AddConnectionPoolingClientIdleTimeout(parser):
       default=None,
       help='The client idle timeout for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-client-idle-timeout',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
@@ -3054,6 +3426,14 @@ def AddConnectionPoolingServerIdleTimeout(parser):
       default=None,
       help='The server idle timeout for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-server-idle-timeout',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
@@ -3069,14 +3449,23 @@ def AddConnectionPoolingQueryWaitTimeout(parser):
       default=None,
       help='The query wait timeout for managed connection pooling.',
       hidden=True,
+      actions=actions.DeprecationAction(
+          '--connection-pooling-query-wait-timeout',
+          error=(
+              'This flag is deprecated. Please use --connection-pool-flags'
+              ' instead.'
+          ),
+          removed=True,
+      ),
   )
 
 
-def AddServerCaPool(parser):
+def AddServerCaPool(parser, hidden=False):
   """Adds the '--server-ca-pool' flag to the parser.
 
   Args:
     parser: The current argparse parser to add this to.
+    hidden: if the field needs to be hidden.
   """
   help_text = 'Set the server CA pool of the instance.'
   parser.add_argument(
@@ -3084,5 +3473,293 @@ def AddServerCaPool(parser):
       required=False,
       default=None,
       help=help_text,
+      hidden=hidden,
+  )
+
+
+def AddInstanceType(parser):
+  """Adds --instance-type flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--instance-type',
+      choices={
+          'CLOUD_SQL_INSTANCE': 'A primary instance.',
+          'READ_REPLICA_INSTANCE': 'A read replica instance.',
+          'READ_POOL_INSTANCE': 'A read pool instance.',
+      },
+      required=False,
+      default=None,
+      help='The type of the instance.',
       hidden=False,
+  )
+
+
+def AddNodeCount(parser):
+  """Adds --node-count flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--node-count',
+      required=False,
+      default=None,
+      type=arg_parsers.BoundedInt(lower_bound=1),
+      help=(
+          'The number of nodes in the pool. This option is only available for'
+          ' read pools.'
+      ),
+      hidden=False,
+  )
+
+
+def AddPSCNetworkAttachmentUri(parser, hidden=False):
+  """Adds the `--psc-network-attachment-uri` flag to the parser."""
+  parser.add_argument(
+      '--psc-network-attachment-uri',
+      required=False,
+      hidden=hidden,
+      type=str,
+      help=(
+          'Full URI of the network attachment that is configured to '
+          'support outbound connectivity from a Cloud SQL instance which '
+          'uses Private Service Connect (PSC). '
+          'For example, this would be of the form:'
+          '`--psc-network-attachment-uri=projects/test-project/regions/us-central1/networkAttachments/my-na`'
+      ),
+  )
+
+
+def AddClearPSCNetworkAttachmentUri(parser, hidden=False):
+  parser.add_argument(
+      '--clear-psc-network-attachment-uri',
+      action='store_true',
+      hidden=hidden,
+      help="""Disable outbound connectivity from a Cloud SQL instance which uses Private Service Connect (PSC).""",
+  )
+
+
+def AddEnableAcceleratedReplicaMode(parser):
+  """Adds --enable-accelerated-replica-mode flag."""
+  parser.add_argument(
+      '--enable-accelerated-replica-mode',
+      required=False,
+      help=(
+          'Accelerated replica mode improves the write performance of'
+          ' the replica instance by reducing its durability. In case of'
+          ' replica instance crash, it will be recreated from the primary'
+          ' instance.'
+      ),
+      action=arg_parsers.StoreTrueFalseAction,
+      hidden=True,
+  )
+
+
+def AddUncMappings(parser, hidden=True):
+  """Adds --unc-mappings argument."""
+  parser.add_argument(
+      '--unc-mappings',
+      type=arg_parsers.ArgList(min_length=1),
+      required=False,
+      metavar='SERVER-NAME=GCS-PATH:MODE',
+      help=(
+          'A comma-separated list of UNC mapping to add to the SQL Server'
+          ' instance. The input should be in a format of'
+          ' server-name=gcs-path:mode where mode should be snapshot_read or'
+          ' snapshot_write Example:'
+          ' \\serverA\123456=gs://bucket/folder:snapshot_read'
+      ),
+      hidden=hidden,
+      action=arg_parsers.FlattenAction(),
+  )
+
+
+def AddClearUncMappings(parser, hidden=True):
+  parser.add_argument(
+      '--clear-unc-mappings',
+      action='store_true',
+      hidden=hidden,
+      help="""Clear the UNC mappings for the SQL Server instance.""",
+  )
+
+
+def AddDatabaseRoles(parser, required=False):
+  """Add the flag to specify database roles for the user.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    required: Whether the flag is required.
+  """
+  parser.add_argument(
+      '--database-roles',
+      required=required,
+      # TODO: b/440167373 - Remove hidden flag once the feature is launched.
+      hidden=True,
+      default=[],
+      metavar='ROLE',
+      type=arg_parsers.ArgList(),
+      help="""\
+        A comma-separated list of database roles to be assigned to the user.
+        This option is only available for MySQL and PostgreSQL instances. You
+        can include predefined Cloud SQL roles, like cloudsqlsuperuser, or your
+        own custom roles. Custom roles must be created in the database before
+        you can assign them. You can create roles using the CREATE ROLE
+        statement for both MySQL and PostgreSQL.
+      """,
+  )
+
+
+def AddRevokeExistingRoles(parser):
+  """Add the flag to revoke existing database roles for the user.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--revoke-existing-roles',
+      required=False,
+      # TODO: b/440167373 - Remove hidden flag once the feature is launched.
+      hidden=True,
+      action='store_true',
+      help="""\
+        A boolean flag for revoking existing database roles from the user.
+        This option is only available for MySQL and PostgreSQL instances.
+      """,
+  )
+
+
+# Restore to new instance and cross project PITR should eventually have the
+# exact same flags. But since restore to new instance was launched before cross
+# project PITR, the visibility of flags will temporarily be different. After
+# cross project PITR is launched, we can remove the "for_pitr" parameter.
+def AddSourceInstanceOverrideArgs(
+    parser: parser_extensions.Namespace, for_pitr: bool = False
+) -> None:
+  """Add flags that can be overridden from the source instance.
+
+  These flags are used when creating a new Cloud SQL instance via a backup
+  restore or PITR operation.
+
+  Args:
+    parser: The current argparse parser to add this to.
+    for_pitr: Whether the args are being added for point-in-time-restore.
+  """
+  parser.display_info.AddFormat(GetInstanceListFormat())
+  psc_setup_group = parser.add_group(hidden=for_pitr)
+
+  # go/keep-sorted start
+  AddActivationPolicy(parser, hidden=for_pitr)
+  AddActiveDirectoryDNSServers(parser, hidden=for_pitr)
+  AddActiveDirectoryDomain(parser, hidden=for_pitr)
+  AddActiveDirectoryMode(parser, hidden=for_pitr)
+  AddActiveDirectoryOrganizationalUnit(parser, hidden=for_pitr)
+  AddActiveDirectorySecretManagerKey(parser, hidden=for_pitr)
+  AddAllowedPscProjects(psc_setup_group, hidden=for_pitr)
+  AddAssignIp(parser, hidden=for_pitr)
+  AddAuthorizedNetworks(parser, hidden=for_pitr)
+  AddAvailabilityType(parser, hidden=for_pitr)
+  AddBackup(parser, hidden=for_pitr)
+  AddBackupLocation(parser, allow_empty=False, hidden=for_pitr)
+  AddBackupStartTime(parser, hidden=for_pitr)
+  AddCPU(parser, hidden=for_pitr)
+  AddClearActiveDirectory(parser, hidden=for_pitr)
+  AddClearDiskEncryption(parser, hidden=for_pitr)
+  AddClearNetwork(parser, hidden=for_pitr)
+  AddConnectorEnforcement(parser, hidden=for_pitr)
+  AddDatabaseVersion(
+      parser,
+      restrict_choices=False,
+      hidden=for_pitr,
+      support_default_version=False,
+      additional_help_text=(
+          ' Note for restore to new instance major version upgrades are not'
+          ' supported. Only minor version upgrades are allowed.'
+      ),
+  )
+  AddDeletionProtection(parser, hidden=for_pitr)
+  AddDenyMaintenancePeriodEndDate(parser, hidden=for_pitr)
+  AddDenyMaintenancePeriodStartDate(parser, hidden=for_pitr)
+  AddDenyMaintenancePeriodTime(parser, hidden=for_pitr)
+  AddEdition(parser, hidden=for_pitr)
+  AddEnableBinLog(parser, hidden=for_pitr)
+  AddEnableDataCache(parser, hidden=True)
+  AddEnableDataplexIntegration(parser, hidden=True)
+  AddEnableGoogleMLIntegration(parser, hidden=True)
+  AddEnableGooglePrivatePath(
+      parser, show_negated_in_help=False, hidden=for_pitr
+  )
+  AddEnablePointInTimeRecovery(parser, hidden=for_pitr)
+  AddEnablePrivateServiceConnect(psc_setup_group, hidden=for_pitr)
+  AddFinalBackup(parser, hidden=for_pitr)
+  AddFinalbackupRetentionDays(parser, hidden=for_pitr)
+  AddInsightsConfigQueryInsightsEnabled(parser, hidden=for_pitr)
+  AddInsightsConfigQueryPlansPerMinute(parser, hidden=for_pitr)
+  AddInsightsConfigQueryStringLength(parser, hidden=for_pitr)
+  AddInsightsConfigRecordApplicationTags(parser, hidden=for_pitr)
+  AddInsightsConfigRecordClientAddress(parser, hidden=for_pitr)
+  AddInstanceCollation(parser, hidden=for_pitr)
+  AddLocationGroup(parser, hidden=for_pitr, specify_default_region=False)
+  AddMaintenanceReleaseChannel(parser, hidden=for_pitr)
+  AddMaintenanceWindowDay(parser, hidden=for_pitr)
+  AddMaintenanceWindowHour(parser, hidden=for_pitr)
+  AddMemory(parser, hidden=for_pitr)
+  AddNetwork(parser, hidden=for_pitr)
+  AddPscAutoConnections(parser, hidden=True)
+  AddReadPoolAutoScaleConfig(parser, hidden=True)
+  AddRequireSsl(parser, hidden=for_pitr)
+  AddRetainBackupsOnDelete(parser, hidden=True)
+  AddRetainedBackupsCount(parser, hidden=for_pitr)
+  AddRetainedTransactionLogDays(parser, hidden=for_pitr)
+  AddServerCaMode(parser, hidden=True)
+  AddSqlServerAudit(parser, hidden=for_pitr)
+  AddSqlServerTimeZone(parser, hidden=for_pitr)
+  AddSslMode(parser, hidden=for_pitr)
+  AddStorageAutoIncrease(parser, hidden=for_pitr)
+  AddStorageProvisionedIops(parser, hidden=for_pitr)
+  AddStorageProvisionedThroughput(parser, hidden=for_pitr)
+  AddStorageSize(parser, hidden=for_pitr)
+  AddStorageType(parser, hidden=for_pitr)
+  AddTags(parser, hidden=True)
+  AddTier(parser, hidden=for_pitr)
+  AddTimeout(
+      parser, constants.INSTANCE_CREATION_TIMEOUT_SECONDS, hidden=for_pitr
+  )
+  ClearActiveDirectoryDNSServers(parser, hidden=for_pitr)
+  kms_flag_overrides = {
+      'kms-key': '--disk-encryption-key',
+      'kms-keyring': '--disk-encryption-key-keyring',
+      'kms-location': '--disk-encryption-key-location',
+      'kms-project': '--disk-encryption-key-project',
+  }
+  kms_resource_args.AddKmsKeyResourceArg(
+      parser, 'instance', flag_overrides=kms_flag_overrides, hidden=for_pitr
+  )
+  # go/keep-sorted end
+
+
+def AddDataApiAccess(parser):
+  """Adds --data-api-access flag."""
+  parser.add_argument(
+      '--data-api-access',
+      choices={
+          'DATA_API_ACCESS_UNSPECIFIED': (
+              'Unspecified mode, effectively the same as'
+              ' `DISALLOW_DATA_API`.'
+          ),
+          'DISALLOW_DATA_API': (
+              'Disallow using ExecuteSql API to connect to the instance.'
+          ),
+          'ALLOW_DATA_API': (
+              'Allow using ExecuteSql API to connect to the instance. For'
+              ' Private IP instances, this will allow authorized users to'
+              ' access the instance from the public internet using ExecuteSql'
+              ' API.'
+          ),
+      },
+      required=False,
+      default=None,
+      help='Controls connectivity to the instance using ExecuteSql API.',
   )

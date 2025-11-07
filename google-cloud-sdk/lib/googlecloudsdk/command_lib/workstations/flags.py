@@ -80,6 +80,48 @@ def AddDisallowUnauthenticatedCorsPreflightRequestsToggleFlag(parser):
   )
 
 
+def AddDisableLocalhostReplacementFlag(parser):
+  """Adds a --disable-localhost-replacement flag to the given parser."""
+  help_text = """\
+    By default, the workstations service replaces references to localhost,
+    127.0.0.1, and 0.0.0.0 with the workstation's hostname in http responses
+    from the workstation so that applications under development run properly
+    on the workstation. This may intefere with some applications, and so
+    this option allows that behavior to be disabled.
+  """
+  parser.add_argument(
+      '--disable-localhost-replacement',
+      action='store_true',
+      help=help_text,
+  )
+
+
+def AddDisableLocalhostReplacementToggleFlag(parser):
+  """Adds a --enable-localhost-replacement flag to the given parser."""
+  help_text = """\
+    By default, the workstations service replaces references to localhost,
+    127.0.0.1, and 0.0.0.0 with the workstation's hostname in http responses
+    from the workstation so that applications under development run properly
+    on the workstation. This may intefere with some applications, and so
+    this option allows that behavior to be disabled.
+  """
+
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument(
+      '--disable-localhost-replacement',
+      action='store_true',
+      help=help_text,
+  )
+
+  help_text = """\
+  If set, requires that all requests to the workstation are authenticated."""
+  group.add_argument(
+      '--enable-localhost-replacement',
+      action='store_true',
+      help=help_text,
+  )
+
+
 def AddAllowedPortsFlag(parser):
   """Adds a --allowed-ports flag to the given parser."""
   help_text = """\
@@ -539,17 +581,94 @@ def AddPdDiskType(parser):
   )
 
 
-def AddPdDiskSize(parser):
-  """Adds a --pd-disk-size flag to the given parser."""
+def AddNoPersistentStorageOrPd(parser):
+  """Adds a --no-persistent-storage or group of persistent directory flags to the given parser."""
+  top_level_mutex_group = parser.add_mutually_exclusive_group()
+
+  help_text = """\
+  If set, workstations under this configuration will not have a persistent directory."""
+  top_level_mutex_group.add_argument(
+      '--no-persistent-storage',
+      action='store_true',
+      help=help_text,
+  )
+
+  help_text = """\
+  Persistent directory configuration."""
+  pd_group = top_level_mutex_group.add_group(mutex=False, help=help_text)
+  AddPdDiskType(pd_group)
+  AddPdDiskSizeOrSnapshot(pd_group)
+  AddPdReclaimPolicy(pd_group)
+
+
+def AddPdDiskSizeOrSnapshot(parser):
+  """Adds a --pd-disk-size or --pd-source-snapshot flag to the given parser."""
   help_text = """\
   Size of the persistent directory in GB."""
-  parser.add_argument(
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument(
       '--pd-disk-size',
       choices=[10, 50, 100, 200, 500, 1000],
       default=200,
       type=int,
       help=help_text,
   )
+
+  help_text = """\
+  Name of the snapshot to use as the source for the home disk."""
+  group.add_argument(
+      '--pd-source-snapshot',
+      default='',
+      help=help_text,
+  )
+
+
+def AddPdDiskTypeArg():
+  help_text = """\
+  Type of the persistent directory."""
+  return base.Argument(
+      '--pd-disk-type',
+      choices=['pd-standard', 'pd-balanced', 'pd-ssd'],
+      default='pd-standard',
+      help=help_text,
+  )
+
+
+def AddPdDiskSizeArg(use_default):
+  help_text = """\
+  Size of the persistent directory in GB."""
+  return base.Argument(
+      '--pd-disk-size',
+      choices=[10, 50, 100, 200, 500, 1000],
+      default=200 if use_default else None,
+      type=int,
+      help=help_text,
+  )
+
+
+def AddPdSourceSnapshotArg():
+  help_text = """\
+  Name of the snapshot to use as the source for the persistent directory."""
+  return base.Argument(
+      '--pd-source-snapshot',
+      default='',
+      help=help_text,
+  )
+
+
+def AddPersistentDirectories(parser, use_default=True):
+  """Adds a --pd-disk-size, --pd-disk-type, and --pd-source-snapshot flag to the given parser."""
+
+  persistent_directory_group = parser.add_mutually_exclusive_group()
+  AddPdSourceSnapshotArg().AddToParser(persistent_directory_group)
+
+  help_text = """\
+  --pd-source-snapshot cannot be specified when --pd-disk-size or --pd-disk-type is specified."""
+  type_size_group = persistent_directory_group.add_group(
+      mutex=False, help=help_text
+  )
+  AddPdDiskTypeArg().AddToParser(type_size_group)
+  AddPdDiskSizeArg(use_default).AddToParser(type_size_group)
 
 
 def AddPdReclaimPolicy(parser):
@@ -571,15 +690,29 @@ def AddPdReclaimPolicy(parser):
 
 
 def AddEphemeralDirectory(parser):
+  """Adds a --ephemeral-directory flag to the given parser."""
   spec = {
       'mount-path': str,
       'disk-type': str,
       'source-snapshot': str,
       'source-image': str,
-      'read-only': bool,
+      'read-only': arg_parsers.ArgBoolean(),
   }
   help_text = """\
-  Ephemeral directory which won't persist across workstation sessions."""
+  Ephemeral directory which won't persist across workstation sessions. An ephemeral directory is backed by a Compute Engine persistent disk whose mount-path, source-snapshot, source-image, and read-only are configurable.
+
+  *mount-path*::: Location of this directory in the running workstation.
+
+  *source-snapshot:: Name of the snapshot to use as the source for the disk. Must be empty if [source_image][] is set. Must be empty if [read_only][] is false. Updating [source_snapshot][] will update content in the ephemeral directory after the workstation is restarted.
+
+  *source-image::: Name of the disk image to use as the source for the disk. Must be empty if [source_snapshot][] is set. Updating [source_image][] will update content in the ephemeral directory after the workstation is restarted.
+
+  *read-only::: Whether the disk is read only. If true, the disk may be shared by multiple VMs and [source_snapshot][] must be set. Set to false when not specified and true when specified.
+
+  Example:
+
+    $ {command} --ephemeral-directory="mount-path=/home2,disk-type=pd-balanced,source-snapshot=projects/my-project/global/snapshots/snapshot,read-only=true"
+  """
   parser.add_argument(
       '--ephemeral-directory',
       type=arg_parsers.ArgDict(spec=spec),
@@ -729,7 +862,7 @@ def AddCommandField(parser):
 
 
 def AddSshArgsAndUserField(parser):
-  """Adds a --user flag to the given parser."""
+  """Additional flags and positional args to be passed to *ssh(1)*."""
   help_text = """\
   The username with which to SSH.
   """
@@ -738,6 +871,14 @@ def AddSshArgsAndUserField(parser):
   help_text = """\
   Flags and positionals passed to the underlying ssh implementation."""
   parser.add_argument('ssh_args', nargs=argparse.REMAINDER, help=help_text)
+
+  help_text = """\
+  Additional flags to be passed to *ssh(1)*. It is recommended that flags
+  be passed using an assignment operator and quotes. Example:
+
+    $ {command} --ssh-flag="-vvv" --ssh-flag="-L 80:localhost:80"
+  """
+  parser.add_argument('--ssh-flag', action='append', help=help_text)
 
 
 def AddEncryptionKeyFields(parser):
@@ -814,6 +955,15 @@ def AddBoostConfigs(parser):
               'pool-size': int,
               'boot-disk-size': int,
               'enable-nested-virtualization': bool,
+              'reservation-affinity': arg_parsers.ArgObject(
+                  spec={
+                      'key': str,
+                      'values': arg_parsers.ArgList(),
+                      'consume-reservation-type': (
+                          ValidateConsumeReservationType
+                      ),
+                  }
+              ),
           },
           required_keys=['id'],
       ),
@@ -944,3 +1094,41 @@ def AddMaxUsableWorkstationsCount(parser):
       default=0,
       help=help_text,
   )
+
+
+def AddReservationAffinity(parser):
+  """Adds a --reservation-affinity flag to the given parser."""
+  help_text = """\
+  Reservation Affinity for the VM. This includes key, values, and
+  consumeReservationType.
+
+  Example:
+    $ {command} --reservation-affinity=key=compute.googleapis.com/reservation-name,consumeReservationType=SPECIFIC_RESERVATION,values=my-reservation
+  """
+
+  parser.add_argument(
+      '--reservation-affinity',
+      metavar='RESERVATION_AFFINITY',
+      type=arg_parsers.ArgObject(
+          spec={
+              'key': str,
+              'values': arg_parsers.ArgList(),
+              'consume-reservation-type': ValidateConsumeReservationType,
+          },
+      ),
+      help=help_text,
+  )
+
+
+def ValidateConsumeReservationType(value):
+  """Validates the consume-reservation-type value."""
+  allowed_values = [
+      'ANY_RESERVATION',
+      'NO_RESERVATION',
+      'SPECIFIC_RESERVATION',
+  ]
+  if value not in allowed_values:
+    raise argparse.ArgumentTypeError(
+        f"Invalid choice: '{value}'. Valid choices are {allowed_values}"
+    )
+  return value

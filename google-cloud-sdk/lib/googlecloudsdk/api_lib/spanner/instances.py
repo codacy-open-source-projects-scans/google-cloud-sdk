@@ -14,10 +14,6 @@
 # limitations under the License.
 """Spanner instance API helper."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 import datetime
 import re
 
@@ -55,6 +51,10 @@ def MaybeGetAutoscalingOverride(msgs, asymmetric_autoscaling_option):
       and 'min_processing_units' not in asymmetric_autoscaling_option
       and 'max_processing_units' not in asymmetric_autoscaling_option
       and 'high_priority_cpu_target' not in asymmetric_autoscaling_option
+      and 'total_cpu_target' not in asymmetric_autoscaling_option
+      and 'disable_high_priority_cpu_autoscaling'
+      not in asymmetric_autoscaling_option
+      and 'disable_total_cpu_autoscaling' not in asymmetric_autoscaling_option
   ):
     return None
 
@@ -77,11 +77,33 @@ def MaybeGetAutoscalingOverride(msgs, asymmetric_autoscaling_option):
     obj.autoscalingTargetHighPriorityCpuUtilizationPercent = (
         asymmetric_autoscaling_option['high_priority_cpu_target']
     )
+  if 'total_cpu_target' in asymmetric_autoscaling_option:
+    obj.autoscalingTargetTotalCpuUtilizationPercent = (
+        asymmetric_autoscaling_option['total_cpu_target']
+    )
+  if 'disable_high_priority_cpu_autoscaling' in asymmetric_autoscaling_option:
+    obj.disableHighPriorityCpuAutoscaling = (
+        asymmetric_autoscaling_option['disable_high_priority_cpu_autoscaling']
+    )
+  if 'disable_total_cpu_autoscaling' in asymmetric_autoscaling_option:
+    obj.disableTotalCpuAutoscaling = (
+        asymmetric_autoscaling_option['disable_total_cpu_autoscaling']
+    )
   return obj
 
 
 # Merges existing_overrides with new_overrides and returned the merged result.
 def MergeAutoscalingConfigOverride(msgs, existing_overrides, new_overrides):
+  """Merges two AutoscalingConfigOverrides objects.
+
+  Args:
+    msgs: The messages module for the Spanner API.
+    existing_overrides: The existing AutoscalingConfigOverrides object.
+    new_overrides: The new AutoscalingConfigOverrides object to merge.
+
+  Returns:
+    The merged AutoscalingConfigOverrides object.
+  """
   if existing_overrides is None and new_overrides is None:
     return None
 
@@ -124,6 +146,22 @@ def MergeAutoscalingConfigOverride(msgs, existing_overrides, new_overrides):
         new_overrides.autoscalingTargetHighPriorityCpuUtilizationPercent
     )
 
+  if new_overrides.autoscalingTargetTotalCpuUtilizationPercent is not None:
+    result.autoscalingTargetTotalCpuUtilizationPercent = (
+        new_overrides.autoscalingTargetTotalCpuUtilizationPercent
+    )
+
+  if new_overrides.disableHighPriorityCpuAutoscaling is not None:
+    result.disableHighPriorityCpuAutoscaling = (
+        new_overrides.disableHighPriorityCpuAutoscaling
+    )
+    if result.disableHighPriorityCpuAutoscaling:
+      result.autoscalingTargetHighPriorityCpuUtilizationPercent = None
+
+  if new_overrides.disableTotalCpuAutoscaling is not None:
+    result.disableTotalCpuAutoscaling = new_overrides.disableTotalCpuAutoscaling
+    if result.disableTotalCpuAutoscaling:
+      result.autoscalingTargetTotalCpuUtilizationPercent = None
   return result
 
 
@@ -132,6 +170,14 @@ def MergeAutoscalingConfigOverride(msgs, existing_overrides, new_overrides):
 def PatchAsymmetricAutoscalingOptions(
     msgs, instance_obj, current_instance, asym_options_patch
 ):
+  """Patch asymmetric autoscaling options.
+
+  Args:
+    msgs: API messages module.
+    instance_obj: The instance object to patch.
+    current_instance: The current instance object.
+    asym_options_patch: A list of AsymmetricAutoscalingOption objects to patch.
+  """
   option_by_location = {}
   if config := current_instance.autoscalingConfig:
     for existing_option in config.asymmetricAutoscalingOptions:
@@ -167,14 +213,17 @@ def Create(
     autoscaling_min_processing_units=None,
     autoscaling_max_processing_units=None,
     autoscaling_high_priority_cpu_target=None,
+    autoscaling_total_cpu_target=None,
     autoscaling_storage_target=None,
     asymmetric_autoscaling_options=None,
+    disable_downscaling=None,
     instance_type=None,
     expire_behavior=None,
     default_storage_type=None,
     ssd_cache=None,
     edition=None,
     default_backup_schedule_type=None,
+    tags=None,
 ):
   """Create a new instance.
 
@@ -191,15 +240,18 @@ def Create(
     autoscaling_max_processing_units: The maximum number of processing units to
       use.
     autoscaling_high_priority_cpu_target: The high priority CPU target to use.
+    autoscaling_total_cpu_target: The total CPU target to use.
     autoscaling_storage_target: The storage target to use.
     asymmetric_autoscaling_options: A list of ordered dict of key-value pairs
       representing the asymmetric autoscaling options.
+    disable_downscaling: Whether to disable downscaling for the instance.
     instance_type: The instance type to use.
     expire_behavior: The expire behavior to use.
     default_storage_type: The default storage type to use.
     ssd_cache: The ssd cache to use.
     edition: The edition to use.
     default_backup_schedule_type: The type of default backup schedule to use.
+    tags: The parsed tags value.
 
   Returns:
     The created instance.
@@ -228,7 +280,9 @@ def Create(
       or autoscaling_min_processing_units
       or autoscaling_max_processing_units
       or autoscaling_high_priority_cpu_target
+      or autoscaling_total_cpu_target
       or autoscaling_storage_target
+      or disable_downscaling is not None
   ):
     instance_obj.autoscalingConfig = msgs.AutoscalingConfig(
         autoscalingLimits=msgs.AutoscalingLimits(
@@ -239,8 +293,10 @@ def Create(
         ),
         autoscalingTargets=msgs.AutoscalingTargets(
             highPriorityCpuUtilizationPercent=autoscaling_high_priority_cpu_target,
+            totalCpuUtilizationPercent=autoscaling_total_cpu_target,
             storageUtilizationPercent=autoscaling_storage_target,
         ),
+        disableDownscaling=disable_downscaling,
     )
   if instance_type is not None:
     instance_obj.instanceType = instance_type
@@ -262,6 +318,14 @@ def Create(
             default_backup_schedule_type
         )
     )
+  if tags is not None:
+    instance_obj.tags = msgs.Instance.TagsValue(
+        additionalProperties=[
+            msgs.Instance.TagsValue.AdditionalProperty(key=key, value=value)
+            for key, value in sorted(tags.items())
+        ]
+    )
+
   # Add asymmetric autoscaling options, if present.
   if asymmetric_autoscaling_options is not None:
     for asym_option in asymmetric_autoscaling_options:
@@ -361,8 +425,10 @@ def Patch(
     autoscaling_min_processing_units=None,
     autoscaling_max_processing_units=None,
     autoscaling_high_priority_cpu_target=None,
+    autoscaling_total_cpu_target=None,
     autoscaling_storage_target=None,
     asymmetric_autoscaling_options=None,
+    disable_downscaling=None,
     clear_asymmetric_autoscaling_options=None,
     instance_type=None,
     expire_behavior=None,
@@ -382,7 +448,8 @@ def Patch(
   if (
       (autoscaling_min_nodes and autoscaling_max_nodes)
       or (autoscaling_min_processing_units and autoscaling_max_processing_units)
-  ) and (autoscaling_high_priority_cpu_target and autoscaling_storage_target):
+  ) and ((autoscaling_high_priority_cpu_target or autoscaling_total_cpu_target)
+         and autoscaling_storage_target):
     fields.append(_FIELD_MASK_AUTOSCALING_CONFIG)
   else:
     if autoscaling_min_nodes:
@@ -397,10 +464,16 @@ def Patch(
       fields.append(
           'autoscalingConfig.autoscalingTargets.highPriorityCpuUtilizationPercent'
       )
+    if autoscaling_total_cpu_target:
+      fields.append(
+          'autoscalingConfig.autoscalingTargets.totalCpuUtilizationPercent'
+      )
     if autoscaling_storage_target:
       fields.append(
           'autoscalingConfig.autoscalingTargets.storageUtilizationPercent'
       )
+    if disable_downscaling is not None:
+      fields.append('autoscalingConfig.disableDownscaling')
   client = apis.GetClientInstance(_SPANNER_API_NAME, _SPANNER_API_VERSION)
   msgs = apis.GetMessagesModule(_SPANNER_API_NAME, _SPANNER_API_VERSION)
 
@@ -415,7 +488,9 @@ def Patch(
       or autoscaling_min_processing_units
       or autoscaling_max_processing_units
       or autoscaling_high_priority_cpu_target
+      or autoscaling_total_cpu_target
       or autoscaling_storage_target
+      or disable_downscaling is not None
   ):
     instance_obj.autoscalingConfig = msgs.AutoscalingConfig(
         autoscalingLimits=msgs.AutoscalingLimits(
@@ -426,8 +501,10 @@ def Patch(
         ),
         autoscalingTargets=msgs.AutoscalingTargets(
             highPriorityCpuUtilizationPercent=autoscaling_high_priority_cpu_target,
+            totalCpuUtilizationPercent=autoscaling_total_cpu_target,
             storageUtilizationPercent=autoscaling_storage_target,
         ),
+        disableDownscaling=disable_downscaling,
     )
 
   if asymmetric_autoscaling_options is not None:
@@ -525,12 +602,15 @@ def GetLocations(instance, verbose_flag):
   return command_output
 
 
-def Move(instance, target_instance_config):
+def Move(instance, target_instance_config, target_database_move_configs):
   """Moves an instance from one instance-config to another.
 
   Args:
       instance: Instance to move.
-      target_instance_config: Target instance config to move the instance to.
+      target_instance_config: The target instance configuration to move the
+        instance.
+      target_database_move_configs: Configurations for databases in the
+        destination instance config.
 
   The configs can be google-managed or user-managed.
   Ex: gcloud spanner instances move instance-to-move
@@ -574,10 +654,26 @@ def Move(instance, target_instance_config):
       cancel_on_no=True,
       prompt_string='Do you want to proceed',
   )
+  req_args = {'targetConfig': config_ref.RelativeName()}
+  if target_database_move_configs is not None:
+    req_args['targetDatabaseMoveConfigs'] = []
+    for target_database_move_config in target_database_move_configs:
+      kms_key_names = target_database_move_config['kms-key-names'].split(',')
+      encryption_config_args = {}
+      encryption_config_args['kmsKeyNames'] = []
+      for kms_key_name in kms_key_names:
+        encryption_config_args['kmsKeyNames'].append(kms_key_name)
+      encryption_config = msgs.InstanceEncryptionConfig(
+          **encryption_config_args
+      )
+      req_args['targetDatabaseMoveConfigs'].append(
+          msgs.DatabaseMoveConfig(
+              databaseId=target_database_move_config['database-id'],
+              encryptionConfig=encryption_config,
+          )
+      )
   move_req = msgs.SpannerProjectsInstancesMoveRequest(
-      moveInstanceRequest=msgs.MoveInstanceRequest(
-          targetConfig=config_ref.RelativeName()
-      ),
+      moveInstanceRequest=msgs.MoveInstanceRequest(**req_args),
       name=instance_ref.RelativeName(),
   )
   move_operation_id = client.projects_instances.Move(move_req).name

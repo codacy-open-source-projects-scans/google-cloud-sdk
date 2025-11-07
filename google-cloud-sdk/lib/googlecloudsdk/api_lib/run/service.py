@@ -25,8 +25,9 @@ from typing import List
 from googlecloudsdk.api_lib.run import k8s_object
 from googlecloudsdk.api_lib.run import revision
 from googlecloudsdk.api_lib.run import traffic
+from googlecloudsdk.command_lib.run import threat_detection_util as crtd_util
 
-DEFAULT_BASE_IMAGE = 'gcr.io/buildpacks/google-22/run'
+DEFAULT_BASE_IMAGE = 'us-docker.pkg.dev/serverless-runtimes/google-22/run/universal'
 ENDPOINT_VISIBILITY = 'networking.knative.dev/visibility'
 CLUSTER_LOCAL = 'cluster-local'
 
@@ -39,24 +40,20 @@ INGRESS_INTERNAL_AND_CLOUD_LOAD_BALANCING = 'internal-and-cloud-load-balancing'
 SERVICE_MIN_SCALE_ANNOTATION = 'run.googleapis.com/minScale'
 SERVICE_MAX_SCALE_ANNOTATION = 'run.googleapis.com/maxScale'
 MANUAL_INSTANCE_COUNT_ANNOTATION = 'run.googleapis.com/manualInstanceCount'
-SERVICE_MAX_SURGE_ANNOTATION = 'run.googleapis.com/max-surge'
-SERVICE_MAX_UNAVAILABLE_ANNOTATION = 'run.googleapis.com/max-unavailable'
 SERVICE_SCALING_MODE_ANNOTATION = 'run.googleapis.com/scalingMode'
 OPERATION_ID_ANNOTATION = 'run.googleapis.com/operation-id'
+PRESETS_ANNOTATION = 'run.googleapis.com/presets'
+RUN_FUNCTIONS_BUILD_IMAGE_URI_ANNOTATION = 'run.googleapis.com/build-image-uri'
+RUN_FUNCTIONS_BUILD_ID_ANNOTATION = 'run.googleapis.com/build-id'
+RUN_FUNCTIONS_BUILD_ENV_VARS_ANNOTATION = (
+    'run.googleapis.com/build-environment-variables'
+)
 RUN_FUNCTIONS_BUILD_SOURCE_LOCATION_ANNOTATION = (
     'run.googleapis.com/build-source-location'
 )
 RUN_FUNCTIONS_BUILD_FUNCTION_TARGET_ANNOTATION = (
     'run.googleapis.com/build-function-target'
 )
-RUN_FUNCTIONS_BUILD_IMAGE_URI_ANNOTATION = 'run.googleapis.com/build-image-uri'
-RUN_FUNCTIONS_BUILD_ID_ANNOTATION = 'run.googleapis.com/build-id'
-RUN_FUNCTIONS_BUILD_ENV_VARS_ANNOTATION = (
-    'run.googleapis.com/build-environment-variables'
-)
-RUN_FUNCTIONS_BUILD_SOURCE_LOCATION_ANNOTATION = 'run.googleapis.com/build-source-location'
-RUN_FUNCTIONS_BUILD_FUNCTION_TARGET_ANNOTATION = 'run.googleapis.com/build-function-target'
-RUN_FUNCTIONS_BUILD_IMAGE_URI_ANNOTATION = 'run.googleapis.com/build-image-uri'
 RUN_FUNCTIONS_BUILD_WORKER_POOL_ANNOTATION = (
     'run.googleapis.com/build-worker-pool'
 )
@@ -80,6 +77,10 @@ RUN_FUNCTIONS_ENABLE_AUTOMATIC_UPDATES_DEPRECATED = (
     'run.googleapis.com/enable-automatic-updates'
 )
 
+# zip deploy source location annotation.
+# A json map string from container to GCS source location.
+SOURCE_DEPLOY_NO_BUILD_SOURCE_LOCATION_ANNOTATION = 'run.googleapis.com/sources'
+
 
 class Service(k8s_object.KubernetesObject):
   """Wraps a Serverless Service message, making fields more convenient.
@@ -91,12 +92,17 @@ class Service(k8s_object.KubernetesObject):
   API_CATEGORY = 'serving.knative.dev'
   KIND = 'Service'
 
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.threat_detection_state = crtd_util.ThreatDetectionState.DISABLED
+
   @property
   def run_functions_annotations(self):
     return (
         self.annotations.get(RUN_FUNCTIONS_BUILD_SERVICE_ACCOUNT_ANNOTATION),
         self.annotations.get(RUN_FUNCTIONS_BUILD_WORKER_POOL_ANNOTATION),
         self.annotations.get(RUN_FUNCTIONS_BUILD_ENV_VARS_ANNOTATION),
+        self.annotations.get(RUN_FUNCTIONS_BUILD_IMAGE_URI_ANNOTATION),
     )
 
   @property
@@ -255,9 +261,17 @@ class Service(k8s_object.KubernetesObject):
 
   @property
   def source_location(self):
+    """Returns the build source location from the service annotations."""
     return self.annotations.get(
         RUN_FUNCTIONS_BUILD_SOURCE_LOCATION_ANNOTATION,
         self.annotations.get(
             RUN_FUNCTIONS_SOURCE_LOCATION_ANNOTATION_DEPRECATED
         ),
+    )
+
+  @property
+  def source_deploy_no_build_source_location_map(self):
+    """Returns the function target from the service annotations."""
+    return self.template_annotations.get(
+        SOURCE_DEPLOY_NO_BUILD_SOURCE_LOCATION_ANNOTATION, None
     )

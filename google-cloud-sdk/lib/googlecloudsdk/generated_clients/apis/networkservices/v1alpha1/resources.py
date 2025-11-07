@@ -151,6 +151,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_LBEDGEEXTENSIONS = (
+      'projects.locations.lbEdgeExtensions',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'lbEdgeExtensions/{lbEdgeExtensionsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_LBOBSERVABILITYEXTENSIONS = (
       'projects.locations.lbObservabilityExtensions',
       '{+name}',
@@ -169,6 +180,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'lbRouteExtensions/{lbRouteExtensionsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_LBTCPEXTENSIONS = (
+      'projects.locations.lbTcpExtensions',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/lbTcpExtensions/'
+              '{lbTcpExtensionsId}',
       },
       ['name'],
       True
@@ -286,6 +308,29 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_MULTICASTGROUPRANGEACTIVATIONS = (
+      'projects.locations.multicastGroupRangeActivations',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'multicastGroupRangeActivations/'
+              '{multicastGroupRangeActivationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_MULTICASTGROUPRANGES = (
+      'projects.locations.multicastGroupRanges',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'multicastGroupRanges/{multicastGroupRangesId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_MULTICASTGROUPS = (
       'projects.locations.multicastGroups',
       '{+name}',
@@ -349,6 +394,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'serviceLbPolicies/{serviceLbPoliciesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_SWPSECURITYEXTENSIONS = (
+      'projects.locations.swpSecurityExtensions',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'swpSecurityExtensions/{swpSecurityExtensionsId}',
       },
       ['name'],
       True

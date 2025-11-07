@@ -79,6 +79,42 @@ class AuditLogConfig(_messages.Message):
   logType = _messages.EnumField('LogTypeValueValuesEnum', 2)
 
 
+class BillingMetadata(_messages.Message):
+  r"""Response message for SecurityCenterManagement.GetBillingMetadata.
+
+  Enums:
+    BillingTierValueValuesEnum: The billing tier of the resource.
+
+  Fields:
+    billingTier: The billing tier of the resource.
+    name: Identifier. The full resource name of the billingMetadata, in one of
+      the following formats: *
+      `organizations/{organization}/locations/{location}/billingMetadata` *
+      `projects/{project}/locations/{location}/billingMetadata`
+  """
+
+  class BillingTierValueValuesEnum(_messages.Enum):
+    r"""The billing tier of the resource.
+
+    Values:
+      BILLING_TIER_UNSPECIFIED: Default value. This value is unused.
+      STANDARD: Standard free tier.
+      PREMIUM: Security Command Center Premium.
+      ENTERPRISE: Security Command Center Enterprise.
+    """
+    BILLING_TIER_UNSPECIFIED = 0
+    STANDARD = 1
+    PREMIUM = 2
+    ENTERPRISE = 3
+
+  billingTier = _messages.EnumField('BillingTierValueValuesEnum', 1)
+  name = _messages.StringField(2)
+
+
+class CancelOperationRequest(_messages.Message):
+  r"""The request message for Operations.CancelOperation."""
+
+
 class CelPolicySpec(_messages.Message):
   r"""YAML-based rule that uses CEL, which supports the declaration of
   variables and a filtering predicate. A vulnerable resource is emitted if the
@@ -713,6 +749,24 @@ class ListLocationsResponse(_messages.Message):
   nextPageToken = _messages.StringField(2)
 
 
+class ListOperationsResponse(_messages.Message):
+  r"""The response message for Operations.ListOperations.
+
+  Fields:
+    nextPageToken: The standard List next-page token.
+    operations: A list of operations that matches the specified filter in the
+      request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
 class ListSecurityCenterServicesResponse(_messages.Message):
   r"""Response message for
   SecurityCenterManagement.ListSecurityCenterServices.
@@ -812,6 +866,114 @@ class ModuleSettings(_messages.Message):
 
   effectiveEnablementState = _messages.EnumField('EffectiveEnablementStateValueValuesEnum', 1)
   intendedEnablementState = _messages.EnumField('IntendedEnablementStateValueValuesEnum', 2)
+
+
+class Operation(_messages.Message):
+  r"""This resource represents a long-running operation that is the result of
+  a network API call.
+
+  Messages:
+    MetadataValue: Service-specific metadata associated with the operation. It
+      typically contains progress information and common metadata such as
+      create time. Some services might not provide such metadata. Any method
+      that returns a long-running operation should document the metadata type,
+      if any.
+    ResponseValue: The normal, successful response of the operation. If the
+      original method returns no data on success, such as `Delete`, the
+      response is `google.protobuf.Empty`. If the original method is standard
+      `Get`/`Create`/`Update`, the response should be the resource. For other
+      methods, the response should have the type `XxxResponse`, where `Xxx` is
+      the original method name. For example, if the original method name is
+      `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+
+  Fields:
+    done: If the value is `false`, it means the operation is still in
+      progress. If `true`, the operation is completed, and either `error` or
+      `response` is available.
+    error: The error result of the operation in case of failure or
+      cancellation.
+    metadata: Service-specific metadata associated with the operation. It
+      typically contains progress information and common metadata such as
+      create time. Some services might not provide such metadata. Any method
+      that returns a long-running operation should document the metadata type,
+      if any.
+    name: The server-assigned name, which is only unique within the same
+      service that originally returns it. If you use the default HTTP mapping,
+      the `name` should be a resource name ending with
+      `operations/{unique_id}`.
+    response: The normal, successful response of the operation. If the
+      original method returns no data on success, such as `Delete`, the
+      response is `google.protobuf.Empty`. If the original method is standard
+      `Get`/`Create`/`Update`, the response should be the resource. For other
+      methods, the response should have the type `XxxResponse`, where `Xxx` is
+      the original method name. For example, if the original method name is
+      `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MetadataValue(_messages.Message):
+    r"""Service-specific metadata associated with the operation. It typically
+    contains progress information and common metadata such as create time.
+    Some services might not provide such metadata. Any method that returns a
+    long-running operation should document the metadata type, if any.
+
+    Messages:
+      AdditionalProperty: An additional property for a MetadataValue object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MetadataValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ResponseValue(_messages.Message):
+    r"""The normal, successful response of the operation. If the original
+    method returns no data on success, such as `Delete`, the response is
+    `google.protobuf.Empty`. If the original method is standard
+    `Get`/`Create`/`Update`, the response should be the resource. For other
+    methods, the response should have the type `XxxResponse`, where `Xxx` is
+    the original method name. For example, if the original method name is
+    `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+
+    Messages:
+      AdditionalProperty: An additional property for a ResponseValue object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ResponseValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  done = _messages.BooleanField(1)
+  error = _messages.MessageField('Status', 2)
+  metadata = _messages.MessageField('MetadataValue', 3)
+  name = _messages.StringField(4)
+  response = _messages.MessageField('ResponseValue', 5)
 
 
 class Policy(_messages.Message):
@@ -974,7 +1136,11 @@ class SecurityCenterService(_messages.Message):
       * `projects/{project}/locations/{location}/securityCenterServices/{servi
       ce}` The following values are valid for `{service}`: * `container-
       threat-detection` * `event-threat-detection` * `security-health-
-      analytics` * `vm-threat-detection` * `web-security-scanner`
+      analytics` * `vm-threat-detection` * `web-security-scanner` * `vm-
+      threat-detection-aws` * `cloud-run-threat-detection` * `vm-manager` *
+      `ec2-vulnerability-assessment` * `gce-vulnerability-assessment` *
+      `azure-vulnerability-assessment` * `notebook-security-scanner` *
+      `artifact-analysis`
     serviceConfig: Optional. Additional service-specific configuration. Not
       all services will utilize this field.
     updateTime: Output only. The time the service was last updated. This could
@@ -1406,9 +1572,12 @@ class SecuritycentermanagementFoldersLocationsSecurityCenterServicesGetRequest(_
       projects/{project}/locations/{location}/securityCenterServices/{service}
       The following values are valid for `{service}`: * `container-threat-
       detection` * `event-threat-detection` * `security-health-analytics` *
-      `vm-threat-detection` * `web-security-scanner`
-    showEligibleModulesOnly: Set to `true` to show only modules that are in
-      scope. By default, all modules are shown.
+      `vm-threat-detection` * `web-security-scanner` * `vm-threat-detection-
+      aws` * `cloud-run-threat-detection` * `vm-manager` * `ec2-vulnerability-
+      assessment` * `gce-vulnerability-assessment` * `azure-vulnerability-
+      assessment` * `notebook-security-scanner` * `artifact-analysis`
+    showEligibleModulesOnly: Optional. Set to `true` to show only modules that
+      are in scope. By default, all modules are shown.
   """
 
   name = _messages.StringField(1, required=True)
@@ -1456,12 +1625,16 @@ class SecuritycentermanagementFoldersLocationsSecurityCenterServicesPatchRequest
       * `projects/{project}/locations/{location}/securityCenterServices/{servi
       ce}` The following values are valid for `{service}`: * `container-
       threat-detection` * `event-threat-detection` * `security-health-
-      analytics` * `vm-threat-detection` * `web-security-scanner`
+      analytics` * `vm-threat-detection` * `web-security-scanner` * `vm-
+      threat-detection-aws` * `cloud-run-threat-detection` * `vm-manager` *
+      `ec2-vulnerability-assessment` * `gce-vulnerability-assessment` *
+      `azure-vulnerability-assessment` * `notebook-security-scanner` *
+      `artifact-analysis`
     securityCenterService: A SecurityCenterService resource to be passed as
       the request body.
-    updateMask: Required. The fields to update. Accepts the following values:
-      * `intended_enablement_state` * `modules` If omitted, then all eligible
-      fields are updated.
+    updateMask: Optional. Required. The fields to update. Accepts the
+      following values: * `intended_enablement_state` * `modules` If omitted,
+      then all eligible fields are updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no service will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -1602,9 +1775,10 @@ class SecuritycentermanagementFoldersLocationsSecurityHealthAnalyticsCustomModul
       icsCustomModules/{custom_module}`
     securityHealthAnalyticsCustomModule: A SecurityHealthAnalyticsCustomModule
       resource to be passed as the request body.
-    updateMask: Required. The fields to update. The following values are
-      valid: * `custom_config` * `enablement_state` If you omit this field or
-      set it to the wildcard value `*`, then all eligible fields are updated.
+    updateMask: Optional. Required. The fields to update. The following values
+      are valid: * `custom_config` * `enablement_state` If you omit this field
+      or set it to the wildcard value `*`, then all eligible fields are
+      updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no module will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -1880,6 +2054,82 @@ class SecuritycentermanagementOrganizationsLocationsEventThreatDetectionCustomMo
   validateEventThreatDetectionCustomModuleRequest = _messages.MessageField('ValidateEventThreatDetectionCustomModuleRequest', 2)
 
 
+class SecuritycentermanagementOrganizationsLocationsGetBillingMetadataRequest(_messages.Message):
+  r"""A
+  SecuritycentermanagementOrganizationsLocationsGetBillingMetadataRequest
+  object.
+
+  Fields:
+    name: Required. The resource to look up the billing tier for, in the
+      format
+      `organizations/{organization}/locations/{location}/billingMetadata` or
+      `projects/{project}/locations/{location}/billingMetadata`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritycentermanagementOrganizationsLocationsOperationsCancelRequest(_messages.Message):
+  r"""A SecuritycentermanagementOrganizationsLocationsOperationsCancelRequest
+  object.
+
+  Fields:
+    cancelOperationRequest: A CancelOperationRequest resource to be passed as
+      the request body.
+    name: The name of the operation resource to be cancelled.
+  """
+
+  cancelOperationRequest = _messages.MessageField('CancelOperationRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class SecuritycentermanagementOrganizationsLocationsOperationsDeleteRequest(_messages.Message):
+  r"""A SecuritycentermanagementOrganizationsLocationsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritycentermanagementOrganizationsLocationsOperationsGetRequest(_messages.Message):
+  r"""A SecuritycentermanagementOrganizationsLocationsOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritycentermanagementOrganizationsLocationsOperationsListRequest(_messages.Message):
+  r"""A SecuritycentermanagementOrganizationsLocationsOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
 class SecuritycentermanagementOrganizationsLocationsSecurityCenterServicesGetRequest(_messages.Message):
   r"""A SecuritycentermanagementOrganizationsLocationsSecurityCenterServicesGe
   tRequest object.
@@ -1892,9 +2142,12 @@ class SecuritycentermanagementOrganizationsLocationsSecurityCenterServicesGetReq
       projects/{project}/locations/{location}/securityCenterServices/{service}
       The following values are valid for `{service}`: * `container-threat-
       detection` * `event-threat-detection` * `security-health-analytics` *
-      `vm-threat-detection` * `web-security-scanner`
-    showEligibleModulesOnly: Set to `true` to show only modules that are in
-      scope. By default, all modules are shown.
+      `vm-threat-detection` * `web-security-scanner` * `vm-threat-detection-
+      aws` * `cloud-run-threat-detection` * `vm-manager` * `ec2-vulnerability-
+      assessment` * `gce-vulnerability-assessment` * `azure-vulnerability-
+      assessment` * `notebook-security-scanner` * `artifact-analysis`
+    showEligibleModulesOnly: Optional. Set to `true` to show only modules that
+      are in scope. By default, all modules are shown.
   """
 
   name = _messages.StringField(1, required=True)
@@ -1940,12 +2193,16 @@ class SecuritycentermanagementOrganizationsLocationsSecurityCenterServicesPatchR
       * `projects/{project}/locations/{location}/securityCenterServices/{servi
       ce}` The following values are valid for `{service}`: * `container-
       threat-detection` * `event-threat-detection` * `security-health-
-      analytics` * `vm-threat-detection` * `web-security-scanner`
+      analytics` * `vm-threat-detection` * `web-security-scanner` * `vm-
+      threat-detection-aws` * `cloud-run-threat-detection` * `vm-manager` *
+      `ec2-vulnerability-assessment` * `gce-vulnerability-assessment` *
+      `azure-vulnerability-assessment` * `notebook-security-scanner` *
+      `artifact-analysis`
     securityCenterService: A SecurityCenterService resource to be passed as
       the request body.
-    updateMask: Required. The fields to update. Accepts the following values:
-      * `intended_enablement_state` * `modules` If omitted, then all eligible
-      fields are updated.
+    updateMask: Optional. Required. The fields to update. Accepts the
+      following values: * `intended_enablement_state` * `modules` If omitted,
+      then all eligible fields are updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no service will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -2086,9 +2343,10 @@ class SecuritycentermanagementOrganizationsLocationsSecurityHealthAnalyticsCusto
       icsCustomModules/{custom_module}`
     securityHealthAnalyticsCustomModule: A SecurityHealthAnalyticsCustomModule
       resource to be passed as the request body.
-    updateMask: Required. The fields to update. The following values are
-      valid: * `custom_config` * `enablement_state` If you omit this field or
-      set it to the wildcard value `*`, then all eligible fields are updated.
+    updateMask: Optional. Required. The fields to update. The following values
+      are valid: * `custom_config` * `enablement_state` If you omit this field
+      or set it to the wildcard value `*`, then all eligible fields are
+      updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no module will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -2364,6 +2622,20 @@ class SecuritycentermanagementProjectsLocationsEventThreatDetectionCustomModules
   validateEventThreatDetectionCustomModuleRequest = _messages.MessageField('ValidateEventThreatDetectionCustomModuleRequest', 2)
 
 
+class SecuritycentermanagementProjectsLocationsGetBillingMetadataRequest(_messages.Message):
+  r"""A SecuritycentermanagementProjectsLocationsGetBillingMetadataRequest
+  object.
+
+  Fields:
+    name: Required. The resource to look up the billing tier for, in the
+      format
+      `organizations/{organization}/locations/{location}/billingMetadata` or
+      `projects/{project}/locations/{location}/billingMetadata`.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
 class SecuritycentermanagementProjectsLocationsGetRequest(_messages.Message):
   r"""A SecuritycentermanagementProjectsLocationsGetRequest object.
 
@@ -2378,6 +2650,9 @@ class SecuritycentermanagementProjectsLocationsListRequest(_messages.Message):
   r"""A SecuritycentermanagementProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -2388,10 +2663,70 @@ class SecuritycentermanagementProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
+
+
+class SecuritycentermanagementProjectsLocationsOperationsCancelRequest(_messages.Message):
+  r"""A SecuritycentermanagementProjectsLocationsOperationsCancelRequest
+  object.
+
+  Fields:
+    cancelOperationRequest: A CancelOperationRequest resource to be passed as
+      the request body.
+    name: The name of the operation resource to be cancelled.
+  """
+
+  cancelOperationRequest = _messages.MessageField('CancelOperationRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class SecuritycentermanagementProjectsLocationsOperationsDeleteRequest(_messages.Message):
+  r"""A SecuritycentermanagementProjectsLocationsOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritycentermanagementProjectsLocationsOperationsGetRequest(_messages.Message):
+  r"""A SecuritycentermanagementProjectsLocationsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritycentermanagementProjectsLocationsOperationsListRequest(_messages.Message):
+  r"""A SecuritycentermanagementProjectsLocationsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SecuritycentermanagementProjectsLocationsSecurityCenterServicesGetRequest(_messages.Message):
@@ -2407,9 +2742,12 @@ class SecuritycentermanagementProjectsLocationsSecurityCenterServicesGetRequest(
       projects/{project}/locations/{location}/securityCenterServices/{service}
       The following values are valid for `{service}`: * `container-threat-
       detection` * `event-threat-detection` * `security-health-analytics` *
-      `vm-threat-detection` * `web-security-scanner`
-    showEligibleModulesOnly: Set to `true` to show only modules that are in
-      scope. By default, all modules are shown.
+      `vm-threat-detection` * `web-security-scanner` * `vm-threat-detection-
+      aws` * `cloud-run-threat-detection` * `vm-manager` * `ec2-vulnerability-
+      assessment` * `gce-vulnerability-assessment` * `azure-vulnerability-
+      assessment` * `notebook-security-scanner` * `artifact-analysis`
+    showEligibleModulesOnly: Optional. Set to `true` to show only modules that
+      are in scope. By default, all modules are shown.
   """
 
   name = _messages.StringField(1, required=True)
@@ -2457,12 +2795,16 @@ class SecuritycentermanagementProjectsLocationsSecurityCenterServicesPatchReques
       * `projects/{project}/locations/{location}/securityCenterServices/{servi
       ce}` The following values are valid for `{service}`: * `container-
       threat-detection` * `event-threat-detection` * `security-health-
-      analytics` * `vm-threat-detection` * `web-security-scanner`
+      analytics` * `vm-threat-detection` * `web-security-scanner` * `vm-
+      threat-detection-aws` * `cloud-run-threat-detection` * `vm-manager` *
+      `ec2-vulnerability-assessment` * `gce-vulnerability-assessment` *
+      `azure-vulnerability-assessment` * `notebook-security-scanner` *
+      `artifact-analysis`
     securityCenterService: A SecurityCenterService resource to be passed as
       the request body.
-    updateMask: Required. The fields to update. Accepts the following values:
-      * `intended_enablement_state` * `modules` If omitted, then all eligible
-      fields are updated.
+    updateMask: Optional. Required. The fields to update. Accepts the
+      following values: * `intended_enablement_state` * `modules` If omitted,
+      then all eligible fields are updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no service will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -2603,9 +2945,10 @@ class SecuritycentermanagementProjectsLocationsSecurityHealthAnalyticsCustomModu
       icsCustomModules/{custom_module}`
     securityHealthAnalyticsCustomModule: A SecurityHealthAnalyticsCustomModule
       resource to be passed as the request body.
-    updateMask: Required. The fields to update. The following values are
-      valid: * `custom_config` * `enablement_state` If you omit this field or
-      set it to the wildcard value `*`, then all eligible fields are updated.
+    updateMask: Optional. Required. The fields to update. The following values
+      are valid: * `custom_config` * `enablement_state` If you omit this field
+      or set it to the wildcard value `*`, then all eligible fields are
+      updated.
     validateOnly: Optional. When set to `true`, the request will be validated
       (including IAM checks), but no module will be updated. An `OK` response
       indicates that the request is valid, while an error response indicates
@@ -2698,7 +3041,7 @@ class SimulatedFinding(_messages.Message):
       ization_id}/sources/{source_id}/findings/{finding_id}` *
       `folders/{folder_id}/sources/{source_id}/findings/{finding_id}` *
       `projects/{project_id}/sources/{source_id}/findings/{finding_id}`
-    parent: The [relative resource name](https://google.aip.dev/122) of the
+    parent:  The [relative resource name](https://google.aip.dev/122) of the
       source the finding belongs to. For example,
       `organizations/{organization_id}/sources/{source_id}`. This field is
       immutable after creation time.
@@ -2734,6 +3077,8 @@ class SimulatedFinding(_messages.Message):
         in the security posture.
       TOXIC_COMBINATION: Describes a combination of security issues that
         represent a more severe security problem when taken together.
+      CHOKEPOINT: Describes a resource or resource group where high risk
+        attack paths converge, based on attack path simulations (APS).
     """
     FINDING_CLASS_UNSPECIFIED = 0
     THREAT = 1
@@ -2743,6 +3088,7 @@ class SimulatedFinding(_messages.Message):
     SCC_ERROR = 5
     POSTURE_VIOLATION = 6
     TOXIC_COMBINATION = 7
+    CHOKEPOINT = 8
 
   class SeverityValueValuesEnum(_messages.Enum):
     r"""The severity of the finding. This field is managed by the source that

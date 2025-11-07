@@ -15,6 +15,66 @@ from apitools.base.py import extra_types
 package = 'dataform'
 
 
+class ActionErrorTable(_messages.Message):
+  r"""Error table information, used to write error data into a BigQuery table.
+
+  Fields:
+    retentionDays: Error table partition expiration in days. Only positive
+      values are allowed.
+    target: Error Table target.
+  """
+
+  retentionDays = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  target = _messages.MessageField('Target', 2)
+
+
+class ActionIncrementalLoadMode(_messages.Message):
+  r"""Load definition for incremental load modes
+
+  Fields:
+    column: Column name for incremental load modes
+  """
+
+  column = _messages.StringField(1)
+
+
+class ActionLoadConfig(_messages.Message):
+  r"""Simplified load configuration for actions
+
+  Fields:
+    append: Append into destination table
+    maximum: Insert records where the value exceeds the previous maximum value
+      for a column in the destination table
+    replace: Replace destination table
+    unique: Insert records where the value of a column is not already present
+      in the destination table
+  """
+
+  append = _messages.MessageField('ActionSimpleLoadMode', 1)
+  maximum = _messages.MessageField('ActionIncrementalLoadMode', 2)
+  replace = _messages.MessageField('ActionSimpleLoadMode', 3)
+  unique = _messages.MessageField('ActionIncrementalLoadMode', 4)
+
+
+class ActionSimpleLoadMode(_messages.Message):
+  r"""Simple load definition"""
+
+
+class ActionSqlDefinition(_messages.Message):
+  r"""Definition of a SQL Data Preparation
+
+  Fields:
+    errorTable: Error table configuration,
+    loadConfig: Load configuration.
+    query: The SQL query representing the data preparation steps. Formatted as
+      a Pipe SQL query statement.
+  """
+
+  errorTable = _messages.MessageField('ActionErrorTable', 1)
+  loadConfig = _messages.MessageField('ActionLoadConfig', 2)
+  query = _messages.StringField(3)
+
+
 class Assertion(_messages.Message):
   r"""Represents an assertion upon a SQL query which is required return zero
   rows.
@@ -140,8 +200,16 @@ class Binding(_messages.Message):
   role = _messages.StringField(3)
 
 
+class CancelOperationRequest(_messages.Message):
+  r"""The request message for Operations.CancelOperation."""
+
+
 class CancelWorkflowInvocationRequest(_messages.Message):
   r"""`CancelWorkflowInvocation` request message."""
+
+
+class CancelWorkflowInvocationResponse(_messages.Message):
+  r"""`CancelWorkflowInvocation` response message."""
 
 
 class CodeCompilationConfig(_messages.Message):
@@ -154,13 +222,16 @@ class CodeCompilationConfig(_messages.Message):
   Fields:
     assertionSchema: Optional. The default schema (BigQuery dataset ID) for
       assertions.
+    builtinAssertionNamePrefix: Optional. The prefix to prepend to built-in
+      assertion names.
     databaseSuffix: Optional. The suffix that should be appended to all
       database (Google Cloud project ID) names.
     defaultDatabase: Optional. The default database (Google Cloud project ID).
     defaultLocation: Optional. The default BigQuery location to use. Defaults
       to "US". See the BigQuery docs for a full list of locations:
       https://cloud.google.com/bigquery/docs/locations.
-    defaultNotebookRuntimeOptions: A NotebookRuntimeOptions attribute.
+    defaultNotebookRuntimeOptions: Optional. The default notebook runtime
+      options.
     defaultSchema: Optional. The default schema (BigQuery dataset ID).
     schemaSuffix: Optional. The suffix that should be appended to all schema
       (BigQuery dataset ID) names.
@@ -196,14 +267,15 @@ class CodeCompilationConfig(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   assertionSchema = _messages.StringField(1)
-  databaseSuffix = _messages.StringField(2)
-  defaultDatabase = _messages.StringField(3)
-  defaultLocation = _messages.StringField(4)
-  defaultNotebookRuntimeOptions = _messages.MessageField('NotebookRuntimeOptions', 5)
-  defaultSchema = _messages.StringField(6)
-  schemaSuffix = _messages.StringField(7)
-  tablePrefix = _messages.StringField(8)
-  vars = _messages.MessageField('VarsValue', 9)
+  builtinAssertionNamePrefix = _messages.StringField(2)
+  databaseSuffix = _messages.StringField(3)
+  defaultDatabase = _messages.StringField(4)
+  defaultLocation = _messages.StringField(5)
+  defaultNotebookRuntimeOptions = _messages.MessageField('NotebookRuntimeOptions', 6)
+  defaultSchema = _messages.StringField(7)
+  schemaSuffix = _messages.StringField(8)
+  tablePrefix = _messages.StringField(9)
+  vars = _messages.MessageField('VarsValue', 10)
 
 
 class ColumnDescriptor(_messages.Message):
@@ -266,13 +338,14 @@ class CommitRepositoryChangesRequest(_messages.Message):
   r"""`CommitRepositoryChanges` request message.
 
   Messages:
-    FileOperationsValue: A map to the path of the file to the operation. The
-      path is the full file path including filename, from repository root.
+    FileOperationsValue: Optional. A map to the path of the file to the
+      operation. The path is the full file path including filename, from
+      repository root.
 
   Fields:
     commitMetadata: Required. The changes to commit to the repository.
-    fileOperations: A map to the path of the file to the operation. The path
-      is the full file path including filename, from repository root.
+    fileOperations: Optional. A map to the path of the file to the operation.
+      The path is the full file path including filename, from repository root.
     requiredHeadCommitSha: Optional. The commit SHA which must be the
       repository's current HEAD before applying this commit; otherwise this
       request will fail. If unset, no validation on the current HEAD commit
@@ -281,8 +354,8 @@ class CommitRepositoryChangesRequest(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class FileOperationsValue(_messages.Message):
-    r"""A map to the path of the file to the operation. The path is the full
-    file path including filename, from repository root.
+    r"""Optional. A map to the path of the file to the operation. The path is
+    the full file path including filename, from repository root.
 
     Messages:
       AdditionalProperty: An additional property for a FileOperationsValue
@@ -335,6 +408,10 @@ class CommitWorkspaceChangesRequest(_messages.Message):
   paths = _messages.StringField(3, repeated=True)
 
 
+class CommitWorkspaceChangesResponse(_messages.Message):
+  r"""`CommitWorkspaceChanges` response message."""
+
+
 class CompilationError(_messages.Message):
   r"""An error encountered when attempting to compile a Dataform project.
 
@@ -372,6 +449,9 @@ class CompilationResult(_messages.Message):
       repository should be compiled. Must exist in the remote repository.
       Examples: - a commit SHA: `12ade345` - a tag: `tag1` - a branch name:
       `branch1`
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     name: Output only. The compilation result's name.
     releaseConfig: Immutable. The name of the release config to compile. Must
       be in the format
@@ -389,10 +469,11 @@ class CompilationResult(_messages.Message):
   dataEncryptionState = _messages.MessageField('DataEncryptionState', 4)
   dataformCoreVersion = _messages.StringField(5)
   gitCommitish = _messages.StringField(6)
-  name = _messages.StringField(7)
-  releaseConfig = _messages.StringField(8)
-  resolvedGitCommitSha = _messages.StringField(9)
-  workspace = _messages.StringField(10)
+  internalMetadata = _messages.StringField(7)
+  name = _messages.StringField(8)
+  releaseConfig = _messages.StringField(9)
+  resolvedGitCommitSha = _messages.StringField(10)
+  workspace = _messages.StringField(11)
 
 
 class CompilationResultAction(_messages.Message):
@@ -402,9 +483,13 @@ class CompilationResultAction(_messages.Message):
     assertion: The assertion executed by this action.
     canonicalTarget: The action's identifier if the project had been compiled
       without any overrides configured. Unique within the compilation result.
+    dataPreparation: The data preparation executed by this action.
     declaration: The declaration declared by this action.
     filePath: The full path including filename in which this action is
       located, relative to the workspace root.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     notebook: The notebook executed by this action.
     operations: The database operations executed by this action.
     relation: The database relation created/updated by this action.
@@ -413,12 +498,14 @@ class CompilationResultAction(_messages.Message):
 
   assertion = _messages.MessageField('Assertion', 1)
   canonicalTarget = _messages.MessageField('Target', 2)
-  declaration = _messages.MessageField('Declaration', 3)
-  filePath = _messages.StringField(4)
-  notebook = _messages.MessageField('Notebook', 5)
-  operations = _messages.MessageField('Operations', 6)
-  relation = _messages.MessageField('Relation', 7)
-  target = _messages.MessageField('Target', 8)
+  dataPreparation = _messages.MessageField('DataPreparation', 3)
+  declaration = _messages.MessageField('Declaration', 4)
+  filePath = _messages.StringField(5)
+  internalMetadata = _messages.StringField(6)
+  notebook = _messages.MessageField('Notebook', 7)
+  operations = _messages.MessageField('Operations', 8)
+  relation = _messages.MessageField('Relation', 9)
+  target = _messages.MessageField('Target', 10)
 
 
 class ComputeRepositoryAccessTokenStatusResponse(_messages.Message):
@@ -457,26 +544,70 @@ class Config(_messages.Message):
   Fields:
     defaultKmsKeyName: Optional. The default KMS key that is used if no
       encryption key is provided when a repository is created.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     name: Identifier. The config name.
   """
 
   defaultKmsKeyName = _messages.StringField(1)
-  name = _messages.StringField(2)
+  internalMetadata = _messages.StringField(2)
+  name = _messages.StringField(3)
 
 
 class DataEncryptionState(_messages.Message):
   r"""Describes encryption state of a resource.
 
   Fields:
-    kmsKeyVersionName: The KMS key version name with which data of a resource
-      is encrypted.
+    kmsKeyVersionName: Required. The KMS key version name with which data of a
+      resource is encrypted.
   """
 
   kmsKeyVersionName = _messages.StringField(1)
 
 
-class DataformProjectsLocationsCollectionsGetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsCollectionsGetIamPolicyRequest object.
+class DataPreparation(_messages.Message):
+  r"""Defines a compiled Data Preparation entity
+
+  Fields:
+    contentsSql: SQL definition for a Data Preparation. Contains a SQL query
+      and additional context information.
+    contentsYaml: The data preparation definition, stored as a YAML string.
+    dependencyTargets: A list of actions that this action depends on.
+    disabled: Whether this action is disabled (i.e. should not be run).
+    tags: Arbitrary, user-defined tags on this action.
+  """
+
+  contentsSql = _messages.MessageField('SqlDefinition', 1)
+  contentsYaml = _messages.StringField(2)
+  dependencyTargets = _messages.MessageField('Target', 3, repeated=True)
+  disabled = _messages.BooleanField(4)
+  tags = _messages.StringField(5, repeated=True)
+
+
+class DataPreparationAction(_messages.Message):
+  r"""Represents a workflow action that will run a Data Preparation.
+
+  Fields:
+    contentsSql: SQL definition for a Data Preparation. Contains a SQL query
+      and additional context information.
+    contentsYaml: Output only. YAML representing the contents of the data
+      preparation. Can be used to show the customer what the input was to
+      their workflow.
+    generatedSql: Output only. The generated BigQuery SQL script that will be
+      executed. For reference only.
+    jobId: Output only. The ID of the BigQuery job that executed the SQL in
+      sql_script. Only set once the job has started to run.
+  """
+
+  contentsSql = _messages.MessageField('ActionSqlDefinition', 1)
+  contentsYaml = _messages.StringField(2)
+  generatedSql = _messages.StringField(3)
+  jobId = _messages.StringField(4)
+
+
+class DataformProjectsLocationsFoldersGetIamPolicyRequest(_messages.Message):
+  r"""A DataformProjectsLocationsFoldersGetIamPolicyRequest object.
 
   Fields:
     options_requestedPolicyVersion: Optional. The maximum policy version that
@@ -501,8 +632,8 @@ class DataformProjectsLocationsCollectionsGetIamPolicyRequest(_messages.Message)
   resource = _messages.StringField(2, required=True)
 
 
-class DataformProjectsLocationsCollectionsSetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsCollectionsSetIamPolicyRequest object.
+class DataformProjectsLocationsFoldersSetIamPolicyRequest(_messages.Message):
+  r"""A DataformProjectsLocationsFoldersSetIamPolicyRequest object.
 
   Fields:
     resource: REQUIRED: The resource for which the policy is being specified.
@@ -517,8 +648,8 @@ class DataformProjectsLocationsCollectionsSetIamPolicyRequest(_messages.Message)
   setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
 
 
-class DataformProjectsLocationsCollectionsTestIamPermissionsRequest(_messages.Message):
-  r"""A DataformProjectsLocationsCollectionsTestIamPermissionsRequest object.
+class DataformProjectsLocationsFoldersTestIamPermissionsRequest(_messages.Message):
+  r"""A DataformProjectsLocationsFoldersTestIamPermissionsRequest object.
 
   Fields:
     resource: REQUIRED: The resource for which the policy detail is being
@@ -557,6 +688,9 @@ class DataformProjectsLocationsListRequest(_messages.Message):
   r"""A DataformProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -567,98 +701,68 @@ class DataformProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
+
+
+class DataformProjectsLocationsOperationsCancelRequest(_messages.Message):
+  r"""A DataformProjectsLocationsOperationsCancelRequest object.
+
+  Fields:
+    cancelOperationRequest: A CancelOperationRequest resource to be passed as
+      the request body.
+    name: The name of the operation resource to be cancelled.
+  """
+
+  cancelOperationRequest = _messages.MessageField('CancelOperationRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class DataformProjectsLocationsOperationsDeleteRequest(_messages.Message):
+  r"""A DataformProjectsLocationsOperationsDeleteRequest object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DataformProjectsLocationsOperationsGetRequest(_messages.Message):
+  r"""A DataformProjectsLocationsOperationsGetRequest object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class DataformProjectsLocationsOperationsListRequest(_messages.Message):
+  r"""A DataformProjectsLocationsOperationsListRequest object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
-
-
-class DataformProjectsLocationsRepositoriesCommentThreadsCommentsGetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsRepositoriesCommentThreadsCommentsGetIamPolic
-  yRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
-class DataformProjectsLocationsRepositoriesCommentThreadsCommentsSetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsRepositoriesCommentThreadsCommentsSetIamPolic
-  yRequest object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
-      request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
-
-
-class DataformProjectsLocationsRepositoriesCommentThreadsGetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsRepositoriesCommentThreadsGetIamPolicyRequest
-  object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
-class DataformProjectsLocationsRepositoriesCommentThreadsSetIamPolicyRequest(_messages.Message):
-  r"""A DataformProjectsLocationsRepositoriesCommentThreadsSetIamPolicyRequest
-  object.
-
-  Fields:
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
-      request body.
-  """
-
-  resource = _messages.StringField(1, required=True)
-  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class DataformProjectsLocationsRepositoriesCommitRequest(_messages.Message):
@@ -783,9 +887,12 @@ class DataformProjectsLocationsRepositoriesDeleteRequest(_messages.Message):
   r"""A DataformProjectsLocationsRepositoriesDeleteRequest object.
 
   Fields:
-    force: If set to true, any child resources of this repository will also be
-      deleted. (Otherwise, the request will only succeed if the repository has
-      no child resources.)
+    force: Optional. If set to true, child resources of this repository
+      (compilation results and workflow invocations) will also be deleted.
+      Otherwise, the request will only succeed if the repository has no child
+      resources. **Note:** *This flag doesn't support deletion of workspaces,
+      release configs or workflow configs. If any of such resources exists in
+      the repository, the request will fail.*.
     name: Required. The repository's name.
   """
 
@@ -1614,6 +1721,64 @@ class DataformProjectsLocationsRepositoriesWorkspacesWriteFileRequest(_messages.
   writeFileRequest = _messages.MessageField('WriteFileRequest', 2)
 
 
+class DataformProjectsLocationsTeamFoldersGetIamPolicyRequest(_messages.Message):
+  r"""A DataformProjectsLocationsTeamFoldersGetIamPolicyRequest object.
+
+  Fields:
+    options_requestedPolicyVersion: Optional. The maximum policy version that
+      will be used to format the policy. Valid values are 0, 1, and 3.
+      Requests specifying an invalid value will be rejected. Requests for
+      policies with any conditional role bindings must specify version 3.
+      Policies with no conditional role bindings may specify any valid value
+      or leave the field unset. The policy in the response might use the
+      policy version that you specified, or it might use a lower policy
+      version. For example, if you specify version 3, but the policy has no
+      conditional role bindings, the response uses version 1. To learn which
+      resources support conditions in their IAM policies, see the [IAM
+      documentation](https://cloud.google.com/iam/help/conditions/resource-
+      policies).
+    resource: REQUIRED: The resource for which the policy is being requested.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+  """
+
+  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  resource = _messages.StringField(2, required=True)
+
+
+class DataformProjectsLocationsTeamFoldersSetIamPolicyRequest(_messages.Message):
+  r"""A DataformProjectsLocationsTeamFoldersSetIamPolicyRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy is being specified.
+      See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    setIamPolicyRequest: A SetIamPolicyRequest resource to be passed as the
+      request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  setIamPolicyRequest = _messages.MessageField('SetIamPolicyRequest', 2)
+
+
+class DataformProjectsLocationsTeamFoldersTestIamPermissionsRequest(_messages.Message):
+  r"""A DataformProjectsLocationsTeamFoldersTestIamPermissionsRequest object.
+
+  Fields:
+    resource: REQUIRED: The resource for which the policy detail is being
+      requested. See [Resource
+      names](https://cloud.google.com/apis/design/resource_names) for the
+      appropriate value for this field.
+    testIamPermissionsRequest: A TestIamPermissionsRequest resource to be
+      passed as the request body.
+  """
+
+  resource = _messages.StringField(1, required=True)
+  testIamPermissionsRequest = _messages.MessageField('TestIamPermissionsRequest', 2)
+
+
 class DataformProjectsLocationsUpdateConfigRequest(_messages.Message):
   r"""A DataformProjectsLocationsUpdateConfigRequest object.
 
@@ -1674,6 +1839,19 @@ class Empty(_messages.Message):
   Bar(google.protobuf.Empty) returns (google.protobuf.Empty); }
   """
 
+
+
+class ErrorTable(_messages.Message):
+  r"""Error table information, used to write error data into a BigQuery table.
+
+  Fields:
+    retentionDays: Error table partition expiration in days. Only positive
+      values are allowed.
+    target: Error Table target.
+  """
+
+  retentionDays = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  target = _messages.MessageField('Target', 2)
 
 
 class Expr(_messages.Message):
@@ -1841,6 +2019,31 @@ class GitRemoteSettings(_messages.Message):
   url = _messages.StringField(5)
 
 
+class IamPolicyOverrideView(_messages.Message):
+  r"""Contains metadata about the IAM policy override for a given Dataform
+  resource. If is_active is true, this the policy encoded in iam_policy_name
+  is the source of truth for this resource. Will be provided in internal ESV2
+  views for: Workspaces, Repositories, Folders, TeamFolders.
+
+  Fields:
+    iamPolicyName: The IAM policy name for the resource.
+    isActive: Whether the IAM policy encoded in this view is active.
+  """
+
+  iamPolicyName = _messages.MessageField('PolicyName', 1)
+  isActive = _messages.BooleanField(2)
+
+
+class IncrementalLoadMode(_messages.Message):
+  r"""Load definition for incremental load modes
+
+  Fields:
+    column: Column name for incremental load modes
+  """
+
+  column = _messages.StringField(1)
+
+
 class IncrementalTableConfig(_messages.Message):
   r"""Contains settings for relations of type `INCREMENTAL_TABLE`.
 
@@ -1902,11 +2105,19 @@ class InvocationConfig(_messages.Message):
   both `included_targets` and `included_tags` are unset, all actions will be
   included.
 
+  Enums:
+    QueryPriorityValueValuesEnum: Optional. Specifies the priority for query
+      execution in BigQuery. More information can be found at
+      https://cloud.google.com/bigquery/docs/running-queries#queries.
+
   Fields:
     fullyRefreshIncrementalTablesEnabled: Optional. When set to true, any
       incremental tables will be fully refreshed.
     includedTags: Optional. The set of tags to include.
     includedTargets: Optional. The set of action identifiers to include.
+    queryPriority: Optional. Specifies the priority for query execution in
+      BigQuery. More information can be found at
+      https://cloud.google.com/bigquery/docs/running-queries#queries.
     serviceAccount: Optional. The service account to run workflow invocations
       under.
     transitiveDependenciesIncluded: Optional. When set to true, transitive
@@ -1915,12 +2126,31 @@ class InvocationConfig(_messages.Message):
       dependents of included actions will be executed.
   """
 
+  class QueryPriorityValueValuesEnum(_messages.Enum):
+    r"""Optional. Specifies the priority for query execution in BigQuery. More
+    information can be found at
+    https://cloud.google.com/bigquery/docs/running-queries#queries.
+
+    Values:
+      QUERY_PRIORITY_UNSPECIFIED: Default value. This value is unused.
+      INTERACTIVE: Query will be executed in BigQuery with interactive
+        priority. More information can be found at
+        https://cloud.google.com/bigquery/docs/running-queries#queries.
+      BATCH: Query will be executed in BigQuery with batch priority. More
+        information can be found at
+        https://cloud.google.com/bigquery/docs/running-queries#batchqueries.
+    """
+    QUERY_PRIORITY_UNSPECIFIED = 0
+    INTERACTIVE = 1
+    BATCH = 2
+
   fullyRefreshIncrementalTablesEnabled = _messages.BooleanField(1)
   includedTags = _messages.StringField(2, repeated=True)
   includedTargets = _messages.MessageField('Target', 3, repeated=True)
-  serviceAccount = _messages.StringField(4)
-  transitiveDependenciesIncluded = _messages.BooleanField(5)
-  transitiveDependentsIncluded = _messages.BooleanField(6)
+  queryPriority = _messages.EnumField('QueryPriorityValueValuesEnum', 4)
+  serviceAccount = _messages.StringField(5)
+  transitiveDependenciesIncluded = _messages.BooleanField(6)
+  transitiveDependentsIncluded = _messages.BooleanField(7)
 
 
 class ListCompilationResultsResponse(_messages.Message):
@@ -1949,6 +2179,24 @@ class ListLocationsResponse(_messages.Message):
 
   locations = _messages.MessageField('Location', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
+
+
+class ListOperationsResponse(_messages.Message):
+  r"""The response message for Operations.ListOperations.
+
+  Fields:
+    nextPageToken: The standard List next-page token.
+    operations: A list of operations that matches the specified filter in the
+      request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListReleaseConfigsResponse(_messages.Message):
@@ -2024,6 +2272,24 @@ class ListWorkspacesResponse(_messages.Message):
   nextPageToken = _messages.StringField(1)
   unreachable = _messages.StringField(2, repeated=True)
   workspaces = _messages.MessageField('Workspace', 3, repeated=True)
+
+
+class LoadConfig(_messages.Message):
+  r"""Simplified load configuration for actions
+
+  Fields:
+    append: Append into destination table
+    maximum: Insert records where the value exceeds the previous maximum value
+      for a column in the destination table
+    replace: Replace destination table
+    unique: Insert records where the value of a column is not already present
+      in the destination table
+  """
+
+  append = _messages.MessageField('SimpleLoadMode', 1)
+  maximum = _messages.MessageField('IncrementalLoadMode', 2)
+  replace = _messages.MessageField('SimpleLoadMode', 3)
+  unique = _messages.MessageField('IncrementalLoadMode', 4)
 
 
 class Location(_messages.Message):
@@ -2158,7 +2424,7 @@ class MoveFileResponse(_messages.Message):
 
 
 class Notebook(_messages.Message):
-  r"""A Notebook object.
+  r"""Represents a notebook.
 
   Fields:
     contents: The contents of the notebook.
@@ -2179,8 +2445,8 @@ class NotebookAction(_messages.Message):
   Fields:
     contents: Output only. The code contents of a Notebook to be run.
     jobId: Output only. The ID of the Vertex job that executed the notebook in
-      contents and also the ID used for the outputs created in GCS buckets.
-      Only set once the job has started to run.
+      contents and also the ID used for the outputs created in Google Cloud
+      Storage buckets. Only set once the job has started to run.
   """
 
   contents = _messages.StringField(1)
@@ -2188,14 +2454,127 @@ class NotebookAction(_messages.Message):
 
 
 class NotebookRuntimeOptions(_messages.Message):
-  r"""A NotebookRuntimeOptions object.
+  r"""Configures various aspects of Dataform notebook runtime.
 
   Fields:
-    gcsOutputBucket: Optional. The GCS location to upload the result to.
-      Format: `gs://bucket-name`.
+    aiPlatformNotebookRuntimeTemplate: Optional. The resource name of the
+      [Colab runtime template] (https://cloud.google.com/colab/docs/runtimes),
+      from which a runtime is created for notebook executions. If not
+      specified, a runtime is created with Colab's default specifications.
+    gcsOutputBucket: Optional. The Google Cloud Storage location to upload the
+      result to. Format: `gs://bucket-name`.
   """
 
-  gcsOutputBucket = _messages.StringField(1)
+  aiPlatformNotebookRuntimeTemplate = _messages.StringField(1)
+  gcsOutputBucket = _messages.StringField(2)
+
+
+class Operation(_messages.Message):
+  r"""This resource represents a long-running operation that is the result of
+  a network API call.
+
+  Messages:
+    MetadataValue: Service-specific metadata associated with the operation. It
+      typically contains progress information and common metadata such as
+      create time. Some services might not provide such metadata. Any method
+      that returns a long-running operation should document the metadata type,
+      if any.
+    ResponseValue: The normal, successful response of the operation. If the
+      original method returns no data on success, such as `Delete`, the
+      response is `google.protobuf.Empty`. If the original method is standard
+      `Get`/`Create`/`Update`, the response should be the resource. For other
+      methods, the response should have the type `XxxResponse`, where `Xxx` is
+      the original method name. For example, if the original method name is
+      `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+
+  Fields:
+    done: If the value is `false`, it means the operation is still in
+      progress. If `true`, the operation is completed, and either `error` or
+      `response` is available.
+    error: The error result of the operation in case of failure or
+      cancellation.
+    metadata: Service-specific metadata associated with the operation. It
+      typically contains progress information and common metadata such as
+      create time. Some services might not provide such metadata. Any method
+      that returns a long-running operation should document the metadata type,
+      if any.
+    name: The server-assigned name, which is only unique within the same
+      service that originally returns it. If you use the default HTTP mapping,
+      the `name` should be a resource name ending with
+      `operations/{unique_id}`.
+    response: The normal, successful response of the operation. If the
+      original method returns no data on success, such as `Delete`, the
+      response is `google.protobuf.Empty`. If the original method is standard
+      `Get`/`Create`/`Update`, the response should be the resource. For other
+      methods, the response should have the type `XxxResponse`, where `Xxx` is
+      the original method name. For example, if the original method name is
+      `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class MetadataValue(_messages.Message):
+    r"""Service-specific metadata associated with the operation. It typically
+    contains progress information and common metadata such as create time.
+    Some services might not provide such metadata. Any method that returns a
+    long-running operation should document the metadata type, if any.
+
+    Messages:
+      AdditionalProperty: An additional property for a MetadataValue object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a MetadataValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ResponseValue(_messages.Message):
+    r"""The normal, successful response of the operation. If the original
+    method returns no data on success, such as `Delete`, the response is
+    `google.protobuf.Empty`. If the original method is standard
+    `Get`/`Create`/`Update`, the response should be the resource. For other
+    methods, the response should have the type `XxxResponse`, where `Xxx` is
+    the original method name. For example, if the original method name is
+    `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
+
+    Messages:
+      AdditionalProperty: An additional property for a ResponseValue object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ResponseValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  done = _messages.BooleanField(1)
+  error = _messages.MessageField('Status', 2)
+  metadata = _messages.MessageField('MetadataValue', 3)
+  name = _messages.StringField(4)
+  response = _messages.MessageField('ResponseValue', 5)
 
 
 class OperationMetadata(_messages.Message):
@@ -2322,6 +2701,31 @@ class Policy(_messages.Message):
   version = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
+class PolicyName(_messages.Message):
+  r"""An internal name for an IAM policy, based on the resource to which the
+  policy applies. Not to be confused with a resource's external full resource
+  name. For more information on this distinction, see go/iam-full-resource-
+  names.
+
+  Fields:
+    id: Identifies an instance of the type. ID format varies by type. The ID
+      format is defined in the IAM .service file that defines the type, either
+      in path_mapping or in a comment.
+    region: For Cloud IAM: The location of the Policy. Must be empty or
+      "global" for Policies owned by global IAM. Must name a region from
+      prodspec/cloud-iam-cloudspec for Regional IAM Policies, see go/iam-
+      faq#where-is-iam-currently-deployed. For Local IAM: This field should be
+      set to "local".
+    type: Resource type. Types are defined in IAM's .service files. Valid
+      values for type might be 'storage_buckets', 'compute_instances',
+      'resourcemanager_customers', 'billing_accounts', etc.
+  """
+
+  id = _messages.StringField(1)
+  region = _messages.StringField(2)
+  type = _messages.StringField(3)
+
+
 class PullGitCommitsRequest(_messages.Message):
   r"""`PullGitCommits` request message.
 
@@ -2337,6 +2741,10 @@ class PullGitCommitsRequest(_messages.Message):
   remoteBranch = _messages.StringField(2)
 
 
+class PullGitCommitsResponse(_messages.Message):
+  r"""`PullGitCommits` response message."""
+
+
 class PushGitCommitsRequest(_messages.Message):
   r"""`PushGitCommits` request message.
 
@@ -2347,6 +2755,10 @@ class PushGitCommitsRequest(_messages.Message):
   """
 
   remoteBranch = _messages.StringField(1)
+
+
+class PushGitCommitsResponse(_messages.Message):
+  r"""`PushGitCommits` response message."""
 
 
 class QueryCompilationResultActionsResponse(_messages.Message):
@@ -2576,6 +2988,9 @@ class ReleaseConfig(_messages.Message):
     gitCommitish: Required. Git commit/tag/branch name at which the repository
       should be compiled. Must exist in the remote repository. Examples: - a
       commit SHA: `12ade345` - a tag: `tag1` - a branch name: `branch1`
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     name: Identifier. The release config's name.
     recentScheduledReleaseRecords: Output only. Records of the 10 most recent
       scheduled release attempts, ordered in descending order of
@@ -2598,10 +3013,11 @@ class ReleaseConfig(_messages.Message):
   cronSchedule = _messages.StringField(2)
   disabled = _messages.BooleanField(3)
   gitCommitish = _messages.StringField(4)
-  name = _messages.StringField(5)
-  recentScheduledReleaseRecords = _messages.MessageField('ScheduledReleaseRecord', 6, repeated=True)
-  releaseCompilationResult = _messages.StringField(7)
-  timeZone = _messages.StringField(8)
+  internalMetadata = _messages.StringField(5)
+  name = _messages.StringField(6)
+  recentScheduledReleaseRecords = _messages.MessageField('ScheduledReleaseRecord', 7, repeated=True)
+  releaseCompilationResult = _messages.StringField(8)
+  timeZone = _messages.StringField(9)
 
 
 class RemoveDirectoryRequest(_messages.Message):
@@ -2615,6 +3031,10 @@ class RemoveDirectoryRequest(_messages.Message):
   path = _messages.StringField(1)
 
 
+class RemoveDirectoryResponse(_messages.Message):
+  r"""`RemoveDirectory` response message."""
+
+
 class RemoveFileRequest(_messages.Message):
   r"""`RemoveFile` request message.
 
@@ -2624,6 +3044,10 @@ class RemoveFileRequest(_messages.Message):
   """
 
   path = _messages.StringField(1)
+
+
+class RemoveFileResponse(_messages.Message):
+  r"""`RemoveFile` response message."""
 
 
 class Repository(_messages.Message):
@@ -2639,6 +3063,9 @@ class Repository(_messages.Message):
     displayName: Optional. The repository's user-friendly name.
     gitRemoteSettings: Optional. If set, configures this repository to be
       linked to a Git remote.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     kmsKeyName: Optional. The reference to a KMS encryption key. If provided,
       it will be used to encrypt user data in the repository and all child
       resources. It is not possible to add or update the encryption key after
@@ -2694,13 +3121,14 @@ class Repository(_messages.Message):
   dataEncryptionState = _messages.MessageField('DataEncryptionState', 2)
   displayName = _messages.StringField(3)
   gitRemoteSettings = _messages.MessageField('GitRemoteSettings', 4)
-  kmsKeyName = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  name = _messages.StringField(7)
-  npmrcEnvironmentVariablesSecretVersion = _messages.StringField(8)
-  serviceAccount = _messages.StringField(9)
-  setAuthenticatedUserAdmin = _messages.BooleanField(10)
-  workspaceCompilationOverrides = _messages.MessageField('WorkspaceCompilationOverrides', 11)
+  internalMetadata = _messages.StringField(5)
+  kmsKeyName = _messages.StringField(6)
+  labels = _messages.MessageField('LabelsValue', 7)
+  name = _messages.StringField(8)
+  npmrcEnvironmentVariablesSecretVersion = _messages.StringField(9)
+  serviceAccount = _messages.StringField(10)
+  setAuthenticatedUserAdmin = _messages.BooleanField(11)
+  workspaceCompilationOverrides = _messages.MessageField('WorkspaceCompilationOverrides', 12)
 
 
 class ResetWorkspaceChangesRequest(_messages.Message):
@@ -2717,6 +3145,10 @@ class ResetWorkspaceChangesRequest(_messages.Message):
   paths = _messages.StringField(2, repeated=True)
 
 
+class ResetWorkspaceChangesResponse(_messages.Message):
+  r"""`ResetWorkspaceChanges` response message."""
+
+
 class ScheduledExecutionRecord(_messages.Message):
   r"""A record of an attempt to create a workflow invocation for this workflow
   config.
@@ -2724,7 +3156,7 @@ class ScheduledExecutionRecord(_messages.Message):
   Fields:
     errorStatus: The error status encountered upon this attempt to create the
       workflow invocation, if the attempt was unsuccessful.
-    executionTime: The timestamp of this execution attempt.
+    executionTime: Output only. The timestamp of this execution attempt.
     workflowInvocation: The name of the created workflow invocation, if one
       was successfully created. Must be in the format
       `projects/*/locations/*/repositories/*/workflowInvocations/*`.
@@ -2745,7 +3177,7 @@ class ScheduledReleaseRecord(_messages.Message):
       `projects/*/locations/*/repositories/*/compilationResults/*`.
     errorStatus: The error status encountered upon this attempt to create the
       compilation result, if the attempt was unsuccessful.
-    releaseTime: The timestamp of this release attempt.
+    releaseTime: Output only. The timestamp of this release attempt.
   """
 
   compilationResult = _messages.StringField(1)
@@ -2790,6 +3222,25 @@ class SetIamPolicyRequest(_messages.Message):
   """
 
   policy = _messages.MessageField('Policy', 1)
+
+
+class SimpleLoadMode(_messages.Message):
+  r"""Simple load definition"""
+
+
+class SqlDefinition(_messages.Message):
+  r"""Definition of a SQL Data Preparation
+
+  Fields:
+    errorTable: Error table configuration,
+    load: Load configuration.
+    query: The SQL query representing the data preparation steps. Formatted as
+      a Pipe SQL query statement.
+  """
+
+  errorTable = _messages.MessageField('ErrorTable', 1)
+  load = _messages.MessageField('LoadConfig', 2)
+  query = _messages.StringField(3)
 
 
 class SshAuthenticationConfig(_messages.Message):
@@ -2926,9 +3377,10 @@ class Target(_messages.Message):
   will be written to the referenced database object.
 
   Fields:
-    database: The action's database (Google Cloud project ID) .
-    name: The action's name, within `database` and `schema`.
-    schema: The action's schema (BigQuery dataset ID), within `database`.
+    database: Optional. The action's database (Google Cloud project ID) .
+    name: Optional. The action's name, within `database` and `schema`.
+    schema: Optional. The action's schema (BigQuery dataset ID), within
+      `database`.
   """
 
   database = _messages.StringField(1)
@@ -2964,16 +3416,16 @@ class UncommittedFileChange(_messages.Message):
   r"""Represents the Git state of a file with uncommitted changes.
 
   Enums:
-    StateValueValuesEnum: Indicates the status of the file.
+    StateValueValuesEnum: Output only. Indicates the status of the file.
 
   Fields:
     path: The file's full path including filename, relative to the workspace
       root.
-    state: Indicates the status of the file.
+    state: Output only. Indicates the status of the file.
   """
 
   class StateValueValuesEnum(_messages.Enum):
-    r"""Indicates the status of the file.
+    r"""Output only. Indicates the status of the file.
 
     Values:
       STATE_UNSPECIFIED: Default value. This value is unused.
@@ -3000,6 +3452,10 @@ class WorkflowConfig(_messages.Message):
       created.
     cronSchedule: Optional. Optional schedule (in cron format) for automatic
       execution of this workflow config.
+    disabled: Optional. Disables automatic creation of workflow invocations.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     invocationConfig: Optional. If left unset, a default InvocationConfig will
       be used.
     name: Identifier. The workflow config's name.
@@ -3020,12 +3476,14 @@ class WorkflowConfig(_messages.Message):
 
   createTime = _messages.StringField(1)
   cronSchedule = _messages.StringField(2)
-  invocationConfig = _messages.MessageField('InvocationConfig', 3)
-  name = _messages.StringField(4)
-  recentScheduledExecutionRecords = _messages.MessageField('ScheduledExecutionRecord', 5, repeated=True)
-  releaseConfig = _messages.StringField(6)
-  timeZone = _messages.StringField(7)
-  updateTime = _messages.StringField(8)
+  disabled = _messages.BooleanField(3)
+  internalMetadata = _messages.StringField(4)
+  invocationConfig = _messages.MessageField('InvocationConfig', 5)
+  name = _messages.StringField(6)
+  recentScheduledExecutionRecords = _messages.MessageField('ScheduledExecutionRecord', 7, repeated=True)
+  releaseConfig = _messages.StringField(8)
+  timeZone = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
 
 
 class WorkflowInvocation(_messages.Message):
@@ -3041,6 +3499,9 @@ class WorkflowInvocation(_messages.Message):
       `projects/*/locations/*/repositories/*/compilationResults/*`.
     dataEncryptionState: Output only. Only set if the repository has a KMS
       Key.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     invocationConfig: Immutable. If left unset, a default InvocationConfig
       will be used.
     invocationTiming: Output only. This workflow invocation's timing details.
@@ -3075,12 +3536,13 @@ class WorkflowInvocation(_messages.Message):
 
   compilationResult = _messages.StringField(1)
   dataEncryptionState = _messages.MessageField('DataEncryptionState', 2)
-  invocationConfig = _messages.MessageField('InvocationConfig', 3)
-  invocationTiming = _messages.MessageField('Interval', 4)
-  name = _messages.StringField(5)
-  resolvedCompilationResult = _messages.StringField(6)
-  state = _messages.EnumField('StateValueValuesEnum', 7)
-  workflowConfig = _messages.StringField(8)
+  internalMetadata = _messages.StringField(3)
+  invocationConfig = _messages.MessageField('InvocationConfig', 4)
+  invocationTiming = _messages.MessageField('Interval', 5)
+  name = _messages.StringField(6)
+  resolvedCompilationResult = _messages.StringField(7)
+  state = _messages.EnumField('StateValueValuesEnum', 8)
+  workflowConfig = _messages.StringField(9)
 
 
 class WorkflowInvocationAction(_messages.Message):
@@ -3095,8 +3557,13 @@ class WorkflowInvocationAction(_messages.Message):
     canonicalTarget: Output only. The action's identifier if the project had
       been compiled without any overrides configured. Unique within the
       compilation result.
+    dataPreparationAction: Output only. The workflow action's data preparation
+      action details.
     failureReason: Output only. If and only if action's state is FAILED a
       failure reason is set.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     invocationTiming: Output only. This action's timing details. `start_time`
       will be set if the action is in [RUNNING, SUCCEEDED, CANCELLED, FAILED]
       state. `end_time` will be set if the action is in [SUCCEEDED, CANCELLED,
@@ -3132,11 +3599,13 @@ class WorkflowInvocationAction(_messages.Message):
 
   bigqueryAction = _messages.MessageField('BigQueryAction', 1)
   canonicalTarget = _messages.MessageField('Target', 2)
-  failureReason = _messages.StringField(3)
-  invocationTiming = _messages.MessageField('Interval', 4)
-  notebookAction = _messages.MessageField('NotebookAction', 5)
-  state = _messages.EnumField('StateValueValuesEnum', 6)
-  target = _messages.MessageField('Target', 7)
+  dataPreparationAction = _messages.MessageField('DataPreparationAction', 3)
+  failureReason = _messages.StringField(4)
+  internalMetadata = _messages.StringField(5)
+  invocationTiming = _messages.MessageField('Interval', 6)
+  notebookAction = _messages.MessageField('NotebookAction', 7)
+  state = _messages.EnumField('StateValueValuesEnum', 8)
+  target = _messages.MessageField('Target', 9)
 
 
 class Workspace(_messages.Message):
@@ -3146,12 +3615,16 @@ class Workspace(_messages.Message):
     createTime: Output only. The timestamp of when the workspace was created.
     dataEncryptionState: Output only. A data encryption state of a Git
       repository if this Workspace is protected by a KMS key.
+    internalMetadata: Output only. All the metadata information that is used
+      internally to serve the resource. For example: timestamps, flags, status
+      fields, etc. The format of this field is a JSON string.
     name: Identifier. The workspace's name.
   """
 
   createTime = _messages.StringField(1)
   dataEncryptionState = _messages.MessageField('DataEncryptionState', 2)
-  name = _messages.StringField(3)
+  internalMetadata = _messages.StringField(3)
+  name = _messages.StringField(4)
 
 
 class WorkspaceCompilationOverrides(_messages.Message):
@@ -3211,12 +3684,10 @@ encoding.AddCustomJsonEnumMapping(
 encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_2', '2')
 encoding.AddCustomJsonFieldMapping(
-    DataformProjectsLocationsCollectionsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+    DataformProjectsLocationsFoldersGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     DataformProjectsLocationsRepositoriesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
-    DataformProjectsLocationsRepositoriesCommentThreadsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
-encoding.AddCustomJsonFieldMapping(
-    DataformProjectsLocationsRepositoriesCommentThreadsCommentsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
-encoding.AddCustomJsonFieldMapping(
     DataformProjectsLocationsRepositoriesWorkspacesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
+encoding.AddCustomJsonFieldMapping(
+    DataformProjectsLocationsTeamFoldersGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')

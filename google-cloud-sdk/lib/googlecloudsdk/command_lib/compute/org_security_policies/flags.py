@@ -99,7 +99,7 @@ def OrgSecurityPolicyRuleArgument(
 
 
 def AddArgSpCreation(parser):
-  """Adds the argument for security policy creaton."""
+  """Adds the argument for security policy creation."""
   parser.add_argument(
       '--display-name', help='A textual name of the security policy.'
   )
@@ -235,6 +235,9 @@ def AddAction(parser, required=True):
       '--action',
       choices={
           'allow': 'Allows the request from HTTP(S) Load Balancing.',
+          'goto-next': (
+              'Defers enforcement to the next policy in the hierarchy.'
+          ),
           'deny': '(DEPRECATED) Only used for Hierarchical Firewalls.',
           'deny-403': (
               'Denies the request from HTTP(S) Load Balancing, with an HTTP '
@@ -394,14 +397,19 @@ def AddArgsCreateAssociation(parser):
   parser.add_argument(
       '--organization',
       help=(
-          'ID of the organization in which the security policy is to be'
-          ' associated. Must be set if SECURITY_POLICY is short name.'
+          'ID of the organization to associate the security policy with. Must'
+          ' be set if SECURITY_POLICY is short name.'
       ),
   )
 
-  parser.add_argument(
-      '--folder',
-      help=('ID of the folder with which the association is created.'))
+  group = parser.add_group(required=False, mutex=True)
+  group.add_argument(
+      '--folder', help='ID of the folder to associate the security policy with.'
+  )
+  group.add_argument(
+      '--project-number',
+      help='Project number to associate the security policy with.',
+  )
 
   parser.add_argument(
       '--replace-association-on-target',

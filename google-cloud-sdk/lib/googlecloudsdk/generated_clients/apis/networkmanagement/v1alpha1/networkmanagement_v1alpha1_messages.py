@@ -97,9 +97,12 @@ class AbortInfo(_messages.Message):
         configuration was missing.
       ROUTE_CONFIG_NOT_FOUND: Aborted because expected route configuration was
         missing.
-      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT: Aborted because a PSC
+      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT: Aborted because PSC
         endpoint selection for the Google-managed service is ambiguous
         (several PSC endpoints satisfy test input).
+      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_ENDPOINT: Aborted because endpoint
+        selection for the Google-managed service is ambiguous (several
+        endpoints satisfy test input).
       SOURCE_PSC_CLOUD_SQL_UNSUPPORTED: Aborted because tests with a PSC-based
         Cloud SQL instance as a source are not supported.
       SOURCE_REDIS_CLUSTER_UNSUPPORTED: Aborted because tests with a Redis
@@ -115,6 +118,17 @@ class AbortInfo(_messages.Message):
       UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG: Aborted due to an unsupported
         configuration of the Google-managed project.
       INVALID_JUSTIFICATION: Aborted due to an invalid justification.
+      NO_SERVERLESS_IP_RANGES: Aborted because the source endpoint is a Cloud
+        Run revision with direct VPC access enabled, but there are no reserved
+        serverless IP ranges.
+      ALLOY_DB_INSTANCE_OUTBOUND_CONNECTION_UNSUPPORTED: Packet sent from an
+        AlloyDB instance that does not support outbound connections (e.g. a
+        read-pool instance).
+      IP_VERSION_PROTOCOL_MISMATCH: Aborted because the used protocol is not
+        supported for the used IP version.
+      GKE_POD_UNKNOWN_ENDPOINT_LOCATION: Aborted because selected GKE Pod
+        endpoint location is unknown. This is often the case for "Pending"
+        Pods, which don't have assigned IP addresses yet.
     """
     CAUSE_UNSPECIFIED = 0
     UNKNOWN_NETWORK = 1
@@ -145,19 +159,43 @@ class AbortInfo(_messages.Message):
     FIREWALL_CONFIG_NOT_FOUND = 26
     ROUTE_CONFIG_NOT_FOUND = 27
     GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT = 28
-    SOURCE_PSC_CLOUD_SQL_UNSUPPORTED = 29
-    SOURCE_REDIS_CLUSTER_UNSUPPORTED = 30
-    SOURCE_REDIS_INSTANCE_UNSUPPORTED = 31
-    SOURCE_FORWARDING_RULE_UNSUPPORTED = 32
-    NON_ROUTABLE_IP_ADDRESS = 33
-    UNKNOWN_ISSUE_IN_GOOGLE_MANAGED_PROJECT = 34
-    UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG = 35
-    INVALID_JUSTIFICATION = 36
+    GOOGLE_MANAGED_SERVICE_AMBIGUOUS_ENDPOINT = 29
+    SOURCE_PSC_CLOUD_SQL_UNSUPPORTED = 30
+    SOURCE_REDIS_CLUSTER_UNSUPPORTED = 31
+    SOURCE_REDIS_INSTANCE_UNSUPPORTED = 32
+    SOURCE_FORWARDING_RULE_UNSUPPORTED = 33
+    NON_ROUTABLE_IP_ADDRESS = 34
+    UNKNOWN_ISSUE_IN_GOOGLE_MANAGED_PROJECT = 35
+    UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG = 36
+    INVALID_JUSTIFICATION = 37
+    NO_SERVERLESS_IP_RANGES = 38
+    ALLOY_DB_INSTANCE_OUTBOUND_CONNECTION_UNSUPPORTED = 39
+    IP_VERSION_PROTOCOL_MISMATCH = 40
+    GKE_POD_UNKNOWN_ENDPOINT_LOCATION = 41
 
   cause = _messages.EnumField('CauseValueValuesEnum', 1)
   ipAddress = _messages.StringField(2)
   projectsMissingPermission = _messages.StringField(3, repeated=True)
   resourceUri = _messages.StringField(4)
+
+
+class AlloyDbInstanceInfo(_messages.Message):
+  r"""For display only. Metadata associated with an AlloyDB Instance.
+
+  Fields:
+    networkUri: For peering-based instances, the URI of the network the
+      AlloyDB Cluster this Instance belongs to.
+    privateIpv4Ip: For peering-based instances, a private internal IPv4
+      address.
+    publicIpv4Ip: Public IPv4 IP address of the AlloyDB Instance, if enabled.
+    uri: URI of the AlloyDB Instance in format: "projects/PROJECT_ID/locations
+      /REGION_NAME/clusters/CLUSTER_NAME/instances/INSTANCE_NAME"
+  """
+
+  networkUri = _messages.StringField(1)
+  privateIpv4Ip = _messages.StringField(2)
+  publicIpv4Ip = _messages.StringField(3)
+  uri = _messages.StringField(4)
 
 
 class AppEngineVersionEndpoint(_messages.Message):
@@ -554,12 +592,16 @@ class CloudRunRevisionEndpoint(_messages.Message):
   r"""Wrapper for Cloud Run revision attributes.
 
   Fields:
+    serviceUri: Output only. The URI of the Cloud Run service that the
+      revision belongs to. The format is:
+      projects/{project}/locations/{location}/services/{service}
     uri: A [Cloud Run](https://cloud.google.com/run) [revision](https://cloud.
       google.com/run/docs/reference/rest/v1/namespaces.revisions/get) URI. The
       format is: projects/{project}/locations/{location}/revisions/{revision}
   """
 
-  uri = _messages.StringField(1)
+  serviceUri = _messages.StringField(1)
+  uri = _messages.StringField(2)
 
 
 class CloudRunRevisionInfo(_messages.Message):
@@ -676,8 +718,10 @@ class Condition(_messages.Message):
         CREDS_TYPE_EMERGENCY is supported. It is not permitted to grant access
         based on the *absence* of a credentials type, so the conditions can
         only be used in a "positive" context (e.g., ALLOW/IN or DENY/NOT_IN).
-      CREDS_ASSERTION: EXPERIMENTAL -- DO NOT USE. The conditions can only be
-        used in a "positive" context (e.g., ALLOW/IN or DENY/NOT_IN).
+      CREDS_ASSERTION: Properties of the credentials supplied with this
+        request. See http://go/rpcsp-credential-assertions?polyglot=rpcsp-v1-0
+        The conditions can only be used in a "positive" context (e.g.,
+        ALLOW/IN or DENY/NOT_IN).
     """
     NO_ATTR = 0
     AUTHORITY = 1
@@ -802,8 +846,8 @@ class ConnectivityTestSimulationResult(_messages.Message):
     resultsDiffer: Whether base and proposed config results are different.
     source: Source endpoint.
     testUri: Full resource path (i.e. uri) of the connectivity test using the
-      form: 'projects/{project}/locations/{location}/connectivityTestSimulatio
-      nResults/{result}'
+      form: `projects/{project}/locations/{location}/connectivityTestSimulatio
+      nResults/{result}`
   """
 
   baseConfigResult = _messages.MessageField('ReachabilityDetails', 1)
@@ -897,9 +941,13 @@ class DeliverInfo(_messages.Message):
   r"""Details of the final state "deliver" and associated resource.
 
   Enums:
+    GoogleServiceTypeValueValuesEnum: Recognized type of a Google Service the
+      packet is delivered to (if applicable).
     TargetValueValuesEnum: Target type where the packet is delivered to.
 
   Fields:
+    googleServiceType: Recognized type of a Google Service the packet is
+      delivered to (if applicable).
     ipAddress: IP address of the target (if applicable).
     pscGoogleApiTarget: PSC Google API target the packet is delivered to (if
       applicable).
@@ -908,6 +956,33 @@ class DeliverInfo(_messages.Message):
       (if applicable).
     target: Target type where the packet is delivered to.
   """
+
+  class GoogleServiceTypeValueValuesEnum(_messages.Enum):
+    r"""Recognized type of a Google Service the packet is delivered to (if
+    applicable).
+
+    Values:
+      GOOGLE_SERVICE_TYPE_UNSPECIFIED: Unspecified Google Service.
+      IAP: Identity aware proxy. https://cloud.google.com/iap/docs/using-tcp-
+        forwarding
+      GFE_PROXY_OR_HEALTH_CHECK_PROBER: One of two services sharing IP ranges:
+        * Load Balancer proxy * Centralized Health Check prober
+        https://cloud.google.com/load-balancing/docs/firewall-rules
+      CLOUD_DNS: Connectivity from Cloud DNS to forwarding targets or
+        alternate name servers that use private routing.
+        https://cloud.google.com/dns/docs/zones/forwarding-zones#firewall-
+        rules https://cloud.google.com/dns/docs/policies#firewall-rules
+      PRIVATE_GOOGLE_ACCESS: private.googleapis.com and
+        restricted.googleapis.com
+      SERVERLESS_VPC_ACCESS: Google API via Serverless VPC Access.
+        https://cloud.google.com/vpc/docs/serverless-vpc-access
+    """
+    GOOGLE_SERVICE_TYPE_UNSPECIFIED = 0
+    IAP = 1
+    GFE_PROXY_OR_HEALTH_CHECK_PROBER = 2
+    CLOUD_DNS = 3
+    PRIVATE_GOOGLE_ACCESS = 4
+    SERVERLESS_VPC_ACCESS = 5
 
   class TargetValueValuesEnum(_messages.Enum):
     r"""Target type where the packet is delivered to.
@@ -941,6 +1016,8 @@ class DeliverInfo(_messages.Message):
         for return traces.
       REDIS_INSTANCE: Target is a Redis Instance.
       REDIS_CLUSTER: Target is a Redis Cluster.
+      ALLOY_DB_INSTANCE: Target is an AlloyDB Instance.
+      GKE_POD: Target is a GKE Pod.
     """
     TARGET_UNSPECIFIED = 0
     INSTANCE = 1
@@ -960,12 +1037,15 @@ class DeliverInfo(_messages.Message):
     GOOGLE_MANAGED_SERVICE = 15
     REDIS_INSTANCE = 16
     REDIS_CLUSTER = 17
+    ALLOY_DB_INSTANCE = 18
+    GKE_POD = 19
 
-  ipAddress = _messages.StringField(1)
-  pscGoogleApiTarget = _messages.StringField(2)
-  resourceUri = _messages.StringField(3)
-  storageBucket = _messages.StringField(4)
-  target = _messages.EnumField('TargetValueValuesEnum', 5)
+  googleServiceType = _messages.EnumField('GoogleServiceTypeValueValuesEnum', 1)
+  ipAddress = _messages.StringField(2)
+  pscGoogleApiTarget = _messages.StringField(3)
+  resourceUri = _messages.StringField(4)
+  storageBucket = _messages.StringField(5)
+  target = _messages.EnumField('TargetValueValuesEnum', 6)
 
 
 class Deployment(_messages.Message):
@@ -984,6 +1064,26 @@ class Deployment(_messages.Message):
   name = _messages.StringField(2)
 
 
+class DirectVpcEgressConnectionInfo(_messages.Message):
+  r"""For display only. Metadata associated with a serverless direct VPC
+  egress connection.
+
+  Fields:
+    networkUri: URI of direct access network.
+    region: Region in which the Direct VPC egress is deployed.
+    selectedIpAddress: Selected starting IP address, from the selected IP
+      range.
+    selectedIpRange: Selected IP range.
+    subnetworkUri: URI of direct access subnetwork.
+  """
+
+  networkUri = _messages.StringField(1)
+  region = _messages.StringField(2)
+  selectedIpAddress = _messages.StringField(3)
+  selectedIpRange = _messages.StringField(4)
+  subnetworkUri = _messages.StringField(5)
+
+
 class DropInfo(_messages.Message):
   r"""Details of the final state "drop" and associated resource.
 
@@ -992,9 +1092,13 @@ class DropInfo(_messages.Message):
 
   Fields:
     cause: Cause that the packet is dropped.
+    destinationGeolocationCode: Geolocation (region code) of the destination
+      IP address (if relevant).
     destinationIp: Destination IP address of the dropped packet (if relevant).
     region: Region of the dropped packet (if relevant).
     resourceUri: URI of the resource that caused the drop.
+    sourceGeolocationCode: Geolocation (region code) of the source IP address
+      (if relevant).
     sourceIp: Source IP address of the dropped packet (if relevant).
   """
 
@@ -1033,23 +1137,26 @@ class DropInfo(_messages.Message):
         rule type is invalid (it's not a forwarding rule of the internal
         passthrough load balancer).
       NO_ROUTE_FROM_INTERNET_TO_PRIVATE_IPV6_ADDRESS: Packet is sent from the
-        Internet to the private IPv6 address.
+        Internet or Google service to the private IPv6 address.
+      NO_ROUTE_FROM_EXTERNAL_IPV6_SOURCE_TO_PRIVATE_IPV6_ADDRESS: Packet is
+        sent from the external IPv6 source address of an instance to the
+        private IPv6 address of an instance.
       VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH: The packet does not match a policy-
         based VPN tunnel local selector.
       VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH: The packet does not match a policy-
         based VPN tunnel remote selector.
       PRIVATE_TRAFFIC_TO_INTERNET: Packet with internal destination address
         sent to the internet gateway.
-      PRIVATE_GOOGLE_ACCESS_DISALLOWED: Instance with only an internal IP
-        address tries to access Google API and services, but private Google
-        access is not enabled in the subnet.
+      PRIVATE_GOOGLE_ACCESS_DISALLOWED: Endpoint with only an internal IP
+        address tries to access Google API and services, but Private Google
+        Access is not enabled in the subnet or is not applicable.
       PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED: Source endpoint tries
         to access Google API and services through the VPN tunnel to another
         network, but Private Google Access needs to be enabled in the source
         endpoint network.
-      NO_EXTERNAL_ADDRESS: Instance with only an internal IP address tries to
-        access external hosts, but Cloud NAT is not enabled in the subnet,
-        unless special configurations on a VM allow this connection.
+      NO_EXTERNAL_ADDRESS: Endpoint with only an internal IP address tries to
+        access external hosts, but there is no matching Cloud NAT gateway in
+        the subnet.
       UNKNOWN_INTERNAL_ADDRESS: Destination internal address cannot be
         resolved to a known target. If this is a shared VPC scenario, verify
         if the service project ID is provided as test input. Otherwise, verify
@@ -1063,16 +1170,25 @@ class DropInfo(_messages.Message):
         unavailable for traffic from the load balancer. For more details, see
         [Health check firewall rules](https://cloud.google.com/load-
         balancing/docs/health-checks#firewall_rules).
+      INGRESS_FIREWALL_TAGS_UNSUPPORTED_BY_DIRECT_VPC_EGRESS: Matching ingress
+        firewall rules by network tags for packets sent via serverless VPC
+        direct egress is unsupported. Behavior is undefined.
+        https://cloud.google.com/run/docs/configuring/vpc-direct-
+        vpc#limitations
       INSTANCE_NOT_RUNNING: Packet is sent from or to a Compute Engine
         instance that is not in a running state.
       GKE_CLUSTER_NOT_RUNNING: Packet sent from or to a GKE cluster that is
         not in running state.
+      GKE_POD_NOT_RUNNING: Packet sent from or to a GKE Pod that is not in
+        running state.
       CLOUD_SQL_INSTANCE_NOT_RUNNING: Packet sent from or to a Cloud SQL
         instance that is not in running state.
       REDIS_INSTANCE_NOT_RUNNING: Packet sent from or to a Redis Instance that
         is not in running state.
       REDIS_CLUSTER_NOT_RUNNING: Packet sent from or to a Redis Cluster that
         is not in running state.
+      ALLOY_DB_INSTANCE_NOT_READY: Packet sent from or to a AlloyDB Instance
+        that is not in ready state.
       TRAFFIC_TYPE_BLOCKED: The type of traffic is blocked and the user cannot
         configure a firewall rule to enable it. See [Always blocked
         traffic](https://cloud.google.com/vpc/docs/firewalls#blockedtraffic)
@@ -1086,9 +1202,15 @@ class DropInfo(_messages.Message):
         endpoint is not authorized. See [Authorizing with authorized
         networks](https://cloud.google.com/sql/docs/mysql/authorize-networks)
         for more details.
+      ALLOY_DB_INSTANCE_UNAUTHORIZED_ACCESS: Access to the AlloyDB instance
+        endpoint is not authorized. See [AlloyDB Connection
+        Overview](https://cloud.google.com/alloydb/docs/connection-overview)
+        for more details.
       DROPPED_INSIDE_GKE_SERVICE: Packet was dropped inside Google Kubernetes
         Engine Service.
       DROPPED_INSIDE_CLOUD_SQL_SERVICE: Packet was dropped inside Cloud SQL
+        Service.
+      DROPPED_INSIDE_ALLOY_DB_SERVICE: Packet was dropped inside AlloyDB
         Service.
       GOOGLE_MANAGED_SERVICE_NO_PEERING: Packet was dropped because there is
         no peering between the originating network and the Google Managed
@@ -1112,14 +1234,23 @@ class DropInfo(_messages.Message):
         a Cloud SQL instance to an external IP address is not allowed. The
         Cloud SQL instance is not configured to send packets to external IP
         addresses.
+      ALLOY_DB_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC: Packet sent from
+        a AlloyDB instance to an external IP address is not allowed. The
+        AlloyDB instance is not configured to send packets to external IP
+        addresses.
       PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION: Packet sent from a
         Cloud SQL instance with only a public IP address to a private IP
         address.
       CLOUD_SQL_INSTANCE_NO_ROUTE: Packet was dropped because there is no
         route from a Cloud SQL instance to a destination network.
+      ALLOY_DB_INSTANCE_NO_ROUTE: Packet was dropped because there is no route
+        from a AlloyDB instance to a destination network.
       CLOUD_SQL_CONNECTOR_REQUIRED: Packet was dropped because the Cloud SQL
         instance requires all connections to use Cloud SQL connectors and to
         target the Cloud SQL proxy port (3307).
+      ALLOY_DB_AUTH_PROXY_REQUIRED: Packet was dropped because the AlloyDB
+        instance requires all connections to use AlloyDB Auth Proxy and to
+        target the AlloyDB Auth Proxy port (5433).
       CLOUD_FUNCTION_NOT_ACTIVE: Packet could be dropped because the Cloud
         Function is not in an active status.
       VPC_CONNECTOR_NOT_SET: Packet could be dropped because no VPC connector
@@ -1217,6 +1348,42 @@ class DropInfo(_messages.Message):
       PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED: Sending packets processed by
         the Private NAT Gateways to the Private Service Connect endpoints is
         not supported.
+      PSC_PORT_MAPPING_PORT_MISMATCH: Packet is sent to the PSC port mapping
+        service, but its destination port does not match any port mapping
+        rules.
+      PSC_PORT_MAPPING_WITHOUT_PSC_CONNECTION_UNSUPPORTED: Sending packets
+        directly to the PSC port mapping service without going through the PSC
+        connection is not supported.
+      UNSUPPORTED_ROUTE_MATCHED_FOR_NAT64_DESTINATION: Packet with destination
+        IP address within the reserved NAT64 range is dropped due to matching
+        a route of an unsupported type.
+      TRAFFIC_FROM_HYBRID_ENDPOINT_TO_INTERNET_DISALLOWED: Packet could be
+        dropped because hybrid endpoint like a VPN gateway or Interconnect is
+        not allowed to send traffic to the Internet.
+      NO_MATCHING_NAT64_GATEWAY: Packet with destination IP address within the
+        reserved NAT64 range is dropped due to no matching NAT gateway in the
+        subnet.
+      LOAD_BALANCER_BACKEND_IP_VERSION_MISMATCH: Packet is dropped due to
+        being sent to a backend of a passthrough load balancer that doesn't
+        use the same IP version as the frontend.
+      NO_KNOWN_ROUTE_FROM_NCC_NETWORK_TO_DESTINATION: Packet from the unknown
+        NCC network is dropped due to no known route from the source network
+        to the destination IP address.
+      CLOUD_NAT_PROTOCOL_UNSUPPORTED: Packet is dropped by Cloud NAT due to
+        using an unsupported protocol.
+      L2_INTERCONNECT_UNSUPPORTED_PROTOCOL: Packet is dropped due to using an
+        unsupported protocol (any other than UDP) for L2 Interconnect.
+      L2_INTERCONNECT_UNSUPPORTED_PORT: Packet is dropped due to using an
+        unsupported port (any other than 6081) for L2 Interconnect.
+      L2_INTERCONNECT_DESTINATION_IP_MISMATCH: Packet is dropped due to
+        destination IP not matching the appliance mapping IPs configured on
+        the L2 Interconnect attachment.
+      NCC_ROUTE_WITHIN_HYBRID_SUBNET_UNSUPPORTED: Packet could be dropped
+        because it matches a route associated with an NCC spoke in the hybrid
+        subnet context, but such a configuration is not supported.
+      HYBRID_SUBNET_REGION_MISMATCH: Packet is dropped because the region of
+        the hybrid subnet is different from the region of the next hop of the
+        route matched within this hybrid subnet.
     """
     CAUSE_UNSPECIFIED = 0
     UNKNOWN_EXTERNAL_ADDRESS = 1
@@ -1233,81 +1400,105 @@ class DropInfo(_messages.Message):
     ROUTE_NEXT_HOP_VPN_TUNNEL_NOT_ESTABLISHED = 12
     ROUTE_NEXT_HOP_FORWARDING_RULE_TYPE_INVALID = 13
     NO_ROUTE_FROM_INTERNET_TO_PRIVATE_IPV6_ADDRESS = 14
-    VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH = 15
-    VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH = 16
-    PRIVATE_TRAFFIC_TO_INTERNET = 17
-    PRIVATE_GOOGLE_ACCESS_DISALLOWED = 18
-    PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED = 19
-    NO_EXTERNAL_ADDRESS = 20
-    UNKNOWN_INTERNAL_ADDRESS = 21
-    FORWARDING_RULE_MISMATCH = 22
-    FORWARDING_RULE_NO_INSTANCES = 23
-    FIREWALL_BLOCKING_LOAD_BALANCER_BACKEND_HEALTH_CHECK = 24
-    INSTANCE_NOT_RUNNING = 25
-    GKE_CLUSTER_NOT_RUNNING = 26
-    CLOUD_SQL_INSTANCE_NOT_RUNNING = 27
-    REDIS_INSTANCE_NOT_RUNNING = 28
-    REDIS_CLUSTER_NOT_RUNNING = 29
-    TRAFFIC_TYPE_BLOCKED = 30
-    GKE_MASTER_UNAUTHORIZED_ACCESS = 31
-    CLOUD_SQL_INSTANCE_UNAUTHORIZED_ACCESS = 32
-    DROPPED_INSIDE_GKE_SERVICE = 33
-    DROPPED_INSIDE_CLOUD_SQL_SERVICE = 34
-    GOOGLE_MANAGED_SERVICE_NO_PEERING = 35
-    GOOGLE_MANAGED_SERVICE_NO_PSC_ENDPOINT = 36
-    GKE_PSC_ENDPOINT_MISSING = 37
-    CLOUD_SQL_INSTANCE_NO_IP_ADDRESS = 38
-    GKE_CONTROL_PLANE_REGION_MISMATCH = 39
-    PUBLIC_GKE_CONTROL_PLANE_TO_PRIVATE_DESTINATION = 40
-    GKE_CONTROL_PLANE_NO_ROUTE = 41
-    CLOUD_SQL_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC = 42
-    PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION = 43
-    CLOUD_SQL_INSTANCE_NO_ROUTE = 44
-    CLOUD_SQL_CONNECTOR_REQUIRED = 45
-    CLOUD_FUNCTION_NOT_ACTIVE = 46
-    VPC_CONNECTOR_NOT_SET = 47
-    VPC_CONNECTOR_NOT_RUNNING = 48
-    VPC_CONNECTOR_SERVERLESS_TRAFFIC_BLOCKED = 49
-    VPC_CONNECTOR_HEALTH_CHECK_TRAFFIC_BLOCKED = 50
-    FORWARDING_RULE_REGION_MISMATCH = 51
-    PSC_CONNECTION_NOT_ACCEPTED = 52
-    PSC_ENDPOINT_ACCESSED_FROM_PEERED_NETWORK = 53
-    PSC_NEG_PRODUCER_ENDPOINT_NO_GLOBAL_ACCESS = 54
-    PSC_NEG_PRODUCER_FORWARDING_RULE_MULTIPLE_PORTS = 55
-    CLOUD_SQL_PSC_NEG_UNSUPPORTED = 56
-    NO_NAT_SUBNETS_FOR_PSC_SERVICE_ATTACHMENT = 57
-    PSC_TRANSITIVITY_NOT_PROPAGATED = 58
-    HYBRID_NEG_NON_DYNAMIC_ROUTE_MATCHED = 59
-    HYBRID_NEG_NON_LOCAL_DYNAMIC_ROUTE_MATCHED = 60
-    CLOUD_RUN_REVISION_NOT_READY = 61
-    DROPPED_INSIDE_PSC_SERVICE_PRODUCER = 62
-    LOAD_BALANCER_HAS_NO_PROXY_SUBNET = 63
-    CLOUD_NAT_NO_ADDRESSES = 64
-    ROUTING_LOOP = 65
-    DROPPED_INSIDE_GOOGLE_MANAGED_SERVICE = 66
-    LOAD_BALANCER_BACKEND_INVALID_NETWORK = 67
-    BACKEND_SERVICE_NAMED_PORT_NOT_DEFINED = 68
-    DESTINATION_IS_PRIVATE_NAT_IP_RANGE = 69
-    DROPPED_INSIDE_REDIS_INSTANCE_SERVICE = 70
-    REDIS_INSTANCE_UNSUPPORTED_PORT = 71
-    REDIS_INSTANCE_CONNECTING_FROM_PUPI_ADDRESS = 72
-    REDIS_INSTANCE_NO_ROUTE_TO_DESTINATION_NETWORK = 73
-    REDIS_INSTANCE_NO_EXTERNAL_IP = 74
-    REDIS_INSTANCE_UNSUPPORTED_PROTOCOL = 75
-    DROPPED_INSIDE_REDIS_CLUSTER_SERVICE = 76
-    REDIS_CLUSTER_UNSUPPORTED_PORT = 77
-    REDIS_CLUSTER_NO_EXTERNAL_IP = 78
-    REDIS_CLUSTER_UNSUPPORTED_PROTOCOL = 79
-    NO_ADVERTISED_ROUTE_TO_GCP_DESTINATION = 80
-    NO_TRAFFIC_SELECTOR_TO_GCP_DESTINATION = 81
-    NO_KNOWN_ROUTE_FROM_PEERED_NETWORK_TO_DESTINATION = 82
-    PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED = 83
+    NO_ROUTE_FROM_EXTERNAL_IPV6_SOURCE_TO_PRIVATE_IPV6_ADDRESS = 15
+    VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH = 16
+    VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH = 17
+    PRIVATE_TRAFFIC_TO_INTERNET = 18
+    PRIVATE_GOOGLE_ACCESS_DISALLOWED = 19
+    PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED = 20
+    NO_EXTERNAL_ADDRESS = 21
+    UNKNOWN_INTERNAL_ADDRESS = 22
+    FORWARDING_RULE_MISMATCH = 23
+    FORWARDING_RULE_NO_INSTANCES = 24
+    FIREWALL_BLOCKING_LOAD_BALANCER_BACKEND_HEALTH_CHECK = 25
+    INGRESS_FIREWALL_TAGS_UNSUPPORTED_BY_DIRECT_VPC_EGRESS = 26
+    INSTANCE_NOT_RUNNING = 27
+    GKE_CLUSTER_NOT_RUNNING = 28
+    GKE_POD_NOT_RUNNING = 29
+    CLOUD_SQL_INSTANCE_NOT_RUNNING = 30
+    REDIS_INSTANCE_NOT_RUNNING = 31
+    REDIS_CLUSTER_NOT_RUNNING = 32
+    ALLOY_DB_INSTANCE_NOT_READY = 33
+    TRAFFIC_TYPE_BLOCKED = 34
+    GKE_MASTER_UNAUTHORIZED_ACCESS = 35
+    CLOUD_SQL_INSTANCE_UNAUTHORIZED_ACCESS = 36
+    ALLOY_DB_INSTANCE_UNAUTHORIZED_ACCESS = 37
+    DROPPED_INSIDE_GKE_SERVICE = 38
+    DROPPED_INSIDE_CLOUD_SQL_SERVICE = 39
+    DROPPED_INSIDE_ALLOY_DB_SERVICE = 40
+    GOOGLE_MANAGED_SERVICE_NO_PEERING = 41
+    GOOGLE_MANAGED_SERVICE_NO_PSC_ENDPOINT = 42
+    GKE_PSC_ENDPOINT_MISSING = 43
+    CLOUD_SQL_INSTANCE_NO_IP_ADDRESS = 44
+    GKE_CONTROL_PLANE_REGION_MISMATCH = 45
+    PUBLIC_GKE_CONTROL_PLANE_TO_PRIVATE_DESTINATION = 46
+    GKE_CONTROL_PLANE_NO_ROUTE = 47
+    CLOUD_SQL_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC = 48
+    ALLOY_DB_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC = 49
+    PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION = 50
+    CLOUD_SQL_INSTANCE_NO_ROUTE = 51
+    ALLOY_DB_INSTANCE_NO_ROUTE = 52
+    CLOUD_SQL_CONNECTOR_REQUIRED = 53
+    ALLOY_DB_AUTH_PROXY_REQUIRED = 54
+    CLOUD_FUNCTION_NOT_ACTIVE = 55
+    VPC_CONNECTOR_NOT_SET = 56
+    VPC_CONNECTOR_NOT_RUNNING = 57
+    VPC_CONNECTOR_SERVERLESS_TRAFFIC_BLOCKED = 58
+    VPC_CONNECTOR_HEALTH_CHECK_TRAFFIC_BLOCKED = 59
+    FORWARDING_RULE_REGION_MISMATCH = 60
+    PSC_CONNECTION_NOT_ACCEPTED = 61
+    PSC_ENDPOINT_ACCESSED_FROM_PEERED_NETWORK = 62
+    PSC_NEG_PRODUCER_ENDPOINT_NO_GLOBAL_ACCESS = 63
+    PSC_NEG_PRODUCER_FORWARDING_RULE_MULTIPLE_PORTS = 64
+    CLOUD_SQL_PSC_NEG_UNSUPPORTED = 65
+    NO_NAT_SUBNETS_FOR_PSC_SERVICE_ATTACHMENT = 66
+    PSC_TRANSITIVITY_NOT_PROPAGATED = 67
+    HYBRID_NEG_NON_DYNAMIC_ROUTE_MATCHED = 68
+    HYBRID_NEG_NON_LOCAL_DYNAMIC_ROUTE_MATCHED = 69
+    CLOUD_RUN_REVISION_NOT_READY = 70
+    DROPPED_INSIDE_PSC_SERVICE_PRODUCER = 71
+    LOAD_BALANCER_HAS_NO_PROXY_SUBNET = 72
+    CLOUD_NAT_NO_ADDRESSES = 73
+    ROUTING_LOOP = 74
+    DROPPED_INSIDE_GOOGLE_MANAGED_SERVICE = 75
+    LOAD_BALANCER_BACKEND_INVALID_NETWORK = 76
+    BACKEND_SERVICE_NAMED_PORT_NOT_DEFINED = 77
+    DESTINATION_IS_PRIVATE_NAT_IP_RANGE = 78
+    DROPPED_INSIDE_REDIS_INSTANCE_SERVICE = 79
+    REDIS_INSTANCE_UNSUPPORTED_PORT = 80
+    REDIS_INSTANCE_CONNECTING_FROM_PUPI_ADDRESS = 81
+    REDIS_INSTANCE_NO_ROUTE_TO_DESTINATION_NETWORK = 82
+    REDIS_INSTANCE_NO_EXTERNAL_IP = 83
+    REDIS_INSTANCE_UNSUPPORTED_PROTOCOL = 84
+    DROPPED_INSIDE_REDIS_CLUSTER_SERVICE = 85
+    REDIS_CLUSTER_UNSUPPORTED_PORT = 86
+    REDIS_CLUSTER_NO_EXTERNAL_IP = 87
+    REDIS_CLUSTER_UNSUPPORTED_PROTOCOL = 88
+    NO_ADVERTISED_ROUTE_TO_GCP_DESTINATION = 89
+    NO_TRAFFIC_SELECTOR_TO_GCP_DESTINATION = 90
+    NO_KNOWN_ROUTE_FROM_PEERED_NETWORK_TO_DESTINATION = 91
+    PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED = 92
+    PSC_PORT_MAPPING_PORT_MISMATCH = 93
+    PSC_PORT_MAPPING_WITHOUT_PSC_CONNECTION_UNSUPPORTED = 94
+    UNSUPPORTED_ROUTE_MATCHED_FOR_NAT64_DESTINATION = 95
+    TRAFFIC_FROM_HYBRID_ENDPOINT_TO_INTERNET_DISALLOWED = 96
+    NO_MATCHING_NAT64_GATEWAY = 97
+    LOAD_BALANCER_BACKEND_IP_VERSION_MISMATCH = 98
+    NO_KNOWN_ROUTE_FROM_NCC_NETWORK_TO_DESTINATION = 99
+    CLOUD_NAT_PROTOCOL_UNSUPPORTED = 100
+    L2_INTERCONNECT_UNSUPPORTED_PROTOCOL = 101
+    L2_INTERCONNECT_UNSUPPORTED_PORT = 102
+    L2_INTERCONNECT_DESTINATION_IP_MISMATCH = 103
+    NCC_ROUTE_WITHIN_HYBRID_SUBNET_UNSUPPORTED = 104
+    HYBRID_SUBNET_REGION_MISMATCH = 105
 
   cause = _messages.EnumField('CauseValueValuesEnum', 1)
-  destinationIp = _messages.StringField(2)
-  region = _messages.StringField(3)
-  resourceUri = _messages.StringField(4)
-  sourceIp = _messages.StringField(5)
+  destinationGeolocationCode = _messages.StringField(2)
+  destinationIp = _messages.StringField(3)
+  region = _messages.StringField(4)
+  resourceUri = _messages.StringField(5)
+  sourceGeolocationCode = _messages.StringField(6)
+  sourceIp = _messages.StringField(7)
 
 
 class Empty(_messages.Message):
@@ -1332,22 +1523,26 @@ class Endpoint(_messages.Message):
       can be inferred from the source.
 
   Fields:
+    alloyDbInstance: An [AlloyDB Instance](https://cloud.google.com/alloydb)
+      URI.
     appEngineVersion: An [App Engine](https://cloud.google.com/appengine)
       [service version](https://cloud.google.com/appengine/docs/admin-
-      api/reference/rest/v1/apps.services.versions).
+      api/reference/rest/v1/apps.services.versions). Applicable only to source
+      endpoint.
     cloudFunction: A [Cloud Function](https://cloud.google.com/functions).
+      Applicable only to source endpoint.
     cloudRunRevision: A [Cloud Run](https://cloud.google.com/run) [revision](h
       ttps://cloud.google.com/run/docs/reference/rest/v1/namespaces.revisions/
-      get)
+      get) Applicable only to source endpoint.
     cloudSqlInstance: A [Cloud SQL](https://cloud.google.com/sql) instance
       URI.
     forwardingRule: A forwarding rule and its corresponding IP address
       represent the frontend configuration of a Google Cloud load balancer.
       Forwarding rules are also used for protocol forwarding, Private Service
       Connect and other network services to provide forwarding information in
-      the control plane. Format:
-      projects/{project}/global/forwardingRules/{id} or
-      projects/{project}/regions/{region}/forwardingRules/{id}
+      the control plane. Applicable only to destination endpoint. Format:
+      `projects/{project}/global/forwardingRules/{id}` or
+      `projects/{project}/regions/{region}/forwardingRules/{id}`
     forwardingRuleTarget: Output only. Specifies the type of the target of the
       forwarding rule.
     fqdn: DNS endpoint of [Google Kubernetes Engine cluster control
@@ -1358,6 +1553,8 @@ class Endpoint(_messages.Message):
     gkeMasterCluster: A cluster URI for [Google Kubernetes Engine cluster
       control plane](https://cloud.google.com/kubernetes-
       engine/docs/concepts/cluster-architecture).
+    gkePod: A [GKE Pod](https://cloud.google.com/kubernetes-
+      engine/docs/concepts/pod) URI.
     instance: A Compute Engine instance URI.
     ipAddress: The IP address of the endpoint, which can be an external or
       internal IP.
@@ -1365,23 +1562,25 @@ class Endpoint(_messages.Message):
       points to. Empty for forwarding rules not related to load balancers.
     loadBalancerType: Output only. Type of the load balancer the forwarding
       rule points to.
-    network: A Compute Engine network URI.
+    network: A VPC network URI.
     networkType: Type of the network where the endpoint is located. Applicable
       only to source endpoint, as destination network type can be inferred
       from the source.
     port: The IP protocol port of the endpoint. Only applicable when protocol
       is TCP or UDP.
-    projectId: Project ID where the endpoint is located. The Project ID can be
-      derived from the URI if you provide a VM instance or network URI. The
-      following are two cases where you must provide the project ID: 1. Only
-      the IP address is specified, and the IP address is within a Google Cloud
-      project. 2. When you are using Shared VPC and the IP address that you
-      provide is from the service project. In this case, the network that the
-      IP address resides in is defined in the host project.
+    projectId: Project ID where the endpoint is located. The project ID can be
+      derived from the URI if you provide a endpoint or network URI. The
+      following are two cases where you may need to provide the project ID: 1.
+      Only the IP address is specified, and the IP address is within a Google
+      Cloud project. 2. When you are using Shared VPC and the IP address that
+      you provide is from the service project. In this case, the network that
+      the IP address resides in is defined in the host project.
     redisCluster: A [Redis
       Cluster](https://cloud.google.com/memorystore/docs/cluster) URI.
+      Applicable only to destination endpoint.
     redisInstance: A [Redis
       Instance](https://cloud.google.com/memorystore/docs/redis) URI.
+      Applicable only to destination endpoint.
   """
 
   class ForwardingRuleTargetValueValuesEnum(_messages.Enum):
@@ -1443,30 +1642,33 @@ class Endpoint(_messages.Message):
         detailed output, specify the URI for the source or destination
         network.
       NON_GCP_NETWORK: A network hosted outside of Google Cloud. This can be
-        an on-premises network, or a network hosted by another cloud provider.
+        an on-premises network, an internet resource or a network hosted by
+        another cloud provider.
     """
     NETWORK_TYPE_UNSPECIFIED = 0
     GCP_NETWORK = 1
     NON_GCP_NETWORK = 2
 
-  appEngineVersion = _messages.MessageField('AppEngineVersionEndpoint', 1)
-  cloudFunction = _messages.MessageField('CloudFunctionEndpoint', 2)
-  cloudRunRevision = _messages.MessageField('CloudRunRevisionEndpoint', 3)
-  cloudSqlInstance = _messages.StringField(4)
-  forwardingRule = _messages.StringField(5)
-  forwardingRuleTarget = _messages.EnumField('ForwardingRuleTargetValueValuesEnum', 6)
-  fqdn = _messages.StringField(7)
-  gkeMasterCluster = _messages.StringField(8)
-  instance = _messages.StringField(9)
-  ipAddress = _messages.StringField(10)
-  loadBalancerId = _messages.StringField(11)
-  loadBalancerType = _messages.EnumField('LoadBalancerTypeValueValuesEnum', 12)
-  network = _messages.StringField(13)
-  networkType = _messages.EnumField('NetworkTypeValueValuesEnum', 14)
-  port = _messages.IntegerField(15, variant=_messages.Variant.INT32)
-  projectId = _messages.StringField(16)
-  redisCluster = _messages.StringField(17)
-  redisInstance = _messages.StringField(18)
+  alloyDbInstance = _messages.StringField(1)
+  appEngineVersion = _messages.MessageField('AppEngineVersionEndpoint', 2)
+  cloudFunction = _messages.MessageField('CloudFunctionEndpoint', 3)
+  cloudRunRevision = _messages.MessageField('CloudRunRevisionEndpoint', 4)
+  cloudSqlInstance = _messages.StringField(5)
+  forwardingRule = _messages.StringField(6)
+  forwardingRuleTarget = _messages.EnumField('ForwardingRuleTargetValueValuesEnum', 7)
+  fqdn = _messages.StringField(8)
+  gkeMasterCluster = _messages.StringField(9)
+  gkePod = _messages.StringField(10)
+  instance = _messages.StringField(11)
+  ipAddress = _messages.StringField(12)
+  loadBalancerId = _messages.StringField(13)
+  loadBalancerType = _messages.EnumField('LoadBalancerTypeValueValuesEnum', 14)
+  network = _messages.StringField(15)
+  networkType = _messages.EnumField('NetworkTypeValueValuesEnum', 16)
+  port = _messages.IntegerField(17, variant=_messages.Variant.INT32)
+  projectId = _messages.StringField(18)
+  redisCluster = _messages.StringField(19)
+  redisInstance = _messages.StringField(20)
 
 
 class EndpointInfo(_messages.Message):
@@ -1538,6 +1740,7 @@ class FirewallInfo(_messages.Message):
 
   Enums:
     FirewallRuleTypeValueValuesEnum: The firewall rule's type.
+    TargetTypeValueValuesEnum: Target type of the firewall rule.
 
   Fields:
     action: Possible values: ALLOW, DENY, APPLY_SECURITY_PROFILE_GROUP
@@ -1551,6 +1754,9 @@ class FirewallInfo(_messages.Message):
     policy: The name of the firewall policy that this rule is associated with.
       This field is not applicable to VPC firewall rules and implied VPC
       firewall rules.
+    policyPriority: The priority of the firewall policy that this rule is
+      associated with. This field is not applicable to VPC firewall rules and
+      implied VPC firewall rules.
     policyUri: The URI of the firewall policy that this rule is associated
       with. This field is not applicable to VPC firewall rules and implied VPC
       firewall rules.
@@ -1559,6 +1765,7 @@ class FirewallInfo(_messages.Message):
       firewall rule.
     targetTags: The target tags defined by the VPC firewall rule. This field
       is not applicable to firewall policy rules.
+    targetType: Target type of the firewall rule.
     uri: The URI of the firewall rule. This field is not applicable to implied
       VPC firewall rules.
   """
@@ -1600,6 +1807,8 @@ class FirewallInfo(_messages.Message):
         traffic goes through allow firewall rule. For details, see [firewall
         rules specifications](https://cloud.google.com/firewall/docs/firewalls
         #specifications)
+      ANALYSIS_SKIPPED: Firewall analysis was skipped due to executing
+        Connectivity Test in the BypassFirewallChecks mode
     """
     FIREWALL_RULE_TYPE_UNSPECIFIED = 0
     HIERARCHICAL_FIREWALL_POLICY_RULE = 1
@@ -1610,6 +1819,21 @@ class FirewallInfo(_messages.Message):
     NETWORK_REGIONAL_FIREWALL_POLICY_RULE = 6
     UNSUPPORTED_FIREWALL_POLICY_RULE = 7
     TRACKING_STATE = 8
+    ANALYSIS_SKIPPED = 9
+
+  class TargetTypeValueValuesEnum(_messages.Enum):
+    r"""Target type of the firewall rule.
+
+    Values:
+      TARGET_TYPE_UNSPECIFIED: Target type is not specified. In this case we
+        treat the rule as applying to INSTANCES target type.
+      INSTANCES: Firewall rule applies to instances.
+      INTERNAL_MANAGED_LB: Firewall rule applies to internal managed load
+        balancers.
+    """
+    TARGET_TYPE_UNSPECIFIED = 0
+    INSTANCES = 1
+    INTERNAL_MANAGED_LB = 2
 
   action = _messages.StringField(1)
   direction = _messages.StringField(2)
@@ -1617,11 +1841,13 @@ class FirewallInfo(_messages.Message):
   firewallRuleType = _messages.EnumField('FirewallRuleTypeValueValuesEnum', 4)
   networkUri = _messages.StringField(5)
   policy = _messages.StringField(6)
-  policyUri = _messages.StringField(7)
-  priority = _messages.IntegerField(8, variant=_messages.Variant.INT32)
-  targetServiceAccounts = _messages.StringField(9, repeated=True)
-  targetTags = _messages.StringField(10, repeated=True)
-  uri = _messages.StringField(11)
+  policyPriority = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  policyUri = _messages.StringField(8)
+  priority = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  targetServiceAccounts = _messages.StringField(10, repeated=True)
+  targetTags = _messages.StringField(11, repeated=True)
+  targetType = _messages.EnumField('TargetTypeValueValuesEnum', 12)
+  uri = _messages.StringField(13)
 
 
 class ForwardInfo(_messages.Message):
@@ -1652,6 +1878,7 @@ class ForwardInfo(_messages.Message):
       ANOTHER_PROJECT: Forwarded to a VPC network in another project.
       NCC_HUB: Forwarded to an NCC Hub.
       ROUTER_APPLIANCE: Forwarded to a router appliance.
+      SECURE_WEB_PROXY_GATEWAY: Forwarded to a Secure Web Proxy Gateway.
     """
     TARGET_UNSPECIFIED = 0
     PEERING_VPC = 1
@@ -1663,6 +1890,7 @@ class ForwardInfo(_messages.Message):
     ANOTHER_PROJECT = 7
     NCC_HUB = 8
     ROUTER_APPLIANCE = 9
+    SECURE_WEB_PROXY_GATEWAY = 10
 
   ipAddress = _messages.StringField(1)
   resourceUri = _messages.StringField(2)
@@ -1726,6 +1954,50 @@ class GKEMasterInfo(_messages.Message):
   internalIp = _messages.StringField(5)
 
 
+class GenerateProviderAccessTokenResponse(_messages.Message):
+  r"""Message for response for generating an access token for a
+  NetworkMonitoringProvider resource.
+
+  Fields:
+    providerAccessToken: Provider access token for the
+      NetworkMonitoringProvider resource.
+  """
+
+  providerAccessToken = _messages.StringField(1)
+
+
+class GeoLocation(_messages.Message):
+  r"""The geographical location of the MonitoringPoint.
+
+  Fields:
+    formattedAddress: Formatted address.
+    regionCode: Unicode CLDR region code.
+  """
+
+  formattedAddress = _messages.StringField(1)
+  regionCode = _messages.StringField(2)
+
+
+class GkePodInfo(_messages.Message):
+  r"""For display only. Metadata associated with a Google Kubernetes Engine
+  (GKE) Pod.
+
+  Fields:
+    ipAddress: IP address of a GKE Pod. If the Pod is dual-stack, this is the
+      IP address relevant to the trace.
+    networkUri: URI of the network containing the GKE Pod.
+    podUri: URI of a GKE Pod. For Pods in regional Clusters, the URI format
+      is: `projects/{project}/locations/{location}/clusters/{cluster}/k8s/name
+      spaces/{namespace}/pods/{pod}` For Pods in zonal Clusters, the URI
+      format is: `projects/{project}/zones/{zone}/clusters/{cluster}/k8s/names
+      paces/{namespace}/pods/{pod}`
+  """
+
+  ipAddress = _messages.StringField(1)
+  networkUri = _messages.StringField(2)
+  podUri = _messages.StringField(3)
+
+
 class GoogleServiceInfo(_messages.Message):
   r"""For display only. Details of a Google Service sending packets to a VPC
   network. Although the source IP might be a publicly routable address, some
@@ -1762,6 +2034,8 @@ class GoogleServiceInfo(_messages.Message):
       GOOGLE_API_VPC_SC: Google API via VPC Service Controls.
         https://cloud.google.com/vpc/docs/configure-private-service-connect-
         apis
+      SERVERLESS_VPC_ACCESS: Google API via Serverless VPC Access.
+        https://cloud.google.com/vpc/docs/serverless-vpc-access
     """
     GOOGLE_SERVICE_TYPE_UNSPECIFIED = 0
     IAP = 1
@@ -1770,13 +2044,119 @@ class GoogleServiceInfo(_messages.Message):
     GOOGLE_API = 4
     GOOGLE_API_PSC = 5
     GOOGLE_API_VPC_SC = 6
+    SERVERLESS_VPC_ACCESS = 7
 
   googleServiceType = _messages.EnumField('GoogleServiceTypeValueValuesEnum', 1)
   sourceIp = _messages.StringField(2)
 
 
+class Host(_messages.Message):
+  r"""Message describing information about the host.
+
+  Fields:
+    cloudInstanceId: Output only. The cloud instance id of the host.
+    cloudProjectId: Output only. The cloud project id of the host.
+    cloudProvider: Output only. The cloud provider of the host.
+    cloudRegion: Output only. The cloud region of the host.
+    cloudVirtualNetworkIds: Output only. The ids of cloud virtual networks of
+      the host.
+    cloudVpcId: Output only. The id of Virtual Private Cloud (VPC) of the
+      host.
+    cloudZone: Output only. The cloud zone of the host.
+    os: Output only. The operating system of the host.
+  """
+
+  cloudInstanceId = _messages.StringField(1)
+  cloudProjectId = _messages.StringField(2)
+  cloudProvider = _messages.StringField(3)
+  cloudRegion = _messages.StringField(4)
+  cloudVirtualNetworkIds = _messages.StringField(5, repeated=True)
+  cloudVpcId = _messages.StringField(6)
+  cloudZone = _messages.StringField(7)
+  os = _messages.StringField(8)
+
+
+class HttpBody(_messages.Message):
+  r"""Message that represents an arbitrary HTTP body. It should only be used
+  for payload formats that can't be represented as JSON, such as raw binary or
+  an HTML page. This message can be used both in streaming and non-streaming
+  API methods in the request as well as the response. It can be used as a top-
+  level request field, which is convenient if one wants to extract parameters
+  from either the URL or HTTP template into the request fields and also want
+  access to the raw HTTP body. Example: message GetResourceRequest { // A
+  unique request id. string request_id = 1; // The raw HTTP body is bound to
+  this field. google.api.HttpBody http_body = 2; } service ResourceService {
+  rpc GetResource(GetResourceRequest) returns (google.api.HttpBody); rpc
+  UpdateResource(google.api.HttpBody) returns (google.protobuf.Empty); }
+  Example with streaming methods: service CaldavService { rpc
+  GetCalendar(stream google.api.HttpBody) returns (stream
+  google.api.HttpBody); rpc UpdateCalendar(stream google.api.HttpBody) returns
+  (stream google.api.HttpBody); } Use of this type only changes how the
+  request and response bodies are handled, all other features will continue to
+  work unchanged.
+
+  Messages:
+    ExtensionsValueListEntry: A ExtensionsValueListEntry object.
+
+  Fields:
+    contentType: The HTTP Content-Type header value specifying the content
+      type of the body.
+    data: The HTTP request/response body as raw binary.
+    extensions: Application specific response metadata. Must be set in the
+      first response for streaming APIs.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ExtensionsValueListEntry(_messages.Message):
+    r"""A ExtensionsValueListEntry object.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        ExtensionsValueListEntry object.
+
+    Fields:
+      additionalProperties: Properties of the object. Contains field @type
+        with type URL.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ExtensionsValueListEntry object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  contentType = _messages.StringField(1)
+  data = _messages.BytesField(2)
+  extensions = _messages.MessageField('ExtensionsValueListEntry', 3, repeated=True)
+
+
+class HybridSubnetInfo(_messages.Message):
+  r"""For display only. Metadata associated with a hybrid subnet.
+
+  Fields:
+    displayName: Name of a hybrid subnet.
+    region: Name of a Google Cloud region where the hybrid subnet is
+      configured.
+    uri: URI of a hybrid subnet.
+  """
+
+  displayName = _messages.StringField(1)
+  region = _messages.StringField(2)
+  uri = _messages.StringField(3)
+
+
 class InstanceInfo(_messages.Message):
   r"""For display only. Metadata associated with a Compute Engine instance.
+
+  Enums:
+    StatusValueValuesEnum: The status of the instance.
 
   Fields:
     displayName: Name of a Compute Engine instance.
@@ -1787,9 +2167,24 @@ class InstanceInfo(_messages.Message):
     networkUri: URI of a Compute Engine network.
     pscNetworkAttachmentUri: URI of the PSC network attachment the NIC is
       attached to (if relevant).
+    running: Indicates whether the Compute Engine instance is running.
+      Deprecated: use the `status` field instead.
     serviceAccount: Service account authorized for the instance.
+    status: The status of the instance.
     uri: URI of a Compute Engine instance.
   """
+
+  class StatusValueValuesEnum(_messages.Enum):
+    r"""The status of the instance.
+
+    Values:
+      STATUS_UNSPECIFIED: Default unspecified value.
+      RUNNING: The instance is running.
+      NOT_RUNNING: The instance has any status other than "RUNNING".
+    """
+    STATUS_UNSPECIFIED = 0
+    RUNNING = 1
+    NOT_RUNNING = 2
 
   displayName = _messages.StringField(1)
   externalIp = _messages.StringField(2)
@@ -1798,8 +2193,104 @@ class InstanceInfo(_messages.Message):
   networkTags = _messages.StringField(5, repeated=True)
   networkUri = _messages.StringField(6)
   pscNetworkAttachmentUri = _messages.StringField(7)
-  serviceAccount = _messages.StringField(8)
-  uri = _messages.StringField(9)
+  running = _messages.BooleanField(8)
+  serviceAccount = _messages.StringField(9)
+  status = _messages.EnumField('StatusValueValuesEnum', 10)
+  uri = _messages.StringField(11)
+
+
+class InterconnectAttachmentInfo(_messages.Message):
+  r"""For display only. Metadata associated with an Interconnect attachment.
+
+  Enums:
+    TypeValueValuesEnum: The type of interconnect attachment this is.
+
+  Fields:
+    cloudRouterUri: URI of the Cloud Router to be used for dynamic routing.
+    displayName: Name of an Interconnect attachment.
+    interconnectUri: URI of the Interconnect where the Interconnect attachment
+      is configured.
+    l2AttachmentMatchedIpAddress: Appliance IP address that was matched for
+      L2_DEDICATED attachments.
+    region: Name of a Google Cloud region where the Interconnect attachment is
+      configured.
+    type: The type of interconnect attachment this is.
+    uri: URI of an Interconnect attachment.
+  """
+
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""The type of interconnect attachment this is.
+
+    Values:
+      TYPE_UNSPECIFIED: Unspecified type.
+      DEDICATED: Attachment to a dedicated interconnect.
+      PARTNER: Attachment to a partner interconnect, created by the customer.
+      PARTNER_PROVIDER: Attachment to a partner interconnect, created by the
+        partner.
+      L2_DEDICATED: Attachment to a L2 interconnect, created by the customer.
+    """
+    TYPE_UNSPECIFIED = 0
+    DEDICATED = 1
+    PARTNER = 2
+    PARTNER_PROVIDER = 3
+    L2_DEDICATED = 4
+
+  cloudRouterUri = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  interconnectUri = _messages.StringField(3)
+  l2AttachmentMatchedIpAddress = _messages.StringField(4)
+  region = _messages.StringField(5)
+  type = _messages.EnumField('TypeValueValuesEnum', 6)
+  uri = _messages.StringField(7)
+
+
+class IpMasqueradingSkippedInfo(_messages.Message):
+  r"""For display only. Contains information about why IP masquerading was
+  skipped for the packet.
+
+  Enums:
+    ReasonValueValuesEnum: Reason why IP masquerading was not applied.
+
+  Fields:
+    nonMasqueradeRange: The matched non-masquerade IP range. Only set if
+      reason is DESTINATION_IP_IN_CONFIGURED_NON_MASQUERADE_RANGE or
+      DESTINATION_IP_IN_DEFAULT_NON_MASQUERADE_RANGE.
+    reason: Reason why IP masquerading was not applied.
+  """
+
+  class ReasonValueValuesEnum(_messages.Enum):
+    r"""Reason why IP masquerading was not applied.
+
+    Values:
+      REASON_UNSPECIFIED: Unused default value.
+      DESTINATION_IP_IN_CONFIGURED_NON_MASQUERADE_RANGE: Masquerading not
+        applied because destination IP is in one of configured non-masquerade
+        ranges.
+      DESTINATION_IP_IN_DEFAULT_NON_MASQUERADE_RANGE: Masquerading not applied
+        because destination IP is in one of default non-masquerade ranges.
+      DESTINATION_ON_SAME_NODE: Masquerading not applied because destination
+        is on the same Node.
+      DEFAULT_SNAT_DISABLED: Masquerading not applied because ip-masq-agent
+        doesn't exist and default SNAT is disabled.
+      NO_MASQUERADING_FOR_IPV6: Masquerading not applied because the packet's
+        IP version is IPv6.
+      POD_USES_NODE_NETWORK_NAMESPACE: Masquerading not applied because the
+        source Pod uses the host Node's network namespace, including the
+        Node's IP address.
+      NO_MASQUERADING_FOR_RETURN_PACKET: Masquerading not applied because the
+        packet is a return packet.
+    """
+    REASON_UNSPECIFIED = 0
+    DESTINATION_IP_IN_CONFIGURED_NON_MASQUERADE_RANGE = 1
+    DESTINATION_IP_IN_DEFAULT_NON_MASQUERADE_RANGE = 2
+    DESTINATION_ON_SAME_NODE = 3
+    DEFAULT_SNAT_DISABLED = 4
+    NO_MASQUERADING_FOR_IPV6 = 5
+    POD_USES_NODE_NETWORK_NAMESPACE = 6
+    NO_MASQUERADING_FOR_RETURN_PACKET = 7
+
+  nonMasqueradeRange = _messages.StringField(1)
+  reason = _messages.EnumField('ReasonValueValuesEnum', 2)
 
 
 class ListAppliancesResponse(_messages.Message):
@@ -1845,6 +2336,45 @@ class ListLocationsResponse(_messages.Message):
   nextPageToken = _messages.StringField(2)
 
 
+class ListMonitoringPointsResponse(_messages.Message):
+  r"""Message for response to listing MonitoringPoints
+
+  Fields:
+    monitoringPoints: The list of MonitoringPoints.
+    nextPageToken: A token identifying a page of results the server should
+      return.
+  """
+
+  monitoringPoints = _messages.MessageField('MonitoringPoint', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class ListNetworkMonitoringProvidersResponse(_messages.Message):
+  r"""Message for response to listing NetworkMonitoringProviders
+
+  Fields:
+    networkMonitoringProviders: The list of NetworkMonitoringProvider
+    nextPageToken: A token identifying a page of results the server should
+      return.
+  """
+
+  networkMonitoringProviders = _messages.MessageField('NetworkMonitoringProvider', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
+class ListNetworkPathsResponse(_messages.Message):
+  r"""Message for response to listing NetworkPaths
+
+  Fields:
+    networkPaths: The list of NetworkPath
+    nextPageToken: A token identifying a page of results the server should
+      return.
+  """
+
+  networkPaths = _messages.MessageField('NetworkPath', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+
+
 class ListOperationsResponse(_messages.Message):
   r"""The response message for Operations.ListOperations.
 
@@ -1852,10 +2382,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListSimulationsResponse(_messages.Message):
@@ -1871,6 +2406,19 @@ class ListSimulationsResponse(_messages.Message):
   nextPageToken = _messages.StringField(1)
   simulations = _messages.MessageField('Simulation', 2, repeated=True)
   unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListWebPathsResponse(_messages.Message):
+  r"""Message for response to listing WebPaths
+
+  Fields:
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    webPaths: The list of WebPath.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  webPaths = _messages.MessageField('WebPath', 2, repeated=True)
 
 
 class LoadBalancerBackend(_messages.Message):
@@ -2152,6 +2700,113 @@ class LogConfig(_messages.Message):
   dataAccess = _messages.MessageField('DataAccessOptions', 3)
 
 
+class MonitoringPoint(_messages.Message):
+  r"""Message describing MonitoringPoint resource.
+
+  Enums:
+    ConnectionStatusValueValuesEnum: Output only. Connection status of the
+      MonitoringPoint.
+    ErrorsValueListEntryValuesEnum:
+    UpgradeTypeValueValuesEnum: Output only. The type of upgrade available for
+      the MonitoringPoint.
+
+  Fields:
+    autoGeoLocationEnabled: Output only. Indicates if automaitic geographic
+      location is enabled for the MonitoringPoint.
+    connectionStatus: Output only. Connection status of the MonitoringPoint.
+    createTime: Output only. The time the MonitoringPoint was created.
+    displayName: Output only. Display name of the MonitoringPoint.
+    errors: Output only. The codes of errors detected in the MonitoringPoint.
+    geoLocation: Output only. The geographical location of the
+      MonitoringPoint. ;
+    guid: Output only. The GUID of the MonitoringPoint.
+    host: Output only. The host information of the MonitoringPoint.
+    hostname: Output only. The hostname of the MonitoringPoint.
+    name: Identifier. Name of the resource. Format: `projects/{project}/locati
+      ons/{location}/networkMonitoringProviders/{network_monitoring_provider}/
+      monitoringPoints/{monitoring_point}`
+    networkInterfaces: Output only. The network interfaces of the
+      MonitoringPoint.
+    originatingIp: Output only. IP address visible when MonitoringPoint
+      connects to the provider.
+    providerTags: Output only. The provider tags of the MonitoringPoint.
+    type: Output only. Deployment type of the MonitoringPoint.
+    updateTime: Output only. The time the MonitoringPoint was updated.
+    upgradeAvailable: Output only. Indicates if an upgrade is available for
+      the MonitoringPoint.
+    upgradeType: Output only. The type of upgrade available for the
+      MonitoringPoint.
+    version: Output only. Version of the software running on the
+      MonitoringPoint.
+  """
+
+  class ConnectionStatusValueValuesEnum(_messages.Enum):
+    r"""Output only. Connection status of the MonitoringPoint.
+
+    Values:
+      CONNECTION_STATUS_UNSPECIFIED: The default value. This value is used if
+        the status is omitted.
+      ONLINE: MonitoringPoint is online.
+      OFFLINE: MonitoringPoint is offline.
+    """
+    CONNECTION_STATUS_UNSPECIFIED = 0
+    ONLINE = 1
+    OFFLINE = 2
+
+  class ErrorsValueListEntryValuesEnum(_messages.Enum):
+    r"""ErrorsValueListEntryValuesEnum enum type.
+
+    Values:
+      ERROR_CODE_UNSPECIFIED: The default value. This value is used if the
+        error code is omitted.
+      NTP_ERROR: Error detected in NTP service.
+      UPGRADE_ERROR: Error detected during the upgrade process.
+      DOWNLOAD_FAILED: Error detected while downloading.
+    """
+    ERROR_CODE_UNSPECIFIED = 0
+    NTP_ERROR = 1
+    UPGRADE_ERROR = 2
+    DOWNLOAD_FAILED = 3
+
+  class UpgradeTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The type of upgrade available for the MonitoringPoint.
+
+    Values:
+      UPGRADE_TYPE_UNSPECIFIED: The default value. This value is used if the
+        upgrade type is omitted.
+      MANUAL: Upgrades are performed manually.
+      MANAGED: Upgrades are managed.
+      SCHEDULED: Upgrade is scheduled.
+      AUTO: Upgrades are performed automatically.
+      EXTERNAL: Upgrades are performed externally.
+    """
+    UPGRADE_TYPE_UNSPECIFIED = 0
+    MANUAL = 1
+    MANAGED = 2
+    SCHEDULED = 3
+    AUTO = 4
+    EXTERNAL = 5
+
+  autoGeoLocationEnabled = _messages.BooleanField(1)
+  connectionStatus = _messages.EnumField('ConnectionStatusValueValuesEnum', 2)
+  createTime = _messages.StringField(3)
+  displayName = _messages.StringField(4)
+  errors = _messages.EnumField('ErrorsValueListEntryValuesEnum', 5, repeated=True)
+  geoLocation = _messages.MessageField('GeoLocation', 6)
+  guid = _messages.StringField(7)
+  host = _messages.MessageField('Host', 8)
+  hostname = _messages.StringField(9)
+  name = _messages.StringField(10)
+  networkInterfaces = _messages.MessageField('NetworkInterface', 11, repeated=True)
+  originatingIp = _messages.StringField(12)
+  providerTags = _messages.MessageField('ProviderTag', 13, repeated=True)
+  type = _messages.StringField(14)
+  updateTime = _messages.StringField(15)
+  upgradeAvailable = _messages.BooleanField(16)
+  upgradeType = _messages.EnumField('UpgradeTypeValueValuesEnum', 17)
+  version = _messages.StringField(18)
+
+
 class NatInfo(_messages.Message):
   r"""For display only. Metadata associated with NAT.
 
@@ -2190,12 +2845,14 @@ class NatInfo(_messages.Message):
         internal address.
       CLOUD_NAT: Cloud NAT Gateway.
       PRIVATE_SERVICE_CONNECT: Private service connect NAT.
+      GKE_POD_IP_MASQUERADING: GKE Pod IP address masquerading.
     """
     TYPE_UNSPECIFIED = 0
     INTERNAL_TO_EXTERNAL = 1
     EXTERNAL_TO_INTERNAL = 2
     CLOUD_NAT = 3
     PRIVATE_SERVICE_CONNECT = 4
+    GKE_POD_IP_MASQUERADING = 5
 
   natGatewayName = _messages.StringField(1)
   networkUri = _messages.StringField(2)
@@ -2214,7 +2871,6 @@ class NatInfo(_messages.Message):
 
 class NetworkInfo(_messages.Message):
   r"""For display only. Metadata associated with a Compute Engine network.
-  Next ID: 7
 
   Fields:
     displayName: Name of a Compute Engine network.
@@ -2232,6 +2888,186 @@ class NetworkInfo(_messages.Message):
   matchedSubnetUri = _messages.StringField(3)
   region = _messages.StringField(4)
   uri = _messages.StringField(5)
+
+
+class NetworkInterface(_messages.Message):
+  r"""Message describing network interfaces.
+
+  Fields:
+    adapterDescription: Output only. The description of the interface.
+    cidr: Output only. The IP address of the interface and subnet mask in CIDR
+      format. Examples: 192.168.1.0/24, 2001:db8::/32
+    interfaceName: Output only. The name of the network interface. Examples:
+      eth0, eno1
+    ipAddress: Output only. The IP address of the interface.
+    macAddress: Output only. The MAC address of the interface.
+    speed: Output only. Speed of the interface in millions of bits per second.
+    vlanId: Output only. The id of the VLAN.
+  """
+
+  adapterDescription = _messages.StringField(1)
+  cidr = _messages.StringField(2)
+  interfaceName = _messages.StringField(3)
+  ipAddress = _messages.StringField(4)
+  macAddress = _messages.StringField(5)
+  speed = _messages.IntegerField(6)
+  vlanId = _messages.IntegerField(7)
+
+
+class NetworkMonitoringProvider(_messages.Message):
+  r"""Message describing NetworkMonitoringProvider resource.
+
+  Enums:
+    ProviderTypeValueValuesEnum: Required. Type of the
+      NetworkMonitoringProvider.
+    StateValueValuesEnum: Output only. State of the NetworkMonitoringProvider.
+
+  Fields:
+    createTime: Output only. The time the NetworkMonitoringProvider was
+      created.
+    errors: Output only. The list of error messages detected for the
+      NetworkMonitoringProvider.
+    name: Output only. Identifier. Name of the resource. Format: `projects/{pr
+      oject}/locations/{location}/networkMonitoringProviders/{network_monitori
+      ng_provider}`
+    providerType: Required. Type of the NetworkMonitoringProvider.
+    providerUri: Output only. Link to the provider's UI.
+    state: Output only. State of the NetworkMonitoringProvider.
+    updateTime: Output only. The time the NetworkMonitoringProvider was
+      updated.
+  """
+
+  class ProviderTypeValueValuesEnum(_messages.Enum):
+    r"""Required. Type of the NetworkMonitoringProvider.
+
+    Values:
+      PROVIDER_TYPE_UNSPECIFIED: The default value. This value is used if the
+        type is omitted.
+      EXTERNAL: External provider.
+    """
+    PROVIDER_TYPE_UNSPECIFIED = 0
+    EXTERNAL = 1
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the NetworkMonitoringProvider.
+
+    Values:
+      STATE_UNSPECIFIED: The default value. This value is used if the status
+        is omitted.
+      ACTIVATING: NetworkMonitoringProvider is being activated.
+      ACTIVE: NetworkMonitoringProvider is active.
+      SUSPENDING: NetworkMonitoringProvider is being suspended.
+      SUSPENDED: NetworkMonitoringProvider is suspended.
+      DELETING: NetworkMonitoringProvider is being deleted.
+      DELETED: NetworkMonitoringProvider is deleted.
+    """
+    STATE_UNSPECIFIED = 0
+    ACTIVATING = 1
+    ACTIVE = 2
+    SUSPENDING = 3
+    SUSPENDED = 4
+    DELETING = 5
+    DELETED = 6
+
+  createTime = _messages.StringField(1)
+  errors = _messages.StringField(2, repeated=True)
+  name = _messages.StringField(3)
+  providerType = _messages.EnumField('ProviderTypeValueValuesEnum', 4)
+  providerUri = _messages.StringField(5)
+  state = _messages.EnumField('StateValueValuesEnum', 6)
+  updateTime = _messages.StringField(7)
+
+
+class NetworkPath(_messages.Message):
+  r"""Message describing NetworkPath resource.
+
+  Enums:
+    MonitoringStatusValueValuesEnum: Output only. The monitoring status of the
+      network path.
+    NetworkProtocolValueValuesEnum: Output only. The network protocol of the
+      network path.
+
+  Fields:
+    createTime: Output only. The time the NetworkPath was created.
+    destination: Output only. IP address or hostname of the network path
+      destination.
+    destinationGeoLocation: Output only. Geographical location of the
+      destination MonitoringPoint. ;
+    destinationMonitoringPointId: Output only. Provider's UUID of the
+      destination MonitoringPoint. This id may not point to a resource in the
+      GCP.
+    displayName: Output only. The display name of the network path.
+    dualEnded: Output only. Indicates if the network path is dual ended. When
+      true, the network path is measured both: from both source to
+      destination, and from destination to source. When false, the network
+      path is measured from the source through the destination back to the
+      source (round trip measurement).
+    monitoringEnabled: Output only. Is monitoring enabled for the network
+      path.
+    monitoringPolicyDisplayName: Output only. Display name of the monitoring
+      policy.
+    monitoringPolicyId: Output only. ID of monitoring policy.
+    monitoringStatus: Output only. The monitoring status of the network path.
+    name: Identifier. Name of the resource. Format: `projects/{project}/locati
+      ons/{location}/networkMonitoringProviders/{network_monitoring_provider}/
+      networkPaths/{network_path}`
+    networkProtocol: Output only. The network protocol of the network path.
+    providerTags: Output only. The provider tags of the network path.
+    providerUiUri: Output only. Link to provider's UI; link shows the
+      NetworkPath.
+    sourceMonitoringPointId: Output only. Provider's UUID of the source
+      MonitoringPoint. This id may not point to a resource in the GCP.
+    updateTime: Output only. The time the NetworkPath was updated.
+  """
+
+  class MonitoringStatusValueValuesEnum(_messages.Enum):
+    r"""Output only. The monitoring status of the network path.
+
+    Values:
+      MONITORING_STATUS_UNSPECIFIED: The default value. This value is used if
+        the status is omitted.
+      MONITORING: Monitoring is enabled.
+      POLICY_MISMATCH: Policy is mismatched.
+      MONITORING_POINT_OFFLINE: Monitoring point is offline.
+      DISABLED: Monitoring is disabled.
+    """
+    MONITORING_STATUS_UNSPECIFIED = 0
+    MONITORING = 1
+    POLICY_MISMATCH = 2
+    MONITORING_POINT_OFFLINE = 3
+    DISABLED = 4
+
+  class NetworkProtocolValueValuesEnum(_messages.Enum):
+    r"""Output only. The network protocol of the network path.
+
+    Values:
+      NETWORK_PROTOCOL_UNSPECIFIED: The default value. This value is used if
+        the network protocol is omitted.
+      ICMP: ICMP.
+      UDP: UDP.
+      TCP: TCP.
+    """
+    NETWORK_PROTOCOL_UNSPECIFIED = 0
+    ICMP = 1
+    UDP = 2
+    TCP = 3
+
+  createTime = _messages.StringField(1)
+  destination = _messages.StringField(2)
+  destinationGeoLocation = _messages.MessageField('GeoLocation', 3)
+  destinationMonitoringPointId = _messages.StringField(4)
+  displayName = _messages.StringField(5)
+  dualEnded = _messages.BooleanField(6)
+  monitoringEnabled = _messages.BooleanField(7)
+  monitoringPolicyDisplayName = _messages.StringField(8)
+  monitoringPolicyId = _messages.StringField(9)
+  monitoringStatus = _messages.EnumField('MonitoringStatusValueValuesEnum', 10)
+  name = _messages.StringField(11)
+  networkProtocol = _messages.EnumField('NetworkProtocolValueValuesEnum', 12)
+  providerTags = _messages.MessageField('ProviderTag', 13, repeated=True)
+  providerUiUri = _messages.StringField(14)
+  sourceMonitoringPointId = _messages.StringField(15)
+  updateTime = _messages.StringField(16)
 
 
 class NetworkmanagementProjectsLocationsAppliancesGetRequest(_messages.Message):
@@ -2350,6 +3186,9 @@ class NetworkmanagementProjectsLocationsListRequest(_messages.Message):
   r"""A NetworkmanagementProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -2362,11 +3201,275 @@ class NetworkmanagementProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  includeUnrevealedLocations = _messages.BooleanField(2)
-  name = _messages.StringField(3, required=True)
-  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(5)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  includeUnrevealedLocations = _messages.BooleanField(3)
+  name = _messages.StringField(4, required=True)
+  pageSize = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(6)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersCreateRequest(_messages.Message):
+  r"""A
+  NetworkmanagementProjectsLocationsNetworkMonitoringProvidersCreateRequest
+  object.
+
+  Fields:
+    networkMonitoringProvider: A NetworkMonitoringProvider resource to be
+      passed as the request body.
+    networkMonitoringProviderId: Required. The ID to use for the
+      NetworkMonitoringProvider resource, which will become the final
+      component of the NetworkMonitoringProvider resource's name.
+    parent: Required. Parent value for CreateNetworkMonitoringProviderRequest.
+      Format: projects/{project}/locations/{location}
+  """
+
+  networkMonitoringProvider = _messages.MessageField('NetworkMonitoringProvider', 1)
+  networkMonitoringProviderId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersDeleteRequest(_messages.Message):
+  r"""A
+  NetworkmanagementProjectsLocationsNetworkMonitoringProvidersDeleteRequest
+  object.
+
+  Fields:
+    force: Optional. If set to true, any nested MonitoringPoints, NetworkPaths
+      and WebPaths resources from this NetworkMonitoringProvider will also be
+      deleted. Otherwise, the request will only work if there are no nested
+      resources.
+    name: Required. Name of the resource. Format: projects/{project}/locations
+      /{location}/networkMonitoringProviders/{network_monitoring_provider}
+  """
+
+  force = _messages.BooleanField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersGenerateProviderAccessTokenRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersGeneratePr
+  oviderAccessTokenRequest object.
+
+  Fields:
+    gcpAccessToken: Required. GCP access token.
+    name: Required. Name of the resource. Format: projects/{project}/locations
+      /{location}/networkMonitoringProviders/{network_monitoring_provider}
+  """
+
+  gcpAccessToken = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersGetRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersGetRequest
+  object.
+
+  Fields:
+    name: Required. Name of the resource. Format: `projects/{project}/location
+      s/{location}/networkMonitoringProviders/{network_monitoring_provider}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersListRequest(_messages.Message):
+  r"""A
+  NetworkmanagementProjectsLocationsNetworkMonitoringProvidersListRequest
+  object.
+
+  Fields:
+    pageSize: Optional. The maximum number of monitoring points to return. The
+      service may return fewer than this value. If unspecified, at most 20
+      monitoring points will be returned. The maximum value is 1000; values
+      above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListMonitoringPoints` call. Provide this to retrieve the subsequent
+      page. When paginating, all other parameters provided to
+      `ListMonitoringPoints` must match the call that provided the page token.
+    parent: Required. Parent value for ListNetworkMonitoringProvidersRequest.
+      Format: `projects/{project}/locations/{location}`
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoring
+  PointsDownloadInstallScriptRequest object.
+
+  Enums:
+    MonitoringPointTypeValueValuesEnum: Required. The type of the monitoring
+      point.
+
+  Fields:
+    _password: Optional. Password for logging into the MonitoringPoint.
+    hostname: Required. The hostname of the MonitoringPoint, e.g. "test-vm"
+    monitoringPointType: Required. The type of the monitoring point.
+    ntpServerAddress: Optional. Network Time Protocol a user can configure. If
+      the user omits the field, the default is either NTP servers provided in
+      the DHCP lease or a set of well-known NTP servers pre-configured on the
+      monitoring point. This field can be an IP address or FQDN.
+    ntpServerSecondaryAddress: Optional. Second NTP server.
+    parent: Required. Parent value for DownloadInstallScriptRequest. Format: p
+      rojects/{project}/locations/{location}/networkMonitoringProviders/{netwo
+      rk_monitoring_provider}
+    staticIpAddress_dnsServerAddress: Required. DNS server.
+    staticIpAddress_dnsServerSecondaryAddress: Optional. Second DNS server.
+    staticIpAddress_domain: Optional. Domain name of the MonitoringPoint.
+    staticIpAddress_gatewayAddress: Required. Gateway IP address. Example:
+      "100.80.40.1".
+    staticIpAddress_ipAddress: Required. IP address of the MonitoringPoint.
+    staticIpAddress_netmask: Optional. Networkmask and CIDR range. Example:
+      "255.255.255.0/24"
+    timeZone_id: IANA Time Zone Database time zone. For example
+      "America/New_York".
+    timeZone_version: Optional. IANA Time Zone Database version number. For
+      example "2019a".
+    useDhcp: Optional. Dynamic Host Configuration Protocol, is a network
+      management protocol that automatically assigns IP addresses and other
+      network configuration parameters to devices connecting to a network.
+  """
+
+  class MonitoringPointTypeValueValuesEnum(_messages.Enum):
+    r"""Required. The type of the monitoring point.
+
+    Values:
+      MONITORING_POINT_TYPE_UNSPECIFIED: This value should not be used.
+      CONTAINER: Monitoring Point that runs in a Docker container on GCP.
+      KVM: Monitoring Point that runs in a KVM hypervisor.
+      VMWARE: Monitoring Point that runs in a VMware hypervisor.
+    """
+    MONITORING_POINT_TYPE_UNSPECIFIED = 0
+    CONTAINER = 1
+    KVM = 2
+    VMWARE = 3
+
+  _password = _messages.StringField(1)
+  hostname = _messages.StringField(2)
+  monitoringPointType = _messages.EnumField('MonitoringPointTypeValueValuesEnum', 3)
+  ntpServerAddress = _messages.StringField(4)
+  ntpServerSecondaryAddress = _messages.StringField(5)
+  parent = _messages.StringField(6, required=True)
+  staticIpAddress_dnsServerAddress = _messages.StringField(7)
+  staticIpAddress_dnsServerSecondaryAddress = _messages.StringField(8)
+  staticIpAddress_domain = _messages.StringField(9)
+  staticIpAddress_gatewayAddress = _messages.StringField(10)
+  staticIpAddress_ipAddress = _messages.StringField(11)
+  staticIpAddress_netmask = _messages.StringField(12)
+  timeZone_id = _messages.StringField(13)
+  timeZone_version = _messages.StringField(14)
+  useDhcp = _messages.BooleanField(15)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsGetRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoring
+  PointsGetRequest object.
+
+  Fields:
+    name: Required. Name of the resource. Format: projects/{project}/locations
+      /{location}/networkMonitoringProviders/{network_monitoring_provider}/mon
+      itoringPoints/{monitoring_point}
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsListRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoring
+  PointsListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of monitoring points to return. The
+      service may return fewer than this value. If unspecified, at most 20
+      monitoring points will be returned. The maximum value is 1000; values
+      above 1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListMonitoringPoints` call. Provide this to retrieve the subsequent
+      page. When paginating, all other parameters provided to
+      `ListMonitoringPoints` must match the call that provided the page token.
+    parent: Required. Parent value for ListMonitoringPointsRequest. Format: pr
+      ojects/{project}/locations/{location}/networkMonitoringProviders/{networ
+      k_monitoring_provider}
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersNetworkPathsGetRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersNetworkPat
+  hsGetRequest object.
+
+  Fields:
+    name: Required. Name of the resource. Format: projects/{project}/locations
+      /{location}/networkMonitoringProviders/{network_monitoring_provider}/net
+      workPaths/{network_path}
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersNetworkPathsListRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersNetworkPat
+  hsListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of network paths to return. The
+      service may return fewer than this value. If unspecified, at most 20
+      network pathswill be returned. The maximum value is 1000; values above
+      1000 will be coerced to 1000.
+    pageToken: Optional. A page token, received from a previous
+      `ListNetworkPaths` call. Provide this to retrieve the subsequent page.
+      When paginating, all other parameters provided to `ListNetworkPaths`
+      must match the call that provided the page token.
+    parent: Required. Parent value for ListNetworkPathsRequest. Format: projec
+      ts/{project}/locations/{location}/networkMonitoringProviders/{network_mo
+      nitoring_provider}
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersWebPathsGetRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersWebPathsGe
+  tRequest object.
+
+  Fields:
+    name: Required. Name of the resource.. Format: projects/{project}/location
+      s/{location}/networkMonitoringProviders/{network_monitoring_provider}/we
+      bPaths/{web_path}
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementProjectsLocationsNetworkMonitoringProvidersWebPathsListRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsNetworkMonitoringProvidersWebPathsLi
+  stRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of web paths to return. The service
+      may return fewer than this value. If unspecified, at most 20 web paths
+      will be returned. The maximum value is 1000; values above 1000 will be
+      coerced to 1000.
+    pageToken: Optional. A page token, received from a previous `ListWebPaths`
+      call. Provide this to retrieve the subsequent page. When paginating, all
+      other parameters provided to `ListWebPaths` must match the call that
+      provided the page token.
+    parent: Required. Parent value for ListWebPathsRequest. Format: projects/{
+      project}/locations/{location}/networkMonitoringProviders/{network_monito
+      ring_provider}
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
 
 
 class NetworkmanagementProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -2410,12 +3513,20 @@ class NetworkmanagementProjectsLocationsOperationsListRequest(_messages.Message)
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class NetworkmanagementProjectsLocationsSimulationsCreateRequest(_messages.Message):
@@ -2861,6 +3972,41 @@ class Policy(_messages.Message):
   version = _messages.IntegerField(5, variant=_messages.Variant.INT32)
 
 
+class ProviderTag(_messages.Message):
+  r"""Message describing the provider tag.
+
+  Enums:
+    ResourceTypeValueValuesEnum: Output only. The resource type of the
+      provider tag.
+
+  Fields:
+    category: Output only. The category of the provider tag.
+    resourceType: Output only. The resource type of the provider tag.
+    value: Output only. The value of the provider tag.
+  """
+
+  class ResourceTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The resource type of the provider tag.
+
+    Values:
+      RESOURCE_TYPE_UNSPECIFIED: The default value. This value is used if the
+        status is omitted.
+      NETWORK_PATH: Network path.
+      WEB_PATH: Web path.
+      MONITORING_POLICY: Monitoring policy.
+      MONITORING_POINT: Monitoring point.
+    """
+    RESOURCE_TYPE_UNSPECIFIED = 0
+    NETWORK_PATH = 1
+    WEB_PATH = 2
+    MONITORING_POLICY = 3
+    MONITORING_POINT = 4
+
+  category = _messages.StringField(1)
+  resourceType = _messages.EnumField('ResourceTypeValueValuesEnum', 2)
+  value = _messages.StringField(3)
+
+
 class ProxyConnectionInfo(_messages.Message):
   r"""For display only. Metadata associated with ProxyConnection.
 
@@ -2958,8 +4104,8 @@ class RedisClusterInfo(_messages.Message):
     displayName: Name of a Redis Cluster.
     location: Name of the region in which the Redis Cluster is defined. For
       example, "us-central1".
-    networkUri: URI of a Redis Cluster network in format
-      "projects/{project_id}/global/networks/{network_id}".
+    networkUri: URI of the network containing the Redis Cluster endpoints in
+      format "projects/{project_id}/global/networks/{network_id}".
     secondaryEndpointIpAddress: Secondary endpoint IP address of a Redis
       Cluster.
     uri: URI of a Redis Cluster in format
@@ -3001,34 +4147,56 @@ class RouteInfo(_messages.Message):
   Enums:
     NextHopTypeValueValuesEnum: Type of next hop.
     RouteScopeValueValuesEnum: Indicates where route is applicable.
+      Deprecated, routes with NCC_HUB scope are not included in the trace in
+      new tests.
     RouteTypeValueValuesEnum: Type of route.
 
   Fields:
-    advertisedRouteNextHopUri: For advertised routes, the URI of their next
+    advertisedRouteNextHopUri: For ADVERTISED routes, the URI of their next
       hop, i.e. the URI of the hybrid endpoint (VPN tunnel, Interconnect
       attachment, NCC router appliance) the advertised prefix is advertised
-      through, or URI of the source peered network.
-    advertisedRouteSourceRouterUri: For advertised dynamic routes, the URI of
+      through, or URI of the source peered network. Deprecated in favor of the
+      next_hop_uri field, not used in new tests.
+    advertisedRouteSourceRouterUri: For ADVERTISED dynamic routes, the URI of
       the Cloud Router that advertised the corresponding IP prefix.
     destIpRange: Destination IP range of the route.
-    destPortRanges: Destination port ranges of the route. Policy based routes
+    destPortRanges: Destination port ranges of the route. POLICY_BASED routes
       only.
     displayName: Name of a route.
     instanceTags: Instance tags of the route.
-    nccHubUri: URI of a NCC Hub. NCC_HUB routes only.
-    nccSpokeUri: URI of a NCC Spoke. NCC_HUB routes only.
-    networkUri: URI of a Compute Engine network. NETWORK routes only.
-    nextHop: Next hop of the route.
+    nccHubRouteUri: For PEERING_SUBNET and PEERING_DYNAMIC routes that are
+      advertised by NCC Hub, the URI of the corresponding route in NCC Hub's
+      routing table.
+    nccHubUri: URI of the NCC Hub the route is advertised by. PEERING_SUBNET
+      and PEERING_DYNAMIC routes that are advertised by NCC Hub only.
+    nccSpokeUri: URI of the destination NCC Spoke. PEERING_SUBNET and
+      PEERING_DYNAMIC routes that are advertised by NCC Hub only.
+    networkUri: URI of a VPC network where route is located.
+    nextHop: String type of the next hop of the route (for example, "VPN
+      tunnel"). Deprecated in favor of the next_hop_type and next_hop_uri
+      fields, not used in new tests.
+    nextHopNetworkUri: URI of a VPC network where the next hop resource is
+      located.
     nextHopType: Type of next hop.
+    nextHopUri: URI of the next hop resource.
+    originatingRouteDisplayName: For PEERING_SUBNET, PEERING_STATIC and
+      PEERING_DYNAMIC routes, the name of the originating
+      SUBNET/STATIC/DYNAMIC route.
+    originatingRouteUri: For PEERING_SUBNET and PEERING_STATIC routes, the URI
+      of the originating SUBNET/STATIC route.
     priority: Priority of the route.
-    protocols: Protocols of the route. Policy based routes only.
-    region: Region of the route (if applicable).
-    routeScope: Indicates where route is applicable.
+    protocols: Protocols of the route. POLICY_BASED routes only.
+    region: Region of the route. DYNAMIC, PEERING_DYNAMIC, POLICY_BASED and
+      ADVERTISED routes only. If set for POLICY_BASED route, this is a region
+      of VLAN attachments for Cloud Interconnect the route applies to.
+    routeScope: Indicates where route is applicable. Deprecated, routes with
+      NCC_HUB scope are not included in the trace in new tests.
     routeType: Type of route.
-    srcIpRange: Source IP address range of the route. Policy based routes
+    srcIpRange: Source IP address range of the route. POLICY_BASED routes
       only.
-    srcPortRanges: Source port ranges of the route. Policy based routes only.
-    uri: URI of a route (if applicable).
+    srcPortRanges: Source port ranges of the route. POLICY_BASED routes only.
+    uri: URI of a route. SUBNET, STATIC, PEERING_SUBNET (only for peering
+      network) and POLICY_BASED routes only.
   """
 
   class NextHopTypeValueValuesEnum(_messages.Enum):
@@ -3039,7 +4207,9 @@ class RouteInfo(_messages.Message):
       NEXT_HOP_IP: Next hop is an IP address.
       NEXT_HOP_INSTANCE: Next hop is a Compute Engine instance.
       NEXT_HOP_NETWORK: Next hop is a VPC network gateway.
-      NEXT_HOP_PEERING: Next hop is a peering VPC.
+      NEXT_HOP_PEERING: Next hop is a peering VPC. This scenario only happens
+        when the user doesn't have permissions to the project where the next
+        hop resource is located.
       NEXT_HOP_INTERCONNECT: Next hop is an interconnect.
       NEXT_HOP_VPN_TUNNEL: Next hop is a VPN tunnel.
       NEXT_HOP_VPN_GATEWAY: Next hop is a VPN gateway. This scenario only
@@ -3049,13 +4219,16 @@ class RouteInfo(_messages.Message):
         Cloud VPN gateway.
       NEXT_HOP_INTERNET_GATEWAY: Next hop is an internet gateway.
       NEXT_HOP_BLACKHOLE: Next hop is blackhole; that is, the next hop either
-        does not exist or is not running.
+        does not exist or is unusable.
       NEXT_HOP_ILB: Next hop is the forwarding rule of an Internal Load
         Balancer.
       NEXT_HOP_ROUTER_APPLIANCE: Next hop is a [router appliance
         instance](https://cloud.google.com/network-connectivity/docs/network-
         connectivity-center/concepts/ra-overview).
-      NEXT_HOP_NCC_HUB: Next hop is an NCC hub.
+      NEXT_HOP_NCC_HUB: Next hop is an NCC hub. This scenario only happens
+        when the user doesn't have permissions to the project where the next
+        hop resource is located.
+      SECURE_WEB_PROXY_GATEWAY: Next hop is Secure Web Proxy Gateway.
     """
     NEXT_HOP_TYPE_UNSPECIFIED = 0
     NEXT_HOP_IP = 1
@@ -3070,9 +4243,11 @@ class RouteInfo(_messages.Message):
     NEXT_HOP_ILB = 10
     NEXT_HOP_ROUTER_APPLIANCE = 11
     NEXT_HOP_NCC_HUB = 12
+    SECURE_WEB_PROXY_GATEWAY = 13
 
   class RouteScopeValueValuesEnum(_messages.Enum):
-    r"""Indicates where route is applicable.
+    r"""Indicates where route is applicable. Deprecated, routes with NCC_HUB
+    scope are not included in the trace in new tests.
 
     Values:
       ROUTE_SCOPE_UNSPECIFIED: Unspecified scope. Default value.
@@ -3092,9 +4267,10 @@ class RouteInfo(_messages.Message):
       STATIC: Static route created by the user, including the default route to
         the internet.
       DYNAMIC: Dynamic route exchanged between BGP peers.
-      PEERING_SUBNET: A subnet route received from peering network.
+      PEERING_SUBNET: A subnet route received from peering network or NCC Hub.
       PEERING_STATIC: A static route received from peering network.
-      PEERING_DYNAMIC: A dynamic route received from peering network.
+      PEERING_DYNAMIC: A dynamic route received from peering network or NCC
+        Hub.
       POLICY_BASED: Policy based route.
       ADVERTISED: Advertised route. Synthetic route which is used to
         transition from the StartFromPrivateNetwork state in Connectivity
@@ -3116,19 +4292,24 @@ class RouteInfo(_messages.Message):
   destPortRanges = _messages.StringField(4, repeated=True)
   displayName = _messages.StringField(5)
   instanceTags = _messages.StringField(6, repeated=True)
-  nccHubUri = _messages.StringField(7)
-  nccSpokeUri = _messages.StringField(8)
-  networkUri = _messages.StringField(9)
-  nextHop = _messages.StringField(10)
-  nextHopType = _messages.EnumField('NextHopTypeValueValuesEnum', 11)
-  priority = _messages.IntegerField(12, variant=_messages.Variant.INT32)
-  protocols = _messages.StringField(13, repeated=True)
-  region = _messages.StringField(14)
-  routeScope = _messages.EnumField('RouteScopeValueValuesEnum', 15)
-  routeType = _messages.EnumField('RouteTypeValueValuesEnum', 16)
-  srcIpRange = _messages.StringField(17)
-  srcPortRanges = _messages.StringField(18, repeated=True)
-  uri = _messages.StringField(19)
+  nccHubRouteUri = _messages.StringField(7)
+  nccHubUri = _messages.StringField(8)
+  nccSpokeUri = _messages.StringField(9)
+  networkUri = _messages.StringField(10)
+  nextHop = _messages.StringField(11)
+  nextHopNetworkUri = _messages.StringField(12)
+  nextHopType = _messages.EnumField('NextHopTypeValueValuesEnum', 13)
+  nextHopUri = _messages.StringField(14)
+  originatingRouteDisplayName = _messages.StringField(15)
+  originatingRouteUri = _messages.StringField(16)
+  priority = _messages.IntegerField(17, variant=_messages.Variant.INT32)
+  protocols = _messages.StringField(18, repeated=True)
+  region = _messages.StringField(19)
+  routeScope = _messages.EnumField('RouteScopeValueValuesEnum', 20)
+  routeType = _messages.EnumField('RouteTypeValueValuesEnum', 21)
+  srcIpRange = _messages.StringField(22)
+  srcPortRanges = _messages.StringField(23, repeated=True)
+  uri = _messages.StringField(24)
 
 
 class Rule(_messages.Message):
@@ -3150,7 +4331,7 @@ class Rule(_messages.Message):
       the PRINCIPAL/AUTHORITY_SELECTOR is in none of the entries. The format
       for in and not_in entries can be found at in the Local IAM documentation
       (see go/local-iam#features).
-    permissions: A permission is a string of form '..' (e.g.,
+    permissions: A permission is a string of form `..` (e.g.,
       'storage.buckets.list'). A value of '*' matches all permissions, and a
       verb part of '*' (e.g., 'storage.buckets.*') matches all verbs.
   """
@@ -3182,6 +4363,18 @@ class Rule(_messages.Message):
   logConfig = _messages.MessageField('LogConfig', 5, repeated=True)
   notIn = _messages.StringField(6, repeated=True)
   permissions = _messages.StringField(7, repeated=True)
+
+
+class ServerlessExternalConnectionInfo(_messages.Message):
+  r"""For display only. Metadata associated with a serverless public
+  connection.
+
+  Fields:
+    selectedIpAddress: Selected starting IP address, from the Google dynamic
+      address pool.
+  """
+
+  selectedIpAddress = _messages.StringField(1)
 
 
 class ServerlessNegInfo(_messages.Message):
@@ -3487,6 +4680,7 @@ class Step(_messages.Message):
 
   Fields:
     abort: Display information of the final state "abort" and reason.
+    alloyDbInstance: Display information of an AlloyDB instance.
     appEngineVersion: Display information of an App Engine service version.
     causesDrop: This is a step that leads to the final state Drop.
     cloudFunction: Display information of a Cloud Function.
@@ -3495,6 +4689,8 @@ class Step(_messages.Message):
     deliver: Display information of the final state "deliver" and reason.
     description: A description of the step. Usually this is a summary of the
       state.
+    directVpcEgressConnection: Display information of a serverless direct VPC
+      egress connection.
     drop: Display information of the final state "drop" and reason.
     endpoint: Display information of the source and destination under
       analysis. The endpoint information in an intermediate state may differ
@@ -3505,8 +4701,13 @@ class Step(_messages.Message):
     forwardingRule: Display information of a Compute Engine forwarding rule.
     gkeMaster: Display information of a Google Kubernetes Engine cluster
       master.
+    gkePod: Display information of a Google Kubernetes Engine Pod.
     googleService: Display information of a Google service
+    hybridSubnet: Display information of a hybrid subnet.
     instance: Display information of a Compute Engine instance.
+    interconnectAttachment: Display information of an interconnect attachment.
+    ipMasqueradingSkipped: Display information of the reason why GKE Pod IP
+      masquerading was skipped.
     loadBalancer: Display information of the load balancers. Deprecated in
       favor of the `load_balancer_backend_info` field, not used in new tests.
     loadBalancerBackendInfo: Display information of a specific load balancer
@@ -3519,6 +4720,8 @@ class Step(_messages.Message):
     redisCluster: Display information of a Redis Cluster.
     redisInstance: Display information of a Redis Instance.
     route: Display information of a Compute Engine route.
+    serverlessExternalConnection: Display information of a serverless public
+      (external) connection.
     serverlessNeg: Display information of a Serverless network endpoint group
       backend. Used only for return traces.
     state: Each step is in one of the pre-defined states.
@@ -3551,12 +4754,18 @@ class Step(_messages.Message):
       START_FROM_CLOUD_SQL_INSTANCE: Initial state: packet originating from a
         Cloud SQL instance. A CloudSQLInstanceInfo is populated with starting
         instance information.
+      START_FROM_GKE_POD: Initial state: packet originating from a Google
+        Kubernetes Engine Pod. A GkePodInfo is populated with starting Pod
+        information.
       START_FROM_REDIS_INSTANCE: Initial state: packet originating from a
         Redis instance. A RedisInstanceInfo is populated with starting
         instance information.
       START_FROM_REDIS_CLUSTER: Initial state: packet originating from a Redis
         Cluster. A RedisClusterInfo is populated with starting Cluster
         information.
+      START_FROM_ALLOY_DB_INSTANCE: Initial state: packet originating from a
+        AlloyDB instance. An AlloyDbInstanceInfo is populated with starting
+        instance information.
       START_FROM_CLOUD_FUNCTION: Initial state: packet originating from a
         Cloud Function. A CloudFunctionInfo is populated with starting
         function information.
@@ -3593,11 +4802,24 @@ class Step(_messages.Message):
       ARRIVE_AT_EXTERNAL_LOAD_BALANCER: Forwarding state: arriving at a
         Compute Engine external load balancer. Deprecated in favor of the
         `ANALYZE_LOAD_BALANCER_BACKEND` state, not used in new tests.
+      ARRIVE_AT_HYBRID_SUBNET: Forwarding state: arriving at a hybrid subnet.
+        Appropriate routing configuration will be determined here.
       ARRIVE_AT_VPN_GATEWAY: Forwarding state: arriving at a Cloud VPN
         gateway.
       ARRIVE_AT_VPN_TUNNEL: Forwarding state: arriving at a Cloud VPN tunnel.
+      ARRIVE_AT_INTERCONNECT_ATTACHMENT: Forwarding state: arriving at an
+        interconnect attachment.
       ARRIVE_AT_VPC_CONNECTOR: Forwarding state: arriving at a VPC connector.
-      NAT: Transition state: packet header translated.
+      DIRECT_VPC_EGRESS_CONNECTION: Forwarding state: for packets originating
+        from a serverless endpoint forwarded through Direct VPC egress.
+      SERVERLESS_EXTERNAL_CONNECTION: Forwarding state: for packets
+        originating from a serverless endpoint forwarded through public
+        (external) connectivity.
+      NAT: Transition state: packet header translated. The `nat` field is
+        populated with the translation information.
+      SKIP_GKE_POD_IP_MASQUERADING: Transition state: GKE Pod IP masquerading
+        is skipped. The `ip_masquerading_skipped` field is populated with the
+        reason.
       PROXY_CONNECTION: Transition state: original connection is terminated
         and a new proxied connection is initiated.
       DELIVER: Final state: packet could be delivered.
@@ -3615,65 +4837,79 @@ class Step(_messages.Message):
     START_FROM_PRIVATE_NETWORK = 4
     START_FROM_GKE_MASTER = 5
     START_FROM_CLOUD_SQL_INSTANCE = 6
-    START_FROM_REDIS_INSTANCE = 7
-    START_FROM_REDIS_CLUSTER = 8
-    START_FROM_CLOUD_FUNCTION = 9
-    START_FROM_APP_ENGINE_VERSION = 10
-    START_FROM_CLOUD_RUN_REVISION = 11
-    START_FROM_STORAGE_BUCKET = 12
-    START_FROM_PSC_PUBLISHED_SERVICE = 13
-    START_FROM_SERVERLESS_NEG = 14
-    APPLY_INGRESS_FIREWALL_RULE = 15
-    APPLY_EGRESS_FIREWALL_RULE = 16
-    APPLY_ROUTE = 17
-    APPLY_FORWARDING_RULE = 18
-    ANALYZE_LOAD_BALANCER_BACKEND = 19
-    SPOOFING_APPROVED = 20
-    ARRIVE_AT_INSTANCE = 21
-    ARRIVE_AT_INTERNAL_LOAD_BALANCER = 22
-    ARRIVE_AT_EXTERNAL_LOAD_BALANCER = 23
-    ARRIVE_AT_VPN_GATEWAY = 24
-    ARRIVE_AT_VPN_TUNNEL = 25
-    ARRIVE_AT_VPC_CONNECTOR = 26
-    NAT = 27
-    PROXY_CONNECTION = 28
-    DELIVER = 29
-    DROP = 30
-    FORWARD = 31
-    ABORT = 32
-    VIEWER_PERMISSION_MISSING = 33
+    START_FROM_GKE_POD = 7
+    START_FROM_REDIS_INSTANCE = 8
+    START_FROM_REDIS_CLUSTER = 9
+    START_FROM_ALLOY_DB_INSTANCE = 10
+    START_FROM_CLOUD_FUNCTION = 11
+    START_FROM_APP_ENGINE_VERSION = 12
+    START_FROM_CLOUD_RUN_REVISION = 13
+    START_FROM_STORAGE_BUCKET = 14
+    START_FROM_PSC_PUBLISHED_SERVICE = 15
+    START_FROM_SERVERLESS_NEG = 16
+    APPLY_INGRESS_FIREWALL_RULE = 17
+    APPLY_EGRESS_FIREWALL_RULE = 18
+    APPLY_ROUTE = 19
+    APPLY_FORWARDING_RULE = 20
+    ANALYZE_LOAD_BALANCER_BACKEND = 21
+    SPOOFING_APPROVED = 22
+    ARRIVE_AT_INSTANCE = 23
+    ARRIVE_AT_INTERNAL_LOAD_BALANCER = 24
+    ARRIVE_AT_EXTERNAL_LOAD_BALANCER = 25
+    ARRIVE_AT_HYBRID_SUBNET = 26
+    ARRIVE_AT_VPN_GATEWAY = 27
+    ARRIVE_AT_VPN_TUNNEL = 28
+    ARRIVE_AT_INTERCONNECT_ATTACHMENT = 29
+    ARRIVE_AT_VPC_CONNECTOR = 30
+    DIRECT_VPC_EGRESS_CONNECTION = 31
+    SERVERLESS_EXTERNAL_CONNECTION = 32
+    NAT = 33
+    SKIP_GKE_POD_IP_MASQUERADING = 34
+    PROXY_CONNECTION = 35
+    DELIVER = 36
+    DROP = 37
+    FORWARD = 38
+    ABORT = 39
+    VIEWER_PERMISSION_MISSING = 40
 
   abort = _messages.MessageField('AbortInfo', 1)
-  appEngineVersion = _messages.MessageField('AppEngineVersionInfo', 2)
-  causesDrop = _messages.BooleanField(3)
-  cloudFunction = _messages.MessageField('CloudFunctionInfo', 4)
-  cloudRunRevision = _messages.MessageField('CloudRunRevisionInfo', 5)
-  cloudSqlInstance = _messages.MessageField('CloudSQLInstanceInfo', 6)
-  deliver = _messages.MessageField('DeliverInfo', 7)
-  description = _messages.StringField(8)
-  drop = _messages.MessageField('DropInfo', 9)
-  endpoint = _messages.MessageField('EndpointInfo', 10)
-  firewall = _messages.MessageField('FirewallInfo', 11)
-  forward = _messages.MessageField('ForwardInfo', 12)
-  forwardingRule = _messages.MessageField('ForwardingRuleInfo', 13)
-  gkeMaster = _messages.MessageField('GKEMasterInfo', 14)
-  googleService = _messages.MessageField('GoogleServiceInfo', 15)
-  instance = _messages.MessageField('InstanceInfo', 16)
-  loadBalancer = _messages.MessageField('LoadBalancerInfo', 17)
-  loadBalancerBackendInfo = _messages.MessageField('LoadBalancerBackendInfo', 18)
-  nat = _messages.MessageField('NatInfo', 19)
-  network = _messages.MessageField('NetworkInfo', 20)
-  projectId = _messages.StringField(21)
-  proxyConnection = _messages.MessageField('ProxyConnectionInfo', 22)
-  redisCluster = _messages.MessageField('RedisClusterInfo', 23)
-  redisInstance = _messages.MessageField('RedisInstanceInfo', 24)
-  route = _messages.MessageField('RouteInfo', 25)
-  serverlessNeg = _messages.MessageField('ServerlessNegInfo', 26)
-  state = _messages.EnumField('StateValueValuesEnum', 27)
-  storageBucket = _messages.MessageField('StorageBucketInfo', 28)
-  vpcConnector = _messages.MessageField('VpcConnectorInfo', 29)
-  vpnGateway = _messages.MessageField('VpnGatewayInfo', 30)
-  vpnTunnel = _messages.MessageField('VpnTunnelInfo', 31)
+  alloyDbInstance = _messages.MessageField('AlloyDbInstanceInfo', 2)
+  appEngineVersion = _messages.MessageField('AppEngineVersionInfo', 3)
+  causesDrop = _messages.BooleanField(4)
+  cloudFunction = _messages.MessageField('CloudFunctionInfo', 5)
+  cloudRunRevision = _messages.MessageField('CloudRunRevisionInfo', 6)
+  cloudSqlInstance = _messages.MessageField('CloudSQLInstanceInfo', 7)
+  deliver = _messages.MessageField('DeliverInfo', 8)
+  description = _messages.StringField(9)
+  directVpcEgressConnection = _messages.MessageField('DirectVpcEgressConnectionInfo', 10)
+  drop = _messages.MessageField('DropInfo', 11)
+  endpoint = _messages.MessageField('EndpointInfo', 12)
+  firewall = _messages.MessageField('FirewallInfo', 13)
+  forward = _messages.MessageField('ForwardInfo', 14)
+  forwardingRule = _messages.MessageField('ForwardingRuleInfo', 15)
+  gkeMaster = _messages.MessageField('GKEMasterInfo', 16)
+  gkePod = _messages.MessageField('GkePodInfo', 17)
+  googleService = _messages.MessageField('GoogleServiceInfo', 18)
+  hybridSubnet = _messages.MessageField('HybridSubnetInfo', 19)
+  instance = _messages.MessageField('InstanceInfo', 20)
+  interconnectAttachment = _messages.MessageField('InterconnectAttachmentInfo', 21)
+  ipMasqueradingSkipped = _messages.MessageField('IpMasqueradingSkippedInfo', 22)
+  loadBalancer = _messages.MessageField('LoadBalancerInfo', 23)
+  loadBalancerBackendInfo = _messages.MessageField('LoadBalancerBackendInfo', 24)
+  nat = _messages.MessageField('NatInfo', 25)
+  network = _messages.MessageField('NetworkInfo', 26)
+  projectId = _messages.StringField(27)
+  proxyConnection = _messages.MessageField('ProxyConnectionInfo', 28)
+  redisCluster = _messages.MessageField('RedisClusterInfo', 29)
+  redisInstance = _messages.MessageField('RedisInstanceInfo', 30)
+  route = _messages.MessageField('RouteInfo', 31)
+  serverlessExternalConnection = _messages.MessageField('ServerlessExternalConnectionInfo', 32)
+  serverlessNeg = _messages.MessageField('ServerlessNegInfo', 33)
+  state = _messages.EnumField('StateValueValuesEnum', 34)
+  storageBucket = _messages.MessageField('StorageBucketInfo', 35)
+  vpcConnector = _messages.MessageField('VpcConnectorInfo', 36)
+  vpnGateway = _messages.MessageField('VpnGatewayInfo', 37)
+  vpnTunnel = _messages.MessageField('VpnTunnelInfo', 38)
 
 
 class StorageBucketInfo(_messages.Message):
@@ -3822,6 +5058,87 @@ class VpnTunnelInfo(_messages.Message):
   uri = _messages.StringField(9)
 
 
+class WebPath(_messages.Message):
+  r"""Message describing WebPath resource.
+
+  Enums:
+    MonitoringStatusValueValuesEnum: Output only. The monitoring status of the
+      WebPath.
+    WorkflowTypeValueValuesEnum: Output only. The workflow type of the
+      WebPath.
+
+  Fields:
+    createTime: Output only. The time the WebPath was created.
+    destination: Output only. Web monitoring target.
+    destinationGeoLocation: Output only. Geographical location of the
+      destination.
+    displayName: Output only. Display name of the WebPath.
+    interval: Output only. Monitoring interval.
+    monitoringEnabled: Output only. Is monitoring enabled for the WebPath.
+    monitoringPolicyDisplayName: Output only. Display name of the monitoring
+      policy.
+    monitoringPolicyId: Output only. ID of the monitoring policy.
+    monitoringStatus: Output only. The monitoring status of the WebPath.
+    name: Identifier. Name of the resource. Format: `projects/{project}/locati
+      ons/{location}/networkMonitoringProviders/{network_monitoring_provider}/
+      webPaths/{web_path}`
+    providerTags: Output only. The provider tags of the web path.
+    providerUiUri: Output only. Link to provider's UI; link shows the WebPath.
+    relatedNetworkPathId: Output only. Provider's UUID of the related
+      NetworkPath.
+    sourceMonitoringPointId: Output only. ID of the source MonitoringPoint.
+    updateTime: Output only. The time the WebPath was updated.
+    workflowType: Output only. The workflow type of the WebPath.
+  """
+
+  class MonitoringStatusValueValuesEnum(_messages.Enum):
+    r"""Output only. The monitoring status of the WebPath.
+
+    Values:
+      MONITORING_STATUS_UNSPECIFIED: The default value. This value is used if
+        the status is omitted.
+      MONITORING: Monitoring is enabled.
+      POLICY_MISMATCH: Policy is mismatched.
+      MONITORING_POINT_OFFLINE: Monitoring point is offline.
+      DISABLED: Monitoring is disabled.
+    """
+    MONITORING_STATUS_UNSPECIFIED = 0
+    MONITORING = 1
+    POLICY_MISMATCH = 2
+    MONITORING_POINT_OFFLINE = 3
+    DISABLED = 4
+
+  class WorkflowTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. The workflow type of the WebPath.
+
+    Values:
+      WORKFLOW_TYPE_UNSPECIFIED: The default value. This value is used if the
+        status is omitted.
+      BROWSER: Browser.
+      HTTP: HTTP.
+    """
+    WORKFLOW_TYPE_UNSPECIFIED = 0
+    BROWSER = 1
+    HTTP = 2
+
+  createTime = _messages.StringField(1)
+  destination = _messages.StringField(2)
+  destinationGeoLocation = _messages.MessageField('GeoLocation', 3)
+  displayName = _messages.StringField(4)
+  interval = _messages.StringField(5)
+  monitoringEnabled = _messages.BooleanField(6)
+  monitoringPolicyDisplayName = _messages.StringField(7)
+  monitoringPolicyId = _messages.StringField(8)
+  monitoringStatus = _messages.EnumField('MonitoringStatusValueValuesEnum', 9)
+  name = _messages.StringField(10)
+  providerTags = _messages.MessageField('ProviderTag', 11, repeated=True)
+  providerUiUri = _messages.StringField(12)
+  relatedNetworkPathId = _messages.StringField(13)
+  sourceMonitoringPointId = _messages.StringField(14)
+  updateTime = _messages.StringField(15)
+  workflowType = _messages.EnumField('WorkflowTypeValueValuesEnum', 16)
+
+
 encoding.AddCustomJsonFieldMapping(
     Rule, 'in_', 'in')
 encoding.AddCustomJsonFieldMapping(
@@ -3830,5 +5147,21 @@ encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_1', '1')
 encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_2', '2')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_dnsServerAddress', 'staticIpAddress.dnsServerAddress')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_dnsServerSecondaryAddress', 'staticIpAddress.dnsServerSecondaryAddress')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_domain', 'staticIpAddress.domain')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_gatewayAddress', 'staticIpAddress.gatewayAddress')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_ipAddress', 'staticIpAddress.ipAddress')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'staticIpAddress_netmask', 'staticIpAddress.netmask')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'timeZone_id', 'timeZone.id')
+encoding.AddCustomJsonFieldMapping(
+    NetworkmanagementProjectsLocationsNetworkMonitoringProvidersMonitoringPointsDownloadInstallScriptRequest, 'timeZone_version', 'timeZone.version')
 encoding.AddCustomJsonFieldMapping(
     NetworkmanagementProjectsLocationsSimulationsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')

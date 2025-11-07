@@ -139,7 +139,7 @@ class DatacatalogV1(base_api.BaseApiClient):
           }
 
     def RetrieveConfig(self, request, global_params=None):
-      r"""Retrieves the configuration related to the migration from Data Catalog to Dataplex for a specific organization, including all the projects under it which have a separate configuration set.
+      r"""Retrieves the configuration related to the migration from Data Catalog to Dataplex Universal Catalog for a specific organization, including all the projects under it which have a separate configuration set.
 
       Args:
         request: (DatacatalogOrganizationsLocationsRetrieveConfigRequest) input message
@@ -166,7 +166,7 @@ class DatacatalogV1(base_api.BaseApiClient):
     )
 
     def RetrieveEffectiveConfig(self, request, global_params=None):
-      r"""Retrieves the effective configuration related to the migration from Data Catalog to Dataplex for a specific organization or project. If there is no specific configuration set for the resource, the setting is checked hierarchicahlly through the ancestors of the resource, starting from the resource itself.
+      r"""Retrieves the effective configuration related to the migration from Data Catalog to Dataplex Universal Catalog for a specific organization or project. If there is no specific configuration set for the resource, the setting is checked hierarchicahlly through the ancestors of the resource, starting from the resource itself.
 
       Args:
         request: (DatacatalogOrganizationsLocationsRetrieveEffectiveConfigRequest) input message
@@ -193,7 +193,7 @@ class DatacatalogV1(base_api.BaseApiClient):
     )
 
     def SetConfig(self, request, global_params=None):
-      r"""Sets the configuration related to the migration to Dataplex for an organization or project.
+      r"""Sets the configuration related to the migration to Dataplex Universal Catalog for an organization or project.
 
       Args:
         request: (DatacatalogOrganizationsLocationsSetConfigRequest) input message
@@ -348,7 +348,7 @@ class DatacatalogV1(base_api.BaseApiClient):
     )
 
     def Reconcile(self, request, global_params=None):
-      r"""`ReconcileTags` creates or updates a list of tags on the entry. If the ReconcileTagsRequest.force_delete_missing parameter is set, the operation deletes tags not included in the input tag list. `ReconcileTags` returns a long-running operation resource that can be queried with Operations.GetOperation to return ReconcileTagsMetadata and a ReconcileTagsResponse message.
+      r"""`ReconcileTags` creates or updates a list of tags on the entry. If the ReconcileTagsRequest.force_delete_missing parameter is set, the operation deletes tags not included in the input tag list. `ReconcileTags` returns a long-running operation resource that can be queried with Operations.GetOperation to return ReconcileTagsMetadata and a ReconcileTagsResponse message. Note: SearchCatalog might return stale search results for up to 24 hours after the `ReconcileTags` operation completes.
 
       Args:
         request: (DatacatalogProjectsLocationsEntryGroupsEntriesTagsReconcileRequest) input message
@@ -1063,7 +1063,7 @@ class DatacatalogV1(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (DatacatalogProjectsLocationsOperationsCancelRequest) input message
@@ -1162,7 +1162,7 @@ class DatacatalogV1(base_api.BaseApiClient):
         method_id='datacatalog.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1/{+name}/operations',
         request_field='',
         request_type_name='DatacatalogProjectsLocationsOperationsListRequest',
@@ -2068,7 +2068,7 @@ class DatacatalogV1(base_api.BaseApiClient):
           }
 
     def RetrieveEffectiveConfig(self, request, global_params=None):
-      r"""Retrieves the effective configuration related to the migration from Data Catalog to Dataplex for a specific organization or project. If there is no specific configuration set for the resource, the setting is checked hierarchicahlly through the ancestors of the resource, starting from the resource itself.
+      r"""Retrieves the effective configuration related to the migration from Data Catalog to Dataplex Universal Catalog for a specific organization or project. If there is no specific configuration set for the resource, the setting is checked hierarchicahlly through the ancestors of the resource, starting from the resource itself.
 
       Args:
         request: (DatacatalogProjectsLocationsRetrieveEffectiveConfigRequest) input message
@@ -2095,7 +2095,7 @@ class DatacatalogV1(base_api.BaseApiClient):
     )
 
     def SetConfig(self, request, global_params=None):
-      r"""Sets the configuration related to the migration to Dataplex for an organization or project.
+      r"""Sets the configuration related to the migration to Dataplex Universal Catalog for an organization or project.
 
       Args:
         request: (DatacatalogProjectsLocationsSetConfigRequest) input message

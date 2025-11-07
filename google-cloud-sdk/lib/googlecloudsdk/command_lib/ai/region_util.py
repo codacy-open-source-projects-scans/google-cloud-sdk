@@ -25,6 +25,34 @@ from googlecloudsdk.core import properties
 from googlecloudsdk.core.console import console_io
 
 
+def _IsDefaultUniverse():
+  return (
+      properties.VALUES.core.universe_domain.Get()
+      == properties.VALUES.core.universe_domain.default
+  )
+
+
+def _HandleNonDefaultUniverseRegion():
+  """Handles region selection for non-default universes."""
+  non_default_universe_regions = constants.NON_DEFAULT_UNIVERSE_REGIONS
+  if not non_default_universe_regions:
+    return None
+
+  if len(non_default_universe_regions) == 1:
+    return non_default_universe_regions[0]
+
+  # Prompt only if console is available and there are multiple non-default
+  # regions
+  if console_io.CanPrompt():
+    all_regions = list(non_default_universe_regions)
+    idx = console_io.PromptChoice(
+        all_regions, message='Please specify a region:\n', cancel_option=True)
+    return all_regions[idx]
+  # When cannot prompt, returns the first region in the list as a default
+  # choice.
+  return None
+
+
 def GetPromptForRegionFunc(available_regions=constants.SUPPORTED_REGION):
   """Returns a no argument function that prompts available regions and catches the user selection."""
   return lambda: PromptForRegion(available_regions)
@@ -40,8 +68,11 @@ def PromptForRegion(available_regions=constants.SUPPORTED_REGION):
     available_regions: list of the available regions to choose from
 
   Returns:
-    The region specified by the user, str
+    The region specified by the user, str, or None if not in GDU or cannot
+    prompt.
   """
+  if not _IsDefaultUniverse():
+    return _HandleNonDefaultUniverseRegion()
 
   if console_io.CanPrompt():
     all_regions = list(available_regions)
@@ -60,11 +91,11 @@ def PromptForOpRegion():
   for getting the region.
 
   Returns:
-    The region specified by the user, str
-
-  Raises:
-    RequiredArgumentException: If can not prompt a console for region.
+    The region specified by the user, str, or None if not in GDU or cannot
+    prompt.
   """
+  if not _IsDefaultUniverse():
+    return _HandleNonDefaultUniverseRegion()
 
   if console_io.CanPrompt():
     all_regions = list(constants.SUPPORTED_OP_REGIONS)
@@ -74,10 +105,6 @@ def PromptForOpRegion():
     log.status.Print('To make this the default region, run '
                      '`gcloud config set ai/region {}`.\n'.format(region))
     return region
-  raise exceptions.RequiredArgumentException(
-      '--region',
-      ('Cannot prompt a console for region. Region is required. '
-       'Please specify `--region` to select a region.'))
 
 
 def PromptForDeploymentResourcePoolSupportedRegion():
@@ -87,11 +114,11 @@ def PromptForDeploymentResourcePoolSupportedRegion():
   for getting the region.
 
   Returns:
-    The region specified by the user, str
-
-  Raises:
-    RequiredArgumentException: If can not prompt a console for region.
+    The region specified by the user, str, or None if not in GDU or cannot
+    prompt.
   """
+  if not _IsDefaultUniverse():
+    return _HandleNonDefaultUniverseRegion()
 
   if console_io.CanPrompt():
     all_regions = list(constants.SUPPORTED_DEPLOYMENT_RESOURCE_POOL_REGIONS)
@@ -101,10 +128,6 @@ def PromptForDeploymentResourcePoolSupportedRegion():
     log.status.Print('To make this the default region, run '
                      '`gcloud config set ai/region {}`.\n'.format(region))
     return region
-  raise exceptions.RequiredArgumentException(
-      '--region',
-      ('Cannot prompt a console for region. Region is required. '
-       'Please specify `--region` to select a region.'))
 
 
 def GetRegion(args, prompt_func=PromptForRegion):
@@ -113,7 +136,7 @@ def GetRegion(args, prompt_func=PromptForRegion):
     Region is decided in the following order:
   - region argument;
   - ai/region gcloud config;
-  - prompt user input.
+  - prompt user input (only in GDU).
 
   Args:
     args: Namespace, The args namespace.

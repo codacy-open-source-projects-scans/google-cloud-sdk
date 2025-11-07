@@ -14,10 +14,6 @@
 # limitations under the License.
 """Useful commands for interacting with the Cloud Filestore API."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 from apitools.base.py import list_pager
 from googlecloudsdk.api_lib.compute import utils
 from googlecloudsdk.api_lib.util import apis
@@ -70,6 +66,14 @@ class InvalidCapacityError(Error):
 
 class InvalidNameError(Error):
   """Raised when an invalid file share name value is provided."""
+
+
+class InvalidDisconnectManagedADError(Error):
+  """Raised when an invalid disconnect managed AD value is provided."""
+
+
+class InvalidDisconnectLdapError(Error):
+  """Raised when an invalid LDAP value is provided."""
 
 
 class FilestoreClient(object):
@@ -285,9 +289,11 @@ class FilestoreClient(object):
       nfs_export_options=None,
       kms_key_name=None,
       managed_ad=None,
+      ldap=None,
       source_instance=None,
       deletion_protection_enabled=None,
       deletion_protection_reason=None,
+      backend_type=None,
   ):
     """Parses the command line arguments for Create into a config.
 
@@ -304,9 +310,11 @@ class FilestoreClient(object):
       nfs_export_options: The nfs export options for the file share.
       kms_key_name: The kms key for instance encryption.
       managed_ad: The Managed Active Directory settings of the instance.
+      ldap: The LDAPS configuration of the instance.
       source_instance: The replication source of the instance.
       deletion_protection_enabled: bool, whether to enable deletion protection.
       deletion_protection_reason: The reason for enabling deletion protection.
+      backend_type: The backend type of the instance (Compute or Filestore).
 
     Returns:
       The configuration that will be used as the request body for creating a
@@ -322,10 +330,16 @@ class FilestoreClient(object):
     # In case of Beta API, protocol is never 'None' (the default is 'NFS_V3').
     if protocol:
       instance.protocol = protocol
+    # 'instance.backendType' is a member of 'instance' structure only in
+    # Beta API.
+    if backend_type:
+      instance.backendType = backend_type
     # 'instance.directoryServices' is a member of 'instance' structure only in
     # Beta API.
     if managed_ad:
       self._adapter.ParseManagedADIntoInstance(instance, managed_ad)
+    if ldap:
+      self._adapter.ParseLdapIntoInstance(instance, ldap)
     if source_instance:
       self._adapter.ParseSourceInstanceIntoInstance(instance, source_instance)
     # 'instance.performance' is a member of 'instance' structure only in
@@ -349,8 +363,21 @@ class FilestoreClient(object):
       network_config.network = network.get('name')
       if 'reserved-ip-range' in network:
         network_config.reservedIpRange = network['reserved-ip-range']
+      if 'address-mode' in network:
+        network_config.modes = [
+            self.messages.NetworkConfig.ModesValueListEntryValuesEnum.lookup_by_name(
+                network['address-mode']
+            )
+        ]
       connect_mode = network.get('connect-mode', 'DIRECT_PEERING')
       self._adapter.ParseConnectMode(network_config, connect_mode)
+      # 'instance.PscConfig' is a member of 'instance' structure only in
+      # Beta, V1 APIs.
+      psc_endpoint_project = network.get('psc-endpoint-project')
+      if psc_endpoint_project:
+        self._adapter.ParsePscEndpointProject(
+            psc_endpoint_project, network_config
+        )
       instance.networks.append(network_config)
 
     if deletion_protection_enabled is not None:
@@ -370,6 +397,8 @@ class FilestoreClient(object):
       performance=None,
       managed_ad=None,
       disconnect_managed_ad=None,
+      ldap=None,
+      disconnect_ldap=None,
       clear_nfs_export_options=False,
       deletion_protection_enabled=None,
       deletion_protection_reason=None,
@@ -384,6 +413,8 @@ class FilestoreClient(object):
       performance: The performance configuration for the instance.
       managed_ad: The Managed Active Directory settings of the instance.
       disconnect_managed_ad: Disconnect from Managed Active Directory.
+      ldap: The LDAP configuration of the instance.
+      disconnect_ldap: Disconnect from LDAP.
       clear_nfs_export_options: bool, whether to clear the NFS export options.
       deletion_protection_enabled: bool, whether to enable deletion protection.
       deletion_protection_reason: The reason for enabling deletion protection.
@@ -404,6 +435,8 @@ class FilestoreClient(object):
         performance=performance,
         managed_ad=managed_ad,
         disconnect_managed_ad=disconnect_managed_ad,
+        ldap=ldap,
+        disconnect_ldap=disconnect_ldap,
         clear_nfs_export_options=clear_nfs_export_options,
         deletion_protection_enabled=deletion_protection_enabled,
         deletion_protection_reason=deletion_protection_reason,
@@ -540,6 +573,7 @@ class FilestoreClient(object):
           accessMode=access_mode,
           squashMode=squash_mode,
           securityFlavors=security_flavors_list,
+          network=nfs_export_option.get('network', None),
       )
       nfs_export_configs.append(nfs_export_config)
     return nfs_export_configs
@@ -662,6 +696,8 @@ class AlphaFilestoreAdapter(object):
       performance=None,
       managed_ad=None,
       disconnect_managed_ad=None,
+      ldap=None,
+      disconnect_ldap=None,
       clear_nfs_export_options=False,
       deletion_protection_enabled=None,
       deletion_protection_reason=None,
@@ -701,7 +737,22 @@ class AlphaFilestoreAdapter(object):
 
     if managed_ad:
       self.ParseManagedADIntoInstance(instance_config, managed_ad)
+    if ldap:
+      self.ParseLdapIntoInstance(instance_config, ldap)
+    if disconnect_ldap:
+      if not getattr(instance_config.directoryServices, 'ldap', None):
+        raise InvalidDisconnectLdapError(
+            '`--disconnect-ldap` must be used when ldap is connected.'
+        )
+      instance_config.directoryServices = None
     if disconnect_managed_ad:
+      if not getattr(
+          instance_config.directoryServices, 'managedActiveDirectory', None
+      ):
+        raise InvalidDisconnectManagedADError(
+            '`--disconnect-managed-ad` must be used when managed-ad is'
+            ' connected.'
+        )
       instance_config.directoryServices = None
 
     if deletion_protection_enabled is not None:
@@ -793,24 +844,60 @@ class BetaFilestoreAdapter(AlphaFilestoreAdapter):
 
     Args:
       instance: The filestore instance struct.
-      managed_ad: The managed_ad cli paramters
+      managed_ad: The --managed-ad flag value.
 
     Raises:
       InvalidArgumentError: If managed_ad argument constraints are violated.
     """
     domain = managed_ad.get('domain')
     if domain is None:
-      raise InvalidArgumentError('Domain parameter is missing in --managed_ad.')
+      raise InvalidArgumentError('Domain parameter is missing in --managed-ad.')
     computer = managed_ad.get('computer')
     if computer is None:
       raise InvalidArgumentError(
-          'Computer parameter is missing in --managed_ad.'
+          'Computer parameter is missing in --managed-ad.'
       )
 
     instance.directoryServices = self.messages.DirectoryServicesConfig(
         managedActiveDirectory=self.messages.ManagedActiveDirectoryConfig(
             domain=domain, computer=computer
         )
+    )
+
+  def ParseLdapIntoInstance(self, instance, ldap):
+    """Parses ldap configs into an instance message.
+
+    Args:
+      instance: The filestore instance struct.
+      ldap: The ldap cli parameters
+
+    Raises:
+      InvalidArgumentError: If ldap argument constraints are violated.
+    """
+    domain = ldap.get('domain')
+    if domain is None:
+      raise InvalidArgumentError('Domain parameter is missing in `--ldap`.')
+    servers = ldap.get('servers')
+    if servers is None:
+      raise InvalidArgumentError('Servers parameter is missing in `--ldap`.')
+    servers = servers.split(',')
+    usersou = ldap.get('users-ou')
+    groupsou = ldap.get('groups-ou')
+    # usersou and groupsou are optional
+
+    instance.directoryServices = self.messages.DirectoryServicesConfig(
+        ldap=self.messages.LdapConfig(
+            domain=domain,
+            servers=servers,
+            usersOu=usersou,
+            groupsOu=groupsou,
+        )
+    )
+
+  def ParsePscEndpointProject(self, psc_endpoint_project, network_config):
+    """Parse and match the supplied PSC config."""
+    network_config.pscConfig = self.messages.PscConfig(
+        endpointProject=psc_endpoint_project
     )
 
   def ParseSourceInstanceIntoInstance(self, instance, source_instance):
@@ -919,6 +1006,60 @@ class FilestoreAdapter(BetaFilestoreAdapter):
       )
       instance.fileShares.append(file_share_config)
 
+  def ParseManagedADIntoInstance(self, instance, managed_ad):
+    """Parses managed-ad configs into an instance message.
+
+    Args:
+      instance: The filestore instance struct.
+      managed_ad: The --managed-ad flag value.
+
+    Raises:
+      InvalidArgumentError: If managed_ad argument constraints are violated.
+    """
+    domain = managed_ad.get('domain')
+    if domain is None:
+      raise InvalidArgumentError('Domain parameter is missing in --managed-ad.')
+    computer = managed_ad.get('computer')
+    if computer is None:
+      raise InvalidArgumentError(
+          'Computer parameter is missing in --managed-ad.'
+      )
+
+    instance.directoryServices = self.messages.DirectoryServicesConfig(
+        managedActiveDirectory=self.messages.ManagedActiveDirectoryConfig(
+            domain=domain, computer=computer
+        )
+    )
+
+  def ParseLdapIntoInstance(self, instance, ldap):
+    """Parses ldap configs into an instance message.
+
+    Args:
+      instance: The filestore instance struct.
+      ldap: The ldap cli parameters
+
+    Raises:
+      InvalidArgumentError: If ldap argument constraints are violated.
+    """
+    domain = ldap.get('domain')
+    if domain is None:
+      raise InvalidArgumentError('Domain parameter is missing in `--ldap`.')
+    servers = ldap.get('servers')
+    if servers is None:
+      raise InvalidArgumentError('Servers parameter is missing in `--ldap`.')
+    servers = servers.split(',')
+    usersou = ldap.get('users-ou')
+    groupsou = ldap.get('groups-ou')
+    # usersou and groupsou are optional
+
+    instance.directoryServices = self.messages.DirectoryServicesConfig(
+        ldap=self.messages.LdapConfig(
+            domain=domain,
+            servers=servers,
+            usersOu=usersou,
+            groupsOu=groupsou,
+        )
+    )
 
 def GetFilestoreRegistry(api_version=V1_API_VERSION):
   registry = resources.REGISTRY.Clone()

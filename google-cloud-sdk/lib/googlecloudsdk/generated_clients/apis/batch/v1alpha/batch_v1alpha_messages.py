@@ -119,11 +119,17 @@ class AllocationPolicy(_messages.Message):
         by this field) is the older model, and has been migrated to use the
         SPOT model as the underlying technology. This old model will still be
         supported.
+      RESERVATION_BOUND: Bound to the lifecycle of the reservation in which it
+        is provisioned.
+      FLEX_START: Instance is provisioned with DWS Flex Start and has limited
+        max run duration.
     """
     PROVISIONING_MODEL_UNSPECIFIED = 0
     STANDARD = 1
     SPOT = 2
     PREEMPTIBLE = 3
+    RESERVATION_BOUND = 4
+    FLEX_START = 5
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -379,6 +385,9 @@ class BatchProjectsLocationsListRequest(_messages.Message):
   r"""A BatchProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -389,10 +398,11 @@ class BatchProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class BatchProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -436,12 +446,20 @@ class BatchProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class BatchProjectsLocationsResourceAllowancesCreateRequest(_messages.Message):
@@ -959,11 +977,17 @@ class InstancePolicy(_messages.Message):
         by this field) is the older model, and has been migrated to use the
         SPOT model as the underlying technology. This old model will still be
         supported.
+      RESERVATION_BOUND: Bound to the lifecycle of the reservation in which it
+        is provisioned.
+      FLEX_START: Instance is provisioned with DWS Flex Start and has limited
+        max run duration.
     """
     PROVISIONING_MODEL_UNSPECIFIED = 0
     STANDARD = 1
     SPOT = 2
     PREEMPTIBLE = 3
+    RESERVATION_BOUND = 4
+    FLEX_START = 5
 
   accelerators = _messages.MessageField('Accelerator', 1, repeated=True)
   allowedMachineTypes = _messages.StringField(2, repeated=True)
@@ -1046,11 +1070,17 @@ class InstanceStatus(_messages.Message):
         by this field) is the older model, and has been migrated to use the
         SPOT model as the underlying technology. This old model will still be
         supported.
+      RESERVATION_BOUND: Bound to the lifecycle of the reservation in which it
+        is provisioned.
+      FLEX_START: Instance is provisioned with DWS Flex Start and has limited
+        max run duration.
     """
     PROVISIONING_MODEL_UNSPECIFIED = 0
     STANDARD = 1
     SPOT = 2
     PREEMPTIBLE = 3
+    RESERVATION_BOUND = 4
+    FLEX_START = 5
 
   bootDisk = _messages.MessageField('Disk', 1)
   machineType = _messages.StringField(2)
@@ -1508,10 +1538,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListResourceAllowancesResponse(_messages.Message):
@@ -1955,8 +1990,9 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time the operation finished running.
     requestedCancellation: Output only. Identifies whether the user has
       requested cancellation of the operation. Operations that have
-      successfully been cancelled have Operation.error value with a
-      google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      successfully been cancelled have google.longrunning.Operation.error
+      value with a google.rpc.Status.code of 1, corresponding to
+      `Code.CANCELLED`.
     statusMessage: Output only. Human-readable status of the operation, if
       any.
     target: Output only. Server-defined resource path for the target of the

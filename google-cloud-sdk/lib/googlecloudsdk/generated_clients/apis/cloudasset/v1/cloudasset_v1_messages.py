@@ -36,9 +36,28 @@ class AWSInfo(_messages.Message):
       (https://docs.aws.amazon.com/service-authorization/latest/reference/list
       _awsaccountmanagement.html#awsaccountmanagement-resources-for-iam-
       policies)
+    organization: The ARN of the AWS Organization this asset belongs to, empty
+      if no AWS organization exists. (https://docs.aws.amazon.com/cli/latest/r
+      eference/organizations/describe-organization.html) E.g.: "Organization":
+      "arn:aws:organizations::111111111111:organization/o-exampleorgid"
+    organizationalUnit: The AWS Organizational Units (OUs) this asset belongs
+      to, starting from closest OU to furthest OU, empty if no OUs exist.
+      (https://docs.aws.amazon.com/cli/latest/reference/organizations/list-
+      organizational-units-for-parent.html) E.g.: "OrganizationalUnits": [
+      "arn:aws:organizations::o-exampleorgid:ou/r-examplerootid111/ou-
+      examplerootid111-exampleouid111"
+      "arn:aws:organizations::o-exampleorgid:ou/r-examplerootid111/ou-
+      examplerootid111-exampleouid222" ]
+    root: The AWS Root this asset belongs to, empty if no root exists.
+      (https://docs.aws.amazon.com/cli/latest/reference/organizations/list-
+      roots.html) E.g.: "Root": "arn:aws:organizations::111111111111:root/o-
+      exampleorgid/r-examplerootid111"
   """
 
   awsAccount = _messages.StringField(1)
+  organization = _messages.StringField(2)
+  organizationalUnit = _messages.StringField(3, repeated=True)
+  root = _messages.StringField(4)
 
 
 class AccessSelector(_messages.Message):
@@ -276,6 +295,7 @@ class Asset(_messages.Message):
       hierarchy and ends at root. If the asset is a project, folder, or
       organization, the ancestry path starts from the asset itself. Example:
       `["projects/123456789", "folders/5432", "organizations/1234"]`
+    assetExceptions: The exceptions of a resource.
     assetType: The type of the asset. Example: `compute.googleapis.com/Disk`
       See [Supported asset types](https://cloud.google.com/asset-
       inventory/docs/supported-asset-types) for more information.
@@ -315,17 +335,18 @@ class Asset(_messages.Message):
   accessLevel = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1AccessLevel', 1)
   accessPolicy = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1AccessPolicy', 2)
   ancestors = _messages.StringField(3, repeated=True)
-  assetType = _messages.StringField(4)
-  iamPolicy = _messages.MessageField('Policy', 5)
-  name = _messages.StringField(6)
-  orgPolicy = _messages.MessageField('GoogleCloudOrgpolicyV1Policy', 7, repeated=True)
-  osInventory = _messages.MessageField('Inventory', 8)
-  otherCloudProperties = _messages.MessageField('OtherCloudProperties', 9)
-  relatedAsset = _messages.MessageField('RelatedAsset', 10)
-  relatedAssets = _messages.MessageField('RelatedAssets', 11)
-  resource = _messages.MessageField('Resource', 12)
-  servicePerimeter = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeter', 13)
-  updateTime = _messages.StringField(14)
+  assetExceptions = _messages.MessageField('AssetException', 4, repeated=True)
+  assetType = _messages.StringField(5)
+  iamPolicy = _messages.MessageField('Policy', 6)
+  name = _messages.StringField(7)
+  orgPolicy = _messages.MessageField('GoogleCloudOrgpolicyV1Policy', 8, repeated=True)
+  osInventory = _messages.MessageField('Inventory', 9)
+  otherCloudProperties = _messages.MessageField('OtherCloudProperties', 10)
+  relatedAsset = _messages.MessageField('RelatedAsset', 11)
+  relatedAssets = _messages.MessageField('RelatedAssets', 12)
+  resource = _messages.MessageField('Resource', 13)
+  servicePerimeter = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ServicePerimeter', 14)
+  updateTime = _messages.StringField(15)
 
 
 class AssetEnrichment(_messages.Message):
@@ -338,6 +359,32 @@ class AssetEnrichment(_messages.Message):
   """
 
   resourceOwners = _messages.MessageField('ResourceOwners', 1)
+
+
+class AssetException(_messages.Message):
+  r"""An exception of an asset.
+
+  Enums:
+    ExceptionTypeValueValuesEnum: The type of exception.
+
+  Fields:
+    details: The details of the exception.
+    exceptionType: The type of exception.
+  """
+
+  class ExceptionTypeValueValuesEnum(_messages.Enum):
+    r"""The type of exception.
+
+    Values:
+      EXCEPTION_TYPE_UNSPECIFIED: exception_type is not applicable for the
+        current asset.
+      TRUNCATION: The asset content is truncated.
+    """
+    EXCEPTION_TYPE_UNSPECIFIED = 0
+    TRUNCATION = 1
+
+  details = _messages.StringField(1)
+  exceptionType = _messages.EnumField('ExceptionTypeValueValuesEnum', 2)
 
 
 class AttachedResource(_messages.Message):
@@ -521,7 +568,7 @@ class BigQueryDestination(_messages.Message):
     force: If the destination table already exists and this flag is `TRUE`,
       the table will be overwritten by the contents of assets snapshot. If the
       flag is `FALSE` or unset and the destination table already exists, the
-      export call returns an INVALID_ARGUMEMT error.
+      export call returns an INVALID_ARGUMENT error.
     partitionSpec: [partition_spec] determines whether to export to
       partitioned table(s) and how to partition the data. If [partition_spec]
       is unset or [partition_spec.partition_key] is unset or
@@ -837,7 +884,7 @@ class CloudassetAnalyzeMoveRequest(_messages.Message):
     destinationParent: Required. Name of the Google Cloud folder or
       organization to reparent the target resource. The analysis will be
       performed against hypothetically moving the resource to this specified
-      desitination parent. This can only be a folder number (such as
+      destination parent. This can only be a folder number (such as
       "folders/123") or an organization number (such as "organizations/123").
     resource: Required. Name of the resource to perform the analysis against.
       Only Google Cloud projects are supported as of today. Hence, this can
@@ -1347,6 +1394,8 @@ class CloudassetOtherCloudConnectionsPatchRequest(_messages.Message):
       therCloudConnections/{other_cloud_connection_id} E.g. -
       `organizations/123/otherCloudConnections/aws` -
       `organizations/123/otherCloudConnections/azure`
+    optInFeatures_allEligibleFeatures: If true, all eligible features will be
+      considered for update.
     otherCloudConnection: A OtherCloudConnection resource to be passed as the
       request body.
     updateMask: Required. The list of fields to update. A field represent
@@ -1357,14 +1406,13 @@ class CloudassetOtherCloudConnectionsPatchRequest(_messages.Message):
       updated: - `name`, - `service_agent_id`, -
       `collect_aws_asset_setting.collector_role_name`, -
       `collect_aws_asset_setting.delegate_role_name`, -
-      `collect_azure_asset_setting.tenant_id`, -
-      `collect_azure_asset_setting.managed_identity_client_id`, -
-      `collect_azure_asset_setting.managed_identity_object_id`.
+      `collect_azure_asset_setting.tenant_id`.
   """
 
   name = _messages.StringField(1, required=True)
-  otherCloudConnection = _messages.MessageField('OtherCloudConnection', 2)
-  updateMask = _messages.StringField(3)
+  optInFeatures_allEligibleFeatures = _messages.BooleanField(2)
+  otherCloudConnection = _messages.MessageField('OtherCloudConnection', 3)
+  updateMask = _messages.StringField(4)
 
 
 class CloudassetQueryAssetsRequest(_messages.Message):
@@ -1806,28 +1854,28 @@ class CollectAzureAssetSetting(_messages.Message):
       resources-2022-12-01&tabs=HTTP#getlocationswithasubscriptionid Like
       eastus, eastus2. The location name list can be found at https://gist.git
       hub.com/ausfestivus/04e55c7d80229069bf3bc75870630ec8#results
-    managedIdentityClientId: Required. Immutable. The client ID of the Azure
-      User-assigned Managed Identity which the Google Cloud Service Agent will
-      be authenticated with. Refer [here] (https://learn.microsoft.com/en-
+    managedIdentityClientId: Required. The client ID of the Azure User-
+      assigned Managed Identity which the Google Cloud Service Agent will be
+      authenticated with. Refer [here] (https://learn.microsoft.com/en-
       us/entra/identity/managed-identities-azure-resources/how-manage-user-
       assigned-managed-identities) for the definition of a user-assigned
       managed identity. You can find its client ID following [these
       steps](https://learn.microsoft.com/en-us/entra/identity/managed-
       identities-azure-resources/how-managed-identities-work-vm#user-assigned-
       managed-identity)
-    managedIdentityObjectId: Required. Immutable. The object/principal ID of
-      the Azure User-assigned Managed Identity which the Google Cloud Service
-      Agent will be authenticated with. A service principal will be created
-      when a Managed Identity is enabled. This service principal
-      (object/principal ID) will be used to do role assignment to the Managed
-      Identity to access the Azure resources. Refer
-      [here](https://learn.microsoft.com/en-us/entra/identity/managed-
-      identities-azure-resources/how-to-view-managed-identity-service-
-      principal-portal) for detailed documentation about Managed Identity's
-      Service Principal. Managed Identity's Object/principal ID can be found
-      following [these steps](https://learn.microsoft.com/en-
-      us/entra/identity/managed-identities-azure-resources/how-managed-
-      identities-work-vm#user-assigned-managed-identity)
+    managedIdentityObjectId: Required. The object/principal ID of the Azure
+      User-assigned Managed Identity which the Google Cloud Service Agent will
+      be authenticated with. A service principal will be created when a
+      Managed Identity is enabled. This service principal (object/principal
+      ID) will be used to do role assignment to the Managed Identity to access
+      the Azure resources. Refer [here](https://learn.microsoft.com/en-
+      us/entra/identity/managed-identities-azure-resources/how-to-view-
+      managed-identity-service-principal-portal) for detailed documentation
+      about Managed Identity's Service Principal. Managed Identity's
+      Object/principal ID can be found following [these
+      steps](https://learn.microsoft.com/en-us/entra/identity/managed-
+      identities-azure-resources/how-managed-identities-work-vm#user-assigned-
+      managed-identity)
     sensitiveDataProtectionDiscoveryAzureSetting: Optional. Scan sensitive
       data setting.
     tenantId: Required. Immutable. The ID of the tenant where the data will be
@@ -2289,9 +2337,28 @@ class FeatureEnablement(_messages.Message):
     Values:
       FEATURE_ID_UNSPECIFIED: Unspecified.
       COLLECT_AWS_OU: Collect AWS ORGANIZATIONS and OUs for Security Posture.
+      COLLECT_AWS_SNS_SUBSCRIPTION_ATTRIBUTES: Collect
+        GetSubcriptionAttributes as supplementary config for
+        AWS::SNS::Subscription.
+      COLLECT_AWS_BEDROCK_AGENTS: Collect ListAgents as a sumpplementary
+        config for AWS Bedrock types
+      COLLECT_AWS_BEDROCK_KNOWLEDGE_BASES: Collect ListKnowledgeBases for type
+        AWS::Bedrock::KnowledgeBase.
+      COLLECT_AZURE_GRAPH_ROLES: Add permissions
+        `DeviceManagementRBAC.Read.All` for type
+        Microsoft.Graph/roleAssignments, Microsoft.Graph/roleDefinitions
+      COLLECT_AZURE_OPENAI_TYPES: Add Cognitive Services Data Reader
+        permission for type Microsoft.AIServices/openAI/assistants,
+        Microsoft.AIServices/openAI/models, Microsoft.AIServices/openAI/files
+        Microsoft.AIServices/openAI/fineTuningJobs
     """
     FEATURE_ID_UNSPECIFIED = 0
     COLLECT_AWS_OU = 1
+    COLLECT_AWS_SNS_SUBSCRIPTION_ATTRIBUTES = 2
+    COLLECT_AWS_BEDROCK_AGENTS = 3
+    COLLECT_AWS_BEDROCK_KNOWLEDGE_BASES = 4
+    COLLECT_AZURE_GRAPH_ROLES = 5
+    COLLECT_AZURE_OPENAI_TYPES = 6
 
   enablement = _messages.EnumField('EnablementValueValuesEnum', 1)
   featureId = _messages.EnumField('FeatureIdValueValuesEnum', 2)
@@ -2610,7 +2677,7 @@ class GoogleCloudAssetV1BigQueryDestination(_messages.Message):
       PARTITION_KEY_UNSPECIFIED: Unspecified partition key. Tables won't be
         partitioned using this option.
       REQUEST_TIME: The time when the request is received. If specified as
-        partition key, the result table(s) is partitoned by the RequestTime
+        partition key, the result table(s) is partitioned by the RequestTime
         column, an additional timestamp column representing when the request
         was received.
     """
@@ -3463,8 +3530,8 @@ class GoogleIamV2DenyRule(_messages.Message):
       `{service_fqdn}/{resource}.{verb}`, where `{service_fqdn}` is the fully
       qualified domain name for the service. For example,
       `iam.googleapis.com/roles.list`.
-    deniedPrincipals: The identities that are prevented from using one or more
-      permissions on Google Cloud resources. This field can contain the
+    deniedPrincipals:  The identities that are prevented from using one or
+      more permissions on Google Cloud resources. This field can contain the
       following values: * `principal://goog/subject/{email_id}`: A specific
       Google Account. Includes Gmail, Cloud Identity, and Google Workspace
       user accounts. For example,
@@ -3500,7 +3567,14 @@ class GoogleIamV2DenyRule(_messages.Message):
       attribute_name}/{attribute_value}`: All identities in a workload
       identity pool with a certain attribute. * `principalSet://iam.googleapis
       .com/projects/{project_number}/locations/global/workloadIdentityPools/{p
-      ool_id}/*`: All identities in a workload identity pool. *
+      ool_id}/*`: All identities in a workload identity pool. * `principalSet:
+      //cloudresourcemanager.googleapis.com/[projects|folders|organizations]/{
+      project_number|folder_number|org_number}/type/ServiceAccount`: All
+      service accounts grouped under a resource (project, folder, or
+      organization). * `principalSet://cloudresourcemanager.googleapis.com/[pr
+      ojects|folders|organizations]/{project_number|folder_number|org_number}/
+      type/ServiceAgent`: All service agents grouped under a resource
+      (project, folder, or organization). *
       `deleted:principal://goog/subject/{email_id}?uid={uid}`: A specific
       Google Account that was deleted recently. For example,
       `deleted:principal://goog/subject/alice@example.com?uid=1234567890`. If
@@ -3894,10 +3968,15 @@ class GoogleIdentityAccesscontextmanagerV1EgressPolicy(_messages.Message):
       EgressPolicy to apply.
     egressTo: Defines the conditions on the ApiOperation and destination
       resources that cause this EgressPolicy to apply.
+    title: Optional. Human-readable title for the egress rule. The title must
+      be unique within the perimeter and can not exceed 100 characters. Within
+      the access policy, the combined length of all rule titles must not
+      exceed 240,000 characters.
   """
 
   egressFrom = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1EgressFrom', 1)
   egressTo = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1EgressTo', 2)
+  title = _messages.StringField(3)
 
 
 class GoogleIdentityAccesscontextmanagerV1EgressSource(_messages.Message):
@@ -3914,9 +3993,14 @@ class GoogleIdentityAccesscontextmanagerV1EgressSource(_messages.Message):
       origins within the perimeter. Example:
       `accessPolicies/MY_POLICY/accessLevels/MY_LEVEL`. If a single `*` is
       specified for `access_level`, then all EgressSources will be allowed.
+    resource: A Google Cloud resource from the service perimeter that you want
+      to allow to access data outside the perimeter. This field supports only
+      projects. The project format is `projects/{project_number}`. You can't
+      use `*` in this field to allow all Google Cloud resources.
   """
 
   accessLevel = _messages.StringField(1)
+  resource = _messages.StringField(2)
 
 
 class GoogleIdentityAccesscontextmanagerV1EgressTo(_messages.Message):
@@ -3944,11 +4028,15 @@ class GoogleIdentityAccesscontextmanagerV1EgressTo(_messages.Message):
       corresponding EgressFrom. A request matches if it contains a resource in
       this list. If `*` is specified for `resources`, then this EgressTo rule
       will authorize access to all resources outside the perimeter.
+    roles: IAM roles that represent the set of operations that the sources
+      specified in the corresponding EgressFrom. are allowed to perform in
+      this ServicePerimeter.
   """
 
   externalResources = _messages.StringField(1, repeated=True)
   operations = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ApiOperation', 2, repeated=True)
   resources = _messages.StringField(3, repeated=True)
+  roles = _messages.StringField(4, repeated=True)
 
 
 class GoogleIdentityAccesscontextmanagerV1IngressFrom(_messages.Message):
@@ -4018,10 +4106,15 @@ class GoogleIdentityAccesscontextmanagerV1IngressPolicy(_messages.Message):
       this IngressPolicy to apply.
     ingressTo: Defines the conditions on the ApiOperation and request
       destination that cause this IngressPolicy to apply.
+    title: Optional. Human-readable title for the ingress rule. The title must
+      be unique within the perimeter and can not exceed 100 characters. Within
+      the access policy, the combined length of all rule titles must not
+      exceed 240,000 characters.
   """
 
   ingressFrom = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1IngressFrom', 1)
   ingressTo = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1IngressTo', 2)
+  title = _messages.StringField(3)
 
 
 class GoogleIdentityAccesscontextmanagerV1IngressSource(_messages.Message):
@@ -4064,10 +4157,14 @@ class GoogleIdentityAccesscontextmanagerV1IngressTo(_messages.Message):
       accessed by sources defined in the corresponding IngressFrom. If a
       single `*` is specified, then access to all resources inside the
       perimeter are allowed.
+    roles: IAM roles that represent the set of operations that the sources
+      specified in the corresponding IngressFrom are allowed to perform in
+      this ServicePerimeter.
   """
 
   operations = _messages.MessageField('GoogleIdentityAccesscontextmanagerV1ApiOperation', 1, repeated=True)
   resources = _messages.StringField(2, repeated=True)
+  roles = _messages.StringField(3, repeated=True)
 
 
 class GoogleIdentityAccesscontextmanagerV1MethodSelector(_messages.Message):
@@ -4152,8 +4249,8 @@ class GoogleIdentityAccesscontextmanagerV1ServicePerimeter(_messages.Message):
     description: Description of the `ServicePerimeter` and its use. Does not
       affect behavior.
     etag: Optional. An opaque identifier for the current version of the
-      `ServicePerimeter`. Clients should not expect this to be in any specific
-      format. If etag is not provided, the operation will be performed as if a
+      `ServicePerimeter`. This identifier does not follow any specific format.
+      If an etag is not provided, the operation will be performed as if a
       valid etag is provided.
     name: Identifier. Resource name for the `ServicePerimeter`. Format:
       `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`.
@@ -4569,7 +4666,7 @@ class IamPolicySearchResult(_messages.Message):
       in the form of projects/{PROJECT_NUMBER}. If an IAM policy is set on a
       resource (like VM instance, Cloud Storage bucket), the project field
       will indicate the project that contains the resource. If an IAM policy
-      is set on a folder or orgnization, this field will be empty. To search
+      is set on a folder or organization, this field will be empty. To search
       against the `project`: * specify the `scope` field as this project in
       your search request.
     resource: The full resource name of the resource associated with this IAM
@@ -4645,14 +4742,15 @@ class InvalidCollectorAccount(_messages.Message):
   For Azure, this includes the details about an missing required role type.
 
   Enums:
-    AccountStatusCategoryValueValuesEnum: Optional. The account status
-      category.
+    AccountStatusCategoryValueValuesEnum: Optional. NOTE: Deprecated The
+      account status category.
     StatusCategoryValueValuesEnum: Optional. The status category.
 
   Fields:
     accountId: Required. The account id of the invalid AWS Collector account.
       This is only used for AWS.
-    accountStatusCategory: Optional. The account status category.
+    accountStatusCategory: Optional. NOTE: Deprecated The account status
+      category.
     cause: Optional. The detailed reason for the invalidity.
     role: Optional. For AWS, this is the invalid Collector Role name of the
       invalid AWS account. For Azure, this is the missing role types. It will
@@ -4666,7 +4764,7 @@ class InvalidCollectorAccount(_messages.Message):
   """
 
   class AccountStatusCategoryValueValuesEnum(_messages.Enum):
-    r"""Optional. The account status category.
+    r"""Optional. NOTE: Deprecated The account status category.
 
     Values:
       ACCOUNT_STATUS_CATEGORY_UNSPECIFIED: Unknown.
@@ -5413,14 +5511,14 @@ class PartitionSpec(_messages.Message):
       PARTITION_KEY_UNSPECIFIED: Unspecified partition key. If used, it means
         using non-partitioned table.
       READ_TIME: The time when the snapshot is taken. If specified as
-        partition key, the result table(s) is partitoned by the additional
+        partition key, the result table(s) is partitioned by the additional
         timestamp column, readTime. If [read_time] in ExportAssetsRequest is
         specified, the readTime column's value will be the same as it.
         Otherwise, its value will be the current time that is used to take the
         snapshot.
       REQUEST_TIME: The time when the request is received and started to be
         processed. If specified as partition key, the result table(s) is
-        partitoned by the requestTime column, an additional timestamp column
+        partitioned by the requestTime column, an additional timestamp column
         representing when the request was received.
     """
     PARTITION_KEY_UNSPECIFIED = 0
@@ -6798,16 +6896,30 @@ class ValidationResult(_messages.Message):
       assumed to an AWS delegated role. AWS_FAILED_TO_LIST_ACCOUNTS: The
       connection is invalid because the APS auto-discovery is enabled and the
       permission to allow the Delegated Role to list accounts in the
-      organization has not been set properly. AWS_INVALID_COLLECTOR_ACCOUNTS:
-      The connection has invalid Collector accounts. A predefined threshold of
-      the maximum number of invalid Collector accounts will be defined. When
-      the number of invalid Collector accounts exceeds this limit, the
-      validation will stop. The reason for one Collector account's invalidity
-      can be one of the following values. The detailed reason will be included
-      in the cause field. AWS_FAILED_TO_ASSUME_COLLECTOR_ROLE: The Delegated
-      Role can not be properly assumed to the AWS Collector Role in the
-      account. AWS_COLLECTOR_ROLE_POLICY_MISSING_REQUIRED_PERMISSION: The
-      Collector Role misses required policy settings.
+      organization has not been set properly.
+      AWS_ACTIVE_COLLECTOR_ACCOUNTS_NOT_FOUND: The connection is invalid
+      because ACTIVE Collector accounts are not found. More details about the
+      status of an AWS account can be found at https://docs.aws.amazon.com/org
+      anizations/latest/APIReference/API_Account.html#organizations-Type-
+      Account-Status AWS_INVALID_COLLECTOR_ACCOUNTS: The connection has
+      invalid Collector accounts. A predefined threshold of the maximum number
+      of invalid Collector accounts will be defined. When the number of
+      invalid Collector accounts exceeds this limit, the validation will stop.
+      The reason for one Collector account's invalidity can be one of the
+      following values. The detailed reason will be included in the cause
+      field. AWS_FAILED_TO_ASSUME_COLLECTOR_ROLE: The Delegated Role can not
+      be properly assumed to the AWS Collector Role in the account.
+      AWS_COLLECTOR_ROLE_POLICY_MISSING_REQUIRED_PERMISSION: The Collector
+      Role misses required policy settings.
+      AWS_FAILED_TO_CONNECT_TO_ORGNIZATIONS_SERVICE: The connection is invalid
+      because the connection cannot connect to the AWS Organizations Service.
+      This status is only applicable to connections with auto-discovery
+      disabled. AZURE_ENABLED_SUBSCRIPTIONS_NOT_FOUND: The connection is
+      invalid because Enabled subscriptions are not found in this connection.
+      More details about SubscriptionState can be found at
+      https://learn.microsoft.com/en-
+      us/rest/api/resources/subscriptions/list?view=rest-
+      resources-2022-12-01&tabs=HTTP#subscriptionstate
       AZURE_FAILED_TO_ASSUME_MANAGED_IDENTITY: Failed in assume the Azure
       Managed Identity with OCAI SA.
       AZURE_MANAGED_IDENTITY_MISSING_REQUIRED_PERMISSION: Azure Managed
@@ -6939,6 +7051,7 @@ class VersionedResource(_messages.Message):
       asset-types`
 
   Fields:
+    assetExceptions: The exceptions of a resource.
     resource: JSON representation of the resource as defined by the
       corresponding service providing this resource. Example: If the resource
       is an instance provided by Compute Engine, this field will contain the
@@ -6984,8 +7097,9 @@ class VersionedResource(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  resource = _messages.MessageField('ResourceValue', 1)
-  version = _messages.StringField(2)
+  assetExceptions = _messages.MessageField('AssetException', 1, repeated=True)
+  resource = _messages.MessageField('ResourceValue', 2)
+  version = _messages.StringField(3)
 
 
 class WindowsApplication(_messages.Message):
@@ -7100,6 +7214,8 @@ encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_1', '1')
 encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_2', '2')
+encoding.AddCustomJsonFieldMapping(
+    CloudassetOtherCloudConnectionsPatchRequest, 'optInFeatures_allEligibleFeatures', 'optInFeatures.allEligibleFeatures')
 encoding.AddCustomJsonFieldMapping(
     CloudassetAnalyzeIamPolicyRequest, 'analysisQuery_accessSelector_permissions', 'analysisQuery.accessSelector.permissions')
 encoding.AddCustomJsonFieldMapping(

@@ -455,6 +455,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_GENERATORS_EVALUATIONS = (
+      'projects.locations.generators.evaluations',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/generators/'
+              '{generatorsId}/evaluations/{evaluationsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_KNOWLEDGEBASES = (
       'projects.locations.knowledgeBases',
       '{+name}',
@@ -484,6 +495,27 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/operations/'
               '{operationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_SIPTRUNKS = (
+      'projects.locations.sipTrunks',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/sipTrunks/'
+              '{sipTrunksId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_TOOLS = (
+      'projects.locations.tools',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/tools/{toolsId}',
       },
       ['name'],
       True

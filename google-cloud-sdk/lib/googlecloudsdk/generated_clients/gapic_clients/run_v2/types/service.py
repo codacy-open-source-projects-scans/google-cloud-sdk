@@ -251,7 +251,7 @@ class Service(proto.Message):
 
     Attributes:
         name (str):
-            The fully qualified name of this Service. In
+            Identifier. The fully qualified name of this Service. In
             CreateServiceRequest, this field is ignored, and instead
             composed from CreateServiceRequest.parent and
             CreateServiceRequest.service_id.
@@ -312,7 +312,7 @@ class Service(proto.Message):
             populated as a response to a Delete request.
         expire_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. For a deleted resource, the time
-            after which it will be permamently deleted.
+            after which it will be permanently deleted.
         creator (str):
             Output only. Email address of the
             authenticated creator.
@@ -338,11 +338,9 @@ class Service(proto.Message):
             that stage. On read (or output), describes whether the
             resource uses preview features.
 
-            .. raw:: html
-
-                <p>
-                For example, if ALPHA is provided as input, but only BETA and GA-level
-                features are used, this field will be BETA on output.
+            For example, if ALPHA is provided as input, but only BETA
+            and GA-level features are used, this field will be BETA on
+            output.
         binary_authorization (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.BinaryAuthorization):
             Optional. Settings for the Binary
             Authorization feature.
@@ -359,8 +357,8 @@ class Service(proto.Message):
             settings
         invoker_iam_disabled (bool):
             Optional. Disables IAM permission check for
-            run.routes.invoke for callers of this service. This feature
-            is available by invitation only. For more information, visit
+            run.routes.invoke for callers of this service. For more
+            information, visit
             https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
         default_uri_disabled (bool):
             Optional. Disables public resolution of the
@@ -368,6 +366,11 @@ class Service(proto.Message):
         urls (MutableSequence[str]):
             Output only. All URLs serving traffic for
             this Service.
+        iap_enabled (bool):
+            Optional. IAP settings on the Service.
+        multi_region_settings (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.Service.MultiRegionSettings):
+            Optional. Settings for multi-region
+            deployment.
         custom_audiences (MutableSequence[str]):
             One or more custom audiences that you want
             this service to support. Specify each custom
@@ -412,6 +415,13 @@ class Service(proto.Message):
             Service is serving traffic.
         satisfies_pzs (bool):
             Output only. Reserved for future use.
+        threat_detection_enabled (bool):
+            Output only. True if Cloud Run Threat
+            Detection monitoring is enabled for the parent
+            project of this Service.
+        build_config (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.BuildConfig):
+            Optional. Configuration for building a Cloud
+            Run function.
         reconciling (bool):
             Output only. Returns true if the Service is currently being
             acted upon by the system to bring it into the desired state.
@@ -421,7 +431,7 @@ class Service(proto.Message):
             steps to bring the Service to the desired serving state.
             This process is called reconciliation. While reconciliation
             is in process, ``observed_generation``,
-            ``latest_ready_revison``, ``traffic_statuses``, and ``uri``
+            ``latest_ready_revision``, ``traffic_statuses``, and ``uri``
             will have transient values that might mismatch the intended
             state: Once reconciliation is over (and this field is
             false), there are two possible outcomes: reconciliation
@@ -441,10 +451,31 @@ class Service(proto.Message):
             failure can be found in ``terminal_condition`` and
             ``conditions``.
         etag (str):
-            Output only. A system-generated fingerprint
-            for this version of the resource. May be used to
+            Optional. A system-generated fingerprint for
+            this version of the resource. May be used to
             detect modification conflict during updates.
     """
+
+    class MultiRegionSettings(proto.Message):
+        r"""Settings for multi-region deployment.
+
+        Attributes:
+            regions (MutableSequence[str]):
+                Required. List of regions to deploy to,
+                including primary region.
+            multi_region_id (str):
+                Optional. System-generated unique id for the
+                multi-region Service.
+        """
+
+        regions: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+        multi_region_id: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -550,6 +581,15 @@ class Service(proto.Message):
         proto.STRING,
         number=24,
     )
+    iap_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=25,
+    )
+    multi_region_settings: MultiRegionSettings = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=MultiRegionSettings,
+    )
     custom_audiences: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=37,
@@ -588,6 +628,15 @@ class Service(proto.Message):
     satisfies_pzs: bool = proto.Field(
         proto.BOOL,
         number=38,
+    )
+    threat_detection_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=40,
+    )
+    build_config: vendor_settings.BuildConfig = proto.Field(
+        proto.MESSAGE,
+        number=41,
+        message=vendor_settings.BuildConfig,
     )
     reconciling: bool = proto.Field(
         proto.BOOL,

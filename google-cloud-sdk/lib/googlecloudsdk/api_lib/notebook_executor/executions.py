@@ -14,9 +14,16 @@
 # limitations under the License.
 """Notebook-executor executions api helper."""
 
+import types
+
 from googlecloudsdk.api_lib.colab_enterprise import runtime_templates as runtime_templates_util
+from googlecloudsdk.calliope import exceptions
+from googlecloudsdk.calliope import parser_extensions
 from googlecloudsdk.core import resources
 from googlecloudsdk.core.console import console_io
+
+
+Namespace = parser_extensions.Namespace
 
 
 def ParseExecutionOperation(operation_name):
@@ -66,6 +73,74 @@ def GetExecutionResourceName(args):
     projects/{project}/locations/{location}/notebookExecutionJobs/{execution_job_id}.
   """
   return args.CONCEPTS.execution.Parse().RelativeName()
+
+
+def ValidateAndGetWorkbenchExecution(
+    args, messages, service, skip_workbench_check=False
+):
+  """Checks that the execution is a Workbench execution and returns it if so.
+
+  Args:
+    args: Argparse object from Command.Run
+    messages: Module containing messages definition for the aiplatform API.
+    service: The service to use for the API call.
+    skip_workbench_check: Whether to skip validation of the execution type.
+
+  Returns:
+    The execution if it is a Workbench execution.
+
+  Raises:
+    InvalidArgumentException: If the execution is not a Workbench execution.
+  """
+  execution = service.Get(
+      CreateExecutionGetRequest(args, messages)
+  )
+  if not IsWorkbenchExecution(execution) and not skip_workbench_check:
+    raise exceptions.InvalidArgumentException(
+        'EXECUTION',
+        'Execution is not of Workbench type. To manage Colab Enterprise'
+        ' executions use `gcloud colab` instead.',
+    )
+  return execution
+
+
+def ValidateAndGetColabExecution(args, messages, service):
+  """Checks that the execution is of Colab Enterprise type and returns it if so.
+
+  Args:
+    args: Argparse object from Command.Run
+    messages: Module containing messages definition for the aiplatform API.
+    service: The service to use for the API call.
+
+  Returns:
+    The execution if it is a Colab Enterprise execution.
+
+  Raises:
+    InvalidArgumentException: If the execution is a Workbench execution.
+  """
+  execution = service.Get(
+      CreateExecutionGetRequest(args, messages)
+  )
+  if IsWorkbenchExecution(execution):
+    raise exceptions.InvalidArgumentException(
+        'EXECUTION',
+        'Execution is not of Colab Enterprise type. To manage Workbench'
+        ' executions use `gcloud beta workbench` instead.',
+    )
+  return execution
+
+
+def IsWorkbenchExecution(execution):
+  """Filter for Workbench executions.
+
+  Args:
+    execution: The execution item to check.
+
+  Returns:
+    True if the execution is a Workbench execution.
+  """
+  # TODO(b/384799644) - replace with API-side filtering when available.
+  return execution.kernelName is not None
 
 
 def GetDataformRepositorySourceFromArgs(args, messages):
@@ -244,19 +319,24 @@ def CreateNotebookExecutionJob(
   )
 
 
-def CreateExecutionCreateRequestForSchedule(args, messages):
+def CreateExecutionCreateRequestForSchedule(
+    args: Namespace,
+    messages: types.ModuleType,
+    for_workbench: bool = False,
+):
   """Builds a NotebookExecutionJobsCreateRequest message for a CreateSchedule request.
 
   Args:
     args: Argparse object from Command.Run
     messages: Module containing messages definition for the specified API.
+    for_workbench: Indicates whether this is a Workbench execution.
 
   Returns:
     Instance of the NotebookExecutionJobsCreateRequest message.
   """
   parent = GetParentForExecutionOrSchedule(args)
   notebook_execution_job = CreateNotebookExecutionJob(
-      args, messages, workbench_execution=False, for_schedule=True
+      args, messages, workbench_execution=for_workbench, for_schedule=True
   )
   return messages.GoogleCloudAiplatformV1beta1CreateNotebookExecutionJobRequest(
       notebookExecutionJob=notebook_execution_job,
@@ -332,8 +412,6 @@ def CreateExecutionListRequest(args, messages):
   Returns:
     Instance of the NotebookExecutionJobsListRequest message.
   """
-  return (
-      messages.AiplatformProjectsLocationsNotebookExecutionJobsListRequest(
-          parent=GetParentForExecutionOrSchedule(args),
-      )
+  return messages.AiplatformProjectsLocationsNotebookExecutionJobsListRequest(
+      parent=GetParentForExecutionOrSchedule(args),
   )

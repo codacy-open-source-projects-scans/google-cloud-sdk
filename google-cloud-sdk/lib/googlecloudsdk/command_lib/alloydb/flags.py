@@ -32,6 +32,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import argparse
+import datetime
 import re
 
 from googlecloudsdk.calliope import arg_parsers
@@ -41,6 +43,7 @@ from googlecloudsdk.calliope.concepts import concepts
 from googlecloudsdk.command_lib.kms import resource_args as kms_resource_args
 from googlecloudsdk.command_lib.util.apis import arg_utils
 from googlecloudsdk.command_lib.util.concepts import concept_parsers
+from googlecloudsdk.core import properties
 
 
 def AddAvailabilityType(parser):
@@ -228,6 +231,204 @@ def AddOperation(parser):
   parser.add_argument('operation', type=str, help='AlloyDB operation ID')
 
 
+def AddEnableConnectionPooling(parser):
+  """Adds --enable-connection-pooling flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--enable-connection-pooling',
+      required=False,
+      help='Enable connection pooling for the instance.',
+      action=arg_parsers.StoreTrueFalseAction,
+  )
+
+
+def AddConnectionPoolingPoolMode(parser):
+  """Adds --connection-pooling-pool-mode flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-pool-mode',
+      choices={
+          'SESSION': 'Session mode for managed connection pooling.',
+          'TRANSACTION': 'Transaction mode for managed connection pooling.',
+      },
+      required=False,
+      default=None,
+      help='The pool mode for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingMinPoolSize(parser):
+  """Adds --connection-pooling-min-pool-size flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-min-pool-size',
+      type=str,
+      required=False,
+      default=None,
+      help='The min pool size for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingMaxPoolSize(parser):
+  """Adds --connection-pooling-max-pool-size flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-max-pool-size',
+      type=str,
+      required=False,
+      default=None,
+      help='The max pool size for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingMaxClientConnections(parser):
+  """Adds --connection-pooling-max-client-connections flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-max-client-connections',
+      type=str,
+      required=False,
+      default=None,
+      help='The max client connections for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingServerIdleTimeout(parser):
+  """Adds --connection-pooling-server-idle-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-server-idle-timeout',
+      type=str,
+      required=False,
+      default=None,
+      help='The server idle timeout for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingQueryWaitTimeout(parser):
+  """Adds --connection-pooling-query-wait-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-query-wait-timeout',
+      type=str,
+      required=False,
+      default=None,
+      help='The query wait timeout for managed connection pooling.',
+  )
+
+
+def AddConnectionPoolingStatsUsers(parser):
+  """Adds --connection-pooling-stats-users flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-stats-users',
+      required=False,
+      type=arg_parsers.ArgList(),
+      metavar='STATS_USERS',
+      help=(
+          'Comma-separated list of database users to access connection pooling'
+          ' stats.'
+      ),
+  )
+
+
+def AddConnectionPoolingIgnoreStartupParameters(parser):
+  """Adds --connection-pooling-ignore-startup-parameters flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-ignore-startup-parameters',
+      required=False,
+      type=arg_parsers.ArgList(),
+      metavar='STARTUP_PARAMETERS',
+      help=(
+          'Comma-separated list of startup parameters that should be ignored by'
+          ' the connection pool.'
+      ),
+  )
+
+
+def AddConnectionPoolingServerLifetime(parser):
+  """Adds --connection-pooling-server-lifetime flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-server-lifetime',
+      type=str,
+      required=False,
+      default=None,
+      help=(
+          'The lifetime of a server connection in seconds. The pooler will '
+          'close an unused (not currently linked to any client connection) '
+          'server connection that has been connected longer than this. Setting '
+          ' it to 0 means the connection is to be used only once, then closed. '
+      ),
+  )
+
+
+def AddConnectionPoolingClientConnectionIdleTimeout(parser):
+  """Adds --connection-pooling-client-connection-idle-timeout flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-client-connection-idle-timeout',
+      type=str,
+      required=False,
+      default=None,
+      help=(
+          'The maximum number of seconds a client is allowed to be idle '
+          'before it is disconnected.'
+      ),
+  )
+
+
+def AddConnectionPoolingMaxPreparedStatements(parser):
+  """Adds --connection-pooling-max-prepared-statements flag.
+
+  Args:
+    parser: The current argparse parser to add this to.
+  """
+  parser.add_argument(
+      '--connection-pooling-max-prepared-statements',
+      type=arg_parsers.BoundedInt(lower_bound=0),
+      required=False,
+      default=None,
+      help=(
+          'The maximum number of prepared statements allowed.'
+      ),
+  )
+
+
 def AddEnablePrivateServiceConnect(parser):
   """Adds the `--enable-private-service-connect` flag to the parser."""
   parser.add_argument(
@@ -255,28 +456,74 @@ def AddAllowedPSCProjects(parser):
   )
 
 
-def AddPSCNetworkAttachmentUrl(parser):
-  """Adds the `--psc-network-attachment-url` flag to the parser."""
+def AddPSCNetworkAttachmentUri(parser):
+  """Adds the `--psc-network-attachment-uri` flag to the parser."""
   parser.add_argument(
-      '--psc-network-attachment-url',
+      '--psc-network-attachment-uri',
       required=False,
       type=str,
       help=(
-          'Full URL of the network attachment that is configured to '
+          'Full URI of the network attachment that is configured to '
           'support outbound connectivity from an AlloyDB instance which '
           'uses Private Service Connect (PSC). '
           'For example, this would be of the form:'
-          '`psc-network-attachment-url=projects/test-project/regions/us-central1/networkAttachments/my-na`'
+          '`psc-network-attachment-uri=projects/test-project/regions/us-central1/networkAttachments/my-na`'
       ),
   )
 
 
-def ClearPSCNetworkAttachmentUrl(parser):
+def ClearPSCNetworkAttachmentUri(parser):
   parser.add_argument(
-      '--clear-psc-network-attachment-url',
+      '--clear-psc-network-attachment-uri',
       action='store_true',
       help="""Disable outbound connectivity from an AlloyDB instance which uses Private Service Connect (PSC).""",
   )
+
+
+def AddPSCAutoConnections(parser):
+  """Adds the `--psc-auto-connections` flag to the parser."""
+  parser.add_argument(
+      '--psc-auto-connections',
+      required=False,
+      type=arg_parsers.ArgObject(
+          spec={
+              'project': str,
+              'network': str,
+          },
+          required_keys=['project', 'network'],
+      ),
+      action=arg_parsers.FlattenAction(),
+      help=(
+          'Comma-separated list of consumer project and consumer network pairs'
+          ' to create endpoints for Private Service Connect (PSC) connectivity'
+          ' for the instance. Only instances in PSC-enabled clusters are'
+          ' allowed to set this field. Both project and network must be'
+          ' specified. (e.g.,'
+          ' `--psc-auto-connections=project=project1,network=projects/vpc-host-project1/global/networks/network1`'
+          ' `--psc-auto-connections=project=project2,network=projects/vpc-host-project2/global/networks/network2`)'
+      ),
+  )
+
+
+def ClearPSCAutoConnections(parser):
+  """Adds the `--clear-psc-auto-connections` flag to the parser."""
+  parser.add_argument(
+      '--clear-psc-auto-connections',
+      action='store_true',
+      help="""Remove all PSC auto connections for an AlloyDB instance.""",
+  )
+
+
+def AddPSCAutoConnectionGroup(parser):
+  """Adds PSC auto connection flags to the parser."""
+  psc_auto_connection_group = parser.add_group(
+      mutex=True,
+      required=False,
+      help='PSC auto connection options for an AlloyDB instance.',
+  )
+
+  AddPSCAutoConnections(psc_auto_connection_group)
+  ClearPSCAutoConnections(psc_auto_connection_group)
 
 
 def AddNetwork(parser):
@@ -309,7 +556,25 @@ def AddAllocatedIPRangeName(parser):
           'the instance IPs for this cluster will be created in the '
           'allocated range. The range name must comply with RFC 1035. '
           'Specifically, the name must be 1-63 characters long and match the '
-          'regular expression [a-z]([-a-z0-9]*[a-z0-9])?.'
+          'regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`.'
+      ),
+  )
+
+
+def AddAllocatedIPRangeOverride(parser):
+  """Adds the `--allocated-ip-range-override` flag to the parser."""
+  parser.add_argument(
+      '--allocated-ip-range-override',
+      required=False,
+      type=str,
+      help=(
+          'Name of the allocated IP range for the private IP AlloyDB instance,'
+          ' for example: "google-managed-services-default". If set, the'
+          ' instance IPs will be created from this allocated range and will'
+          ' override the IP range used by the parent cluster. The range name'
+          ' must comply with RFC 1035. Specifically, the name must be 1-63'
+          ' characters long and match the regular expression'
+          ' `[a-z]([-a-z0-9]*[a-z0-9])?`.'
       ),
   )
 
@@ -384,7 +649,7 @@ def AddForce(parser):
   )
 
 
-def AddCPUCount(parser, required=True):
+def AddCPUCount(parser, required):
   """Adds a --cpu-count flag to parser.
 
   Args:
@@ -395,13 +660,90 @@ def AddCPUCount(parser, required=True):
       '--cpu-count',
       required=required,
       type=int,
-      choices=[2, 4, 8, 16, 32, 64, 96, 128],
+      choices=[1, 2, 4, 8, 16, 32, 48, 64, 72, 96, 128],
       help=(
-          'Whole number value indicating how many vCPUs the machine should '
-          'contain. Each vCPU count corresponds to a N2 high-mem machine: '
-          '(https://cloud.google.com/compute/docs/general-purpose-machines#n2_'
-          'machines).'
+          'Whole number value indicating how many vCPUs the machine should'
+          ' contain. If the instance does not have a machine-type, the vCPU'
+          ' count will be used to determine the machine type where each vCPU'
+          ' corresponds to an N2  high-mem machine: '
+          ' (https://cloud.google.com/compute/docs/general-purpose-machines#n2_machine_types).'
+          ' where CPU_COUNT can be one of: 2, 4, 8, 16, 32, 64, 96, 128. If the'
+          ' instance has a machine-type, cpu-count must have the same value as'
+          ' the vCPU count in the machine-type. Eg: if machine-type is'
+          ' c4a-highmem-4-lssd, cpu-count must be 4.'
       ),
+  )
+
+
+def AddActivationPolicy(parser, alloydb_messages, required=False):
+  """Adds a --activation-policy flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+    required: Whether or not --activation-policy is required.
+  """
+  parser.add_argument(
+      '--activation-policy',
+      required=required,
+      choices=[
+          alloydb_messages.Instance.ActivationPolicyValueValuesEnum.ALWAYS,
+          alloydb_messages.Instance.ActivationPolicyValueValuesEnum.NEVER
+      ],
+      type=alloydb_messages.Instance.ActivationPolicyValueValuesEnum,
+      help=(
+          'Activation Policy for the instance. '
+          'Required to START or STOP an instance. '
+          'ALWAYS - The instance is up and running. '
+          'NEVER - The instance is stopped.'
+      ),
+  )
+
+
+def AddMachineType(parser, required=False):
+  """Adds a --machine-type flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+    required: Whether or not --machine-type is required.
+  """
+  choices = [
+      'n2-highmem-2',
+      'n2-highmem-4',
+      'n2-highmem-8',
+      'n2-highmem-16',
+      'n2-highmem-32',
+      'n2-highmem-64',
+      'n2-highmem-96',
+      'n2-highmem-128',
+      'c4a-highmem-1',
+      'c4a-highmem-4-lssd',
+      'c4a-highmem-8-lssd',
+      'c4a-highmem-16-lssd',
+      'c4a-highmem-32-lssd',
+      'c4a-highmem-48-lssd',
+      'c4a-highmem-64-lssd',
+      'c4a-highmem-72-lssd',
+      'c4-highmem-4-lssd',
+      'c4-highmem-8-lssd',
+      'c4-highmem-16-lssd',
+      'c4-highmem-24-lssd',
+      'c4-highmem-32-lssd',
+      'c4-highmem-48-lssd',
+      'c4-highmem-96-lssd',
+      'c4-highmem-144-lssd',
+      'c4-highmem-192-lssd',
+      'c4-highmem-288-lssd',
+      'z3-highmem-14-standardlssd',
+      'z3-highmem-22-standardlssd',
+      'z3-highmem-44-standardlssd',
+      'z3-highmem-88-standardlssd',
+  ]
+  parser.add_argument(
+      '--machine-type',
+      required=required,
+      type=str,
+      choices=choices if properties.IsDefaultUniverse() else None,
+      help='Specifies machine type for the instance.',
   )
 
 
@@ -445,6 +787,20 @@ def AddUserType(parser):
       },
       default='BUILT_IN',
       help='Type corresponds to the user type.',
+  )
+
+
+def AddKeepExtraRoles(parser):
+  """Adds a --keep-extra-roles flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+  """
+  parser.add_argument(
+      '--keep-extra-roles',
+      type=arg_parsers.ArgBoolean(),
+      default=False,
+      help='If the user already exists and has extra roles, keep them.',
   )
 
 
@@ -540,7 +896,6 @@ def _GetDayOfWeekArgList(alloydb_messages):
   return arg_parsers.ArgList(
       element_type=_ParseDayOfWeek,
       choices=choices,
-      visible_choices=visible_choices,
   )
 
 
@@ -798,11 +1153,12 @@ def AddEncryptionConfigFlags(parser, verb):
   ).AddToParser(parser)
 
 
-def AddRestoreClusterSourceFlags(parser):
+def AddRestoreClusterSourceFlags(parser, release_track):
   """Adds RestoreCluster flags.
 
   Args:
     parser: argparse.ArgumentParser: Parser object for command line inputs.
+    release_track: The command version being used - GA/BETA/ALPHA.
   """
   group = parser.add_group(
       mutex=True, required=True, help='RestoreCluster source types.'
@@ -819,13 +1175,30 @@ def AddRestoreClusterSourceFlags(parser):
           ' created.'
       ),
   )
+  if (
+      release_track == base.ReleaseTrack.ALPHA
+      or release_track == base.ReleaseTrack.BETA
+  ):
+    group.add_argument(
+        '--backupdr-backup',
+        type=str,
+        help=(
+            'Backup DR backup to restore from. This is a resource path of the'
+            ' form'
+            ' projects/myProject/locations/us-central1/backupVaults/myBackupVault/dataSources/myDataSource/backups/myBackup.'
+        ),
+    )
 
-  continuous_backup_source_group = group.add_group(
+  pitr_group = group.add_group(
       help='Restore a cluster from a source cluster at a given point in time.'
   )
-  continuous_backup_source_group.add_argument(
-      '--source-cluster',
+  pitr_source_group = pitr_group.add_group(
+      help='Source for a point in time restore operation.',
       required=True,
+      mutex=True,
+  )
+  pitr_source_group.add_argument(
+      '--source-cluster',
       help=(
           'AlloyDB source cluster to restore from. This must either be the'
           ' full cluster name'
@@ -835,7 +1208,19 @@ def AddRestoreClusterSourceFlags(parser):
           ' being created.'
       ),
   )
-  continuous_backup_source_group.add_argument(
+  if (
+      release_track == base.ReleaseTrack.ALPHA
+      or release_track == base.ReleaseTrack.BETA
+  ):
+    pitr_source_group.add_argument(
+        '--backupdr-data-source',
+        help=(
+            'Backup DR data source to restore from. This is a resource path of'
+            ' the form'
+            ' projects/myProject/locations/us-central1/backupVaults/myBackupVault/dataSources/myDataSource.'
+        ),
+    )
+  pitr_group.add_argument(
       '--point-in-time',
       type=arg_parsers.Datetime.Parse,
       required=True,
@@ -996,7 +1381,7 @@ def AddInsightsConfigRecordApplicationTags(parser, show_negated_in_help):
       required=False,
       help="""Allow application tags to be recorded by the query insights
         feature.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1006,7 +1391,7 @@ def AddOutboundPublicIp(parser, show_negated_in_help):
       '--outbound-public-ip',
       required=False,
       help="""Add outbound Public IP connectivity to an AlloyDB instance.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1017,7 +1402,7 @@ def AddInsightsConfigRecordClientAddress(parser, show_negated_in_help):
       required=False,
       help="""Allow the client address to be recorded by the query insights
         feature.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1027,7 +1412,7 @@ def AddObservabilityConfigEnabled(parser, show_negated_in_help):
       '--observability-config-enabled',
       required=False,
       help="""Enable enhanced query insights feature.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1038,7 +1423,7 @@ def AddObservabilityConfigPreserveComments(parser, show_negated_in_help):
       required=False,
       help="""Allow preservation of comments in query string recorded by the
         enhanced query insights feature.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1048,7 +1433,7 @@ def AddObservabilityConfigTrackWaitEvents(parser, show_negated_in_help):
       '--observability-config-track-wait-events',
       required=False,
       help="""Track wait events during query execution.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1069,7 +1454,7 @@ def AddObservabilityConfigRecordApplicationTags(parser, show_negated_in_help):
       required=False,
       help="""Allow application tags to be recorded by the enhanced query
         insights feature.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1089,7 +1474,7 @@ def AddObservabilityConfigTrackActiveQueries(parser, show_negated_in_help):
       '--observability-config-track-active-queries',
       required=False,
       help="""Track actively running queries.""",
-      **kwargs
+      **kwargs,
   )
 
 
@@ -1374,18 +1759,24 @@ def AddRequireConnectors(parser):
   )
 
 
-def AddDatabaseVersion(parser, alloydb_messages):
+def AddDatabaseVersion(parser, alloydb_messages, release_track):
   """Adds Database Version flag.
 
   Args:
     parser: argparse.Parser: Parser object for command line inputs.
     alloydb_messages: Message module.
+    release_track: The command version being used - GA/BETA/ALPHA.
   """
   choices = [
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_14,
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_15,
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_16,
+      alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_17,
   ]
+  if release_track in (base.ReleaseTrack.ALPHA, base.ReleaseTrack.BETA):
+    choices.append(
+        alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_18
+    )
   parser.add_argument(
       '--database-version',
       required=False,
@@ -1406,6 +1797,7 @@ def AddVersion(parser, alloydb_messages):
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_14,
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_15,
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_16,
+      alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_17,
   ]
   parser.add_argument(
       '--version',
@@ -1477,9 +1869,12 @@ def GetTagsFromArgs(args, tags_message, tags_arg_name='tags'):
   if not tags:
     return None
   # Sorted for test stability
-  return tags_message(additionalProperties=[
-      tags_message.AdditionalProperty(key=key, value=value)
-      for key, value in sorted(tags.items())])
+  return tags_message(
+      additionalProperties=[
+          tags_message.AdditionalProperty(key=key, value=value)
+          for key, value in sorted(tags.items())
+      ]
+  )
 
 
 def AddAssignInboundPublicIp(parser):
@@ -1520,6 +1915,37 @@ def AddAuthorizedExternalNetworks(parser):
           '1.2.3.4/30). This flag is only allowed to be set for instances with '
           'public IP enabled.'
       ),
+  )
+
+
+def AddMaintenanceVersion(parser):
+  """Adds a `--maintenance-version` flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+  """
+  parser.add_argument(
+      '--maintenance-version',
+      required=False,
+      type=str,
+      hidden=True,
+      help=(
+          'Maintenance version to update the cluster to. Use `latest` to'
+          ' apply the latest available maintenance version.'
+      ),
+  )
+
+
+def GetValidatedMaintenanceVersion(args, alloydb_messages):
+  """Returns the maintenance version from the args."""
+  if args.maintenance_version.lower() == 'latest':
+    return (
+        alloydb_messages.Cluster.MaintenanceVersionSelectionPolicyValueValuesEnum.MAINTENANCE_VERSION_SELECTION_POLICY_LATEST
+    )
+  raise exceptions.InvalidArgumentException(
+      '--maintenance-version',
+      'Invalid maintenance version: {}. Use `latest` to apply the latest'
+      ' available maintenance version.'.format(args.maintenance_version)
   )
 
 
@@ -1602,7 +2028,7 @@ def _GetDate(alloydb_message):
   """returns google.type.Date date."""
 
   def Parse(value):
-    full_match = re.match(r'^\d{4}-\d{2}-\d{2}', value)
+    full_match = re.fullmatch(r'^\d{4}-\d{2}-\d{2}', value)
     if full_match:
       ymd = full_match.group().split('-')
       year = int(ymd[0])
@@ -1611,7 +2037,7 @@ def _GetDate(alloydb_message):
       _ValidateMonthAndDay(month, day, value)
       return alloydb_message.GoogleTypeDate(year=year, month=month, day=day)
 
-    no_year_match = re.match(r'\d{2}-\d{2}', value)
+    no_year_match = re.fullmatch(r'\d{2}-\d{2}', value)
     if no_year_match:
       ymd = no_year_match.group().split('-')
       month = int(ymd[0])
@@ -1627,25 +2053,20 @@ def _GetDate(alloydb_message):
 
 
 def _GetTimeOfDay(alloydb_message):
-  """returns google.type.TimeOfDay time of day."""
+  """returns google.type.TimeOfDay time of day from HH:MM format."""
 
   def Parse(value):
-    hour_min_sec = value.split(':')
-    if len(hour_min_sec) != 3 or not all(
-        [item.isdigit() for item in hour_min_sec]
-    ):
-      raise arg_parsers.ArgumentTypeError(
-          """Failed to parse time of day: {0}, expected format HH:MM:SS.
-        """.format(value)
+    try:
+      dt = datetime.datetime.strptime(value, '%H:%M')
+      hour, minute = dt.hour, dt.minute
+      return alloydb_message.GoogleTypeTimeOfDay(
+          hours=hour,
+          minutes=minute,
       )
-    hour = int(hour_min_sec[0])
-    minute = int(hour_min_sec[1])
-    second = int(hour_min_sec[2])
-    return alloydb_message.GoogleTypeTimeOfDay(
-        hours=hour,
-        minutes=minute,
-        seconds=second,
-    )
+    except ValueError:
+      raise arg_parsers.ArgumentTypeError(
+          f'Failed to parse time of day: {value!r}, expected format HH:MM.'
+      )
 
   return Parse
 
@@ -1655,10 +2076,9 @@ def _AddRemoveDenyMaintenancePeriod(group):
   group.add_argument(
       '--remove-deny-maintenance-period',
       required=False,
-      hidden=True,
       action='store_true',
       default=False,
-      help='Remove the user-specified maintenance deny period.',
+      help='Remove the deny maintenance period.',
   )
 
 
@@ -1667,7 +2087,6 @@ def _AddDenyMaintenancePeriodDateAndTime(group, alloydb_messages):
   group.add_argument(
       '--deny-maintenance-period-start-date',
       required=True,
-      hidden=True,
       type=_GetDate(alloydb_messages),
       help=(
           'Date when the deny maintenance period begins, that is 2020-11-01 or'
@@ -1677,7 +2096,6 @@ def _AddDenyMaintenancePeriodDateAndTime(group, alloydb_messages):
   group.add_argument(
       '--deny-maintenance-period-end-date',
       required=True,
-      hidden=True,
       type=_GetDate(alloydb_messages),
       help=(
           'Date when the deny maintenance period ends, that is 2020-11-01 or'
@@ -1687,11 +2105,10 @@ def _AddDenyMaintenancePeriodDateAndTime(group, alloydb_messages):
   group.add_argument(
       '--deny-maintenance-period-time',
       required=True,
-      hidden=True,
       type=_GetTimeOfDay(alloydb_messages),
       help=(
           'Time when the deny maintenance period starts and ends, for example'
-          ' 05:00:00, in UTC time zone.'
+          ' 05:00, in UTC time zone.'
       ),
   )
 
@@ -1707,7 +2124,7 @@ def AddDenyMaintenancePeriod(parser, alloydb_messages, update=False):
   """
   if update:
     parent_group = parser.add_group(
-        mutex=True, hidden=True, help='Specify maintenance deny period.'
+        mutex=True, help='Specify maintenance deny period.'
     )
     child_group = parent_group.add_group(
         help='Specify preferred day and time for maintenance deny period.'
@@ -1716,7 +2133,6 @@ def AddDenyMaintenancePeriod(parser, alloydb_messages, update=False):
     _AddDenyMaintenancePeriodDateAndTime(child_group, alloydb_messages)
   else:
     group = parser.add_group(
-        hidden=True,
         help='Specify preferred day and time for maintenance deny period.',
     )
     _AddDenyMaintenancePeriodDateAndTime(group, alloydb_messages)
@@ -1752,7 +2168,7 @@ def AddDatabase(parser, required=True):
       '--database',
       required=required,
       type=str,
-      help='Database name from which export has to be done.',
+      help='Database name.',
   )
 
 
@@ -1860,5 +2276,145 @@ def AddExportOptions(parser):
       help=(
           "If true, use DROP ... IF EXISTS commands to check for the object's"
           ' existence before dropping it in clean_target_objects mode.'
+      ),
+  )
+
+
+def AddSourceURI(parser, required=True):
+  """Adds a --gcs-uri flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+    required: Whether or not --gcs-uri is required.
+  """
+  source_uri_group = parser.add_group(
+      mutex=True,
+      required=required,
+      help='URI of the source file for import.',
+  )
+  source_uri_group.add_argument(
+      '--gcs-uri',
+      type=str,
+      help=(
+          'Path to the Google Cloud Storage file from which'
+          ' import has to be done.'
+      ),
+  )
+
+
+def AddImportUser(parser):
+  """Adds --user flag to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+  """
+  parser.add_argument(
+      '--user',
+      required=False,
+      type=str,
+      help='Database user for the import.',
+  )
+
+
+def AddImportOptions(parser):
+  """Adds different import options flags to parser.
+
+  Args:
+    parser: argparse.Parser: Parser object for command line inputs.
+  """
+  import_options_group = parser.add_group(
+      mutex=True, required=True, help='Import options for the cluster.'
+  )
+  csv_import_options_group = import_options_group.add_group(
+      help='CSV import options for the cluster.'
+  )
+  csv_import_options_group.add_argument(
+      '--csv',
+      required=True,
+      action='store_true',
+      help='Specify source file type.',
+  )
+  csv_import_options_group.add_argument(
+      '--table',
+      required=True,
+      type=str,
+      help='Table name to which the data has to be imported.',
+  )
+  csv_import_options_group.add_argument(
+      '--columns',
+      required=False,
+      type=str,
+      help='Comma-separated list of column names to be used for import.',
+  )
+  csv_import_options_group.add_argument(
+      '--field-delimiter',
+      required=False,
+      type=str,
+      help='Field delimiter in the source file.',
+  )
+  csv_import_options_group.add_argument(
+      '--escape-character',
+      required=False,
+      type=str,
+      help='Escape character in the source file.',
+  )
+  csv_import_options_group.add_argument(
+      '--quote-character',
+      required=False,
+      type=str,
+      help='Quote character in the source file.',
+  )
+  sql_import_options_group = import_options_group.add_group(
+      help='SQL import options for the cluster.'
+  )
+  sql_import_options_group.add_argument(
+      '--sql',
+      required=True,
+      action='store_true',
+      help='Specify source file type.',
+  )
+
+
+def AddMigrateCloudSqlFlags(parser: argparse.PARSER) -> None:
+  """Adds the Migrate Cloud SQL specific flags.
+
+  Args:
+    parser: Parser object for command line inputs.
+  """
+  group = parser.add_group(
+      mutex=True, required=True, help='Migrate Cloud SQL strategy.'
+  )
+  parser.add_argument(
+      '--cloud-sql-project-id',
+      required=True,
+      type=str,
+      help=(
+          'CloudSQL project to migrate from. This must be the'
+          ' project ID (myProject).'
+      ),
+  )
+  parser.add_argument(
+      '--cloud-sql-instance-id',
+      required=True,
+      type=str,
+      help=(
+          'CloudSQL instance ID to migrate from. This must be the'
+          ' instance ID (myInstance).'
+      ),
+  )
+  # Currently, only migration via restore from CloudSQL backup is supported.
+  migrate_cloud_sql_group = group.add_group(
+      help=(
+          'Migrate CloudSQL instance to an AlloyDB cluster by restoring from'
+          ' an existing backup.'
+      )
+  )
+  migrate_cloud_sql_group.add_argument(
+      '--cloud-sql-backup-id',
+      required=True,
+      type=int,
+      help=(
+          'CloudSQL backup ID to migrate from. This must be the'
+          ' backup ID (myBackup).'
       ),
   )

@@ -1584,13 +1584,13 @@ class ErrorInfo(_messages.Message):
 
   Messages:
     MetadatasValue: Additional structured details about this error. Keys must
-      match /a-z+/ but should ideally be lowerCamelCase. Also they must be
-      limited to 64 characters in length. When identifying the current value
-      of an exceeded limit, the units should be contained in the key, not the
-      value. For example, rather than {"instanceLimit": "100/request"}, should
-      be returned as, {"instanceLimitPerRequest": "100"}, if the client
-      exceeds the number of instances that can be created in a single (batch)
-      request.
+      match a regular expression of `a-z+` but should ideally be
+      lowerCamelCase. Also, they must be limited to 64 characters in length.
+      When identifying the current value of an exceeded limit, the units
+      should be contained in the key, not the value. For example, rather than
+      `{"instanceLimit": "100/request"}`, should be returned as,
+      `{"instanceLimitPerRequest": "100"}`, if the client exceeds the number
+      of instances that can be created in a single (batch) request.
 
   Fields:
     domain: The logical grouping to which the "reason" belongs. The error
@@ -1600,12 +1600,13 @@ class ErrorInfo(_messages.Message):
       globally unique value that identifies the infrastructure. For Google API
       infrastructure, the error domain is "googleapis.com".
     metadatas: Additional structured details about this error. Keys must match
-      /a-z+/ but should ideally be lowerCamelCase. Also they must be limited
-      to 64 characters in length. When identifying the current value of an
-      exceeded limit, the units should be contained in the key, not the value.
-      For example, rather than {"instanceLimit": "100/request"}, should be
-      returned as, {"instanceLimitPerRequest": "100"}, if the client exceeds
-      the number of instances that can be created in a single (batch) request.
+      a regular expression of `a-z+` but should ideally be lowerCamelCase.
+      Also, they must be limited to 64 characters in length. When identifying
+      the current value of an exceeded limit, the units should be contained in
+      the key, not the value. For example, rather than `{"instanceLimit":
+      "100/request"}`, should be returned as, `{"instanceLimitPerRequest":
+      "100"}`, if the client exceeds the number of instances that can be
+      created in a single (batch) request.
     reason: The reason of the error. This is a constant value that identifies
       the proximate cause of the error. Error reasons are unique within a
       particular domain of errors. This should be at most 63 characters and
@@ -1615,13 +1616,14 @@ class ErrorInfo(_messages.Message):
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class MetadatasValue(_messages.Message):
-    r"""Additional structured details about this error. Keys must match /a-z+/
-    but should ideally be lowerCamelCase. Also they must be limited to 64
-    characters in length. When identifying the current value of an exceeded
-    limit, the units should be contained in the key, not the value. For
-    example, rather than {"instanceLimit": "100/request"}, should be returned
-    as, {"instanceLimitPerRequest": "100"}, if the client exceeds the number
-    of instances that can be created in a single (batch) request.
+    r"""Additional structured details about this error. Keys must match a
+    regular expression of `a-z+` but should ideally be lowerCamelCase. Also,
+    they must be limited to 64 characters in length. When identifying the
+    current value of an exceeded limit, the units should be contained in the
+    key, not the value. For example, rather than `{"instanceLimit":
+    "100/request"}`, should be returned as, `{"instanceLimitPerRequest":
+    "100"}`, if the client exceeds the number of instances that can be created
+    in a single (batch) request.
 
     Messages:
       AdditionalProperty: An additional property for a MetadatasValue object.
@@ -1696,7 +1698,7 @@ class GlobalSetPolicyRequest(_messages.Message):
       size of the policy is limited to a few 10s of KB. An empty policy is in
       general a valid policy but certain services (like Projects) might reject
       them.
-    updateMask: A string attribute.
+    updateMask: Update mask for the policy.
   """
 
   bindings = _messages.MessageField('Binding', 1, repeated=True)
@@ -1787,6 +1789,8 @@ class InstancesBulkInsertOperationMetadata(_messages.Message):
       key). Example key: zones/us-central1-a
 
   Fields:
+    machineType: [Output Only] The machine type of the VMs that were created
+      used internally only by KCP flex bulk insert.
     perLocationStatus: Status information per location (location name is key).
       Example key: zones/us-central1-a
   """
@@ -1818,7 +1822,8 @@ class InstancesBulkInsertOperationMetadata(_messages.Message):
 
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
-  perLocationStatus = _messages.MessageField('PerLocationStatusValue', 1)
+  machineType = _messages.StringField(1)
+  perLocationStatus = _messages.MessageField('PerLocationStatusValue', 2)
 
 
 class LocalizedMessage(_messages.Message):
@@ -1943,6 +1948,8 @@ class Operation(_messages.Message):
     selfLink: [Output Only] Server-defined URL for the resource.
     selfLinkWithId: [Output Only] Server-defined URL for this resource with
       the resource id.
+    setAutoscalerLinkOperationMetadata: This field is used internally by the
+      Autoscaler team and should not be promoted to "alpha/beta/v1".
     setCommonInstanceMetadataOperationMetadata: [Output Only] If the operation
       is for projects.setCommonInstanceMetadata, this field will contain
       information on all underlying zonal actions and their state.
@@ -2134,12 +2141,16 @@ class Operation(_messages.Message):
         RESOURCE_USES_GLOBAL_DNS: Indicates that a VM is using global DNS. Can
           also be used to indicate that a resource has attributes that could
           result in the creation of a VM that uses global DNS.
-        RESERVED_ENTRY_134: Reserved entries for quickly adding new warnings
+        RATE_LIMIT_EXCEEDED: Resource can't be retrieved due to api quota
+          exceeded.
+        UPCOMING_MAINTENANCES_UNAVAILABLE: Upcoming maintenance schedule is
+          unavailable for the resource.
+        RESERVED_ENTRY_136: Reserved entries for quickly adding new warnings
           without breaking dependent clients.
-        RESERVED_ENTRY_135: <no description>
-        RESERVED_ENTRY_136: <no description>
         RESERVED_ENTRY_139: <no description>
         RESERVED_ENTRY_141: <no description>
+        RESERVED_ENTRY_142: <no description>
+        RESERVED_ENTRY_143: <no description>
       """
       DEPRECATED_RESOURCE_USED = 0
       NO_RESULTS_ON_PAGE = 1
@@ -2175,11 +2186,13 @@ class Operation(_messages.Message):
       LIST_OVERHEAD_QUOTA_EXCEED = 31
       QUOTA_INFO_UNAVAILABLE = 32
       RESOURCE_USES_GLOBAL_DNS = 33
-      RESERVED_ENTRY_134 = 34
-      RESERVED_ENTRY_135 = 35
+      RATE_LIMIT_EXCEEDED = 34
+      UPCOMING_MAINTENANCES_UNAVAILABLE = 35
       RESERVED_ENTRY_136 = 36
       RESERVED_ENTRY_139 = 37
       RESERVED_ENTRY_141 = 38
+      RESERVED_ENTRY_142 = 39
+      RESERVED_ENTRY_143 = 40
 
     class DataValueListEntry(_messages.Message):
       r"""A DataValueListEntry object.
@@ -2221,15 +2234,16 @@ class Operation(_messages.Message):
   region = _messages.StringField(16)
   selfLink = _messages.StringField(17)
   selfLinkWithId = _messages.StringField(18)
-  setCommonInstanceMetadataOperationMetadata = _messages.MessageField('SetCommonInstanceMetadataOperationMetadata', 19)
-  startTime = _messages.StringField(20)
-  status = _messages.EnumField('StatusValueValuesEnum', 21)
-  statusMessage = _messages.StringField(22)
-  targetId = _messages.IntegerField(23, variant=_messages.Variant.UINT64)
-  targetLink = _messages.StringField(24)
-  user = _messages.StringField(25)
-  warnings = _messages.MessageField('WarningsValueListEntry', 26, repeated=True)
-  zone = _messages.StringField(27)
+  setAutoscalerLinkOperationMetadata = _messages.MessageField('SetAutoscalerLinkOperationMetadata', 19)
+  setCommonInstanceMetadataOperationMetadata = _messages.MessageField('SetCommonInstanceMetadataOperationMetadata', 20)
+  startTime = _messages.StringField(21)
+  status = _messages.EnumField('StatusValueValuesEnum', 22)
+  statusMessage = _messages.StringField(23)
+  targetId = _messages.IntegerField(24, variant=_messages.Variant.UINT64)
+  targetLink = _messages.StringField(25)
+  user = _messages.StringField(26)
+  warnings = _messages.MessageField('WarningsValueListEntry', 27, repeated=True)
+  zone = _messages.StringField(28)
 
 
 class OperationsListResponse(_messages.Message):
@@ -2557,12 +2571,16 @@ class Resource(_messages.Message):
         RESOURCE_USES_GLOBAL_DNS: Indicates that a VM is using global DNS. Can
           also be used to indicate that a resource has attributes that could
           result in the creation of a VM that uses global DNS.
-        RESERVED_ENTRY_134: Reserved entries for quickly adding new warnings
+        RATE_LIMIT_EXCEEDED: Resource can't be retrieved due to api quota
+          exceeded.
+        UPCOMING_MAINTENANCES_UNAVAILABLE: Upcoming maintenance schedule is
+          unavailable for the resource.
+        RESERVED_ENTRY_136: Reserved entries for quickly adding new warnings
           without breaking dependent clients.
-        RESERVED_ENTRY_135: <no description>
-        RESERVED_ENTRY_136: <no description>
         RESERVED_ENTRY_139: <no description>
         RESERVED_ENTRY_141: <no description>
+        RESERVED_ENTRY_142: <no description>
+        RESERVED_ENTRY_143: <no description>
       """
       DEPRECATED_RESOURCE_USED = 0
       NO_RESULTS_ON_PAGE = 1
@@ -2598,11 +2616,13 @@ class Resource(_messages.Message):
       LIST_OVERHEAD_QUOTA_EXCEED = 31
       QUOTA_INFO_UNAVAILABLE = 32
       RESOURCE_USES_GLOBAL_DNS = 33
-      RESERVED_ENTRY_134 = 34
-      RESERVED_ENTRY_135 = 35
+      RATE_LIMIT_EXCEEDED = 34
+      UPCOMING_MAINTENANCES_UNAVAILABLE = 35
       RESERVED_ENTRY_136 = 36
       RESERVED_ENTRY_139 = 37
       RESERVED_ENTRY_141 = 38
+      RESERVED_ENTRY_142 = 39
+      RESERVED_ENTRY_143 = 40
 
     class DataValueListEntry(_messages.Message):
       r"""A DataValueListEntry object.
@@ -2872,12 +2892,16 @@ class ResourceUpdate(_messages.Message):
         RESOURCE_USES_GLOBAL_DNS: Indicates that a VM is using global DNS. Can
           also be used to indicate that a resource has attributes that could
           result in the creation of a VM that uses global DNS.
-        RESERVED_ENTRY_134: Reserved entries for quickly adding new warnings
+        RATE_LIMIT_EXCEEDED: Resource can't be retrieved due to api quota
+          exceeded.
+        UPCOMING_MAINTENANCES_UNAVAILABLE: Upcoming maintenance schedule is
+          unavailable for the resource.
+        RESERVED_ENTRY_136: Reserved entries for quickly adding new warnings
           without breaking dependent clients.
-        RESERVED_ENTRY_135: <no description>
-        RESERVED_ENTRY_136: <no description>
         RESERVED_ENTRY_139: <no description>
         RESERVED_ENTRY_141: <no description>
+        RESERVED_ENTRY_142: <no description>
+        RESERVED_ENTRY_143: <no description>
       """
       DEPRECATED_RESOURCE_USED = 0
       NO_RESULTS_ON_PAGE = 1
@@ -2913,11 +2937,13 @@ class ResourceUpdate(_messages.Message):
       LIST_OVERHEAD_QUOTA_EXCEED = 31
       QUOTA_INFO_UNAVAILABLE = 32
       RESOURCE_USES_GLOBAL_DNS = 33
-      RESERVED_ENTRY_134 = 34
-      RESERVED_ENTRY_135 = 35
+      RATE_LIMIT_EXCEEDED = 34
+      UPCOMING_MAINTENANCES_UNAVAILABLE = 35
       RESERVED_ENTRY_136 = 36
       RESERVED_ENTRY_139 = 37
       RESERVED_ENTRY_141 = 38
+      RESERVED_ENTRY_142 = 39
+      RESERVED_ENTRY_143 = 40
 
     class DataValueListEntry(_messages.Message):
       r"""A DataValueListEntry object.
@@ -2973,6 +2999,47 @@ class ServiceAccount(_messages.Message):
   """
 
   email = _messages.StringField(1)
+
+
+class SetAutoscalerLinkOperationMetadata(_messages.Message):
+  r"""A SetAutoscalerLinkOperationMetadata object.
+
+  Messages:
+    ZoneToIgmIdsValue: Map of zone to an ID of the zonal IGM belonging to the
+      RMIG.
+
+  Fields:
+    zonalIgmIds: List of zonal IGM IDs part of the RMIG.
+    zoneToIgmIds: Map of zone to an ID of the zonal IGM belonging to the RMIG.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ZoneToIgmIdsValue(_messages.Message):
+    r"""Map of zone to an ID of the zonal IGM belonging to the RMIG.
+
+    Messages:
+      AdditionalProperty: An additional property for a ZoneToIgmIdsValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type ZoneToIgmIdsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ZoneToIgmIdsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.IntegerField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  zonalIgmIds = _messages.IntegerField(1, repeated=True)
+  zoneToIgmIds = _messages.MessageField('ZoneToIgmIdsValue', 2)
 
 
 class SetCommonInstanceMetadataOperationMetadata(_messages.Message):

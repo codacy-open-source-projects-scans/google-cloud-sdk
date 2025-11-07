@@ -20,8 +20,6 @@ from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.container.fleet import client
 from googlecloudsdk.api_lib.container.fleet import util
-from googlecloudsdk.api_lib.services import enable_api
-from googlecloudsdk.command_lib.container.fleet.features import info
 
 CONFIG_MANAGEMENT_FEATURE_NAME = 'configmanagement'
 
@@ -46,6 +44,15 @@ spec:
     syncRev: HEAD
     gcpServiceAccountEmail:
     metricsGcpServiceAccountEmail:
+    deploymentOverrides:
+      name:
+      namespace:
+      containers:
+        name:
+        cpuRequest:
+        memoryRequest:
+        cpuLimit:
+        memoryLimit:
   policyController:
     enabled: false
     referentialRulesEnabled: false
@@ -69,6 +76,8 @@ MANAGEMENT_MANUAL = 'MANAGEMENT_MANUAL'
 CLUSTER = 'cluster'
 VERSION = 'version'
 CONFIG_SYNC = 'configSync'
+DEPLOYMENT_OVERRIDES = 'deploymentOverrides'
+CONTAINER_OVERRIDES = 'containers'
 POLICY_CONTROLLER = 'policyController'
 HNC = 'hierarchyController'
 PREVENT_DRIFT_VERSION = '1.10.0'
@@ -130,15 +139,3 @@ def get_backfill_version_from_feature(feature, membership):
     return spec_version
   # backfill non-specified spec version with current state_version
   return state_version
-
-
-def enable_poco_api_if_disabled(project):
-  # Policy Controller is being migrated from the ACM fleet feature to its own
-  # PoCo fleet feature. ACM's API is enabled implicitly so we can help the
-  # migration by enabling PoCo's API as well.
-  try:
-    poco_api = info.Get('policycontroller').api
-    enable_api.EnableServiceIfDisabled(project, poco_api)
-  except:  # pylint: disable=bare-except
-    # PoCo API enablement should be transparent, so we swallow any exceptions.
-    pass

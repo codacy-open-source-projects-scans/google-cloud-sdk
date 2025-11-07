@@ -149,6 +149,31 @@ class GoogleCloudNetworkconnectivityV1betaAcceptHubSpokeResponse(_messages.Messa
   spoke = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaSpoke', 1)
 
 
+class GoogleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest(_messages.Message):
+  r"""The request for HubService.AcceptSpokeUpdate.
+
+  Fields:
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    spokeEtag: Required. The etag of the spoke to accept update.
+    spokeUri: Required. The URI of the spoke to accept update.
+  """
+
+  requestId = _messages.StringField(1)
+  spokeEtag = _messages.StringField(2)
+  spokeUri = _messages.StringField(3)
+
+
 class GoogleCloudNetworkconnectivityV1betaActivateSpokeRequest(_messages.Message):
   r"""The request for HubService.ActivateSpoke.
 
@@ -179,247 +204,12 @@ class GoogleCloudNetworkconnectivityV1betaAutoAccept(_messages.Message):
   hub administrator.
 
   Fields:
-    autoAcceptProjects: A list of project ids or project numbers for which you
-      want to enable auto-accept. The auto-accept setting is applied to spokes
-      being created or updated in these projects.
+    autoAcceptProjects: Optional. A list of project ids or project numbers for
+      which you want to enable auto-accept. The auto-accept setting is applied
+      to spokes being created or updated in these projects.
   """
 
   autoAcceptProjects = _messages.StringField(1, repeated=True)
-
-
-class GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance(_messages.Message):
-  r"""Message describing CustomHardwareInstance object
-
-  Messages:
-    LabelsValue: Optional. User-defined labels.
-
-  Fields:
-    createTime: Output only. Time when the CustomHardwareInstance was created.
-    labels: Optional. User-defined labels.
-    name: Identifier. The name of a CustomHardwareInstance. Format: `projects/
-      {project}/locations/{location}/customHardwareInstances/{custom_hardware_
-      instance}`.
-    region: Required. The region associated with the CustomHardwareInstance.
-      Example: us-central1
-    updateTime: Output only. Time when the CustomHardwareInstance was updated.
-  """
-
-  @encoding.MapUnrecognizedFields('additionalProperties')
-  class LabelsValue(_messages.Message):
-    r"""Optional. User-defined labels.
-
-    Messages:
-      AdditionalProperty: An additional property for a LabelsValue object.
-
-    Fields:
-      additionalProperties: Additional properties of type LabelsValue
-    """
-
-    class AdditionalProperty(_messages.Message):
-      r"""An additional property for a LabelsValue object.
-
-      Fields:
-        key: Name of the additional property.
-        value: A string attribute.
-      """
-
-      key = _messages.StringField(1)
-      value = _messages.StringField(2)
-
-    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
-
-  createTime = _messages.StringField(1)
-  labels = _messages.MessageField('LabelsValue', 2)
-  name = _messages.StringField(3)
-  region = _messages.StringField(4)
-  updateTime = _messages.StringField(5)
-
-
-class GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment(_messages.Message):
-  r"""Message describing CustomHardwareLinkAttachment object
-
-  Enums:
-    LinkTypeValueValuesEnum: Required. The link type of
-      CustomHardwareLinkAttachment.
-
-  Messages:
-    LabelsValue: Optional. User-defined labels.
-
-  Fields:
-    asn: Required. ASN for network on the customer side of the
-      CustomHardwareLinkAttachment. CustomHardware BGP supports 16-bit and
-      32-bit ASN.
-    bgpIp: Required. BGP speaker IP address used by the CustomHardwareInstance
-      over this CustomHardwareLinkAttachment.
-    createTime: Output only. Time when the CustomHardwareLinkAttachment was
-      created.
-    customHardwareLinkConnectPair: Required. The name of the associated
-      CustomHardwareLinkConnectPair resource. For example: `projects/{project}
-      /locations/{location}/customHardwareLinkConnectPairs/{custom_hardware_li
-      nk_connect_pair}`.
-    labels: Optional. User-defined labels.
-    linkType: Required. The link type of CustomHardwareLinkAttachment.
-    name: Identifier. The name of a CustomHardwareLinkAttachment. Format: `pro
-      jects/{project}/locations/{location}/customHardwareLinkAttachments/{cust
-      om_hardware_link_attachment}`.
-    network: The name of the VPC network for this
-      CustomHardwareLinkAttachment. Format:
-      `projects/{project}/global/networks/{network}`
-    peerAsn: Required. ASN for network on the Google side of the
-      CustomHardwareLinkAttachment. CustomHardware BGP supports 16-bit and
-      32-bit ASN.
-    peerBgpIp: Required. BGP speaker IP address used by the Google owned BGP
-      speaker.
-    project: The consumer project where CustomHardwareInstance are created.
-      Format: `projects/{project}`
-    subnetwork: The name of the VPC subnetwork from which the BGP IP Addresses
-      will be allocated for this CustomHardwareLinkAttachment. Format:
-      `projects/{project}/regions/{region}/subnetworks/{subnetwork}`
-    updateTime: Output only. Time when the CustomHardwareLinkAttachment was
-      updated.
-  """
-
-  class LinkTypeValueValuesEnum(_messages.Enum):
-    r"""Required. The link type of CustomHardwareLinkAttachment.
-
-    Values:
-      LINK_TYPE_UNSPECIFIED: An invalid type as the default case.
-      REGULAR: Regular traffic type.
-      ULL: Ultra-low latency traffic type.
-    """
-    LINK_TYPE_UNSPECIFIED = 0
-    REGULAR = 1
-    ULL = 2
-
-  @encoding.MapUnrecognizedFields('additionalProperties')
-  class LabelsValue(_messages.Message):
-    r"""Optional. User-defined labels.
-
-    Messages:
-      AdditionalProperty: An additional property for a LabelsValue object.
-
-    Fields:
-      additionalProperties: Additional properties of type LabelsValue
-    """
-
-    class AdditionalProperty(_messages.Message):
-      r"""An additional property for a LabelsValue object.
-
-      Fields:
-        key: Name of the additional property.
-        value: A string attribute.
-      """
-
-      key = _messages.StringField(1)
-      value = _messages.StringField(2)
-
-    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
-
-  asn = _messages.IntegerField(1)
-  bgpIp = _messages.StringField(2)
-  createTime = _messages.StringField(3)
-  customHardwareLinkConnectPair = _messages.StringField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  linkType = _messages.EnumField('LinkTypeValueValuesEnum', 6)
-  name = _messages.StringField(7)
-  network = _messages.StringField(8)
-  peerAsn = _messages.IntegerField(9)
-  peerBgpIp = _messages.StringField(10)
-  project = _messages.StringField(11)
-  subnetwork = _messages.StringField(12)
-  updateTime = _messages.StringField(13)
-
-
-class GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair(_messages.Message):
-  r"""Message describing CustomHardwareLinkConnectPair object
-
-  Enums:
-    LinkSpeedValueValuesEnum: Required. The link speed of
-      CustomHardwareLinkConnectPair.
-    LinkTypeValueValuesEnum: Required. The link type of
-      CustomHardwareLinkConnectPair.
-
-  Messages:
-    LabelsValue: Optional. User-defined labels.
-
-  Fields:
-    createTime: Output only. Time when the CustomHardwareLinkConnectPair was
-      created.
-    customHardwareInstance: Required. The name of the associated
-      CustomHardwareInstance resource. For example: `projects/{project}/locati
-      ons/{location}/customHardwareInstances/{custom_hardware_instance_id}`.
-    labels: Optional. User-defined labels.
-    linkSpeed: Required. The link speed of CustomHardwareLinkConnectPair.
-    linkType: Required. The link type of CustomHardwareLinkConnectPair.
-    name: Identifier. The name of a CustomHardwareLinkConnectPair. The name is
-      restricted to letters, numbers and with the first character being a
-      letter, the last a letter or a number. Format: `projects/{project}/locat
-      ions/{location}/customHardwareLinkConnectPairs/{custom_hardware_link_con
-      nect_pair}` where custom_hardware_link_connect_pair must match the regex
-      `^[a-zA-Z0-9-]*[a-zA-Z0-9]$`
-    updateTime: Output only. Time when the CustomHardwareLinkConnectPair was
-      updated.
-    zone: Required. The zone associated with the
-      CustomHardwareLinkConnectPair. Example: us-central1-b
-  """
-
-  class LinkSpeedValueValuesEnum(_messages.Enum):
-    r"""Required. The link speed of CustomHardwareLinkConnectPair.
-
-    Values:
-      LINK_SPEED_UNSPECIFIED: An invalid type as the default case.
-      LINK_SPEED_10_G: Link speed of 10 G. Supported by ULL and Regular link
-        types
-      LINK_SPEED_100_G: Link speed of 100 G. Supported by Regular link type
-    """
-    LINK_SPEED_UNSPECIFIED = 0
-    LINK_SPEED_10_G = 1
-    LINK_SPEED_100_G = 2
-
-  class LinkTypeValueValuesEnum(_messages.Enum):
-    r"""Required. The link type of CustomHardwareLinkConnectPair.
-
-    Values:
-      LINK_TYPE_UNSPECIFIED: An invalid type as the default case.
-      REGULAR: Regular traffic type.
-      ULL: Ultra-low latency traffic type.
-    """
-    LINK_TYPE_UNSPECIFIED = 0
-    REGULAR = 1
-    ULL = 2
-
-  @encoding.MapUnrecognizedFields('additionalProperties')
-  class LabelsValue(_messages.Message):
-    r"""Optional. User-defined labels.
-
-    Messages:
-      AdditionalProperty: An additional property for a LabelsValue object.
-
-    Fields:
-      additionalProperties: Additional properties of type LabelsValue
-    """
-
-    class AdditionalProperty(_messages.Message):
-      r"""An additional property for a LabelsValue object.
-
-      Fields:
-        key: Name of the additional property.
-        value: A string attribute.
-      """
-
-      key = _messages.StringField(1)
-      value = _messages.StringField(2)
-
-    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
-
-  createTime = _messages.StringField(1)
-  customHardwareInstance = _messages.StringField(2)
-  labels = _messages.MessageField('LabelsValue', 3)
-  linkSpeed = _messages.EnumField('LinkSpeedValueValuesEnum', 4)
-  linkType = _messages.EnumField('LinkTypeValueValuesEnum', 5)
-  name = _messages.StringField(6)
-  updateTime = _messages.StringField(7)
-  zone = _messages.StringField(8)
 
 
 class GoogleCloudNetworkconnectivityV1betaDeactivateSpokeRequest(_messages.Message):
@@ -443,32 +233,154 @@ class GoogleCloudNetworkconnectivityV1betaDeactivateSpokeRequest(_messages.Messa
   requestId = _messages.StringField(1)
 
 
+class GoogleCloudNetworkconnectivityV1betaDestination(_messages.Message):
+  r"""The `Destination` resource. It specifies the IP prefix and the
+  associated autonomous system numbers (ASN) that you want to include in a
+  `MulticloudDataTransferConfig` resource.
+
+  Messages:
+    LabelsValue: Optional. User-defined labels.
+
+  Fields:
+    createTime: Output only. Time when the `Destination` resource was created.
+    description: Optional. A description of this resource.
+    endpoints: Required. Unordered list. The list of `DestinationEndpoint`
+      resources configured for the IP prefix.
+    etag: The etag is computed by the server, and might be sent with update
+      and delete requests so that the client has an up-to-date value before
+      proceeding.
+    ipPrefix: Required. Immutable. The IP prefix that represents your workload
+      on another CSP.
+    labels: Optional. User-defined labels.
+    name: Identifier. The name of the `Destination` resource. Format: `project
+      s/{project}/locations/{location}/multicloudDataTransferConfigs/{multiclo
+      ud_data_transfer_config}/destinations/{destination}`.
+    stateTimeline: Output only. The timeline of the expected `Destination`
+      states or the current rest state. If a state change is expected, the
+      value is `ADDING`, `DELETING` or `SUSPENDING`, depending on the action
+      specified. Example: "state_timeline": { "states": [ { // The time when
+      the `Destination` resource will be activated. "effectiveTime":
+      "2024-12-01T08:00:00Z", "state": "ADDING" }, { // The time when the
+      `Destination` resource will be suspended. "effectiveTime":
+      "2024-12-01T20:00:00Z", "state": "SUSPENDING" } ] }
+    uid: Output only. The Google-generated unique ID for the `Destination`
+      resource. This value is unique across all `Destination` resources. If a
+      resource is deleted and another with the same name is created, the new
+      resource is assigned a different and unique ID.
+    updateTime: Output only. Time when the `Destination` resource was updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. User-defined labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  endpoints = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaDestinationEndpoint', 3, repeated=True)
+  etag = _messages.StringField(4)
+  ipPrefix = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  stateTimeline = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaStateTimeline', 8)
+  uid = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
+
+
+class GoogleCloudNetworkconnectivityV1betaDestinationEndpoint(_messages.Message):
+  r"""The metadata for a `DestinationEndpoint` resource.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the `DestinationEndpoint`
+      resource.
+
+  Fields:
+    asn: Required. The ASN of the remote IP prefix.
+    csp: Required. The CSP of the remote IP prefix.
+    state: Output only. The state of the `DestinationEndpoint` resource.
+    updateTime: Output only. Time when the `DestinationEndpoint` resource was
+      updated.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the `DestinationEndpoint` resource.
+
+    Values:
+      STATE_UNSPECIFIED: An invalid state, which is the default case.
+      VALID: The `DestinationEndpoint` resource is valid.
+      INVALID: The `DestinationEndpoint` resource is invalid.
+    """
+    STATE_UNSPECIFIED = 0
+    VALID = 1
+    INVALID = 2
+
+  asn = _messages.IntegerField(1)
+  csp = _messages.StringField(2)
+  state = _messages.EnumField('StateValueValuesEnum', 3)
+  updateTime = _messages.StringField(4)
+
+
+class GoogleCloudNetworkconnectivityV1betaExportPscConfig(_messages.Message):
+  r"""Configuration for more granular control of Private Service Connect
+  connection propagation. This allows enabling or disabling connection
+  propagation for specific types of Private Service Connect endpoints.
+
+  Fields:
+    globalGoogleApis: Optional. Controls whether Private Service Connect
+      endpoints for global Google APIs should be propagated. The default value
+      is false.
+    publishedServicesAndRegionalGoogleApis: Optional. Controls whether Private
+      Service Connect endpoints for regional ILBs and regional Google APIs
+      should be propagated. Default value is true if export_psc is true.
+      Otherwise, the default value is false.
+  """
+
+  globalGoogleApis = _messages.BooleanField(1)
+  publishedServicesAndRegionalGoogleApis = _messages.BooleanField(2)
+
+
 class GoogleCloudNetworkconnectivityV1betaFilter(_messages.Message):
   r"""Filter matches L4 traffic.
 
   Enums:
     ProtocolVersionValueValuesEnum: Required. Internet protocol versions this
-      policy-based route applies to. For this version, only IPV4 is supported.
-      IPV6 is supported in preview.
+      policy-based route applies to. IPV4 and IPV6 is supported.
 
   Fields:
     destRange: Optional. The destination IP range of outgoing packets that
       this policy-based route applies to. Default is "0.0.0.0/0" if protocol
-      version is IPv4.
+      version is IPv4 and "::/0" if protocol version is IPv6.
     ipProtocol: Optional. The IP protocol that this policy-based route applies
       to. Valid values are 'TCP', 'UDP', and 'ALL'. Default is 'ALL'.
     protocolVersion: Required. Internet protocol versions this policy-based
-      route applies to. For this version, only IPV4 is supported. IPV6 is
-      supported in preview.
+      route applies to. IPV4 and IPV6 is supported.
     srcRange: Optional. The source IP range of outgoing packets that this
       policy-based route applies to. Default is "0.0.0.0/0" if protocol
-      version is IPv4.
+      version is IPv4 and "::/0" if protocol version is IPv6.
   """
 
   class ProtocolVersionValueValuesEnum(_messages.Enum):
     r"""Required. Internet protocol versions this policy-based route applies
-    to. For this version, only IPV4 is supported. IPV6 is supported in
-    preview.
+    to. IPV4 and IPV6 is supported.
 
     Values:
       PROTOCOL_VERSION_UNSPECIFIED: Default value.
@@ -494,6 +406,9 @@ class GoogleCloudNetworkconnectivityV1betaGateway(_messages.Message):
 
   Fields:
     capacity: Optional. The aggregate processing capacity of this gateway.
+    cloudRouters: Output only. The list of Cloud Routers that are connected to
+      this gateway. Should be in the form: https://www.googleapis.com/compute/
+      v1/projects/{project}/regions/{region}/routers/{router}
     ipRangeReservations: Optional. A list of IP ranges that are reserved for
       this gateway's internal intfrastructure.
     landingNetwork: Optional. This field will be deprecated and replaced
@@ -506,27 +421,151 @@ class GoogleCloudNetworkconnectivityV1betaGateway(_messages.Message):
     Values:
       GATEWAY_CAPACITY_UNSPECIFIED: The gateway capacity is unspecified.
       CAPACITY_1_GBPS: The gateway has 1 Gbps of aggregate processing capacity
-      CAPACITY_5_GBPS: The gateway has 5 Gbps of aggregate processing capacity
       CAPACITY_10_GBPS: The gateway has 10 Gbps of aggregate processing
-        capacity
-      CAPACITY_25_GBPS: The gateway has 25 Gbps of aggregate processing
-        capacity
-      CAPACITY_50_GBPS: The gateway has 50 Gbps of aggregate processing
         capacity
       CAPACITY_100_GBPS: The gateway has 100 Gbps of aggregate processing
         capacity
     """
     GATEWAY_CAPACITY_UNSPECIFIED = 0
     CAPACITY_1_GBPS = 1
-    CAPACITY_5_GBPS = 2
-    CAPACITY_10_GBPS = 3
-    CAPACITY_25_GBPS = 4
-    CAPACITY_50_GBPS = 5
-    CAPACITY_100_GBPS = 6
+    CAPACITY_10_GBPS = 2
+    CAPACITY_100_GBPS = 3
 
   capacity = _messages.EnumField('CapacityValueValuesEnum', 1)
-  ipRangeReservations = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaIpRangeReservation', 2, repeated=True)
-  landingNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLandingNetwork', 3)
+  cloudRouters = _messages.StringField(2, repeated=True)
+  ipRangeReservations = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaIpRangeReservation', 3, repeated=True)
+  landingNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLandingNetwork', 4)
+
+
+class GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute(_messages.Message):
+  r"""A gateway advertised route is a route that a gateway spoke advertises
+  somewhere.
+
+  Enums:
+    RecipientValueValuesEnum: Optional. The recipient of this advertised
+      route.
+    StateValueValuesEnum: Output only. The current lifecycle state of this
+      gateway advertised route.
+
+  Messages:
+    LabelsValue: Optional labels in key-value pair format. For more
+      information about labels, see [Requirements for
+      labels](https://cloud.google.com/resource-manager/docs/creating-
+      managing-labels#requirements).
+
+  Fields:
+    createTime: Output only. The time the gateway advertised route was
+      created.
+    description: An optional description of the gateway advertised route.
+    ipRange: Immutable. This route's advertised IP address range. Must be a
+      valid CIDR-formatted prefix. If an IP address is provided without a
+      subnet mask, it is interpreted as, for IPv4, a `/32` singular IP address
+      range, and, for IPv6, `/128`.
+    labels: Optional labels in key-value pair format. For more information
+      about labels, see [Requirements for
+      labels](https://cloud.google.com/resource-manager/docs/creating-
+      managing-labels#requirements).
+    name: Identifier. The name of the gateway advertised route. Route names
+      must be unique and use the following form: `projects/{project_number}/lo
+      cations/{region}/spokes/{spoke}/gatewayAdvertisedRoutes/{gateway_adverti
+      sed_route_id}`
+    priority: Optional. The priority of this advertised route. You can choose
+      a value from `0` to `65335`. If you don't provide a value, Google Cloud
+      assigns a priority of `100` to the ranges.
+    recipient: Optional. The recipient of this advertised route.
+    state: Output only. The current lifecycle state of this gateway advertised
+      route.
+    uniqueId: Output only. The Google-generated UUID for the gateway
+      advertised route. This value is unique across all gateway advertised
+      route resources. If a gateway advertised route is deleted and another
+      with the same name is created, the new route is assigned a different
+      `unique_id`.
+    updateTime: Output only. The time the gateway advertised route was last
+      updated.
+  """
+
+  class RecipientValueValuesEnum(_messages.Enum):
+    r"""Optional. The recipient of this advertised route.
+
+    Values:
+      RECIPIENT_UNSPECIFIED: No recipient specified. By default routes are
+        advertised to the hub.
+      ADVERTISE_TO_HUB: Advertises a route toward the hub. Other spokes
+        reachable from this spoke will receive the route.
+    """
+    RECIPIENT_UNSPECIFIED = 0
+    ADVERTISE_TO_HUB = 1
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The current lifecycle state of this gateway advertised
+    route.
+
+    Values:
+      STATE_UNSPECIFIED: No state information available
+      CREATING: The resource's create operation is in progress.
+      ACTIVE: The resource is active
+      DELETING: The resource's delete operation is in progress.
+      ACTIVATING: The resource's activate operation is in progress.
+      DEACTIVATING: The resource's deactivate operation is in progress.
+      ACCEPTING: The resource's accept operation is in progress.
+      REJECTING: The resource's reject operation is in progress.
+      UPDATING: The resource's update operation is in progress.
+      INACTIVE: The resource is inactive.
+      OBSOLETE: The hub associated with this spoke resource has been deleted.
+        This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
+    """
+    STATE_UNSPECIFIED = 0
+    CREATING = 1
+    ACTIVE = 2
+    DELETING = 3
+    ACTIVATING = 4
+    DEACTIVATING = 5
+    ACCEPTING = 6
+    REJECTING = 7
+    UPDATING = 8
+    INACTIVE = 9
+    OBSOLETE = 10
+    FAILED = 11
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional labels in key-value pair format. For more information about
+    labels, see [Requirements for labels](https://cloud.google.com/resource-
+    manager/docs/creating-managing-labels#requirements).
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  ipRange = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  name = _messages.StringField(5)
+  priority = _messages.IntegerField(6, variant=_messages.Variant.INT32)
+  recipient = _messages.EnumField('RecipientValueValuesEnum', 7)
+  state = _messages.EnumField('StateValueValuesEnum', 8)
+  uniqueId = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
 
 
 class GoogleCloudNetworkconnectivityV1betaGroup(_messages.Message):
@@ -580,6 +619,9 @@ class GoogleCloudNetworkconnectivityV1betaGroup(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -592,6 +634,7 @@ class GoogleCloudNetworkconnectivityV1betaGroup(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -659,14 +702,16 @@ class GoogleCloudNetworkconnectivityV1betaHub(_messages.Message):
 
   Fields:
     createTime: Output only. The time the hub was created.
-    description: An optional description of the hub.
+    description: Optional. An optional description of the hub.
     exchangePupi: Optional. Whether Privately Used Public IP (PUPI) exchange
       is enabled for the hub. If true, PUPI exchange will be allowed in VPC
       spokes attached to the hub. The default value is false.
-    exportPsc: Optional. Whether Private Service Connect transitivity is
-      enabled for the hub. If true, Private Service Connect endpoints in VPC
-      spokes attached to the hub are made accessible to other VPC spokes
-      attached to the hub. The default value is false.
+    exportPsc: Optional. Whether Private Service Connect connection
+      propagation is enabled for the hub. If true, Private Service Connect
+      endpoints in VPC spokes attached to the hub are made accessible to other
+      VPC spokes attached to the hub. The default value is false.
+    exportPscConfig: Optional. Config for more granular control of Private
+      Service Connect transitivity.
     labels: Optional labels in key-value pair format. For more information
       about labels, see [Requirements for
       labels](https://cloud.google.com/resource-manager/docs/creating-
@@ -688,9 +733,10 @@ class GoogleCloudNetworkconnectivityV1betaHub(_messages.Message):
       /{hub_id}/routeTables/{route_table_id}` This field is read-only. Network
       Connectivity Center automatically populates it based on the route tables
       nested under the hub.
-    routingVpcs: The VPC networks associated with this hub's spokes. This
-      field is read-only. Network Connectivity Center automatically populates
-      it based on the set of spokes attached to the hub.
+    routingVpcs: Output only. The VPC networks associated with this hub's
+      spokes. This field is read-only. Network Connectivity Center
+      automatically populates it based on the set of spokes attached to the
+      hub.
     spokeSummary: Output only. A summary of the spokes associated with a hub.
       The summary includes a count of spokes according to type and according
       to state. If any spokes are inactive, the summary also lists the reasons
@@ -754,6 +800,9 @@ class GoogleCloudNetworkconnectivityV1betaHub(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -766,6 +815,7 @@ class GoogleCloudNetworkconnectivityV1betaHub(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -797,16 +847,17 @@ class GoogleCloudNetworkconnectivityV1betaHub(_messages.Message):
   description = _messages.StringField(2)
   exchangePupi = _messages.BooleanField(3)
   exportPsc = _messages.BooleanField(4)
-  labels = _messages.MessageField('LabelsValue', 5)
-  name = _messages.StringField(6)
-  policyMode = _messages.EnumField('PolicyModeValueValuesEnum', 7)
-  presetTopology = _messages.EnumField('PresetTopologyValueValuesEnum', 8)
-  routeTables = _messages.StringField(9, repeated=True)
-  routingVpcs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaRoutingVPC', 10, repeated=True)
-  spokeSummary = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaSpokeSummary', 11)
-  state = _messages.EnumField('StateValueValuesEnum', 12)
-  uniqueId = _messages.StringField(13)
-  updateTime = _messages.StringField(14)
+  exportPscConfig = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaExportPscConfig', 5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  policyMode = _messages.EnumField('PolicyModeValueValuesEnum', 8)
+  presetTopology = _messages.EnumField('PresetTopologyValueValuesEnum', 9)
+  routeTables = _messages.StringField(10, repeated=True)
+  routingVpcs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaRoutingVPC', 11, repeated=True)
+  spokeSummary = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaSpokeSummary', 12)
+  state = _messages.EnumField('StateValueValuesEnum', 13)
+  uniqueId = _messages.StringField(14)
+  updateTime = _messages.StringField(15)
 
 
 class GoogleCloudNetworkconnectivityV1betaHubStatusEntry(_messages.Message):
@@ -880,9 +931,14 @@ class GoogleCloudNetworkconnectivityV1betaLinkedInterconnectAttachments(_message
   capable of advertising the same prefixes.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
       in [supported locations](https://cloud.google.com/network-
@@ -892,10 +948,13 @@ class GoogleCloudNetworkconnectivityV1betaLinkedInterconnectAttachments(_message
       located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(2)
-  uris = _messages.StringField(3, repeated=True)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(5)
+  uris = _messages.StringField(6, repeated=True)
+  vpcNetwork = _messages.StringField(7)
 
 
 class GoogleCloudNetworkconnectivityV1betaLinkedProducerVpcNetwork(_messages.Message):
@@ -912,6 +971,10 @@ class GoogleCloudNetworkconnectivityV1betaLinkedProducerVpcNetwork(_messages.Mes
       Consumer VPC and the Producer VPC (defined in the Tenant project) which
       is added to the NCC hub. This peering must be in ACTIVE state.
     producerNetwork: Output only. The URI of the Producer VPC.
+    proposedExcludeExportRanges: Output only. The proposed exclude export IP
+      ranges waiting for hub administration's approval.
+    proposedIncludeExportRanges: Output only. The proposed include export IP
+      ranges waiting for hub administration's approval.
     serviceConsumerVpcSpoke: Output only. The Service Consumer Network spoke.
   """
 
@@ -920,7 +983,9 @@ class GoogleCloudNetworkconnectivityV1betaLinkedProducerVpcNetwork(_messages.Mes
   network = _messages.StringField(3)
   peering = _messages.StringField(4)
   producerNetwork = _messages.StringField(5)
-  serviceConsumerVpcSpoke = _messages.StringField(6)
+  proposedExcludeExportRanges = _messages.StringField(6, repeated=True)
+  proposedIncludeExportRanges = _messages.StringField(7, repeated=True)
+  serviceConsumerVpcSpoke = _messages.StringField(8)
 
 
 class GoogleCloudNetworkconnectivityV1betaLinkedRouterApplianceInstances(_messages.Message):
@@ -930,9 +995,14 @@ class GoogleCloudNetworkconnectivityV1betaLinkedRouterApplianceInstances(_messag
   with the same spoke.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     instances: The list of router appliance instances.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
@@ -942,10 +1012,13 @@ class GoogleCloudNetworkconnectivityV1betaLinkedRouterApplianceInstances(_messag
       instances are located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  instances = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaRouterApplianceInstance', 2, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(3)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  instances = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaRouterApplianceInstance', 5, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(6)
+  vpcNetwork = _messages.StringField(7)
 
 
 class GoogleCloudNetworkconnectivityV1betaLinkedVpcNetwork(_messages.Message):
@@ -959,13 +1032,23 @@ class GoogleCloudNetworkconnectivityV1betaLinkedVpcNetwork(_messages.Message):
     producerVpcSpokes: Output only. The list of Producer VPC spokes that this
       VPC spoke is a service consumer VPC spoke for. These producer VPCs are
       connected through VPC peering to this spoke's backing VPC network.
+      Because they are directly connected through VPC peering, NCC export
+      filters do not apply between the service consumer VPC spoke and any of
+      its producer VPC spokes. This VPC spoke cannot be deleted as long as any
+      of these producer VPC spokes are connected to the NCC Hub.
+    proposedExcludeExportRanges: Output only. The proposed exclude export IP
+      ranges waiting for hub administration's approval.
+    proposedIncludeExportRanges: Output only. The proposed include export IP
+      ranges waiting for hub administration's approval.
     uri: Required. The URI of the VPC network resource.
   """
 
   excludeExportRanges = _messages.StringField(1, repeated=True)
   includeExportRanges = _messages.StringField(2, repeated=True)
   producerVpcSpokes = _messages.StringField(3, repeated=True)
-  uri = _messages.StringField(4)
+  proposedExcludeExportRanges = _messages.StringField(4, repeated=True)
+  proposedIncludeExportRanges = _messages.StringField(5, repeated=True)
+  uri = _messages.StringField(6)
 
 
 class GoogleCloudNetworkconnectivityV1betaLinkedVpnTunnels(_messages.Message):
@@ -975,9 +1058,14 @@ class GoogleCloudNetworkconnectivityV1betaLinkedVpnTunnels(_messages.Message):
   be capable of advertising the same prefixes.
 
   Fields:
-    includeImportRanges: Optional. IP ranges allowed to be included during
-      import from hub (does not control transit connectivity). The only
-      allowed value for now is "ALL_IPV4_RANGES".
+    excludeExportRanges: Optional. Dynamic routes overlapped/encompassed by
+      exclude export ranges are excluded during export to hub.
+    excludeImportRanges: Optional. Hub routes overlapped/encompassed by
+      exclude import ranges are excluded during import from hub.
+    includeExportRanges: Optional. Dynamic routes fully encompassed by include
+      export ranges are included during export to hub.
+    includeImportRanges: Optional. Hub routes fully encompassed by include
+      import ranges are included during import from hub.
     siteToSiteDataTransfer: A value that controls whether site-to-site data
       transfer is enabled for these resources. Data transfer is available only
       in [supported locations](https://cloud.google.com/network-
@@ -987,56 +1075,41 @@ class GoogleCloudNetworkconnectivityV1betaLinkedVpnTunnels(_messages.Message):
       located.
   """
 
-  includeImportRanges = _messages.StringField(1, repeated=True)
-  siteToSiteDataTransfer = _messages.BooleanField(2)
-  uris = _messages.StringField(3, repeated=True)
-  vpcNetwork = _messages.StringField(4)
+  excludeExportRanges = _messages.StringField(1, repeated=True)
+  excludeImportRanges = _messages.StringField(2, repeated=True)
+  includeExportRanges = _messages.StringField(3, repeated=True)
+  includeImportRanges = _messages.StringField(4, repeated=True)
+  siteToSiteDataTransfer = _messages.BooleanField(5)
+  uris = _messages.StringField(6, repeated=True)
+  vpcNetwork = _messages.StringField(7)
 
 
-class GoogleCloudNetworkconnectivityV1betaListCustomHardwareInstancesResponse(_messages.Message):
-  r"""Response for ListCustomHardwareInstances.
+class GoogleCloudNetworkconnectivityV1betaListDestinationsResponse(_messages.Message):
+  r"""Response message to list `Destination` resources.
 
   Fields:
-    customHardwareInstances: The list of CustomHardwareInstance
-    nextPageToken: The next pagination token in the List response. It should
-      be used as page_token for the following request. An empty value means no
-      more result.
+    destinations: The list of `Destination` resources to be listed.
+    nextPageToken: The next page token.
     unreachable: Locations that could not be reached.
   """
 
-  customHardwareInstances = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance', 1, repeated=True)
+  destinations = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaDestination', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
 
 
-class GoogleCloudNetworkconnectivityV1betaListCustomHardwareLinkAttachmentsResponse(_messages.Message):
-  r"""Response for ListCustomHardwareLinkAttachments.
+class GoogleCloudNetworkconnectivityV1betaListGatewayAdvertisedRoutesResponse(_messages.Message):
+  r"""Response for HubService.ListGatewayAdvertisedRoutes method.
 
   Fields:
-    customHardwareLinkAttachments: The list of CustomHardwareLinkAttachment
-    nextPageToken: The next pagination token in the List response. It should
-      be used as page_token for the following request. An empty value means no
-      more result.
-    unreachable: Locations that could not be reached.
+    gatewayAdvertisedRoutes: The requested gateway advertised routes.
+    nextPageToken: The token for the next page of the response. To see more
+      results, use this value as the page_token for your next request. If this
+      value is empty, there are no more results.
+    unreachable: Hubs that could not be reached.
   """
 
-  customHardwareLinkAttachments = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment', 1, repeated=True)
-  nextPageToken = _messages.StringField(2)
-  unreachable = _messages.StringField(3, repeated=True)
-
-
-class GoogleCloudNetworkconnectivityV1betaListCustomHardwareLinkConnectPairsResponse(_messages.Message):
-  r"""Response for ListCustomHardwareLinkConnectPairs.
-
-  Fields:
-    customHardwareLinkConnectPairs: The list of CustomHardwareLinkConnectPair
-    nextPageToken: The next pagination token in the List response. It should
-      be used as page_token for the following request. An empty value means no
-      more result.
-    unreachable: Locations that could not be reached.
-  """
-
-  customHardwareLinkConnectPairs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair', 1, repeated=True)
+  gatewayAdvertisedRoutes = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
 
@@ -1088,6 +1161,34 @@ class GoogleCloudNetworkconnectivityV1betaListHubsResponse(_messages.Message):
   hubs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaHub', 1, repeated=True)
   nextPageToken = _messages.StringField(2)
   unreachable = _messages.StringField(3, repeated=True)
+
+
+class GoogleCloudNetworkconnectivityV1betaListMulticloudDataTransferConfigsResponse(_messages.Message):
+  r"""Response message to list `MulticloudDataTransferConfig` resources.
+
+  Fields:
+    multicloudDataTransferConfigs: The list of `MulticloudDataTransferConfig`
+      resources to be listed.
+    nextPageToken: The next page token.
+    unreachable: Locations that could not be reached.
+  """
+
+  multicloudDataTransferConfigs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class GoogleCloudNetworkconnectivityV1betaListMulticloudDataTransferSupportedServicesResponse(_messages.Message):
+  r"""Response message to list the services in your project in regions that
+  are eligible for Data Transfer Essentials configuration.
+
+  Fields:
+    multicloudDataTransferSupportedServices: The list of supported services.
+    nextPageToken: The next page token.
+  """
+
+  multicloudDataTransferSupportedServices = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferSupportedService', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
 
 
 class GoogleCloudNetworkconnectivityV1betaListPolicyBasedRoutesResponse(_messages.Message):
@@ -1199,6 +1300,131 @@ class GoogleCloudNetworkconnectivityV1betaLocationMetadata(_messages.Message):
   locationFeatures = _messages.EnumField('LocationFeaturesValueListEntryValuesEnum', 1, repeated=True)
 
 
+class GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig(_messages.Message):
+  r"""The `MulticloudDataTransferConfig` resource. It lists the services that
+  you configure for Data Transfer Essentials billing and metering.
+
+  Messages:
+    LabelsValue: Optional. User-defined labels.
+    ServicesValue: Optional. Maps services to their current or planned states.
+      Service names are keys, and the associated values describe the state of
+      the service. If a state change is expected, the value is either `ADDING`
+      or `DELETING`, depending on the actions taken. Sample output:
+      "services": { "big-query": { "states": [ { "effectiveTime":
+      "2024-12-12T08:00:00Z" "state": "ADDING", }, ] }, "cloud-storage": {
+      "states": [ { "state": "ACTIVE", } ] } }
+
+  Fields:
+    createTime: Output only. Time when the `MulticloudDataTransferConfig`
+      resource was created.
+    description: Optional. A description of this resource.
+    destinationsActiveCount: Output only. The number of `Destination`
+      resources in use with the `MulticloudDataTransferConfig` resource.
+    destinationsCount: Output only. The number of `Destination` resources
+      configured for the `MulticloudDataTransferConfig` resource.
+    etag: The etag is computed by the server, and might be sent with update
+      and delete requests so that the client has an up-to-date value before
+      proceeding.
+    labels: Optional. User-defined labels.
+    name: Identifier. The name of the `MulticloudDataTransferConfig` resource.
+      Format: `projects/{project}/locations/{location}/multicloudDataTransferC
+      onfigs/{multicloud_data_transfer_config}`.
+    services: Optional. Maps services to their current or planned states.
+      Service names are keys, and the associated values describe the state of
+      the service. If a state change is expected, the value is either `ADDING`
+      or `DELETING`, depending on the actions taken. Sample output:
+      "services": { "big-query": { "states": [ { "effectiveTime":
+      "2024-12-12T08:00:00Z" "state": "ADDING", }, ] }, "cloud-storage": {
+      "states": [ { "state": "ACTIVE", } ] } }
+    uid: Output only. The Google-generated unique ID for the
+      `MulticloudDataTransferConfig` resource. This value is unique across all
+      `MulticloudDataTransferConfig` resources. If a resource is deleted and
+      another with the same name is created, the new resource is assigned a
+      different and unique ID.
+    updateTime: Output only. Time when the `MulticloudDataTransferConfig`
+      resource was updated.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. User-defined labels.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ServicesValue(_messages.Message):
+    r"""Optional. Maps services to their current or planned states. Service
+    names are keys, and the associated values describe the state of the
+    service. If a state change is expected, the value is either `ADDING` or
+    `DELETING`, depending on the actions taken. Sample output: "services": {
+    "big-query": { "states": [ { "effectiveTime": "2024-12-12T08:00:00Z"
+    "state": "ADDING", }, ] }, "cloud-storage": { "states": [ { "state":
+    "ACTIVE", } ] } }
+
+    Messages:
+      AdditionalProperty: An additional property for a ServicesValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type ServicesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ServicesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A GoogleCloudNetworkconnectivityV1betaStateTimeline attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaStateTimeline', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  createTime = _messages.StringField(1)
+  description = _messages.StringField(2)
+  destinationsActiveCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  destinationsCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  etag = _messages.StringField(5)
+  labels = _messages.MessageField('LabelsValue', 6)
+  name = _messages.StringField(7)
+  services = _messages.MessageField('ServicesValue', 8)
+  uid = _messages.StringField(9)
+  updateTime = _messages.StringField(10)
+
+
+class GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferSupportedService(_messages.Message):
+  r"""A service in your project in a region that is eligible for Data Transfer
+  Essentials configuration.
+
+  Fields:
+    name: Identifier. The name of the service.
+    serviceConfigs: Output only. The network service tier or regional endpoint
+      supported for the service.
+  """
+
+  name = _messages.StringField(1)
+  serviceConfigs = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaServiceConfig', 2, repeated=True)
+
+
 class GoogleCloudNetworkconnectivityV1betaNextHopInterconnectAttachment(_messages.Message):
   r"""A route next hop that leads to an interconnect attachment resource.
 
@@ -1233,6 +1459,24 @@ class GoogleCloudNetworkconnectivityV1betaNextHopRouterApplianceInstance(_messag
   siteToSiteDataTransfer = _messages.BooleanField(1)
   uri = _messages.StringField(2)
   vpcNetwork = _messages.StringField(3)
+
+
+class GoogleCloudNetworkconnectivityV1betaNextHopSpoke(_messages.Message):
+  r"""A route next hop that leads to a spoke resource.
+
+  Fields:
+    siteToSiteDataTransfer: Indicates whether site-to-site data transfer is
+      allowed for this spoke resource. Data transfer is available only in
+      [supported locations](https://cloud.google.com/network-
+      connectivity/docs/network-connectivity-center/concepts/locations).
+      Whether this route is accessible to other hybrid spokes with site-to-
+      site data transfer enabled. If this is false, the route is only
+      accessible to VPC spokes of the connected Hub.
+    uri: The URI of the spoke resource.
+  """
+
+  siteToSiteDataTransfer = _messages.BooleanField(1)
+  uri = _messages.StringField(2)
 
 
 class GoogleCloudNetworkconnectivityV1betaNextHopVPNTunnel(_messages.Message):
@@ -1497,8 +1741,9 @@ class GoogleCloudNetworkconnectivityV1betaRegionalEndpoint(_messages.Message):
       created on behalf of the customer. This field is deprecated. Use address
       instead.
     labels: User-defined labels.
-    name: Output only. The name of a RegionalEndpoint. Format: `projects/{proj
-      ect}/locations/{location}/regionalEndpoints/{regional_endpoint}`.
+    name: Output only. The name of a RegionalEndpoint. Pattern: `projects/{pro
+      ject}/locations/{location}/regionalEndpoints/^[-a-z0-9](?:[-a-z0-
+      9]{0,44})[a-z0-9]$`.
     network: The name of the VPC network for this private regional endpoint.
       Format: `projects/{project}/global/networks/{network}`
     pscForwardingRule: Output only. The resource reference of the PSC
@@ -1603,6 +1848,34 @@ class GoogleCloudNetworkconnectivityV1betaRejectHubSpokeResponse(_messages.Messa
   spoke = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaSpoke', 1)
 
 
+class GoogleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest(_messages.Message):
+  r"""The request for HubService.RejectSpokeUpdate.
+
+  Fields:
+    details: Optional. Additional information provided by the hub
+      administrator.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    spokeEtag: Required. The etag of the spoke to reject update.
+    spokeUri: Required. The URI of the spoke to reject update.
+  """
+
+  details = _messages.StringField(1)
+  requestId = _messages.StringField(2)
+  spokeEtag = _messages.StringField(3)
+  spokeUri = _messages.StringField(4)
+
+
 class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
   r"""A route defines a path from VM instances within a spoke to a specific
   destination resource. Only VPC spokes have routes.
@@ -1637,6 +1910,7 @@ class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
       packets on this route.
     nextHopRouterApplianceInstance: Immutable. The next-hop Router appliance
       instance for packets on this route.
+    nextHopSpoke: Immutable. The next-hop spoke for packets on this route.
     nextHopVpcNetwork: Immutable. The destination VPC network for packets on
       this route.
     nextHopVpnTunnel: Immutable. The next-hop VPN tunnel for packets on this
@@ -1672,6 +1946,9 @@ class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -1684,6 +1961,7 @@ class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   class TypeValueValuesEnum(_messages.Enum):
     r"""Output only. The route's type. Its type is determined by the
@@ -1698,11 +1976,14 @@ class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
       DYNAMIC_ROUTE: The route leads to a destination in a dynamic route.
         Dynamic routes are derived from Border Gateway Protocol (BGP)
         advertisements received from an NCC hybrid spoke.
+      PSC_GLOBAL_GAPI: The route leads to a destination within the Private
+        Service Connect Global Google API range of the VPC network.
     """
     ROUTE_TYPE_UNSPECIFIED = 0
     VPC_PRIMARY_SUBNET = 1
     VPC_SECONDARY_SUBNET = 2
     DYNAMIC_ROUTE = 3
+    PSC_GLOBAL_GAPI = 4
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1738,14 +2019,15 @@ class GoogleCloudNetworkconnectivityV1betaRoute(_messages.Message):
   name = _messages.StringField(6)
   nextHopInterconnectAttachment = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopInterconnectAttachment', 7)
   nextHopRouterApplianceInstance = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopRouterApplianceInstance', 8)
-  nextHopVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopVpcNetwork', 9)
-  nextHopVpnTunnel = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopVPNTunnel', 10)
-  priority = _messages.IntegerField(11)
-  spoke = _messages.StringField(12)
-  state = _messages.EnumField('StateValueValuesEnum', 13)
-  type = _messages.EnumField('TypeValueValuesEnum', 14)
-  uid = _messages.StringField(15)
-  updateTime = _messages.StringField(16)
+  nextHopSpoke = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopSpoke', 9)
+  nextHopVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopVpcNetwork', 10)
+  nextHopVpnTunnel = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaNextHopVPNTunnel', 11)
+  priority = _messages.IntegerField(12)
+  spoke = _messages.StringField(13)
+  state = _messages.EnumField('StateValueValuesEnum', 14)
+  type = _messages.EnumField('TypeValueValuesEnum', 15)
+  uid = _messages.StringField(16)
+  updateTime = _messages.StringField(17)
 
 
 class GoogleCloudNetworkconnectivityV1betaRouteTable(_messages.Message):
@@ -1795,6 +2077,9 @@ class GoogleCloudNetworkconnectivityV1betaRouteTable(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -1807,6 +2092,7 @@ class GoogleCloudNetworkconnectivityV1betaRouteTable(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1876,6 +2162,42 @@ class GoogleCloudNetworkconnectivityV1betaRoutingVPC(_messages.Message):
   uri = _messages.StringField(2)
 
 
+class GoogleCloudNetworkconnectivityV1betaServiceConfig(_messages.Message):
+  r"""Specifies eligibility information for the service.
+
+  Enums:
+    EligibilityCriteriaValueValuesEnum: Output only. The eligibility criteria
+      for the service.
+
+  Fields:
+    eligibilityCriteria: Output only. The eligibility criteria for the
+      service.
+    supportEndTime: Output only. The end time for eligibility criteria
+      support. If not specified, no planned end time is set.
+  """
+
+  class EligibilityCriteriaValueValuesEnum(_messages.Enum):
+    r"""Output only. The eligibility criteria for the service.
+
+    Values:
+      ELIGIBILITY_CRITERIA_UNSPECIFIED: The service is not eligible for Data
+        Transfer Essentials configuration. This is the default case.
+      NETWORK_SERVICE_TIER_PREMIUM_ONLY: The service is eligible for Data
+        Transfer Essentials configuration only for Premium Tier.
+      NETWORK_SERVICE_TIER_STANDARD_ONLY: The service is eligible for Data
+        Transfer Essentials configuration only for Standard Tier.
+      REQUEST_ENDPOINT_REGIONAL_ENDPOINT_ONLY: The service is eligible for
+        Data Transfer Essentials configuration only for the regional endpoint.
+    """
+    ELIGIBILITY_CRITERIA_UNSPECIFIED = 0
+    NETWORK_SERVICE_TIER_PREMIUM_ONLY = 1
+    NETWORK_SERVICE_TIER_STANDARD_ONLY = 2
+    REQUEST_ENDPOINT_REGIONAL_ENDPOINT_ONLY = 3
+
+  eligibilityCriteria = _messages.EnumField('EligibilityCriteriaValueValuesEnum', 1)
+  supportEndTime = _messages.StringField(2)
+
+
 class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
   r"""A Network Connectivity Center spoke represents one or more network
   connectivity resources. When you create a spoke, you associate it with a
@@ -1897,7 +2219,12 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
 
   Fields:
     createTime: Output only. The time the spoke was created.
-    description: An optional description of the spoke.
+    description: Optional. An optional description of the spoke.
+    etag: Optional. This checksum is computed by the server based on the value
+      of other fields, and may be sent on update and delete requests to ensure
+      the client has an up-to-date value before proceeding.
+    fieldPathsPendingUpdate: Optional. The list of fields waiting for hub
+      administration's approval.
     gateway: Optional. This is a gateway that can apply specialized processing
       to traffic going through it.
     group: Optional. The name of the group that this spoke is associated with.
@@ -1906,14 +2233,15 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
       about labels, see [Requirements for
       labels](https://cloud.google.com/resource-manager/docs/creating-
       managing-labels#requirements).
-    linkedInterconnectAttachments: VLAN attachments that are associated with
-      the spoke.
+    linkedInterconnectAttachments: Optional. VLAN attachments that are
+      associated with the spoke.
     linkedProducerVpcNetwork: Optional. The linked producer VPC that is
       associated with the spoke.
-    linkedRouterApplianceInstances: Router appliance instances that are
-      associated with the spoke.
+    linkedRouterApplianceInstances: Optional. Router appliance instances that
+      are associated with the spoke.
     linkedVpcNetwork: Optional. VPC network that is associated with the spoke.
-    linkedVpnTunnels: VPN tunnels that are associated with the spoke.
+    linkedVpnTunnels: Optional. VPN tunnels that are associated with the
+      spoke.
     name: Immutable. The name of the spoke. Spoke names must be unique. They
       use the following form:
       `projects/{project_number}/locations/{region}/spokes/{spoke_id}`
@@ -1936,6 +2264,7 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
       INTERCONNECT_ATTACHMENT: Spokes associated with VLAN attachments.
       ROUTER_APPLIANCE: Spokes associated with router appliance instances.
       VPC_NETWORK: Spokes associated with VPC networks.
+      GATEWAY: Spokes that are NCC gateways.
       PRODUCER_VPC_NETWORK: Spokes that are backed by a producer VPC network.
     """
     SPOKE_TYPE_UNSPECIFIED = 0
@@ -1943,7 +2272,8 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
     INTERCONNECT_ATTACHMENT = 2
     ROUTER_APPLIANCE = 3
     VPC_NETWORK = 4
-    PRODUCER_VPC_NETWORK = 5
+    GATEWAY = 5
+    PRODUCER_VPC_NETWORK = 6
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The current lifecycle state of this spoke.
@@ -1961,6 +2291,9 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -1973,6 +2306,7 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -2002,21 +2336,23 @@ class GoogleCloudNetworkconnectivityV1betaSpoke(_messages.Message):
 
   createTime = _messages.StringField(1)
   description = _messages.StringField(2)
-  gateway = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaGateway', 3)
-  group = _messages.StringField(4)
-  hub = _messages.StringField(5)
-  labels = _messages.MessageField('LabelsValue', 6)
-  linkedInterconnectAttachments = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedInterconnectAttachments', 7)
-  linkedProducerVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedProducerVpcNetwork', 8)
-  linkedRouterApplianceInstances = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedRouterApplianceInstances', 9)
-  linkedVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedVpcNetwork', 10)
-  linkedVpnTunnels = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedVpnTunnels', 11)
-  name = _messages.StringField(12)
-  reasons = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaStateReason', 13, repeated=True)
-  spokeType = _messages.EnumField('SpokeTypeValueValuesEnum', 14)
-  state = _messages.EnumField('StateValueValuesEnum', 15)
-  uniqueId = _messages.StringField(16)
-  updateTime = _messages.StringField(17)
+  etag = _messages.StringField(3)
+  fieldPathsPendingUpdate = _messages.StringField(4, repeated=True)
+  gateway = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaGateway', 5)
+  group = _messages.StringField(6)
+  hub = _messages.StringField(7)
+  labels = _messages.MessageField('LabelsValue', 8)
+  linkedInterconnectAttachments = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedInterconnectAttachments', 9)
+  linkedProducerVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedProducerVpcNetwork', 10)
+  linkedRouterApplianceInstances = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedRouterApplianceInstances', 11)
+  linkedVpcNetwork = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedVpcNetwork', 12)
+  linkedVpnTunnels = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaLinkedVpnTunnels', 13)
+  name = _messages.StringField(14)
+  reasons = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaStateReason', 15, repeated=True)
+  spokeType = _messages.EnumField('SpokeTypeValueValuesEnum', 16)
+  state = _messages.EnumField('StateValueValuesEnum', 17)
+  uniqueId = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
 
 
 class GoogleCloudNetworkconnectivityV1betaSpokeStateCount(_messages.Message):
@@ -2048,6 +2384,9 @@ class GoogleCloudNetworkconnectivityV1betaSpokeStateCount(_messages.Message):
       INACTIVE: The resource is inactive.
       OBSOLETE: The hub associated with this spoke resource has been deleted.
         This state applies to spoke resources only.
+      FAILED: The resource is in an undefined state due to resource creation
+        or deletion failure. You can try to delete the resource later or
+        contact support for help.
     """
     STATE_UNSPECIFIED = 0
     CREATING = 1
@@ -2060,6 +2399,7 @@ class GoogleCloudNetworkconnectivityV1betaSpokeStateCount(_messages.Message):
     UPDATING = 8
     INACTIVE = 9
     OBSOLETE = 10
+    FAILED = 11
 
   count = _messages.IntegerField(1)
   state = _messages.EnumField('StateValueValuesEnum', 2)
@@ -2149,6 +2489,7 @@ class GoogleCloudNetworkconnectivityV1betaSpokeTypeCount(_messages.Message):
       INTERCONNECT_ATTACHMENT: Spokes associated with VLAN attachments.
       ROUTER_APPLIANCE: Spokes associated with router appliance instances.
       VPC_NETWORK: Spokes associated with VPC networks.
+      GATEWAY: Spokes that are NCC gateways.
       PRODUCER_VPC_NETWORK: Spokes that are backed by a producer VPC network.
     """
     SPOKE_TYPE_UNSPECIFIED = 0
@@ -2156,10 +2497,48 @@ class GoogleCloudNetworkconnectivityV1betaSpokeTypeCount(_messages.Message):
     INTERCONNECT_ATTACHMENT = 2
     ROUTER_APPLIANCE = 3
     VPC_NETWORK = 4
-    PRODUCER_VPC_NETWORK = 5
+    GATEWAY = 5
+    PRODUCER_VPC_NETWORK = 6
 
   count = _messages.IntegerField(1)
   spokeType = _messages.EnumField('SpokeTypeValueValuesEnum', 2)
+
+
+class GoogleCloudNetworkconnectivityV1betaStateMetadata(_messages.Message):
+  r"""The state and activation time details of the resource state.
+
+  Enums:
+    StateValueValuesEnum: Output only. The state of the resource.
+
+  Fields:
+    effectiveTime: Output only. Accompanies only the transient states, which
+      include `ADDING`, `DELETING`, and `SUSPENDING`, to denote the time until
+      which the transient state of the resource will be effective. For
+      instance, if the state is `ADDING`, this field shows the time when the
+      resource state transitions to `ACTIVE`.
+    state: Output only. The state of the resource.
+  """
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. The state of the resource.
+
+    Values:
+      STATE_UNSPECIFIED: An invalid state, which is the default case.
+      ADDING: The resource is being added.
+      ACTIVE: The resource is in use.
+      DELETING: The resource is being deleted.
+      SUSPENDING: The resource is being suspended.
+      SUSPENDED: The resource is suspended and not in use.
+    """
+    STATE_UNSPECIFIED = 0
+    ADDING = 1
+    ACTIVE = 2
+    DELETING = 3
+    SUSPENDING = 4
+    SUSPENDED = 5
+
+  effectiveTime = _messages.StringField(1)
+  state = _messages.EnumField('StateValueValuesEnum', 2)
 
 
 class GoogleCloudNetworkconnectivityV1betaStateReason(_messages.Message):
@@ -2203,6 +2582,17 @@ class GoogleCloudNetworkconnectivityV1betaStateReason(_messages.Message):
   code = _messages.EnumField('CodeValueValuesEnum', 1)
   message = _messages.StringField(2)
   userDetails = _messages.StringField(3)
+
+
+class GoogleCloudNetworkconnectivityV1betaStateTimeline(_messages.Message):
+  r"""The timeline of the pending states for a resource.
+
+  Fields:
+    states: Output only. The state and activation time details of the resource
+      state.
+  """
+
+  states = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaStateMetadata', 1, repeated=True)
 
 
 class GoogleCloudNetworkconnectivityV1betaVirtualMachine(_messages.Message):
@@ -2773,586 +3163,6 @@ class GoogleTypeExpr(_messages.Message):
   title = _messages.StringField(4)
 
 
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesCreateRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareInstancesCreateRequest
-  object.
-
-  Fields:
-    customHardwareInstanceId: Required. Unique id of the
-      CustomHardwareInstance. If auto-generating Id server-side, remove this
-      field and custom_hardware_instance_id from the method_signature of
-      Create RPC
-    googleCloudNetworkconnectivityV1betaCustomHardwareInstance: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance resource to
-      be passed as the request body.
-    parent: Required. Value for parent.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  customHardwareInstanceId = _messages.StringField(1)
-  googleCloudNetworkconnectivityV1betaCustomHardwareInstance = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance', 2)
-  parent = _messages.StringField(3, required=True)
-  requestId = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesDeleteRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareInstancesDeleteRequest
-  object.
-
-  Fields:
-    name: Required. The name of the CustomHardwareInstance to delete.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes after the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  name = _messages.StringField(1, required=True)
-  requestId = _messages.StringField(2)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesGetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareInstancesGetIamPolic
-  yRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesGetRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareInstancesGetRequest
-  object.
-
-  Fields:
-    name: Required. Name of the resource
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesListRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareInstancesListRequest
-  object.
-
-  Fields:
-    filter: Optional. A filter expression that filters the results listed in
-      the response.
-    orderBy: Optional. Sort the results by a certain order.
-    pageSize: Optional. Requested page size. Server may return fewer items
-      than requested. If unspecified, server will pick an appropriate default.
-    pageToken: Optional. A token identifying a page of results the server
-      should return.
-    parent: Required. The parent resource's name of the
-      CustomHardwareInstance.
-  """
-
-  filter = _messages.StringField(1)
-  orderBy = _messages.StringField(2)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
-  parent = _messages.StringField(5, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesPatchRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareInstancesPatchRequest
-  object.
-
-  Fields:
-    googleCloudNetworkconnectivityV1betaCustomHardwareInstance: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance resource to
-      be passed as the request body.
-    name: Identifier. The name of a CustomHardwareInstance. Format: `projects/
-      {project}/locations/{location}/customHardwareInstances/{custom_hardware_
-      instance}`.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-    updateMask: Required. Field mask is used to specify the fields to be
-      overwritten in the CustomHardwareInstance resource by the update. The
-      fields specified in the update_mask are relative to the resource, not
-      the full request. A field will be overwritten if it is in the mask. If
-      the user does not provide a mask then all fields will be overwritten.
-  """
-
-  googleCloudNetworkconnectivityV1betaCustomHardwareInstance = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareInstance', 1)
-  name = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  updateMask = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesSetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareInstancesSetIamPolic
-  yRequest object.
-
-  Fields:
-    googleIamV1SetIamPolicyRequest: A GoogleIamV1SetIamPolicyRequest resource
-      to be passed as the request body.
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1SetIamPolicyRequest = _messages.MessageField('GoogleIamV1SetIamPolicyRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareInstancesTestIamPermissionsRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareInstancesTestIamPerm
-  issionsRequest object.
-
-  Fields:
-    googleIamV1TestIamPermissionsRequest: A
-      GoogleIamV1TestIamPermissionsRequest resource to be passed as the
-      request body.
-    resource: REQUIRED: The resource for which the policy detail is being
-      requested. See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1TestIamPermissionsRequest = _messages.MessageField('GoogleIamV1TestIamPermissionsRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsCreateRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsCreat
-  eRequest object.
-
-  Fields:
-    customHardwareLinkAttachmentId: Required. Unique id of the
-      CustomHardwareLinkAttachment. If auto-generating Id server-side, remove
-      this field and custom_hardware_link_attachment_id from the
-      method_signature of Create RPC
-    googleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment
-      resource to be passed as the request body.
-    parent: Required. Value for parent.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  customHardwareLinkAttachmentId = _messages.StringField(1)
-  googleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment', 2)
-  parent = _messages.StringField(3, required=True)
-  requestId = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsDeleteRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsDelet
-  eRequest object.
-
-  Fields:
-    name: Required. The name of the CustomHardwareLinkAttachment to delete.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes after the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  name = _messages.StringField(1, required=True)
-  requestId = _messages.StringField(2)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsGetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsGetIa
-  mPolicyRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsGetRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsGetRequest
-  object.
-
-  Fields:
-    name: Required. Name of the resource
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsListRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsListRequest
-  object.
-
-  Fields:
-    filter: Optional. A filter expression that filters the results listed in
-      the response.
-    orderBy: Optional. Sort the results by a certain order.
-    pageSize: Optional. Requested page size. Server may return fewer items
-      than requested. If unspecified, server will pick an appropriate default.
-    pageToken: Optional. A token identifying a page of results the server
-      should return.
-    parent: Required. The parent resource's name of the
-      CustomHardwareLinkAttachment.
-  """
-
-  filter = _messages.StringField(1)
-  orderBy = _messages.StringField(2)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
-  parent = _messages.StringField(5, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsPatchRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsPatch
-  Request object.
-
-  Fields:
-    googleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment
-      resource to be passed as the request body.
-    name: Identifier. The name of a CustomHardwareLinkAttachment. Format: `pro
-      jects/{project}/locations/{location}/customHardwareLinkAttachments/{cust
-      om_hardware_link_attachment}`.
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-    updateMask: Required. Field mask is used to specify the fields to be
-      overwritten in the CustomHardwareLinkAttachment resource by the update.
-      The fields specified in the update_mask are relative to the resource,
-      not the full request. A field will be overwritten if it is in the mask.
-      If the user does not provide a mask then all fields will be overwritten.
-  """
-
-  googleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkAttachment', 1)
-  name = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  updateMask = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsSetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsSetIa
-  mPolicyRequest object.
-
-  Fields:
-    googleIamV1SetIamPolicyRequest: A GoogleIamV1SetIamPolicyRequest resource
-      to be passed as the request body.
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1SetIamPolicyRequest = _messages.MessageField('GoogleIamV1SetIamPolicyRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsTestIamPermissionsRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsTestI
-  amPermissionsRequest object.
-
-  Fields:
-    googleIamV1TestIamPermissionsRequest: A
-      GoogleIamV1TestIamPermissionsRequest resource to be passed as the
-      request body.
-    resource: REQUIRED: The resource for which the policy detail is being
-      requested. See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1TestIamPermissionsRequest = _messages.MessageField('GoogleIamV1TestIamPermissionsRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsCreateRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsCrea
-  teRequest object.
-
-  Fields:
-    customHardwareLinkConnectPairId: Required. Unique id of the
-      CustomHardwareLinkConnectPair. (i.e. 'foo' in
-      '[...]/projects/*/locations/*/customHardwareLinkConnectPairs/foo') See
-      https://google.aip.dev/122#resource-id-segments
-    googleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair
-      resource to be passed as the request body.
-    parent: Required. The parent resource's name of the
-      CustomHardwareLinkConnectPair. Use the following format:
-      `projects/{project}/locations/{location}`
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  customHardwareLinkConnectPairId = _messages.StringField(1)
-  googleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair', 2)
-  parent = _messages.StringField(3, required=True)
-  requestId = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsDeleteRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsDele
-  teRequest object.
-
-  Fields:
-    name: Required. The name is restricted to letters, numbers and with the
-      first character being a letter, the last a letter or a number. Format: `
-      projects/{project}/locations/{location}/customHardwareLinkConnectPairs/{
-      custom_hardware_link_connect_pair}` where
-      custom_hardware_link_connect_pair must match the regex
-      `^[a-zA-Z0-9-]*[a-zA-Z0-9]$`
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes after the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-  """
-
-  name = _messages.StringField(1, required=True)
-  requestId = _messages.StringField(2)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsGetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsGetI
-  amPolicyRequest object.
-
-  Fields:
-    options_requestedPolicyVersion: Optional. The maximum policy version that
-      will be used to format the policy. Valid values are 0, 1, and 3.
-      Requests specifying an invalid value will be rejected. Requests for
-      policies with any conditional role bindings must specify version 3.
-      Policies with no conditional role bindings may specify any valid value
-      or leave the field unset. The policy in the response might use the
-      policy version that you specified, or it might use a lower policy
-      version. For example, if you specify version 3, but the policy has no
-      conditional role bindings, the response uses version 1. To learn which
-      resources support conditions in their IAM policies, see the [IAM
-      documentation](https://cloud.google.com/iam/help/conditions/resource-
-      policies).
-    resource: REQUIRED: The resource for which the policy is being requested.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  options_requestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsGetRequest(_messages.Message):
-  r"""A
-  NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsGetRequest
-  object.
-
-  Fields:
-    name: Required. The name is restricted to letters, numbers and with the
-      first character being a letter, the last a letter or a number. Format: `
-      projects/{project}/locations/{location}/customHardwareLinkConnectPairs/{
-      custom_hardware_link_connect_pair}` where
-      custom_hardware_link_connect_pair must match the regex
-      `^[a-zA-Z0-9-]*[a-zA-Z0-9]$`
-  """
-
-  name = _messages.StringField(1, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsListRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsList
-  Request object.
-
-  Fields:
-    filter: Optional. A filter expression that filters the results listed in
-      the response.
-    orderBy: Optional. Sort the results by a certain order.
-    pageSize: Optional. Requested page size. Server may return fewer items
-      than requested. If unspecified, server will pick an appropriate default.
-    pageToken: Optional. A token identifying a page of results the server
-      should return.
-    parent: Required. The parent resource's name of the
-      CustomHardwareLinkConnectPair. Use the following format:
-      `projects/{project}/locations/{location}`
-  """
-
-  filter = _messages.StringField(1)
-  orderBy = _messages.StringField(2)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
-  parent = _messages.StringField(5, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsPatchRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsPatc
-  hRequest object.
-
-  Fields:
-    googleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair: A
-      GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair
-      resource to be passed as the request body.
-    name: Identifier. The name of a CustomHardwareLinkConnectPair. The name is
-      restricted to letters, numbers and with the first character being a
-      letter, the last a letter or a number. Format: `projects/{project}/locat
-      ions/{location}/customHardwareLinkConnectPairs/{custom_hardware_link_con
-      nect_pair}` where custom_hardware_link_connect_pair must match the regex
-      `^[a-zA-Z0-9-]*[a-zA-Z0-9]$`
-    requestId: Optional. An optional request ID to identify requests. Specify
-      a unique request ID so that if you must retry your request, the server
-      will know to ignore the request if it has already been completed. The
-      server will guarantee that for at least 60 minutes since the first
-      request. For example, consider a situation where you make an initial
-      request and the request times out. If you make the request again with
-      the same request ID, the server can check if original operation with the
-      same request ID was received, and if so, will ignore the second request.
-      This prevents clients from accidentally creating duplicate commitments.
-      The request ID must be a valid UUID with the exception that zero UUID is
-      not supported (00000000-0000-0000-0000-000000000000).
-    updateMask: Required. Field mask is used to specify the fields to be
-      overwritten in the CustomHardwareLinkConnectPair resource by the update.
-      The fields specified in the update_mask are relative to the resource,
-      not the full request. A field will be overwritten if it is in the mask.
-      If the user does not provide a mask then all fields will be overwritten.
-  """
-
-  googleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaCustomHardwareLinkConnectPair', 1)
-  name = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  updateMask = _messages.StringField(4)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsSetIamPolicyRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsSetI
-  amPolicyRequest object.
-
-  Fields:
-    googleIamV1SetIamPolicyRequest: A GoogleIamV1SetIamPolicyRequest resource
-      to be passed as the request body.
-    resource: REQUIRED: The resource for which the policy is being specified.
-      See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1SetIamPolicyRequest = _messages.MessageField('GoogleIamV1SetIamPolicyRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
-class NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsTestIamPermissionsRequest(_messages.Message):
-  r"""A NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsTest
-  IamPermissionsRequest object.
-
-  Fields:
-    googleIamV1TestIamPermissionsRequest: A
-      GoogleIamV1TestIamPermissionsRequest resource to be passed as the
-      request body.
-    resource: REQUIRED: The resource for which the policy detail is being
-      requested. See [Resource
-      names](https://cloud.google.com/apis/design/resource_names) for the
-      appropriate value for this field.
-  """
-
-  googleIamV1TestIamPermissionsRequest = _messages.MessageField('GoogleIamV1TestIamPermissionsRequest', 1)
-  resource = _messages.StringField(2, required=True)
-
-
 class NetworkconnectivityProjectsLocationsGetRequest(_messages.Message):
   r"""A NetworkconnectivityProjectsLocationsGetRequest object.
 
@@ -3375,6 +3185,21 @@ class NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeRequest(_messages
   """
 
   googleCloudNetworkconnectivityV1betaAcceptHubSpokeRequest = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaAcceptHubSpokeRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsGlobalHubsAcceptSpokeUpdateRequest
+  object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest: A
+      GoogleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest resource to
+      be passed as the request body.
+    name: Required. The name of the hub to accept spoke update.
+  """
+
+  googleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaAcceptSpokeUpdateRequest', 1)
   name = _messages.StringField(2, required=True)
 
 
@@ -3757,6 +3582,21 @@ class NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeRequest(_messages
   name = _messages.StringField(2, required=True)
 
 
+class NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsGlobalHubsRejectSpokeUpdateRequest
+  object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest: A
+      GoogleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest resource to
+      be passed as the request body.
+    name: Required. The name of the hub to reject spoke update.
+  """
+
+  googleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaRejectSpokeUpdateRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
 class NetworkconnectivityProjectsLocationsGlobalHubsRouteTablesGetRequest(_messages.Message):
   r"""A NetworkconnectivityProjectsLocationsGlobalHubsRouteTablesGetRequest
   object.
@@ -3866,7 +3706,13 @@ class NetworkconnectivityProjectsLocationsGlobalPolicyBasedRoutesCreateRequest(_
       passed as the request body.
     parent: Required. The parent resource's name of the PolicyBasedRoute.
     policyBasedRouteId: Required. Unique id for the policy-based route to
-      create.
+      create. Provided by the client when the resource is created. The name
+      must comply with https://google.aip.dev/122#resource-id-segments.
+      Specifically, the name must be 1-63 characters long and match the
+      regular expression [a-z]([a-z0-9-]*[a-z0-9])?. The first character must
+      be a lowercase letter, and all following characters (except for the last
+      character) must be a dash, lowercase letter, or digit. The last
+      character must be a lowercase letter or digit.
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       knows to ignore the request if it has already been completed. The server
@@ -4007,6 +3853,9 @@ class NetworkconnectivityProjectsLocationsListRequest(_messages.Message):
   r"""A NetworkconnectivityProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -4017,10 +3866,292 @@ class NetworkconnectivityProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsCreateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsCreat
+  eRequest object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig: A
+      GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig
+      resource to be passed as the request body.
+    multicloudDataTransferConfigId: Required. The ID to use for the
+      `MulticloudDataTransferConfig` resource, which becomes the final
+      component of the `MulticloudDataTransferConfig` resource name.
+    parent: Required. The name of the parent resource.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  googleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig', 1)
+  multicloudDataTransferConfigId = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDeleteRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDelet
+  eRequest object.
+
+  Fields:
+    etag: Optional. The etag is computed by the server, and might be sent with
+      update and delete requests so that the client has an up-to-date value
+      before proceeding.
+    name: Required. The name of the `MulticloudDataTransferConfig` resource to
+      delete.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  etag = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsCreateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsCreateRequest object.
+
+  Fields:
+    destinationId: Required. The ID to use for the `Destination` resource,
+      which becomes the final component of the `Destination` resource name.
+    googleCloudNetworkconnectivityV1betaDestination: A
+      GoogleCloudNetworkconnectivityV1betaDestination resource to be passed as
+      the request body.
+    parent: Required. The name of the parent resource.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `Destination` resources. The request ID
+      must be a valid UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  destinationId = _messages.StringField(1)
+  googleCloudNetworkconnectivityV1betaDestination = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaDestination', 2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsDeleteRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsDeleteRequest object.
+
+  Fields:
+    etag: Optional. The etag is computed by the server, and might be sent with
+      update and delete requests so that the client has an up-to-date value
+      before proceeding.
+    name: Required. The name of the `Destination` resource to delete.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. The request ID must be a valid
+      UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+  """
+
+  etag = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsGetRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsGetRequest object.
+
+  Fields:
+    name: Required. The name of the `Destination` resource to get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsListRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsListRequest object.
+
+  Fields:
+    filter: Optional. An expression that filters the results listed in the
+      response.
+    orderBy: Optional. The sort order of the results.
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+    returnPartialSuccess: Optional. If `true`, allow partial responses for
+      multi-regional aggregated list requests.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDestinationsPatchRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsDesti
+  nationsPatchRequest object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaDestination: A
+      GoogleCloudNetworkconnectivityV1betaDestination resource to be passed as
+      the request body.
+    name: Identifier. The name of the `Destination` resource. Format: `project
+      s/{project}/locations/{location}/multicloudDataTransferConfigs/{multiclo
+      ud_data_transfer_config}/destinations/{destination}`.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. The request ID must be a valid
+      UUID with the exception that zero UUID
+      (00000000-0000-0000-0000-000000000000) isn't supported.
+    updateMask: Optional. `FieldMask is used to specify the fields to be
+      overwritten in the `Destination` resource by the update. The fields
+      specified in `update_mask` are relative to the resource, not the full
+      request. A field is overwritten if it is in the mask. If you don't
+      specify a mask, all fields are overwritten.
+  """
+
+  googleCloudNetworkconnectivityV1betaDestination = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaDestination', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsGetRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsGetRequest
+  object.
+
+  Fields:
+    name: Required. The name of the `MulticloudDataTransferConfig` resource to
+      get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsListRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsListRequest
+  object.
+
+  Fields:
+    filter: Optional. An expression that filters the results listed in the
+      response.
+    orderBy: Optional. The sort order of the results.
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+    returnPartialSuccess: Optional. If `true`, allows partial responses for
+      multi-regional aggregated list requests.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsPatchRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferConfigsPatch
+  Request object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig: A
+      GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig
+      resource to be passed as the request body.
+    name: Identifier. The name of the `MulticloudDataTransferConfig` resource.
+      Format: `projects/{project}/locations/{location}/multicloudDataTransferC
+      onfigs/{multicloud_data_transfer_config}`.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server can ignore
+      the request if it has already been completed. The server waits for at
+      least 60 minutes since the first request. For example, consider a
+      situation where you make an initial request and the request times out.
+      If you make the request again with the same request ID, the server can
+      check if original operation with the same request ID was received, and
+      if so, can ignore the second request. This prevents clients from
+      accidentally creating duplicate `MulticloudDataTransferConfig`
+      resources. The request ID must be a valid UUID with the exception that
+      zero UUID (00000000-0000-0000-0000-000000000000) isn't supported.
+    updateMask: Optional. `FieldMask` is used to specify the fields in the
+      `MulticloudDataTransferConfig` resource to be overwritten by the update.
+      The fields specified in `update_mask` are relative to the resource, not
+      the full request. A field is overwritten if it is in the mask. If you
+      don't specify a mask, all fields are overwritten.
+  """
+
+  googleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaMulticloudDataTransferConfig', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedServicesGetRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedSer
+  vicesGetRequest object.
+
+  Fields:
+    name: Required. The name of the service.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedServicesListRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsMulticloudDataTransferSupportedSer
+  vicesListRequest object.
+
+  Fields:
+    pageSize: Optional. The maximum number of results listed per page.
+    pageToken: Optional. The page token.
+    parent: Required. The name of the parent resource.
+  """
+
+  pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(2)
+  parent = _messages.StringField(3, required=True)
 
 
 class NetworkconnectivityProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -4083,7 +4214,7 @@ class NetworkconnectivityProjectsLocationsRegionalEndpointsCreateRequest(_messag
       passed as the request body.
     parent: Required. The parent resource's name of the RegionalEndpoint.
     regionalEndpointId: Required. Unique id of the Regional Endpoint to be
-      created.
+      created. @pattern: ^[-a-z0-9](?:[-a-z0-9]{0,44})[a-z0-9]$
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
       knows to ignore the request if it has already been completed. The server
@@ -4238,6 +4369,134 @@ class NetworkconnectivityProjectsLocationsSpokesDeleteRequest(_messages.Message)
 
   name = _messages.StringField(1, required=True)
   requestId = _messages.StringField(2)
+
+
+class NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesCreateRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesCreat
+  eRequest object.
+
+  Fields:
+    gatewayAdvertisedRouteId: Required. Unique id for the route to create.
+    googleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute: A
+      GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute resource to
+      be passed as the request body.
+    parent: Required. The parent resource.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  gatewayAdvertisedRouteId = _messages.StringField(1)
+  googleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute', 2)
+  parent = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesDeleteRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesDelet
+  eRequest object.
+
+  Fields:
+    name: Required. The name of the gateway advertised route to delete.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  name = _messages.StringField(1, required=True)
+  requestId = _messages.StringField(2)
+
+
+class NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesGetRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesGetRequest
+  object.
+
+  Fields:
+    name: Required. The name of the gateway advertised route to get.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesListRequest(_messages.Message):
+  r"""A
+  NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesListRequest
+  object.
+
+  Fields:
+    filter: An expression that filters the list of results.
+    orderBy: Sort the results by a certain order.
+    pageSize: Optional. The maximum number of results per page that should be
+      returned.
+    pageToken: Optional. A page token, received from a previous
+      `ListGatewayAdvertisedRoutes` call. Provide this to retrieve the
+      subsequent page. When paginating, all other parameters provided to
+      `ListGatewayAdvertisedRoutes` must match the call that provided the page
+      token.
+    parent: Required. The parent resource's name.
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesPatchRequest(_messages.Message):
+  r"""A NetworkconnectivityProjectsLocationsSpokesGatewayAdvertisedRoutesPatch
+  Request object.
+
+  Fields:
+    googleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute: A
+      GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute resource to
+      be passed as the request body.
+    name: Identifier. The name of the gateway advertised route. Route names
+      must be unique and use the following form: `projects/{project_number}/lo
+      cations/{region}/spokes/{spoke}/gatewayAdvertisedRoutes/{gateway_adverti
+      sed_route_id}`
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server knows to
+      ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check to see
+      whether the original operation was received. If it was, the server
+      ignores the second request. This behavior prevents clients from
+      mistakenly creating duplicate commitments. The request ID must be a
+      valid UUID, with the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+    updateMask: Optional. In the case of an update to an existing group, field
+      mask is used to specify the fields to be overwritten. The fields
+      specified in the update_mask are relative to the resource, not the full
+      request. A field is overwritten if it is in the mask. If the user does
+      not provide a mask, then all fields are overwritten.
+  """
+
+  googleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute = _messages.MessageField('GoogleCloudNetworkconnectivityV1betaGatewayAdvertisedRoute', 1)
+  name = _messages.StringField(2, required=True)
+  requestId = _messages.StringField(3)
+  updateMask = _messages.StringField(4)
 
 
 class NetworkconnectivityProjectsLocationsSpokesGetIamPolicyRequest(_messages.Message):
@@ -4432,12 +4691,6 @@ encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_1', '1')
 encoding.AddCustomJsonEnumMapping(
     StandardQueryParameters.FXgafvValueValuesEnum, '_2', '2')
-encoding.AddCustomJsonFieldMapping(
-    NetworkconnectivityProjectsLocationsCustomHardwareInstancesGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
-encoding.AddCustomJsonFieldMapping(
-    NetworkconnectivityProjectsLocationsCustomHardwareLinkAttachmentsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
-encoding.AddCustomJsonFieldMapping(
-    NetworkconnectivityProjectsLocationsCustomHardwareLinkConnectPairsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(
     NetworkconnectivityProjectsLocationsGlobalHubsGetIamPolicyRequest, 'options_requestedPolicyVersion', 'options.requestedPolicyVersion')
 encoding.AddCustomJsonFieldMapping(

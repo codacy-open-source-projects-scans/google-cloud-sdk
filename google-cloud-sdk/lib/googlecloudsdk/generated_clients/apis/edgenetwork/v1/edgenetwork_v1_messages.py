@@ -153,6 +153,9 @@ class EdgenetworkProjectsLocationsListRequest(_messages.Message):
   r"""A EdgenetworkProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -163,10 +166,11 @@ class EdgenetworkProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class EdgenetworkProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -210,12 +214,20 @@ class EdgenetworkProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class EdgenetworkProjectsLocationsZonesGetRequest(_messages.Message):
@@ -723,6 +735,9 @@ class Interconnect(_messages.Message):
   Enums:
     InterconnectTypeValueValuesEnum: Optional. Type of interconnect, which
       takes only the value 'DEDICATED' for now.
+    RemotePeeringNetworkTypeValueValuesEnum: Optional. The remote peering
+      network type of the interconnect. It is required when peering separation
+      is enabled.
 
   Messages:
     LabelsValue: Labels associated with this resource.
@@ -739,6 +754,8 @@ class Interconnect(_messages.Message):
     name: Required. The canonical resource name of the interconnect.
     physicalPorts: Output only. Physical ports (e.g., TenGigE0/0/0/1) that
       form the interconnect.
+    remotePeeringNetworkType: Optional. The remote peering network type of the
+      interconnect. It is required when peering separation is enabled.
     updateTime: Output only. The time when the subnet was last updated.
     uuid: Output only. Unique identifier for the link.
   """
@@ -753,6 +770,21 @@ class Interconnect(_messages.Message):
     """
     INTERCONNECT_TYPE_UNSPECIFIED = 0
     DEDICATED = 1
+
+  class RemotePeeringNetworkTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The remote peering network type of the interconnect. It is
+    required when peering separation is enabled.
+
+    Values:
+      REMOTE_PEERING_NETWORK_TYPE_UNSPECIFIED: Unspecified.
+      REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNAL: Customer's trusted
+        internal network.
+      REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNET: Customer's untrust
+        network that has internet access.
+    """
+    REMOTE_PEERING_NETWORK_TYPE_UNSPECIFIED = 0
+    REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNAL = 1
+    REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNET = 2
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -785,14 +817,18 @@ class Interconnect(_messages.Message):
   labels = _messages.MessageField('LabelsValue', 5)
   name = _messages.StringField(6)
   physicalPorts = _messages.StringField(7, repeated=True)
-  updateTime = _messages.StringField(8)
-  uuid = _messages.StringField(9)
+  remotePeeringNetworkType = _messages.EnumField('RemotePeeringNetworkTypeValueValuesEnum', 8)
+  updateTime = _messages.StringField(9)
+  uuid = _messages.StringField(10)
 
 
 class InterconnectAttachment(_messages.Message):
   r"""Message describing InterconnectAttachment object
 
   Enums:
+    PeeringTypeValueValuesEnum: Optional. The remote peering network type of
+      the underlying interconnect. It is required when peering separation is
+      enabled.
     StateValueValuesEnum: Output only. Current stage of the resource to the
       device by config push.
 
@@ -816,12 +852,29 @@ class InterconnectAttachment(_messages.Message):
     network: Optional. The canonical Network name in the form of
       `projects/{project}/locations/{location}/zones/{zone}/networks/{network}
       `.
+    peeringType: Optional. The remote peering network type of the underlying
+      interconnect. It is required when peering separation is enabled.
     state: Output only. Current stage of the resource to the device by config
       push.
     updateTime: Output only. The time when the interconnect attachment was
       last updated.
     vlanId: Required. VLAN id provided by user. Must be site-wise unique.
   """
+
+  class PeeringTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. The remote peering network type of the underlying
+    interconnect. It is required when peering separation is enabled.
+
+    Values:
+      REMOTE_PEERING_NETWORK_TYPE_UNSPECIFIED: Unspecified.
+      REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNAL: Customer's trusted
+        internal network.
+      REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNET: Customer's untrust
+        network that has internet access.
+    """
+    REMOTE_PEERING_NETWORK_TYPE_UNSPECIFIED = 0
+    REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNAL = 1
+    REMOTE_PEERING_NETWORK_TYPE_CUSTOMER_INTERNET = 2
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. Current stage of the resource to the device by config
@@ -873,9 +926,10 @@ class InterconnectAttachment(_messages.Message):
   mtu = _messages.IntegerField(5, variant=_messages.Variant.INT32)
   name = _messages.StringField(6)
   network = _messages.StringField(7)
-  state = _messages.EnumField('StateValueValuesEnum', 8)
-  updateTime = _messages.StringField(9)
-  vlanId = _messages.IntegerField(10, variant=_messages.Variant.INT32)
+  peeringType = _messages.EnumField('PeeringTypeValueValuesEnum', 8)
+  state = _messages.EnumField('StateValueValuesEnum', 9)
+  updateTime = _messages.StringField(10)
+  vlanId = _messages.IntegerField(11, variant=_messages.Variant.INT32)
 
 
 class InterconnectDiagnostics(_messages.Message):
@@ -1083,10 +1137,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListRoutersResponse(_messages.Message):

@@ -294,7 +294,7 @@ class RecaptchaenterpriseV1(base_api.BaseApiClient):
           }
 
     def AddIpOverride(self, request, global_params=None):
-      r"""Adds an IP override to a key. The following restrictions hold: * The maximum number of IP overrides per key is 100. * For any conflict (such as IP already exists or IP part of an existing IP range), an error is returned.
+      r"""Adds an IP override to a key. The following restrictions hold: * The maximum number of IP overrides per key is 1000. * For any conflict (such as IP already exists or IP part of an existing IP range), an error is returned.
 
       Args:
         request: (RecaptchaenterpriseProjectsKeysAddIpOverrideRequest) input message
@@ -425,6 +425,33 @@ class RecaptchaenterpriseV1(base_api.BaseApiClient):
         request_field='',
         request_type_name='RecaptchaenterpriseProjectsKeysGetMetricsRequest',
         response_type_name='GoogleCloudRecaptchaenterpriseV1Metrics',
+        supports_download=False,
+    )
+
+    def GetPolicy(self, request, global_params=None):
+      r"""Get the policy for a key.
+
+      Args:
+        request: (RecaptchaenterpriseProjectsKeysGetPolicyRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleCloudRecaptchaenterpriseV1Policy) The response message.
+      """
+      config = self.GetMethodConfig('GetPolicy')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    GetPolicy.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/keys/{keysId}/policy',
+        http_method='GET',
+        method_id='recaptchaenterprise.projects.keys.getPolicy',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}',
+        request_field='',
+        request_type_name='RecaptchaenterpriseProjectsKeysGetPolicyRequest',
+        response_type_name='GoogleCloudRecaptchaenterpriseV1Policy',
         supports_download=False,
     )
 
@@ -587,6 +614,33 @@ class RecaptchaenterpriseV1(base_api.BaseApiClient):
         request_field='',
         request_type_name='RecaptchaenterpriseProjectsKeysRetrieveLegacySecretKeyRequest',
         response_type_name='GoogleCloudRecaptchaenterpriseV1RetrieveLegacySecretKeyResponse',
+        supports_download=False,
+    )
+
+    def UpdatePolicy(self, request, global_params=None):
+      r"""Updates the policy for a key.
+
+      Args:
+        request: (RecaptchaenterpriseProjectsKeysUpdatePolicyRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleCloudRecaptchaenterpriseV1Policy) The response message.
+      """
+      config = self.GetMethodConfig('UpdatePolicy')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    UpdatePolicy.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/keys/{keysId}/policy',
+        http_method='PATCH',
+        method_id='recaptchaenterprise.projects.keys.updatePolicy',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1/{+name}',
+        request_field='googleCloudRecaptchaenterpriseV1Policy',
+        request_type_name='RecaptchaenterpriseProjectsKeysUpdatePolicyRequest',
+        response_type_name='GoogleCloudRecaptchaenterpriseV1Policy',
         supports_download=False,
     )
 

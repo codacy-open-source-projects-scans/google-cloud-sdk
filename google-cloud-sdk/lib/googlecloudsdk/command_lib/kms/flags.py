@@ -261,6 +261,14 @@ def AddPlaintextFileFlag(parser, help_action):
   )
 
 
+def AddSharedSecretFileFlag(parser, help_action):
+  parser.add_argument(
+      '--shared-secret-file',
+      help='File path of the shared secret file {0}.'.format(help_action),
+      required=True,
+  )
+
+
 def AddCiphertextFileFlag(parser, help_action):
   parser.add_argument(
       '--ciphertext-file',
@@ -522,6 +530,14 @@ def AddRemoveKeyAccessJustificationsPolicyFlag(parser):
   )
 
 
+def AddPublicKeyFormatFlag(parser):
+  parser.add_argument(
+      '--public-key-format',
+      default=None,
+      help='The format in which the public key will be returned.',
+  )
+
+
 # Arguments
 def AddKeyRingArgument(parser, help_action):
   parser.add_argument(
@@ -674,8 +690,8 @@ def AddResourceTypeSelectorFlag(parser, required=False):
   parser.add_argument(
       '--resource-type',
       help=(
-          'The resource type selector for key handles of the form'
-          f' {{SERVICE}}.{properties.VALUES.core.universe_domain.Get()}/{{TYPE}}.'
+          'The resource type selector for KeyHandle resources of the form'
+          ' {{SERVICE}}.{{UNIVERSE_DOMAIN}}/{{TYPE}}.'
       ),
       required=required,
   )
@@ -687,11 +703,11 @@ def AddCreateKeyHandleFlags(parser):
   group = parser.add_group(mutex=True, required=True)
   group.add_argument(
       '--key-handle-id',
-      help='The key handle id for the new key handle.',
+      help='The KeyHandle id for the new KeyHandle resource.',
   )
   group.add_argument(
       '--generate-key-handle-id',
-      help='Generate a key handle id for the new key handle.',
+      help='Generate a KeyHandle id for the new KeyHandle resource.',
       action='store_true',
   )
 
@@ -699,7 +715,7 @@ def AddCreateKeyHandleFlags(parser):
 def AddFolderIdFlag(parser, required=False):
   parser.add_argument(
       '--folder',
-      help='The folder id in which the autokey config resource exists.',
+      help='The folder id in which the AutokeyConfig resource exists.',
       required=required,
   )
 
@@ -707,7 +723,7 @@ def AddFolderIdFlag(parser, required=False):
 def AddAutokeyConfigFileFlag(parser):
   parser.add_argument(
       'CONFIG_FILE',
-      help='The file containing the autokey config resource.',
+      help='The file containing the AutokeyConfig resource.',
   )
 
 

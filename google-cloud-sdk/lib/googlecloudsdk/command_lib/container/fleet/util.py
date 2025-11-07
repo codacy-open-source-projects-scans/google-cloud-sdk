@@ -116,6 +116,13 @@ table(
 )
 """
 
+ROLLOUTSEQUENCE_LIST_FORMAT = """
+table(
+    name.basename():label=NAME,
+    name.segment(3):label=LOCATION
+)
+"""
+
 APP_OPERATOR_LIST_FORMAT = """
     table(
       principal:sort=1:label=PRINCIPAL,
@@ -300,6 +307,11 @@ def ReleaseTrackCommandPrefix(release_track):
 
   prefix = release_track.prefix
   return prefix + ' ' if prefix else ''
+
+
+def DefaultToAllLocations():
+  """Returns '-' to be used as a fallthrough hook in resources.yaml."""
+  return '-'
 
 
 def DefaultToGlobal():

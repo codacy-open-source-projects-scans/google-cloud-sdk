@@ -409,6 +409,8 @@ class AppconfigmanagerProjectsLocationsListRequest(_messages.Message):
   r"""A AppconfigmanagerProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. A list of extra location types that should
+      be used as conditions for controlling the visibility of the locations.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -419,10 +421,11 @@ class AppconfigmanagerProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class Config(_messages.Message):
@@ -812,21 +815,22 @@ class RenderConfigVersionResponse(_messages.Message):
 
 
 class ResourcePolicyMember(_messages.Message):
-  r"""Output-only policy member strings of a Google Cloud resource.
+  r"""Output-only policy member strings of a Google Cloud resource's built-in
+  identity.
 
   Fields:
     iamPolicyNamePrincipal: Output only. IAM policy binding member referring
       to a Google Cloud resource by user-assigned name
       (https://google.aip.dev/122). If a resource is deleted and recreated
       with the same name, the binding will be applicable to the new resource.
-      Example: `principal://appconfigmanager.googleapis.com/projects/12345/nam
-      e/locations/us-central1-a/configs/my-config`
+      Example: `principal://parametermanager.googleapis.com/projects/12345/nam
+      e/locations/us-central1-a/parameters/my-parameter`
     iamPolicyUidPrincipal: Output only. IAM policy binding member referring to
       a Google Cloud resource by system-assigned unique identifier
       (https://google.aip.dev/148#uid). If a resource is deleted and recreated
       with the same name, the binding will not be applicable to the new
-      resource Example: `principal://appconfigmanager.googleapis.com/projects/
-      12345/uid/locations/us-central1-a/configs/a918fed5`
+      resource Example: `principal://parametermanager.googleapis.com/projects/
+      12345/uid/locations/us-central1-a/parameters/a918fed5`
   """
 
   iamPolicyNamePrincipal = _messages.StringField(1)

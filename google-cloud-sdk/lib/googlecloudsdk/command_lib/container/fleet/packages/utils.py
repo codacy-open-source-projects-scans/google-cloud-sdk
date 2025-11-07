@@ -16,6 +16,7 @@
 
 import glob
 import os
+import pathlib
 
 from googlecloudsdk.core import yaml
 
@@ -25,7 +26,7 @@ _RESOURCE_BUNDLE_LOCATION_SEGMENT = 3
 
 ROLLOUTS_DESCRIBE_ROLLING_TRUNCATED_MESSAGES_FORMAT = """table(info.rolloutStrategyInfo.rollingStrategyInfo.clusters.membership.basename():label=CLUSTER,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.version:label=CURRENT_VERSION,
-                    info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.syncState:label=CURRENT_STATE,
+                    info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.syncState:label=SYNC_STATE,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.desired.version:label=DESIRED_VERSION,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.startTime:label=START_TIME,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.endTime:label=END_TIME,
@@ -34,7 +35,7 @@ ROLLOUTS_DESCRIBE_ROLLING_TRUNCATED_MESSAGES_FORMAT = """table(info.rolloutStrat
 
 ROLLOUTS_DESCRIBE_ALLATONCE_TRUNCATED_MESSAGES_FORMAT = """table(info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.membership.basename():label=CLUSTER,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.version:label=CURRENT_VERSION,
-                    info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.syncState:label=CURRENT_STATE,
+                    info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.syncState:label=SYNC_STATE,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.desired.version:label=DESIRED_VERSION,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.startTime:label=START_TIME,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.endTime:label=END_TIME,
@@ -43,7 +44,7 @@ ROLLOUTS_DESCRIBE_ALLATONCE_TRUNCATED_MESSAGES_FORMAT = """table(info.rolloutStr
 
 ROLLOUTS_DESCRIBE_ROLLING_FULL_MESSAGES_FORMAT = """table(info.rolloutStrategyInfo.rollingStrategyInfo.clusters.membership.basename():label=CLUSTER,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.version:label=CURRENT_VERSION,
-                    info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.syncState:label=CURRENT_STATE,
+                    info.rolloutStrategyInfo.rollingStrategyInfo.clusters.current.syncState:label=SYNC_STATE,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.desired.version:label=DESIRED_VERSION,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.startTime:label=START_TIME,
                     info.rolloutStrategyInfo.rollingStrategyInfo.clusters.endTime:label=END_TIME,
@@ -52,7 +53,7 @@ ROLLOUTS_DESCRIBE_ROLLING_FULL_MESSAGES_FORMAT = """table(info.rolloutStrategyIn
 
 ROLLOUTS_DESCRIBE_ALLATONCE_FULL_MESSAGES_FORMAT = """table(info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.membership.basename():label=CLUSTER,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.version:label=CURRENT_VERSION,
-                    info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.syncState:label=CURRENT_STATE,
+                    info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.current.syncState:label=SYNC_STATE,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.desired.version:label=DESIRED_VERSION,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.startTime:label=START_TIME,
                     info.rolloutStrategyInfo.allAtOnceStrategyInfo.clusters.endTime:label=END_TIME,
@@ -118,9 +119,7 @@ def _AllFilesUnderDir(path):
 
 
 def _VariantNameFromPath(path):
-  file_name = path.split('/')[-1]
-  variant_name = file_name.split('.')[0]
-  return variant_name
+  return pathlib.Path(path).stem
 
 
 def _VariantNameFromDir(path):
@@ -136,7 +135,9 @@ def ExpandPathForUser(path):
 
 def _ExpandPathForUserAndVars(path):
   user_expanded_path = os.path.expanduser(path)
-  vars_expanded_path = os.path.expandvars(user_expanded_path)
+  vars_expanded_path = user_expanded_path
+  if '$' in vars_expanded_path:
+    vars_expanded_path = os.path.expandvars(vars_expanded_path)
   return vars_expanded_path
 
 
@@ -196,8 +197,11 @@ def VariantsFromGlobPattern(glob_pattern):
       {'us-a': [resources...], 'us-b': [resources...]}
   """
   user_expanded_glob = os.path.expanduser(glob_pattern)
-  expanded_glob = os.path.expandvars(user_expanded_glob)
+  expanded_glob = user_expanded_glob
+  if '$' in expanded_glob:
+    expanded_glob = os.path.expandvars(expanded_glob)
   paths = glob.glob(expanded_glob)
+  paths.sort()
   variants = {}
   if len(paths) == 1:
     if os.path.isfile(paths[0]):

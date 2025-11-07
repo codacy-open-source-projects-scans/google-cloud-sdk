@@ -14,10 +14,6 @@
 # limitations under the License.
 """Module for wrangling bigtable command arguments."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 import textwrap
 
 from googlecloudsdk.api_lib.bigtable import util
@@ -50,7 +46,7 @@ class ClusterCompleter(completers.ListCommandCompleter):
     super(ClusterCompleter, self).__init__(
         collection='bigtableadmin.projects.instances.clusters',
         list_command='beta bigtable clusters list --uri',
-        **kwargs
+        **kwargs,
     )
 
 
@@ -60,7 +56,7 @@ class InstanceCompleter(completers.ListCommandCompleter):
     super(InstanceCompleter, self).__init__(
         collection='bigtableadmin.projects.instances',
         list_command='beta bigtable instances list --uri',
-        **kwargs
+        **kwargs,
     )
 
 
@@ -70,7 +66,7 @@ class TableCompleter(completers.ListCommandCompleter):
     super(TableCompleter, self).__init__(
         collection='bigtableadmin.projects.instances.tables',
         list_command='beta bigtable instances tables list --uri',
-        **kwargs
+        **kwargs,
     )
 
 
@@ -112,9 +108,6 @@ def ProcessInstanceTypeAndNodes(args):
   return num_nodes
 
 
-@base.ReleaseTracks(
-    base.ReleaseTrack.GA, base.ReleaseTrack.BETA, base.ReleaseTrack.ALPHA
-)
 class ArgAdder(object):
   """A class for adding Bigtable command-line arguments."""
 
@@ -269,7 +262,6 @@ class ArgAdder(object):
   def AddAppProfileRouting(
       self,
       required=True,
-      allow_failover_radius=False,
   ):
     """Adds arguments for app_profile routing to parser."""
     routing_group = self.parser.add_mutually_exclusive_group(required=required)
@@ -297,32 +289,6 @@ class ArgAdder(object):
         default=None,
         help='Use row-affinity routing for this app profile.',
     )
-    if allow_failover_radius:
-      choices = {
-          'ANY_REGION': (
-              'Requests will be allowed to fail over to all eligible clusters.'
-          ),
-          'INITIAL_REGION_ONLY': (
-              'Requests will only be allowed to fail over to clusters within '
-              'the region the request was first routed to.'
-          ),
-      }
-      any_group.add_argument(
-          '--failover-radius',
-          type=lambda x: x.replace('-', '_').upper(),
-          choices=choices,
-          help=(
-              'Restricts clusters that requests can fail over to by proximity.'
-              ' Failover radius must be either any-region or'
-              ' initial-region-only. any-region allows requests to fail over'
-              ' without restriction. initial-region-only prohibits requests'
-              ' from failing over to any clusters outside of the initial region'
-              ' the request was routed to. If omitted, any-region will be used'
-              ' by default.'
-          ),
-          metavar='FAILOVER_RADIUS',
-          hidden=True,
-      )
     route_to_group = routing_group.add_group('Single Cluster Routing Policy')
     route_to_group.add_argument(
         '--route-to',
@@ -360,7 +326,27 @@ class ArgAdder(object):
     )
     return self
 
-  def AddIsolation(self, allow_data_boost=False):
+  def AddViewQuery(self, required: bool = False):
+    """Add argument for view query to the parser."""
+    self.parser.add_argument(
+        '--query',
+        help='The query of the view.',
+        required=required,
+    )
+    return self
+
+  def AddDeletionProtection(self, required: bool = False):
+    """Add argument for deletion protection to the parser."""
+    self.parser.add_argument(
+        '--deletion-protection',
+        type=arg_parsers.ArgBoolean(),
+        help='Whether the view is protected from deletion.',
+        required=required,
+        default=None,
+    )
+    return self
+
+  def AddIsolation(self):
     """Add argument for isolating this app profile's traffic to parser."""
     isolation_group = self.parser.add_mutually_exclusive_group()
     standard_isolation_group = isolation_group.add_group(
@@ -377,78 +363,72 @@ class ArgAdder(object):
         type=lambda x: x.replace('-', '_').upper(),
         choices=choices,
         default=None,
-        # The first help can be used once Data Boost is GA.
-        # pylint:disable=g-long-ternary
         help=(
-            'Specify the request priority under Standard Isolation. Passing'
-            ' this option implies Standard Isolation, e.g. the `--standard`'
-            ' option. If not specified, the app profile uses Standard'
-            ' Isolation with PRIORITY_HIGH by default. Specifying request'
-            ' priority on an app profile that has Data Boost Read-Only'
-            ' Isolation enabled will change the isolation to Standard and'
-            ' use the specified priority, which may cause unexpected behavior'
-            ' for running applications.'
-        )
-        if allow_data_boost
-        else (
-            'Specify the request priority. If not specified, the app profile'
-            ' uses PRIORITY_HIGH by default.'
+            'Specify the request priority under standard provisioned node'
+            ' compute capabilities. Passing this option implies standard'
+            ' provisioned node compute, e.g. the `--standard` option. If not'
+            ' specified, the app profile uses standard provisioned node compute'
+            ' with PRIORITY_HIGH by default. Specifying request priority on an'
+            ' app profile that has Data Boost serverless compute enabled'
+            ' changes the compute option to standard and uses the specified'
+            ' priority, which might cause unexpected behavior for running'
+            ' applications.'
         ),
         required=True,
     )
 
-    if allow_data_boost:
-      standard_isolation_group.add_argument(
-          '--standard',
-          action='store_true',
-          default=False,
-          help=(
-              'Use Standard Isolation, rather than Data Boost Read-only'
-              ' Isolation. If specified, `--priority` is required.'
-          ),
-      )
+    standard_isolation_group.add_argument(
+        '--standard',
+        action='store_true',
+        default=False,
+        help=(
+            'Use standard provisioned node compute option, rather than Data'
+            ' Boost compute option. If specified, `--priority` is required.'
+        ),
+    )
 
-      data_boost_isolation_group = isolation_group.add_group(
-          'Data Boost Read-only Isolation',
-      )
+    data_boost_isolation_group = isolation_group.add_group(
+        'Data Boost Read-only Isolation',
+    )
 
-      data_boost_isolation_group.add_argument(
-          '--data-boost',
-          action='store_true',
-          default=False,
-          help=(
-              'Use Data Boost Read-only Isolation, rather than Standard'
-              ' Isolation. If specified, --data-boost-compute-billing-owner is'
-              ' required. Specifying Data Boost Read-only Isolation on an app'
-              ' profile which has Standard Isolation enabled may cause'
-              ' unexpected behavior for running applications.'
-          ),
-          required=True,
-      )
+    data_boost_isolation_group.add_argument(
+        '--data-boost',
+        action='store_true',
+        default=False,
+        help=(
+            'Use Data Boost serverless compute option, rather than standard'
+            ' provisioned node compute. If specified,'
+            ' --data-boost-compute-billing-owner is required. Specifying Data'
+            ' Boost compute on an app profile that uses standard provisioned'
+            ' node compute may cause unexpected behavior for running'
+            ' applications.'
+        ),
+        required=True,
+    )
 
-      compute_billing_choices = {
-          'HOST_PAYS': (
-              'Compute Billing should be accounted towards the host Cloud'
-              ' Project (containing the targeted Bigtable Instance / Table).'
-          ),
-          # TODO(b/307933524): Add this option in the future.
-          # 'CONSUMER': (
-          #     'Compute Billing should be accounted towards the requester'
-          #     ' Cloud Project (targeting the Bigtable Instance / Table with'
-          #     ' Data Boost).'
-          # ),
-      }
-      data_boost_isolation_group.add_argument(
-          '--data-boost-compute-billing-owner',
-          type=lambda x: x.upper(),
-          choices=compute_billing_choices,
-          default=None,
-          help=(
-              'Specify the Data Boost Compute Billing Owner, required if'
-              ' --data-boost is passed.'
-          ),
-          required=True,
-      )
+    compute_billing_choices = {
+        'HOST_PAYS': (
+            'Compute billing should be accounted towards the host Cloud'
+            ' project (containing the targeted Bigtable instance / table).'
+        ),
+        # TODO(b/307933524): Add this option in the future.
+        # 'CONSUMER': (
+        #     'Compute Billing should be accounted towards the requester'
+        #     ' Cloud Project (targeting the Bigtable Instance / Table with'
+        #     ' Data Boost).'
+        # ),
+    }
+    data_boost_isolation_group.add_argument(
+        '--data-boost-compute-billing-owner',
+        type=lambda x: x.upper(),
+        choices=compute_billing_choices,
+        default=None,
+        help=(
+            'Specify the Data Boost compute billing owner, required if'
+            ' --data-boost is passed.'
+        ),
+        required=True,
+    )
 
     return self
 
@@ -645,35 +625,55 @@ class ArgAdder(object):
         num_nodes_default=3, require_all_essential_autoscaling_args=True
     )
 
+  def AddTags(self, required=False):
+    """Add argument group for tags to parser."""
+    self.parser.add_argument(
+        '--tags',
+        metavar='KEY=VALUE',
+        help=textwrap.dedent("""\
+            List of tags KEY=VALUE pairs to bind.
+            Each item must be specified in either ID
+            `<tag_key_id>=<tag_value_id>`
+            or namespace format
+            `<tag-key-namespaced-name>=<tag-value-short-name>`.
+            Example: `123/environment=production,123/costCenter=marketing`
+        """),
+        required=required,
+        type=arg_parsers.ArgDict(),
+        action=arg_parsers.UpdateAction,
+        hidden=True,  # TODO(b/745685146): Unhide
+    )
+    return self
+
 
 def InstanceAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
-      name='instance', help_text='Cloud Bigtable instance for the {resource}.'
+      name='instance', help_text='Bigtable instance for the {resource}.'
   )
 
 
 def TableAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
-      name='table', help_text='Cloud Bigtable table for the {resource}.'
+      name='table', help_text='Bigtable table for the {resource}.'
   )
 
 
 def ClusterAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
-      name='cluster', help_text='Cloud Bigtable cluster for the {resource}.'
+      name='cluster', help_text='Bigtable cluster for the {resource}.'
   )
 
 
 def AppProfileAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
       name='app profile',
-      help_text='Cloud Bigtable application profile for the {resource}.',
+      help_text='Bigtable application profile for the {resource}.',
   )
 
 
 def BackupAttributeConfig():
   return concepts.ResourceParameterAttributeConfig(
-      name='backup', help_text='Cloud Bigtable backup for the {resource}.'
+      name='backup', help_text='Bigtable backup for the {resource}.'
   )
 
 
@@ -740,6 +740,28 @@ def GetAppProfileResourceSpec():
   return concepts.ResourceSpec(
       'bigtableadmin.projects.instances.appProfiles',
       resource_name='app profile',
+      instancesId=InstanceAttributeConfig(),
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      disable_auto_completers=False,
+  )
+
+
+def GetLogicalViewResourceSpec():
+  """Return the resource specification for a Bigtable logical view."""
+  return concepts.ResourceSpec(
+      'bigtableadmin.projects.instances.logicalViews',
+      resource_name='logical view',
+      instancesId=InstanceAttributeConfig(),
+      projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
+      disable_auto_completers=False,
+  )
+
+
+def GetMaterializedViewResourceSpec() -> concepts.ResourceSpec:
+  """Return the resource specification for a Bigtable materialized view."""
+  return concepts.ResourceSpec(
+      'bigtableadmin.projects.instances.materializedViews',
+      resource_name='materialized view',
       instancesId=InstanceAttributeConfig(),
       projectsId=concepts.DEFAULT_PROJECT_ATTRIBUTE_CONFIG,
       disable_auto_completers=False,
@@ -821,6 +843,46 @@ def AddAppProfileResourceArg(parser, verb):
       'The app profile {}.'.format(verb),
       required=True,
   ).AddToParser(parser)
+
+
+def AddLogicalViewResourceArg(parser, verb):
+  """Add logical view positional resource argument to the parser."""
+  concept_parsers.ConceptParser.ForResource(
+      'logical_view',
+      GetLogicalViewResourceSpec(),
+      f'The logical view {verb}.',
+      required=True,
+  ).AddToParser(parser)
+
+
+def AddMaterializedViewResourceArg(parser, verb: str) -> None:
+  """Add materialized view positional resource argument to the parser."""
+  concept_parsers.ConceptParser.ForResource(
+      'materialized_view',
+      GetMaterializedViewResourceSpec(),
+      f'The materialized view {verb}.',
+      required=True,
+  ).AddToParser(parser)
+
+
+def AddViewOverMaterializedView(parser):
+  """Add argument for view to the parser."""
+  msgs = util.GetAdminMessages()
+  view_enum_type = (
+      msgs.BigtableadminProjectsInstancesMaterializedViewsGetRequest.ViewValueValuesEnum
+  )
+  mapper = arg_utils.ChoiceEnumMapper(
+      '--view',
+      view_enum_type,
+      custom_mappings={
+          'SCHEMA_VIEW': 'schema',
+          'REPLICATION_VIEW': 'replication',
+          'FULL': 'full',
+      },
+      help_str='Specifies what type of information to return about the view.',
+      default='schema',
+  )
+  mapper.choice_arg.AddToParser(parser)
 
 
 def AddBackupResourceArg(parser, verb):

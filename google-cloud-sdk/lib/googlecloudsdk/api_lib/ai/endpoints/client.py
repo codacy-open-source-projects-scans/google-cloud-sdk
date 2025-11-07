@@ -118,6 +118,18 @@ def _DoStreamHttpPost(url, headers, body):
       yield line
 
 
+def _CheckIsGdcGgsModel(self, endpoint_ref):
+  """GDC GGS model is only supported for GDC endpoints."""
+  endpoint = self.Get(endpoint_ref)
+  endpoint_resource = encoding.MessageToPyValue(endpoint)
+  return (
+      endpoint_resource is not None
+      and 'gdcConfig' in endpoint_resource
+      and 'zone' in endpoint_resource['gdcConfig']
+      and endpoint_resource['gdcConfig']['zone']
+  )
+
+
 class EndpointsClient(object):
   """High-level client for the AI Platform endpoints surface."""
 
@@ -201,6 +213,7 @@ class EndpointsClient(object):
       endpoint_id=None,
       encryption_kms_key_name=None,
       gdce_zone=None,
+      gdc_zone=None,
       request_response_logging_table=None,
       request_response_logging_rate=None,
   ):
@@ -216,6 +229,7 @@ class EndpointsClient(object):
       encryption_kms_key_name: str or None, the Cloud KMS resource identifier of
         the customer managed encryption key used to protect a resource.
       gdce_zone: str or None, the name of the GDCE zone.
+      gdc_zone: str or None, the name of the GDC zone.
       request_response_logging_table: str or None, the BigQuery table uri for
         request-response logging.
       request_response_logging_rate: float or None, the sampling rate for
@@ -238,6 +252,12 @@ class EndpointsClient(object):
           zone=gdce_zone
       )
 
+    gdc_config = None
+    if gdc_zone:
+      gdc_config = self.messages.GoogleCloudAiplatformV1beta1GdcConfig(
+          zone=gdc_zone
+      )
+
     endpoint = api_util.GetMessage('Endpoint', constants.BETA_VERSION)(
         displayName=display_name,
         description=description,
@@ -245,6 +265,7 @@ class EndpointsClient(object):
         network=network,
         encryptionSpec=encryption_spec,
         gdceConfig=gdce_config,
+        gdcConfig=gdc_config,
     )
     if request_response_logging_table is not None:
       endpoint.predictRequestResponseLoggingConfig = api_util.GetMessage(
@@ -279,10 +300,12 @@ class EndpointsClient(object):
     )
     return self.client.projects_locations_endpoints.Get(req)
 
-  def List(self, location_ref, filter_str=None):
+  def List(self, location_ref, filter_str=None, gdc_zone=None):
     """Lists endpoints in the project."""
     req = self.messages.AiplatformProjectsLocationsEndpointsListRequest(
-        parent=location_ref.RelativeName(), filter=filter_str
+        parent=location_ref.RelativeName(),
+        filter=filter_str,
+        gdcZone=gdc_zone,
     )
     return list_pager.YieldFromList(
         self.client.projects_locations_endpoints,
@@ -712,9 +735,11 @@ class EndpointsClient(object):
       display_name,
       machine_type=None,
       tpu_topology=None,
+      multihost_gpu_node_count=None,
       accelerator_dict=None,
       min_replica_count=None,
       max_replica_count=None,
+      required_replica_count=None,
       reservation_affinity=None,
       autoscaling_metric_specs=None,
       spot=False,
@@ -733,12 +758,16 @@ class EndpointsClient(object):
       display_name: str, the display name of the new deployed model.
       machine_type: str or None, the type of the machine to serve the model.
       tpu_topology: str or None, the topology of the TPU to serve the model.
+      multihost_gpu_node_count: int or None, the number of nodes per replica for
+        multihost GPU deployments.
       accelerator_dict: dict or None, the accelerator attached to the deployed
         model from args.
       min_replica_count: int or None, the minimum number of replicas the
         deployed model will be always deployed on.
       max_replica_count: int or None, the maximum number of replicas the
         deployed model may be deployed on.
+      required_replica_count: int or None, the required number of replicas the
+        deployed model will be considered successfully deployed.
       reservation_affinity: dict or None, the reservation affinity of the
         deployed model which specifies which reservations the deployed model can
         use.
@@ -766,6 +795,8 @@ class EndpointsClient(object):
         machine_spec.machineType = machine_type
       if tpu_topology is not None:
         machine_spec.tpuTopology = tpu_topology
+      if multihost_gpu_node_count is not None:
+        machine_spec.multihostGpuNodeCount = multihost_gpu_node_count
       accelerator = flags.ParseAcceleratorFlag(
           accelerator_dict, constants.GA_VERSION
       )
@@ -785,6 +816,8 @@ class EndpointsClient(object):
       dedicated.minReplicaCount = min_replica_count or 1
       if max_replica_count is not None:
         dedicated.maxReplicaCount = max_replica_count
+      if required_replica_count is not None:
+        dedicated.requiredReplicaCount = required_replica_count
 
       if autoscaling_metric_specs is not None:
         autoscaling_metric_specs_list = []
@@ -857,9 +890,11 @@ class EndpointsClient(object):
       display_name,
       machine_type=None,
       tpu_topology=None,
+      multihost_gpu_node_count=None,
       accelerator_dict=None,
       min_replica_count=None,
       max_replica_count=None,
+      required_replica_count=None,
       reservation_affinity=None,
       autoscaling_metric_specs=None,
       spot=False,
@@ -869,6 +904,10 @@ class EndpointsClient(object):
       traffic_split=None,
       deployed_model_id=None,
       shared_resources_ref=None,
+      min_scaleup_period=None,
+      idle_scaledown_period=None,
+      initial_replica_count=None,
+      gpu_partition_size=None,
   ):
     """Deploys a model to an existing endpoint using v1beta1 API.
 
@@ -879,12 +918,16 @@ class EndpointsClient(object):
       display_name: str, the display name of the new deployed model.
       machine_type: str or None, the type of the machine to serve the model.
       tpu_topology: str or None, the topology of the TPU to serve the model.
+      multihost_gpu_node_count: int or None, the number of nodes per replica for
+        multihost GPU deployments.
       accelerator_dict: dict or None, the accelerator attached to the deployed
         model from args.
       min_replica_count: int or None, the minimum number of replicas the
         deployed model will be always deployed on.
       max_replica_count: int or None, the maximum number of replicas the
         deployed model may be deployed on.
+      required_replica_count: int or None, the required number of replicas the
+        deployed model will be considered successfully deployed.
       reservation_affinity: dict or None, the reservation affinity of the
         deployed model which specifies which reservations the deployed model can
         use.
@@ -900,78 +943,152 @@ class EndpointsClient(object):
       deployed_model_id: str or None, id of the deployed model.
       shared_resources_ref: str or None, the shared deployment resource pool the
         model should use
+      min_scaleup_period: str or None, the minimum duration (in seconds) that a
+        deployment will be scaled up before traffic is evaluated for potential
+        scale-down. Defaults to 1 hour if min replica count is 0.
+      idle_scaledown_period: str or None, the duration after which the
+        deployment is scaled down if no traffic is received. This only applies
+        to deployments enrolled in scale-to-zero.
+      initial_replica_count: int or None, the initial number of replicas the
+        deployment will be scaled up to. This only applies to deployments
+        enrolled in scale-to-zero.
+      gpu_partition_size: str or None, the partition size of the GPU
+        accelerator.
 
     Returns:
       A long-running operation for DeployModel.
     """
-    model_ref = _ParseModel(model, region)
-
-    resource_type = _GetModelDeploymentResourceType(
-        model_ref, self.client, shared_resources_ref
-    )
-    if resource_type == 'DEDICATED_RESOURCES':
-      # dedicated resources
-      machine_spec = self.messages.GoogleCloudAiplatformV1beta1MachineSpec()
-      if machine_type is not None:
-        machine_spec.machineType = machine_type
-      if tpu_topology is not None:
-        machine_spec.tpuTopology = tpu_topology
-      accelerator = flags.ParseAcceleratorFlag(
-          accelerator_dict, constants.BETA_VERSION
+    is_gdc_ggs_model = _CheckIsGdcGgsModel(self, endpoint_ref)
+    if is_gdc_ggs_model:
+      # send psudo dedicated resources for gdc ggs model.
+      machine_spec = self.messages.GoogleCloudAiplatformV1beta1MachineSpec(
+          machineType='n1-standard-2',
+          acceleratorType=self.messages.GoogleCloudAiplatformV1beta1MachineSpec.AcceleratorTypeValueValuesEnum.NVIDIA_TESLA_T4,
+          acceleratorCount=1,
       )
-      if accelerator is not None:
-        machine_spec.acceleratorType = accelerator.acceleratorType
-        machine_spec.acceleratorCount = accelerator.acceleratorCount
-      if reservation_affinity is not None:
-        machine_spec.reservationAffinity = flags.ParseReservationAffinityFlag(
-            reservation_affinity, constants.BETA_VERSION
-        )
-
       dedicated = self.messages.GoogleCloudAiplatformV1beta1DedicatedResources(
-          machineSpec=machine_spec, spot=spot
+          machineSpec=machine_spec, minReplicaCount=1, maxReplicaCount=1
       )
-      # min-replica-count is required and must be >= 1 if models use dedicated
-      # resources. Default to 1 if not specified.
-      dedicated.minReplicaCount = min_replica_count or 1
-      if max_replica_count is not None:
-        dedicated.maxReplicaCount = max_replica_count
-
-      if autoscaling_metric_specs is not None:
-        autoscaling_metric_specs_list = []
-        for name, target in sorted(autoscaling_metric_specs.items()):
-          autoscaling_metric_specs_list.append(
-              self.messages.GoogleCloudAiplatformV1beta1AutoscalingMetricSpec(
-                  metricName=constants.OP_AUTOSCALING_METRIC_NAME_MAPPER[name],
-                  target=target,
-              )
-          )
-        dedicated.autoscalingMetricSpecs = autoscaling_metric_specs_list
-
       deployed_model = self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
           dedicatedResources=dedicated,
           displayName=display_name,
-          model=model_ref.RelativeName(),
+          gdcConnectedModel=model,
       )
-    elif resource_type == 'AUTOMATIC_RESOURCES':
-      # automatic resources
-      automatic = self.messages.GoogleCloudAiplatformV1beta1AutomaticResources()
-      if min_replica_count is not None:
-        automatic.minReplicaCount = min_replica_count
-      if max_replica_count is not None:
-        automatic.maxReplicaCount = max_replica_count
-
-      deployed_model = self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
-          automaticResources=automatic,
-          displayName=display_name,
-          model=model_ref.RelativeName(),
-      )
-    # if resource type is SHARED_RESOURCES
     else:
-      deployed_model = self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
-          displayName=display_name,
-          model=model_ref.RelativeName(),
-          sharedResources=shared_resources_ref.RelativeName(),
+      model_ref = _ParseModel(model, region)
+      resource_type = _GetModelDeploymentResourceType(
+          model_ref, self.client, shared_resources_ref
       )
+      if resource_type == 'DEDICATED_RESOURCES':
+        # dedicated resources
+        machine_spec = self.messages.GoogleCloudAiplatformV1beta1MachineSpec()
+        if machine_type is not None:
+          machine_spec.machineType = machine_type
+        if tpu_topology is not None:
+          machine_spec.tpuTopology = tpu_topology
+        if multihost_gpu_node_count is not None:
+          machine_spec.multihostGpuNodeCount = multihost_gpu_node_count
+        accelerator = flags.ParseAcceleratorFlag(
+            accelerator_dict, constants.BETA_VERSION
+        )
+        if accelerator is not None:
+          machine_spec.acceleratorType = accelerator.acceleratorType
+          machine_spec.acceleratorCount = accelerator.acceleratorCount
+        if reservation_affinity is not None:
+          machine_spec.reservationAffinity = flags.ParseReservationAffinityFlag(
+              reservation_affinity, constants.BETA_VERSION
+          )
+        if gpu_partition_size is not None:
+          machine_spec.gpuPartitionSize = gpu_partition_size
+
+        dedicated = (
+            self.messages.GoogleCloudAiplatformV1beta1DedicatedResources(
+                machineSpec=machine_spec, spot=spot
+            )
+        )
+        # min-replica-count is required and must be >= 0 if models use dedicated
+        # resources. If value is 0, the deployment will be enrolled in the
+        # scale-to-zero feature. Default to 1 if not specified.
+        dedicated.minReplicaCount = (
+            1 if min_replica_count is None else min_replica_count
+        )
+
+        # if not specified and min-replica-count is 0, default to 1.
+        if max_replica_count is None and dedicated.minReplicaCount == 0:
+          dedicated.maxReplicaCount = 1
+        else:
+          if max_replica_count is not None:
+            dedicated.maxReplicaCount = max_replica_count
+        if required_replica_count is not None:
+          dedicated.requiredReplicaCount = required_replica_count
+
+        # if not specified and min-replica-count is 0, default to 1.
+        if initial_replica_count is None and dedicated.minReplicaCount == 0:
+          dedicated.initialReplicaCount = 1
+        else:
+          if initial_replica_count is not None:
+            dedicated.initialReplicaCount = initial_replica_count
+
+        if autoscaling_metric_specs is not None:
+          autoscaling_metric_specs_list = []
+          for name, target in sorted(autoscaling_metric_specs.items()):
+            autoscaling_metric_specs_list.append(
+                self.messages.GoogleCloudAiplatformV1beta1AutoscalingMetricSpec(
+                    metricName=constants.OP_AUTOSCALING_METRIC_NAME_MAPPER[
+                        name
+                    ],
+                    target=target,
+                )
+            )
+          dedicated.autoscalingMetricSpecs = autoscaling_metric_specs_list
+
+        stz_spec = (
+            self.messages.GoogleCloudAiplatformV1beta1DedicatedResourcesScaleToZeroSpec()
+        )
+        stz_spec_modified = False
+        if min_scaleup_period is not None:
+          stz_spec.minScaleupPeriod = '{}s'.format(min_scaleup_period)
+          stz_spec_modified = True
+        if idle_scaledown_period is not None:
+          stz_spec.idleScaledownPeriod = '{}s'.format(idle_scaledown_period)
+          stz_spec_modified = True
+
+        if stz_spec_modified:
+          dedicated.scaleToZeroSpec = stz_spec
+
+        deployed_model = (
+            self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
+                dedicatedResources=dedicated,
+                displayName=display_name,
+                model=model_ref.RelativeName(),
+            )
+        )
+      elif resource_type == 'AUTOMATIC_RESOURCES':
+        # automatic resources
+        automatic = (
+            self.messages.GoogleCloudAiplatformV1beta1AutomaticResources()
+        )
+        if min_replica_count is not None:
+          automatic.minReplicaCount = min_replica_count
+        if max_replica_count is not None:
+          automatic.maxReplicaCount = max_replica_count
+
+        deployed_model = (
+            self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
+                automaticResources=automatic,
+                displayName=display_name,
+                model=model_ref.RelativeName(),
+            )
+        )
+      # if resource type is SHARED_RESOURCES
+      else:
+        deployed_model = (
+            self.messages.GoogleCloudAiplatformV1beta1DeployedModel(
+                displayName=display_name,
+                model=model_ref.RelativeName(),
+                sharedResources=shared_resources_ref.RelativeName(),
+            )
+        )
 
     deployed_model.enableAccessLogging = enable_access_logging
     deployed_model.enableContainerLogging = enable_container_logging

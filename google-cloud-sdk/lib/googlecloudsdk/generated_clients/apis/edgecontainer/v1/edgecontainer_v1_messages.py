@@ -78,6 +78,8 @@ class Cluster(_messages.Message):
     clusterCaCertificate: Output only. The PEM-encoded public certificate of
       the cluster's CA.
     connectionState: Output only. The current connection state of the cluster.
+    containerRuntimeConfig: Optional. The container runtime config of the
+      cluster.
     controlPlane: Optional. The configuration of the cluster control plane.
     controlPlaneEncryption: Optional. Remote control plane disk encryption
       options. This field is only used when enabling CMEK support.
@@ -87,12 +89,18 @@ class Cluster(_messages.Message):
       node used if a maximum value is not specified explicitly for a node pool
       in this cluster. If unspecified, the Kubernetes default value will be
       used.
+    enableClusterIsolation: Optional. This denotes if the cluster is required
+      to be isolated. go/cluster-isolation-in-gdcc-cluster
     endpoint: Output only. The IP address of the Kubernetes API server.
+    externalLoadBalancerAddressPools: Optional. External load balancer pools
+      for cluster.
     externalLoadBalancerIpv4AddressPools: Optional. IPv4 address pools for
       cluster data plane external load balancing.
     externalLoadBalancerIpv6AddressPools: Optional. IPv6 address pools for
       cluster data plane external load balancing.
     fleet: Required. Fleet configuration.
+    googleGroupAuthentication: Optional. The Google Group authentication
+      config of the cluster.
     labels: Labels associated with this resource.
     maintenanceEvents: Output only. All the maintenance events scheduled for
       the cluster, including the ones ongoing, planned for the future and done
@@ -176,29 +184,33 @@ class Cluster(_messages.Message):
   authorization = _messages.MessageField('Authorization', 1)
   clusterCaCertificate = _messages.StringField(2)
   connectionState = _messages.MessageField('ConnectionState', 3)
-  controlPlane = _messages.MessageField('ControlPlane', 4)
-  controlPlaneEncryption = _messages.MessageField('ControlPlaneEncryption', 5)
-  controlPlaneVersion = _messages.StringField(6)
-  createTime = _messages.StringField(7)
-  defaultMaxPodsPerNode = _messages.IntegerField(8, variant=_messages.Variant.INT32)
-  endpoint = _messages.StringField(9)
-  externalLoadBalancerIpv4AddressPools = _messages.StringField(10, repeated=True)
-  externalLoadBalancerIpv6AddressPools = _messages.StringField(11, repeated=True)
-  fleet = _messages.MessageField('Fleet', 12)
-  labels = _messages.MessageField('LabelsValue', 13)
-  maintenanceEvents = _messages.MessageField('MaintenanceEvent', 14, repeated=True)
-  maintenancePolicy = _messages.MessageField('MaintenancePolicy', 15)
-  name = _messages.StringField(16)
-  networking = _messages.MessageField('ClusterNetworking', 17)
-  nodeVersion = _messages.StringField(18)
-  port = _messages.IntegerField(19, variant=_messages.Variant.INT32)
-  releaseChannel = _messages.EnumField('ReleaseChannelValueValuesEnum', 20)
-  status = _messages.EnumField('StatusValueValuesEnum', 21)
-  survivabilityConfig = _messages.MessageField('SurvivabilityConfig', 22)
-  systemAddonsConfig = _messages.MessageField('SystemAddonsConfig', 23)
-  targetVersion = _messages.StringField(24)
-  updateTime = _messages.StringField(25)
-  zoneStorageEncryption = _messages.MessageField('ZoneStorageEncryption', 26)
+  containerRuntimeConfig = _messages.MessageField('ContainerRuntimeConfig', 4)
+  controlPlane = _messages.MessageField('ControlPlane', 5)
+  controlPlaneEncryption = _messages.MessageField('ControlPlaneEncryption', 6)
+  controlPlaneVersion = _messages.StringField(7)
+  createTime = _messages.StringField(8)
+  defaultMaxPodsPerNode = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  enableClusterIsolation = _messages.BooleanField(10)
+  endpoint = _messages.StringField(11)
+  externalLoadBalancerAddressPools = _messages.MessageField('ExternalLoadBalancerPool', 12, repeated=True)
+  externalLoadBalancerIpv4AddressPools = _messages.StringField(13, repeated=True)
+  externalLoadBalancerIpv6AddressPools = _messages.StringField(14, repeated=True)
+  fleet = _messages.MessageField('Fleet', 15)
+  googleGroupAuthentication = _messages.MessageField('GoogleGroupAuthenticationConfig', 16)
+  labels = _messages.MessageField('LabelsValue', 17)
+  maintenanceEvents = _messages.MessageField('MaintenanceEvent', 18, repeated=True)
+  maintenancePolicy = _messages.MessageField('MaintenancePolicy', 19)
+  name = _messages.StringField(20)
+  networking = _messages.MessageField('ClusterNetworking', 21)
+  nodeVersion = _messages.StringField(22)
+  port = _messages.IntegerField(23, variant=_messages.Variant.INT32)
+  releaseChannel = _messages.EnumField('ReleaseChannelValueValuesEnum', 24)
+  status = _messages.EnumField('StatusValueValuesEnum', 25)
+  survivabilityConfig = _messages.MessageField('SurvivabilityConfig', 26)
+  systemAddonsConfig = _messages.MessageField('SystemAddonsConfig', 27)
+  targetVersion = _messages.StringField(28)
+  updateTime = _messages.StringField(29)
+  zoneStorageEncryption = _messages.MessageField('ZoneStorageEncryption', 30)
 
 
 class ClusterNetworking(_messages.Message):
@@ -272,6 +284,34 @@ class ConnectionState(_messages.Message):
 
   state = _messages.EnumField('StateValueValuesEnum', 1)
   updateTime = _messages.StringField(2)
+
+
+class ContainerRuntimeConfig(_messages.Message):
+  r"""Container runtime config of the cluster.
+
+  Enums:
+    DefaultContainerRuntimeValueValuesEnum: Optional. The default container
+      runtime to be configured in the cluster.
+
+  Fields:
+    defaultContainerRuntime: Optional. The default container runtime to be
+      configured in the cluster.
+  """
+
+  class DefaultContainerRuntimeValueValuesEnum(_messages.Enum):
+    r"""Optional. The default container runtime to be configured in the
+    cluster.
+
+    Values:
+      DEFAULT_CONTAINER_RUNTIME_UNSPECIFIED: Container runtime not specified.
+      RUNC: Use runc as the default container runtime in the cluster.
+      GVISOR: Use gVisor as the default container runtime in the cluster.
+    """
+    DEFAULT_CONTAINER_RUNTIME_UNSPECIFIED = 0
+    RUNC = 1
+    GVISOR = 2
+
+  defaultContainerRuntime = _messages.EnumField('DefaultContainerRuntimeValueValuesEnum', 1)
 
 
 class ControlPlane(_messages.Message):
@@ -620,6 +660,9 @@ class EdgecontainerProjectsLocationsListRequest(_messages.Message):
   r"""A EdgecontainerProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -630,10 +673,11 @@ class EdgecontainerProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class EdgecontainerProjectsLocationsMachinesGetRequest(_messages.Message):
@@ -705,12 +749,20 @@ class EdgecontainerProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class EdgecontainerProjectsLocationsVpnConnectionsCreateRequest(_messages.Message):
@@ -784,6 +836,32 @@ class Empty(_messages.Message):
 
 
 
+class ExternalLoadBalancerPool(_messages.Message):
+  r"""External load balancer pool with custom config such as name, manual/auto
+  assign, non-overlapping ipv4 and optional ipv6 address range.
+
+  Fields:
+    addressPool: Optional. Name of the external load balancer pool.
+    avoidBuggyIps: Optional. If true, the pool omits IP addresses ending in .0
+      and .255. Some network hardware drops traffic to these special
+      addresses. Its default value is false.
+    ipv4Range: Required. Non-overlapping IPv4 address range of the external
+      load balancer pool.
+    ipv6Range: Optional. Non-overlapping IPv6 address range of the external
+      load balancer pool.
+    manualAssign: Optional. If true, addresses in this pool are not
+      automatically assigned to Kubernetes Services. If true, an IP address in
+      this pool is used only when it is specified explicitly by a service. Its
+      default value is false.
+  """
+
+  addressPool = _messages.StringField(1)
+  avoidBuggyIps = _messages.BooleanField(2)
+  ipv4Range = _messages.StringField(3, repeated=True)
+  ipv6Range = _messages.StringField(4, repeated=True)
+  manualAssign = _messages.BooleanField(5)
+
+
 class Fleet(_messages.Message):
   r"""Fleet related configuration. Fleets are a Google Cloud concept for
   logically organizing clusters, letting you use and manage multi-cluster
@@ -829,6 +907,18 @@ class GenerateOfflineCredentialResponse(_messages.Message):
   clientKey = _messages.StringField(2)
   expireTime = _messages.StringField(3)
   userId = _messages.StringField(4)
+
+
+class GoogleGroupAuthenticationConfig(_messages.Message):
+  r"""Google Group authentication config of the cluster. go/gdc-google-group-
+  authentication
+
+  Fields:
+    enable: Optional. If true, the cluster will be configured to use Google
+      Group authentication.
+  """
+
+  enable = _messages.BooleanField(1)
 
 
 class Ingress(_messages.Message):
@@ -907,10 +997,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListVpnConnectionsResponse(_messages.Message):
@@ -936,14 +1031,16 @@ class Local(_messages.Message):
   result in data loss.
 
   Enums:
+    ControlPlaneNodeSystemPartitionSizeValueValuesEnum: Optional. System
+      partition size for control plane nodes in GiB.
     SharedDeploymentPolicyValueValuesEnum: Policy configuration about how user
       applications are deployed.
 
   Fields:
     controlPlaneNodeStorageSchema: Optional. Name for the storage schema of
-      control plane nodes. Warning: Configurable node local storage schema
-      feature is an experimental feature, and is not recommended for general
-      use in production clusters/nodepools.
+      control plane nodes.
+    controlPlaneNodeSystemPartitionSize: Optional. System partition size for
+      control plane nodes in GiB.
     machineFilter: Only machines matching this filter will be allowed to host
       control plane nodes. The filtering language accepts strings like
       "name=", and is documented here: [AIP-160](https://google.aip.dev/160).
@@ -953,6 +1050,23 @@ class Local(_messages.Message):
     sharedDeploymentPolicy: Policy configuration about how user applications
       are deployed.
   """
+
+  class ControlPlaneNodeSystemPartitionSizeValueValuesEnum(_messages.Enum):
+    r"""Optional. System partition size for control plane nodes in GiB.
+
+    Values:
+      SYSTEM_PARTITION_GIB_SIZE_UNSPECIFIED: System partition size is not
+        specified by the user. This will cause the system partition size to be
+        set to the size specified in the system storage schema applicable to
+        that node, which is 100GiB.
+      SYSTEM_PARTITION_GIB_SIZE100: 100GiB system partition size, also the
+        default size.
+      SYSTEM_PARTITION_GIB_SIZE300: 300GiB system partition size. Can be used
+        to override the 100GiB default.
+    """
+    SYSTEM_PARTITION_GIB_SIZE_UNSPECIFIED = 0
+    SYSTEM_PARTITION_GIB_SIZE100 = 1
+    SYSTEM_PARTITION_GIB_SIZE300 = 2
 
   class SharedDeploymentPolicyValueValuesEnum(_messages.Enum):
     r"""Policy configuration about how user applications are deployed.
@@ -969,10 +1083,11 @@ class Local(_messages.Message):
     DISALLOWED = 2
 
   controlPlaneNodeStorageSchema = _messages.StringField(1)
-  machineFilter = _messages.StringField(2)
-  nodeCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  nodeLocation = _messages.StringField(4)
-  sharedDeploymentPolicy = _messages.EnumField('SharedDeploymentPolicyValueValuesEnum', 5)
+  controlPlaneNodeSystemPartitionSize = _messages.EnumField('ControlPlaneNodeSystemPartitionSizeValueValuesEnum', 2)
+  machineFilter = _messages.StringField(3)
+  nodeCount = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  nodeLocation = _messages.StringField(5)
+  sharedDeploymentPolicy = _messages.EnumField('SharedDeploymentPolicyValueValuesEnum', 6)
 
 
 class LocalDiskEncryption(_messages.Message):
@@ -1168,6 +1283,10 @@ class Machine(_messages.Message):
   r"""A Google Distributed Cloud Edge machine capable of acting as a
   Kubernetes node.
 
+  Enums:
+    PurposeValueValuesEnum: The type of cluster the machine is used for.
+    StatusValueValuesEnum: Output only. The current status of the machine.
+
   Messages:
     LabelsValue: Labels associated with this resource.
 
@@ -1184,10 +1303,37 @@ class Machine(_messages.Message):
       /{node}".
     labels: Labels associated with this resource.
     name: Required. The resource name of the machine.
+    purpose: The type of cluster the machine is used for.
+    status: Output only. The current status of the machine.
     updateTime: Output only. The time when the node pool was last updated.
     version: Output only. The software version of the machine.
     zone: The Google Distributed Cloud Edge zone of this machine.
   """
+
+  class PurposeValueValuesEnum(_messages.Enum):
+    r"""The type of cluster the machine is used for.
+
+    Values:
+      PURPOSE_UNSPECIFIED: Unspecified purpose.
+      VIRTUALIZED_WORKLOAD: Machine is used for virtual workload.
+      BAREMETAL_CLUSTER: Machine is used for a baremetal user cluster.
+    """
+    PURPOSE_UNSPECIFIED = 0
+    VIRTUALIZED_WORKLOAD = 1
+    BAREMETAL_CLUSTER = 2
+
+  class StatusValueValuesEnum(_messages.Enum):
+    r"""Output only. The current status of the machine.
+
+    Values:
+      STATUS_UNSPECIFIED: Status unknown.
+      READY: The machine is ready to host a node. This is the default.
+      DISABLED_FOR_REPAIR: The machine has been disabled for repair by adding
+        1 or more disable claims.
+    """
+    STATUS_UNSPECIFIED = 0
+    READY = 1
+    DISABLED_FOR_REPAIR = 2
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1218,9 +1364,11 @@ class Machine(_messages.Message):
   hostedNode = _messages.StringField(3)
   labels = _messages.MessageField('LabelsValue', 4)
   name = _messages.StringField(5)
-  updateTime = _messages.StringField(6)
-  version = _messages.StringField(7)
-  zone = _messages.StringField(8)
+  purpose = _messages.EnumField('PurposeValueValuesEnum', 6)
+  status = _messages.EnumField('StatusValueValuesEnum', 7)
+  updateTime = _messages.StringField(8)
+  version = _messages.StringField(9)
+  zone = _messages.StringField(10)
 
 
 class MaintenanceEvent(_messages.Message):
@@ -1345,16 +1493,36 @@ class MaintenanceWindow(_messages.Message):
 class NodeConfig(_messages.Message):
   r"""Configuration for each node in the NodePool
 
+  Enums:
+    NodeSystemPartitionSizeValueValuesEnum: Optional. System partition size
+      for worker nodes in GiB.
+
   Messages:
     LabelsValue: Optional. The Kubernetes node labels
 
   Fields:
     labels: Optional. The Kubernetes node labels
     nodeStorageSchema: Optional. Name for the storage schema of worker nodes.
-      Warning: Configurable node local storage schema feature is an
-      experimental feature, and is not recommended for general use in
-      production clusters/nodepools.
+    nodeSystemPartitionSize: Optional. System partition size for worker nodes
+      in GiB.
   """
+
+  class NodeSystemPartitionSizeValueValuesEnum(_messages.Enum):
+    r"""Optional. System partition size for worker nodes in GiB.
+
+    Values:
+      SYSTEM_PARTITION_GIB_SIZE_UNSPECIFIED: System partition size is not
+        specified by the user. This will cause the system partition size to be
+        set to the size specified in the system storage schema applicable to
+        that node, which is 100GiB.
+      SYSTEM_PARTITION_GIB_SIZE100: 100GiB system partition size, also the
+        default size.
+      SYSTEM_PARTITION_GIB_SIZE300: 300GiB system partition size. Can be used
+        to override the 100GiB default.
+    """
+    SYSTEM_PARTITION_GIB_SIZE_UNSPECIFIED = 0
+    SYSTEM_PARTITION_GIB_SIZE100 = 1
+    SYSTEM_PARTITION_GIB_SIZE300 = 2
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class LabelsValue(_messages.Message):
@@ -1382,6 +1550,7 @@ class NodeConfig(_messages.Message):
 
   labels = _messages.MessageField('LabelsValue', 1)
   nodeStorageSchema = _messages.StringField(2)
+  nodeSystemPartitionSize = _messages.EnumField('NodeSystemPartitionSizeValueValuesEnum', 3)
 
 
 class NodePool(_messages.Message):
@@ -1582,9 +1751,11 @@ class OperationMetadata(_messages.Message):
     Values:
       STATUS_REASON_UNSPECIFIED: Reason unknown.
       UPGRADE_PAUSED: The cluster upgrade is currently paused.
+      RETRYABLE_ERROR: The request has errored, but the error is retryable.
     """
     STATUS_REASON_UNSPECIFIED = 0
     UPGRADE_PAUSED = 1
+    RETRYABLE_ERROR = 2
 
   apiVersion = _messages.StringField(1)
   createTime = _messages.StringField(2)
@@ -1641,6 +1812,7 @@ class ServerConfig(_messages.Message):
   Fields:
     channels: Output only. Mapping from release channel to channel config.
     defaultVersion: Output only. Default version, e.g.: "1.4.0".
+    versionRollouts: Output only. Rollout information for the server config.
     versions: Output only. Supported versions, e.g.: ["1.4.0", "1.5.0"].
   """
 
@@ -1670,7 +1842,8 @@ class ServerConfig(_messages.Message):
 
   channels = _messages.MessageField('ChannelsValue', 1)
   defaultVersion = _messages.StringField(2)
-  versions = _messages.MessageField('Version', 3, repeated=True)
+  versionRollouts = _messages.MessageField('VersionRollout', 3, repeated=True)
+  versions = _messages.MessageField('Version', 4, repeated=True)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -1794,7 +1967,7 @@ class SurvivabilityConfig(_messages.Message):
   Fields:
     offlineRebootTtl: Optional. Time period that allows the cluster nodes to
       be rebooted and become functional without network connectivity to
-      Google. The default 0 means not allowed. The maximum is 7 days.
+      Google. The default 0 means not allowed. The maximum is 30 days.
   """
 
   offlineRebootTtl = _messages.StringField(1)
@@ -1875,6 +2048,19 @@ class Version(_messages.Message):
   """
 
   name = _messages.StringField(1)
+
+
+class VersionRollout(_messages.Message):
+  r"""VersionRollout contains the Version rollout information.
+
+  Fields:
+    availableZones: Output only. List of zones in which the version has been
+      rolled out, e.g.: ["us-central1", "us-west1"].
+    version: Output only. Semantic version, e.g.: "1.4.0".
+  """
+
+  availableZones = _messages.StringField(1, repeated=True)
+  version = _messages.StringField(2)
 
 
 class VpcProject(_messages.Message):

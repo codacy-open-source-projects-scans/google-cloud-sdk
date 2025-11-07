@@ -22,7 +22,7 @@ from googlecloudsdk.api_lib.cloudbuild import cloudbuild_util
 from googlecloudsdk.api_lib.run import global_methods
 from googlecloudsdk.api_lib.util import apis
 from googlecloudsdk.api_lib.util import waiter
-from googlecloudsdk.calliope import base
+from googlecloudsdk.calliope import base as calliope_base
 from googlecloudsdk.command_lib.builds import submit_util
 from googlecloudsdk.command_lib.run import artifact_registry
 from googlecloudsdk.command_lib.run import exceptions
@@ -36,9 +36,12 @@ from googlecloudsdk.core import resources
 _BUILD_NAME_PATTERN = re.compile(
     'projects/(?P<projectId>[^/]*)/locations/(?P<location>[^/]*)/builds/(?P<build>[^/]*)'
 )
+_DEFAULT_IMAGE_REPOSITORY_NAME = '/cloud-run-source-deploy'
 
 
 # TODO(b/383160656): Bundle these "build_" variables into an object
+# pylint:disable=unused-argument - release_track is piped through everywhere.
+# It shouldn't be removed just because there are no pre-GA features in progress.
 def CreateImage(
     tracker,
     build_image,
@@ -53,6 +56,7 @@ def CreateImage(
     base_image=None,
     service_account=None,
     build_worker_pool=None,
+    build_machine_type=None,
     build_env_vars=None,
     enable_automatic_updates=False,
     source_bucket=None,
@@ -69,62 +73,55 @@ def CreateImage(
 
   base_image_from_build = None
   source = None
+  client = 'gcloud'
 
-  if release_track != base.ReleaseTrack.GA:
-    # In the alpha and beta track we separately
-    # upload the source code then call the new
-    # builds API.
-    tracker.StartStage(stages.UPLOAD_SOURCE)
-    if kms_key and base.ReleaseTrack.ALPHA:
-      tracker.UpdateHeaderMessage('Using the source from the specified bucket.')
-      _ValidateCmekDeployment(build_source, kms_key, release_track)
-      source = sources.GetGcsObject(build_source)
-    else:
-      tracker.UpdateHeaderMessage('Uploading sources.')
-      source = sources.Upload(build_source, region, resource_ref, source_bucket)
-    tracker.CompleteStage(stages.UPLOAD_SOURCE)
-    submit_build_request = _PrepareSubmitBuildRequest(
-        build_image,
-        build_pack,
-        region,
-        base_image,
-        source,
-        resource_ref,
-        service_account,
-        build_worker_pool,
-        build_env_vars,
-        enable_automatic_updates,
+  tracker.StartStage(stages.UPLOAD_SOURCE)
+  if kms_key:
+    tracker.UpdateHeaderMessage('Using the source from the specified bucket.')
+    _ValidateCmekDeployment(
+        build_source, build_image, kms_key
     )
-    try:
-      response_dict, build_log_url, base_image_from_build = _SubmitBuild(
-          tracker,
-          submit_build_request,
-      )
-    except apitools_exceptions.HttpNotFoundError as e:
-      # This happens if user didn't have permission to access the builds API.
-      if base_image or delegate_builds:
-        # If the customer enabled automatic base image updates or set the
-        # --delegate-builds falling back is not possible.
-        raise e
-
-      # If the user didn't explicity opt-in to the API, we can fall back to
-      # the old client orchestrated builds functionality.
-      response_dict, build_log_url = _CreateImageWithoutSubmitBuild(
-          tracker,
-          build_image,
-          build_source,
-          build_pack,
-          already_activated_services,
-          remote_source=source,
-      )
+    source = sources.GetGcsObject(build_source)
   else:
+    tracker.UpdateHeaderMessage('Uploading sources.')
+    source = sources.Upload(build_source, region, resource_ref, source_bucket)
+  tracker.CompleteStage(stages.UPLOAD_SOURCE)
+  submit_build_request = _PrepareSubmitBuildRequest(
+      build_image,
+      build_pack,
+      region,
+      base_image,
+      source,
+      resource_ref,
+      service_account,
+      build_worker_pool,
+      build_machine_type,
+      build_env_vars,
+      enable_automatic_updates,
+      release_track,
+      client,
+  )
+  try:
+    response_dict, build_log_url, base_image_from_build = _SubmitBuild(
+        tracker,
+        submit_build_request,
+    )
+  except apitools_exceptions.HttpNotFoundError as e:
+    # This happens if user didn't have permission to access the builds API.
+    if base_image or delegate_builds:
+      # If the customer enabled automatic base image updates or set the
+      # --delegate-builds falling back is not possible.
+      raise e
+
+    # If the user didn't explicitly opt-in to the API, we can fall back to
+    # the old client orchestrated builds functionality.
     response_dict, build_log_url = _CreateImageWithoutSubmitBuild(
         tracker,
         build_image,
         build_source,
         build_pack,
         already_activated_services,
-        remote_source=None,
+        remote_source=source,
     )
 
   if response_dict and response_dict['status'] != 'SUCCESS':
@@ -189,7 +186,7 @@ def _PrepareBuildConfig(
   if remote_source:
     # add the source uri as a label to the image
     # https://github.com/GoogleCloudPlatform/buildpacks/blob/main/cmd/utils/label/README.md
-    uri = f'gs://{remote_source.bucket}/{remote_source.name}#{remote_source.generation}'
+    uri = sources.GetGsutilUri(remote_source)
     if build_pack is not None:
       envs = build_pack[0].get('envs', [])
       envs.append(f'GOOGLE_LABEL_SOURCE={uri}')  # "google.source"
@@ -225,7 +222,7 @@ def _PrepareBuildConfig(
 
     # is docker build
     if build_pack is None:
-      assert build_config.steps[0].name == 'gcr.io/cloud-builders/docker'
+      assert build_config.steps[0].name == 'gcr.io/cloud-builders/gcb-internal'
       # https://docs.docker.com/engine/reference/commandline/image_build/
       build_config.steps[0].args.extend(['--label', f'google.source={uri}'])
 
@@ -270,20 +267,38 @@ def _PrepareBuildConfig(
   return build_messages, build_config
 
 
-def _ValidateCmekDeployment(source: str, kms_key: str, release_track) -> None:
+def _ValidateCmekDeployment(
+    source: str, image_repository: str, kms_key: str
+) -> None:
   """Validate the CMEK parameters of the deployment."""
-  if not kms_key or release_track != base.ReleaseTrack.ALPHA:
+  if not kms_key:
     return
 
   if not sources.IsGcsObject(source):
-    # TODO: b/380348558 - Link to the relevant CMEK guide, once published.
     raise exceptions.ArgumentError(
         f'Invalid source location: {source}.'
         ' Deployments encrypted with a customer-managed encryption key (CMEK)'
         ' expect the source to be passed in a pre-configured Cloud Storage'
-        ' bucket.'
+        ' bucket. See'
+        ' https://cloud.google.com/run/docs/securing/using-cmek#source-deploy'
+        ' for more details.'
     )
-   # TODO: b/378907596 - Validate the BYO repository, once supported.
+  if not image_repository:
+    raise exceptions.ArgumentError(
+        'Deployments encrypted with a customer-managed encryption key (CMEK)'
+        ' require a pre-configured Artifact Registry repository to be passed'
+        ' via the `--image` flag. See'
+        ' https://cloud.google.com/run/docs/securing/using-cmek#source-deploy'
+        ' for more details.'
+    )
+  if _IsDefaultImageRepository(image_repository):
+    raise exceptions.ArgumentError(
+        'The default Artifact Registry repository can not be used when'
+        ' deploying with a customer-managed encryption key (CMEK). Please'
+        ' provide a pre-configured repository using the `--image` flag. See'
+        ' https://cloud.google.com/run/docs/securing/using-cmek#source-deploy'
+        ' for more details.'
+    )
 
 
 def _BuildFromSource(
@@ -326,8 +341,11 @@ def _PrepareSubmitBuildRequest(
     resource_ref,
     service_account,
     build_worker_pool,
+    build_machine_type,
     build_env_vars,
     enable_automatic_updates,
+    release_track,
+    client,
 ):
   """Upload the provided build source and prepare submit build request."""
   messages = apis.GetMessagesModule(global_methods.SERVERLESS_API_NAME, 'v2')
@@ -342,6 +360,7 @@ def _PrepareSubmitBuildRequest(
   if build_pack:
     # submit a buildpacks build
     function_target = None
+    project_descriptor = build_pack[0].get('project_descriptor', None)
     for env in build_pack[0].get('envs', []):
       if env.startswith('GOOGLE_FUNCTION_TARGET'):
         function_target = env.split('=')[1]
@@ -365,11 +384,15 @@ def _PrepareSubmitBuildRequest(
                 functionTarget=function_target,
                 environmentVariables=build_env_vars,
                 enableAutomaticUpdates=enable_automatic_updates,
+                projectDescriptor=project_descriptor,
             ),
             dockerBuild=None,
             tags=tags,
             serviceAccount=service_account,
             workerPool=build_worker_pool,
+            machineType=build_machine_type,
+            releaseTrack=_MapToReleaseTrackEnum(release_track, messages),
+            client=client,
         ),
     )
 
@@ -384,6 +407,9 @@ def _PrepareSubmitBuildRequest(
           tags=tags,
           serviceAccount=service_account,
           workerPool=build_worker_pool,
+          machineType=build_machine_type,
+          releaseTrack=_MapToReleaseTrackEnum(release_track, messages),
+          client=client,
       ),
   )
 
@@ -454,3 +480,19 @@ def _GetBuildRegion(build_name):
   if match:
     return match.group('location')
   raise ValueError(f'Invalid build name: {build_name}')
+
+
+def _IsDefaultImageRepository(image_repository: str) -> bool:
+  """Checks if the image repository is the default one."""
+  return _DEFAULT_IMAGE_REPOSITORY_NAME in image_repository
+
+
+def _MapToReleaseTrackEnum(release_track, messages):
+  """Returns the enum value for the release track."""
+  release_track_enum_value = None
+  if release_track and release_track != calliope_base.ReleaseTrack.GA:
+    release_track_enum_cls = (
+        messages.GoogleCloudRunV2SubmitBuildRequest.ReleaseTrackValueValuesEnum
+    )
+    release_track_enum_value = release_track_enum_cls(release_track.name)
+  return release_track_enum_value

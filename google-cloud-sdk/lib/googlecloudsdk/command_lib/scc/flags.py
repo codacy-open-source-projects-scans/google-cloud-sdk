@@ -48,8 +48,7 @@ READ_TIME_FLAG = base.Argument(
         "--read-time",
         warn=textwrap.dedent("""\
             The --read-time option is deprecated.
-            For more information, [see the deprecation notice]
-            (https://cloud.google.com/security-command-center/docs/release-notes#April_15_2024)
+            For more information, [see the deprecation notice](https://cloud.google.com/security-command-center/docs/release-notes#April_15_2024)
             on the SCC release notes page."""),
         removed=False,
     ),
@@ -73,9 +72,14 @@ LOCATION_FLAG = base.Argument(
       provided as part of the fully specified resource name or with the `--location`
       argument on the command line. The default location is `global`.
 
+      NOTE: If you override the endpoint to a [regional endpoint](https://cloud.google.com/security-command-center/docs/reference/rest/index.html?rep_location=global#regional-service-endpoint)
+      you must specify the correct [data location](https://cloud.google.com/security-command-center/docs/data-residency-support#locations) using this flag.
       The default location on this command is unrelated to the default location
       that is specified when data residency controls are enabled
-      for Security Command Center.""",
+      for Security Command Center.
+
+      NOTE: If no location is specified, the default location is `global` AND
+      the request will be routed to the SCC V1 API. To use the SCC V2 API - please explicitly specify the flag.""",
     default="global",
 )
 
@@ -129,9 +133,13 @@ def GetDefaultParent():
   if id_pattern.match(parent):
     # Prepend organizations/ if only number value is provided.
     parent = "organizations/" + parent
-  if not (organization_resource_pattern.match(parent) or
-          parent.startswith("projects/") or parent.startswith("folders/")):
+  if not (
+      organization_resource_pattern.match(parent)
+      or parent.startswith("projects/")
+      or parent.startswith("folders/")
+  ):
     raise errors.InvalidSCCInputError(
         """Parent must match either [0-9]+, organizations/[0-9]+, projects/.*
-      or folders/.*.""")
+      or folders/.*."""
+    )
   return parent

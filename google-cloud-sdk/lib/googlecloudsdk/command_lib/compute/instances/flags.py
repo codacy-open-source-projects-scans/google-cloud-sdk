@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import copy
 import functools
 import ipaddress
+import textwrap
 
 from googlecloudsdk.api_lib.compute import constants
 from googlecloudsdk.api_lib.compute import containers_utils
@@ -347,6 +348,7 @@ def AddImageArgs(
     enable_snapshots=False,
     support_image_family_scope=False,
     enable_instant_snapshots=False,
+    support_source_snapshot_region=False,
 ):
   """Adds arguments related to images for instances and instance-templates."""
 
@@ -408,6 +410,15 @@ def AddImageArgs(
     )
   if support_image_family_scope:
     image_utils.AddImageFamilyScopeFlag(image_parent_group)
+
+  if support_source_snapshot_region:
+    image_parent_group.add_argument(
+        '--source-snapshot-region',
+        metavar='SOURCE_SNAPSHOT_REGION',
+        help="""\
+        Sets the region for the `--source-snapshot` flag. By default, when
+        specifying a snapshot, the global snapshot scope is used. Use this flag to override this behavior to use regionally scoped snapshots.""",
+    )
 
 
 def AddCanIpForwardArgs(parser):
@@ -719,11 +730,10 @@ def AddBootDiskArgs(parser, enable_kms=False):
 
   parser.add_argument(
       '--boot-disk-provisioned-iops',
-      type=arg_parsers.BoundedInt(10000, 120000),
+      type=arg_parsers.BoundedInt(),
       help="""\
       Indicates how many IOPS to provision for the disk. This sets the number
-      of I/O operations per second that the disk can handle. Value must be
-      between 10,000 and 120,000.
+      of I/O operations per second that the disk can handle.
       """)
 
   parser.add_argument(
@@ -779,6 +789,7 @@ def AddCreateDiskArgs(
     enable_source_instant_snapshots=False,
     enable_confidential_compute=False,
     support_disk_labels=False,
+    support_source_snapshot_region=False,
 ):
   """Adds create-disk argument for instances and instance-templates."""
 
@@ -1055,6 +1066,14 @@ def AddCreateDiskArgs(
     )
     spec['labels'] = arg_parsers.ArgList(min_length=1, custom_delim_char=':')
 
+  if support_source_snapshot_region:
+    disk_help += """
+      *source-snapshot-region*::: The region of the source snapshot that
+      will be used to create the disk. You can provide region name to use
+      scoped snapshot as the source snapshot.
+      """
+    spec['source-snapshot-region'] = str
+
   parser.add_argument(
       '--create-disk',
       type=arg_parsers.ArgDict(spec=spec),
@@ -1120,6 +1139,9 @@ def _GetAddress(compute_client, address_ref):
                      project=address_ref.project,
                      region=address_ref.region))],
       errors_to_collect=errors)
+  if errors:
+    utils.RaiseToolException(
+        errors, error_message='Could not fetch address resource.')
   return res[0]
 
 
@@ -1516,15 +1538,18 @@ def ValidateNetworkInterfaceNicType(nic_type_input):
         '--network-interface', 'Invalid value for nic-type [%s]' % nic_type)
 
 
-def AddAddressArgs(parser,
-                   instances=True,
-                   support_subinterface=False,
-                   instance_create=False,
-                   containers=False,
-                   support_network_queue_count=False,
-                   support_vlan_nic=False,
-                   support_ipv6_only=False,
-                   support_igmp_query=False):
+def AddAddressArgs(
+    parser,
+    instances=True,
+    support_subinterface=False,
+    instance_create=False,
+    containers=False,
+    support_network_queue_count=False,
+    support_vlan_nic=True,
+    support_ipv6_only=False,
+    support_igmp_query=False,
+    support_enable_vpc_scoped_dns=False,
+):
   """Adds address arguments for instances and instance-templates.
 
   Args:
@@ -1542,6 +1567,8 @@ def AddAddressArgs(parser,
     support_ipv6_only: indicates whether IPV6_ONLY stack type is supported.
     support_igmp_query: indicates whether setting igmp query on network
       interfaces is supported.
+    support_enable_vpc_scoped_dns: indicates whether setting enable vpc scoped
+      dns on network interfaces is supported.
   """
   addresses = parser.add_mutually_exclusive_group()
   AddNoAddressArg(addresses)
@@ -1570,7 +1597,8 @@ def AddAddressArgs(parser,
       'external-ipv6-address': str,
       'external-ipv6-prefix-length': int,
       'internal-ipv6-address': str,
-      'internal-ipv6-prefix-length': int
+      'internal-ipv6-prefix-length': int,
+      'enable-vpc-scoped-dns': None,
   }
 
   multiple_network_interface_cards_spec['network-tier'] = _ValidateNetworkTier
@@ -1752,9 +1780,18 @@ def AddAddressArgs(parser,
         *--subnet* flags.
       """)
 
+  if support_enable_vpc_scoped_dns:
+    network_interface_help_texts.append("""
+      *enable-vpc-scoped-dns*::: If specified with network_attachment, DNS
+      resolution will be enabled over this interface.
+      """)
+
   if support_vlan_nic:
+    network_interface_help_texts.append("""
+      *vlan*::: VLAN ID of a Dynamic Network Interface, must be  an integer in
+      the range from 2 to 255 inclusively.
+      """)
     multiple_network_interface_cards_spec['vlan'] = int
-    # TODO(b/274638343): Add help text before release.
 
   if support_igmp_query:
     network_interface_help_texts.append("""
@@ -1943,7 +1980,7 @@ def AddPreemptibleVmArgs(parser, is_update=False):
         '--preemptible', action='store_true', default=False, help=help_text)
 
 
-def AddProvisioningModelVmArgs(parser, support_reservation_bound=False):
+def AddProvisioningModelVmArgs(parser, support_flex_start=False):
   """Set arguments for specifing provisioning model for instances."""
   choices = {
       'SPOT': (
@@ -1955,13 +1992,17 @@ def AddProvisioningModelVmArgs(parser, support_reservation_bound=False):
           'The default option. The STANDARD provisioning model gives you full '
           "control over your VM instances' runtime."
       ),
+      'RESERVATION_BOUND': (
+          'The VM instances run for the entire duration of their associated'
+          ' reservation. You can only specify this provisioning model if you'
+          ' want your VM instances to consume a specific reservation with'
+          ' either a calendar reservation mode or a dense deployment type.'
+      ),
   }
-  if support_reservation_bound:
-    choices['RESERVATION_BOUND'] = (
-        'The VM instances run for the entire duration of their associated'
-        ' reservation. You can only specify this provisioning model if you want'
-        ' your VM instances to consume a specific reservation with either a'
-        ' calendar reservation mode or a dense deployment type.'
+  if support_flex_start:
+    choices['FLEX_START'] = (
+        'The VM instance is provisioned using the Flex Start provisioning model'
+        ' and has a limited runtime.'
     )
   parser.add_argument(
       '--provisioning-model',
@@ -2134,6 +2175,17 @@ def AddGracefulShutdownArgs(parser, is_create=False):
       type=arg_parsers.Duration(lower_bound='1s', upper_bound='3600s'),
       help="""
       Specifies the maximum time for the graceful shutdown. After this time, the instance is set to STOPPING even if tasks are still running. Specify the time as the number of hours, minutes, or seconds followed by h, m, and s respectively. For example, specify 30m for 30 minutes or 20m10s for 20 minutes and 10 seconds. The value must be between 1 second and 1 hour.
+      """,
+  )
+
+
+def AddPreemptionNoticeDurationArgs(parser):
+  parser.add_argument(
+      '--preemption-notice-duration',
+      type=arg_parsers.Duration(),
+      help="""\
+      Specifies the metadata preemption notice duration before the ACPI G2
+      soft off signal is triggered for Spot VMs. e.g. 120s.
       """,
   )
 
@@ -3168,7 +3220,8 @@ def AddShieldedInstanceIntegrityPolicyArgs(parser):
 def AddConfidentialComputeArgs(
     parser,
     support_confidential_compute_type=False,
-    support_confidential_compute_type_tdx=False) -> None:
+    support_confidential_compute_type_tdx=False,
+    support_snp_svsm=False) -> None:
   """Adds flags for confidential compute for instance."""
   if support_confidential_compute_type:
     choices = {
@@ -3193,6 +3246,29 @@ def AddConfidentialComputeArgs(
         Trust Domain eXtension based on Intel virtualization features for
         running confidential instances is also supported.
         """)))
+    if support_snp_svsm:
+      svsm_help_text = textwrap.dedent("""\
+        Secure VM Service Module (SVSM) is supported on AMD Secure Nested Paging
+        (SEV-SNP) VMs for additional security. To specify the svsm-config also
+        provide the argument `confidential-compute-type=SEV_SNP` on the command
+        line.
+
+        *tpm*::: The virtual Trusted Platform Module (TPM) used by SVSM.
+        Currently the only vTPM supported is: EPHEMERAL.
+        *snp-irq*::: The interrupt request mode to use for the AMD SEV-SNP VM.
+        Currently the only IRQ mode supported is: UNRESTRICTED.
+        """)
+      svsm_congfig_spec = {
+          'tpm': str,
+          'snp-irq': str,
+      }
+      parser.add_argument(
+          '--svsm-config',
+          hidden=True,
+          type=arg_parsers.ArgDict(spec=svsm_congfig_spec),
+          metavar='PROPERTY=VALUE',
+          help=svsm_help_text,
+      )
 
     parser = parser.add_mutually_exclusive_group()
     parser.add_argument(
@@ -4072,5 +4148,51 @@ def AddTurboModeArgs(parser):
       To achieve all-core-turbo frequency for more consistent CPU
       performance, set the field to ALL_CORE_MAX. The field is unset by
       default, which results in maximum performance single-core boosting.
+      """,
+  )
+
+
+def AddSkipGuestOsShutdownArgs(parser):
+  parser.add_argument(
+      '--skip-guest-os-shutdown',
+      action=arg_parsers.StoreTrueFalseAction,
+      help="""\
+      If enabled, then, when the instance is stopped or deleted, the instance
+      is immediately stopped without giving time to the guest OS to cleanly
+      shut down.
+      """)
+
+
+def AddRequestValidForDurationArgs(parser):
+  parser.add_argument(
+      '--request-valid-for-duration',
+      type=arg_parsers.Duration(),
+      help="""
+      When you create an instance by using the FLEX_START provisioning model,
+      you can specify the duration to wait for available resources. If the
+      instance creation request is still pending after this duration, then the
+      request fails. You specify a duration by using numbers followed
+      by `h`, `m`, and `s` for hours, minutes, and seconds, respectively. For
+      example, specify `30m` for a duration of 30 minutes, or `1h2m3s` for
+      1 hour, 2 minutes, and 3 seconds. Longer durations give you higher chances
+      that your instance creation request succeeds when resources are in high
+      demand.
+      """,
+  )
+
+
+def AddWorkloadIdentityConfigArgs(parser):
+  parser.add_argument(
+      '--identity',
+      type=str,
+      help="""\
+      The workload identity to use for the instance.
+      """,
+  )
+  parser.add_argument(
+      '--identity-certificate',
+      action=arg_parsers.StoreTrueFalseAction,
+      help="""\
+      Enables or disables managed workload identities on a VM.
       """,
   )

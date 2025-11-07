@@ -132,16 +132,15 @@ class AddSubnetworkRequest(_messages.Message):
     checkServiceNetworkingUsePermission: Optional. The IAM permission check
       determines whether the consumer project has
       'servicenetworking.services.use' permission or not.
-    computeIdempotencyWindow: Optional. Specifies a custom time bucket for
-      Arcus subnetwork request idempotency. If two equivalent concurrent
-      requests are made, Arcus will know to ignore the request if it has
-      already been completed or is in progress. Only requests with matching
+    computeIdempotencyWindow: Optional. Specifies a custom time bucket for GCE
+      subnetwork request idempotency. If two equivalent concurrent requests
+      are made, GCE will know to ignore the request if it has already been
+      completed or is in progress. Only requests with matching
       compute_idempotency_window have guaranteed idempotency. Changing this
       time window between requests results in undefined behavior. Zero (or
       empty) value with custom_compute_idempotency_window=true specifies no
-      idempotency (i.e. no request ID is provided to Arcus). Maximum value of
-      14 days (enforced by Arcus limit). For more information on how to use,
-      see: go/revisit-sn-idempotency-window
+      idempotency (i.e. no request ID is provided to GCE). Maximum value of 14
+      days (enforced by GCE limit).
     consumer: Required. A resource that represents the service consumer, such
       as `projects/123456`. The project number can be different from the value
       in the consumer network parameter. For example, the network might be
@@ -176,8 +175,9 @@ class AddSubnetworkRequest(_messages.Message):
       'PRIVATE_SERVICE_CONNECT'. For information about the purposes that can
       be set using this field, see [subnetwork](https://cloud.google.com/compu
       te/docs/reference/rest/v1/subnetworks) in the Compute API documentation.
-    region: Required. The name of a [region](/compute/docs/regions-zones) for
-      the subnet, such `europe-west1`.
+    region: Required. The name of a
+      [region](https://cloud.google.com/compute/docs/regions-zones) for the
+      subnet, such `europe-west1`.
     requestedAddress: Optional. The starting address of a range. The address
       must be a valid IPv4 address in the x.x.x.x format. This value combined
       with the IP prefix range is the CIDR range for the subnet. The range
@@ -203,17 +203,15 @@ class AddSubnetworkRequest(_messages.Message):
       with the requested_address/prefix_length IP address range otherwise the
       created subnet could cause misrouting.
     subnetwork: Required. A name for the new subnet. For information about the
-      naming requirements, see
-      [subnetwork](/compute/docs/reference/rest/v1/subnetworks) in the Compute
-      API documentation.
+      naming requirements, see [subnetwork](https://cloud.google.com/compute/d
+      ocs/reference/rest/v1/subnetworks) in the Compute API documentation.
     subnetworkUsers: A list of members that are granted the
       `roles/servicenetworking.subnetworkAdmin` role on the subnet.
     useCustomComputeIdempotencyWindow: Optional. Specifies if Service
-      Networking should use a custom time bucket for Arcus idempotency. If
-      false, Service Networking uses a 300 second (5 minute) Arcus idempotency
+      Networking should use a custom time bucket for GCE idempotency. If
+      false, Service Networking uses a 300 second (5 minute) GCE idempotency
       window. If true, Service Networking uses a custom idempotency window
-      provided by the user in field compute_idempotency_window. For more
-      information on how to use, see: go/revisit-sn-idempotency-window
+      provided by the user in field compute_idempotency_window.
   """
 
   allowSubnetCidrRoutesOverlap = _messages.BooleanField(1)
@@ -246,12 +244,18 @@ class Api(_messages.Message):
   opposed to simply a description of methods and bindings. They are also
   sometimes simply referred to as "APIs" in other contexts, such as the name
   of this message itself. See https://cloud.google.com/apis/design/glossary
-  for detailed terminology.
+  for detailed terminology. New usages of this message as an alternative to
+  ServiceDescriptorProto are strongly discouraged. This message does not
+  reliability preserve all information necessary to model the schema and
+  preserve semantics. Instead make use of FileDescriptorSet which preserves
+  the necessary information.
 
   Enums:
     SyntaxValueValuesEnum: The source syntax of the service.
 
   Fields:
+    edition: The source edition string, only valid when syntax is
+      SYNTAX_EDITIONS.
     methods: The methods of this interface, in unspecified order.
     mixins: Included interfaces. See Mixin.
     name: The fully qualified name of this interface, including package name
@@ -289,13 +293,60 @@ class Api(_messages.Message):
     SYNTAX_PROTO3 = 1
     SYNTAX_EDITIONS = 2
 
-  methods = _messages.MessageField('Method', 1, repeated=True)
-  mixins = _messages.MessageField('Mixin', 2, repeated=True)
-  name = _messages.StringField(3)
-  options = _messages.MessageField('Option', 4, repeated=True)
-  sourceContext = _messages.MessageField('SourceContext', 5)
-  syntax = _messages.EnumField('SyntaxValueValuesEnum', 6)
-  version = _messages.StringField(7)
+  edition = _messages.StringField(1)
+  methods = _messages.MessageField('Method', 2, repeated=True)
+  mixins = _messages.MessageField('Mixin', 3, repeated=True)
+  name = _messages.StringField(4)
+  options = _messages.MessageField('Option', 5, repeated=True)
+  sourceContext = _messages.MessageField('SourceContext', 6)
+  syntax = _messages.EnumField('SyntaxValueValuesEnum', 7)
+  version = _messages.StringField(8)
+
+
+class Aspect(_messages.Message):
+  r"""Aspect represents Generic aspect. It is used to configure an aspect
+  without making direct changes to service.proto
+
+  Messages:
+    SpecValue: Content of the configuration. The underlying schema should be
+      defined by Aspect owners as protobuf message under
+      `google/api/configaspects/proto`.
+
+  Fields:
+    kind: The type of this aspect configuration.
+    spec: Content of the configuration. The underlying schema should be
+      defined by Aspect owners as protobuf message under
+      `google/api/configaspects/proto`.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class SpecValue(_messages.Message):
+    r"""Content of the configuration. The underlying schema should be defined
+    by Aspect owners as protobuf message under
+    `google/api/configaspects/proto`.
+
+    Messages:
+      AdditionalProperty: An additional property for a SpecValue object.
+
+    Fields:
+      additionalProperties: Properties of the object.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a SpecValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A extra_types.JsonValue attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('extra_types.JsonValue', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  kind = _messages.StringField(1)
+  spec = _messages.MessageField('SpecValue', 2)
 
 
 class AuthProvider(_messages.Message):
@@ -438,7 +489,7 @@ class BackendRule(_messages.Message):
   r"""A backend rule provides configuration for an individual API element.
 
   Enums:
-    PathTranslationValueValuesEnum:
+    PathTranslationValueValuesEnum: no-lint
 
   Messages:
     OverridesByRequestProtocolValue: The map between request protocol and the
@@ -462,12 +513,17 @@ class BackendRule(_messages.Message):
     jwtAudience: The JWT audience is used when generating a JWT ID token for
       the backend. This ID token will be added in the HTTP "authorization"
       header, and sent to the backend.
+    loadBalancingPolicy: The load balancing policy used for connection to the
+      application backend. Defined as an arbitrary string to accomondate
+      custom load balancing policies supported by the underlying channel, but
+      suggest most users use one of the standard policies, such as the
+      default, "RoundRobin".
     minDeadline: Deprecated, do not use.
     operationDeadline: The number of seconds to wait for the completion of a
       long running operation. The default is no deadline.
     overridesByRequestProtocol: The map between request protocol and the
       backend address.
-    pathTranslation: A PathTranslationValueValuesEnum attribute.
+    pathTranslation: no-lint
     protocol: The protocol used for sending a request to the backend. The
       supported values are "http/1.1" and "h2". The default value is inferred
       from the scheme in the address field: SCHEME PROTOCOL http:// http/1.1
@@ -483,7 +539,7 @@ class BackendRule(_messages.Message):
   """
 
   class PathTranslationValueValuesEnum(_messages.Enum):
-    r"""PathTranslationValueValuesEnum enum type.
+    r"""no-lint
 
     Values:
       PATH_TRANSLATION_UNSPECIFIED: <no description>
@@ -545,12 +601,102 @@ class BackendRule(_messages.Message):
   deadline = _messages.FloatField(2)
   disableAuth = _messages.BooleanField(3)
   jwtAudience = _messages.StringField(4)
-  minDeadline = _messages.FloatField(5)
-  operationDeadline = _messages.FloatField(6)
-  overridesByRequestProtocol = _messages.MessageField('OverridesByRequestProtocolValue', 7)
-  pathTranslation = _messages.EnumField('PathTranslationValueValuesEnum', 8)
-  protocol = _messages.StringField(9)
-  selector = _messages.StringField(10)
+  loadBalancingPolicy = _messages.StringField(5)
+  minDeadline = _messages.FloatField(6)
+  operationDeadline = _messages.FloatField(7)
+  overridesByRequestProtocol = _messages.MessageField('OverridesByRequestProtocolValue', 8)
+  pathTranslation = _messages.EnumField('PathTranslationValueValuesEnum', 9)
+  protocol = _messages.StringField(10)
+  selector = _messages.StringField(11)
+
+
+class BatchingConfigProto(_messages.Message):
+  r"""`BatchingConfigProto` defines the batching configuration for an API
+  method.
+
+  Fields:
+    batchDescriptor: The request and response fields used in batching.
+    thresholds: The thresholds which trigger a batched request to be sent.
+  """
+
+  batchDescriptor = _messages.MessageField('BatchingDescriptorProto', 1)
+  thresholds = _messages.MessageField('BatchingSettingsProto', 2)
+
+
+class BatchingDescriptorProto(_messages.Message):
+  r"""`BatchingDescriptorProto` specifies the fields of the request message to
+  be used for batching, and, optionally, the fields of the response message to
+  be used for demultiplexing.
+
+  Fields:
+    batchedField: The repeated field in the request message to be aggregated
+      by batching.
+    discriminatorFields: A list of the fields in the request message. Two
+      requests will be batched together only if the values of every field
+      specified in `request_discriminator_fields` is equal between the two
+      requests.
+    subresponseField: Optional. When present, indicates the field in the
+      response message to be used to demultiplex the response into multiple
+      response messages, in correspondence with the multiple request messages
+      originally batched together.
+  """
+
+  batchedField = _messages.StringField(1)
+  discriminatorFields = _messages.StringField(2, repeated=True)
+  subresponseField = _messages.StringField(3)
+
+
+class BatchingSettingsProto(_messages.Message):
+  r"""`BatchingSettingsProto` specifies a set of batching thresholds, each of
+  which acts as a trigger to send a batch of messages as a request. At least
+  one threshold must be positive nonzero.
+
+  Enums:
+    FlowControlLimitExceededBehaviorValueValuesEnum: The behavior to take when
+      the flow control limit is exceeded.
+
+  Fields:
+    delayThreshold: The duration after which a batch should be sent, starting
+      from the addition of the first message to that batch.
+    elementCountLimit: The maximum number of elements collected in a batch
+      that could be accepted by server.
+    elementCountThreshold: The number of elements of a field collected into a
+      batch which, if exceeded, causes the batch to be sent.
+    flowControlByteLimit: The maximum size of data allowed by flow control.
+    flowControlElementLimit: The maximum number of elements allowed by flow
+      control.
+    flowControlLimitExceededBehavior: The behavior to take when the flow
+      control limit is exceeded.
+    requestByteLimit: The maximum size of the request that could be accepted
+      by server.
+    requestByteThreshold: The aggregated size of the batched field which, if
+      exceeded, causes the batch to be sent. This size is computed by
+      aggregating the sizes of the request field to be batched, not of the
+      entire request message.
+  """
+
+  class FlowControlLimitExceededBehaviorValueValuesEnum(_messages.Enum):
+    r"""The behavior to take when the flow control limit is exceeded.
+
+    Values:
+      UNSET_BEHAVIOR: Default behavior, system-defined.
+      THROW_EXCEPTION: Stop operation, raise error.
+      BLOCK: Pause operation until limit clears.
+      IGNORE: Continue operation, disregard limit.
+    """
+    UNSET_BEHAVIOR = 0
+    THROW_EXCEPTION = 1
+    BLOCK = 2
+    IGNORE = 3
+
+  delayThreshold = _messages.StringField(1)
+  elementCountLimit = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  elementCountThreshold = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  flowControlByteLimit = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  flowControlElementLimit = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  flowControlLimitExceededBehavior = _messages.EnumField('FlowControlLimitExceededBehaviorValueValuesEnum', 6)
+  requestByteLimit = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  requestByteThreshold = _messages.IntegerField(8)
 
 
 class Billing(_messages.Message):
@@ -598,6 +744,13 @@ class BillingDestination(_messages.Message):
 
 class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
+
+
+class CleanupConnectionMetadata(_messages.Message):
+  r"""Metadata provided through GetOperation request for the LRO generated by
+  Cleanup Connection API
+  """
+
 
 
 class ClientLibrarySettings(_messages.Message):
@@ -685,10 +838,12 @@ class CloudSQLConfig(_messages.Message):
   r"""Cloud SQL configuration.
 
   Fields:
-    service: Peering service used for peering with the Cloud SQL project.
-    umbrellaNetwork: The name of the umbrella network in the Cloud SQL
-      umbrella project.
-    umbrellaProject: The project number of the Cloud SQL umbrella project.
+    service: Required. Peering service used for peering with the Cloud SQL
+      project.
+    umbrellaNetwork: Required. The name of the umbrella network in the Cloud
+      SQL umbrella project.
+    umbrellaProject: Required. The project number of the Cloud SQL umbrella
+      project.
   """
 
   service = _messages.StringField(1)
@@ -737,8 +892,8 @@ class Connection(_messages.Message):
   VPC network and a service consumer's VPC network.
 
   Fields:
-    network: The name of service consumer's VPC network that's connected with
-      service producer network, in the following format:
+    network: Required. The name of service consumer's VPC network that's
+      connected with service producer network, in the following format:
       `projects/{project}/global/networks/{network}`. `{project}` is a project
       number, such as in `12345` that includes the VPC service consumer's VPC
       network. `{network}` is the name of the service consumer's VPC network.
@@ -885,8 +1040,8 @@ class Control(_messages.Message):
 
   Fields:
     environment: The service controller environment to use. If empty, no
-      control plane feature (like quota and billing) will be enabled. The
-      recommended value for most services is servicecontrol.googleapis.com
+      control plane features (like quota and billing) will be enabled. The
+      recommended value for most services is servicecontrol.googleapis.com.
     methodPolicies: Defines policies applying to the API methods of the
       service.
   """
@@ -1072,6 +1227,9 @@ class Documentation(_messages.Message):
   documented together with service config validation.
 
   Fields:
+    additionalIamInfo: Optional information about the IAM configuration. This
+      is typically used to link to documentation about a product's IAM roles
+      and permissions.
     documentationRootUrl: The URL to the root of documentation.
     overview: Declares a single overview page. For example: documentation:
       summary: ... overview: (== include overview.md ==) This is a shortcut
@@ -1082,9 +1240,9 @@ class Documentation(_messages.Message):
     rules: A list of documentation rules that apply to individual API
       elements. **NOTE:** All service configuration rules follow "last one
       wins" order.
-    sectionOverrides: Specifies section and content to override boilerplate
-      content provided by go/api-docgen. Currently overrides following
-      sections: 1. rest.service.client_libraries
+    sectionOverrides: Specifies section and content to override the
+      boilerplate content. Currently overrides following sections: 1.
+      rest.service.client_libraries
     serviceRootUrl: Specifies the service root url if the default one (the
       service name from the yaml file) is not suitable. This can be seen in
       any fully specified service urls as well as sections that show a base
@@ -1095,13 +1253,14 @@ class Documentation(_messages.Message):
       `description`.
   """
 
-  documentationRootUrl = _messages.StringField(1)
-  overview = _messages.StringField(2)
-  pages = _messages.MessageField('Page', 3, repeated=True)
-  rules = _messages.MessageField('DocumentationRule', 4, repeated=True)
-  sectionOverrides = _messages.MessageField('Page', 5, repeated=True)
-  serviceRootUrl = _messages.StringField(6)
-  summary = _messages.StringField(7)
+  additionalIamInfo = _messages.StringField(1)
+  documentationRootUrl = _messages.StringField(2)
+  overview = _messages.StringField(3)
+  pages = _messages.MessageField('Page', 4, repeated=True)
+  rules = _messages.MessageField('DocumentationRule', 5, repeated=True)
+  sectionOverrides = _messages.MessageField('Page', 6, repeated=True)
+  serviceRootUrl = _messages.StringField(7)
+  summary = _messages.StringField(8)
 
 
 class DocumentationRule(_messages.Message):
@@ -1115,8 +1274,7 @@ class DocumentationRule(_messages.Message):
       trailing comments taken from the proto source definition of the proto
       element.
     disableReplacementWords: String of comma or space separated case-sensitive
-      words for which method/field name replacement will be disabled by
-      go/api-docgen.
+      words for which method/field name replacement will be disabled.
     selector: The selector is a comma-separated list of patterns for any
       element such as a method, a field, an enum value. Each pattern is a
       qualified name of the element which may end in "*", indicating a
@@ -1291,7 +1449,11 @@ class Endpoint(_messages.Message):
 
 
 class Enum(_messages.Message):
-  r"""Enum type definition.
+  r"""Enum type definition. New usages of this message as an alternative to
+  EnumDescriptorProto are strongly discouraged. This message does not
+  reliability preserve all information necessary to model the schema and
+  preserve semantics. Instead make use of FileDescriptorSet which preserves
+  the necessary information.
 
   Enums:
     SyntaxValueValuesEnum: The source syntax.
@@ -1327,7 +1489,11 @@ class Enum(_messages.Message):
 
 
 class EnumValue(_messages.Message):
-  r"""Enum value definition.
+  r"""Enum value definition. New usages of this message as an alternative to
+  EnumValueDescriptorProto are strongly discouraged. This message does not
+  reliability preserve all information necessary to model the schema and
+  preserve semantics. Instead make use of FileDescriptorSet which preserves
+  the necessary information.
 
   Fields:
     name: Enum value name.
@@ -1354,14 +1520,23 @@ class ExperimentalFeatures(_messages.Message):
       `rest` transport is enabled. By default, asynchronous REST clients will
       not be generated. This feature will be enabled by default 1 month after
       launching the feature in preview packages.
+    unversionedPackageDisabled: Disables generation of an unversioned Python
+      package for this client library. This means that the module names will
+      need to be versioned in import statements. For example `import
+      google.cloud.library_v2` instead of `import google.cloud.library`.
   """
 
   protobufPythonicTypesEnabled = _messages.BooleanField(1)
   restAsyncIoEnabled = _messages.BooleanField(2)
+  unversionedPackageDisabled = _messages.BooleanField(3)
 
 
 class Field(_messages.Message):
-  r"""A single field of a message type.
+  r"""A single field of a message type. New usages of this message as an
+  alternative to FieldDescriptorProto are strongly discouraged. This message
+  does not reliability preserve all information necessary to model the schema
+  and preserve semantics. Instead make use of FileDescriptorSet which
+  preserves the necessary information.
 
   Enums:
     CardinalityValueValuesEnum: The field cardinality.
@@ -1500,11 +1675,50 @@ class GetDnsZoneResponse(_messages.Message):
 class GoSettings(_messages.Message):
   r"""Settings for Go client libraries.
 
+  Messages:
+    RenamedServicesValue: Map of service names to renamed services. Keys are
+      the package relative service names and values are the name to be used
+      for the service client and call options. Example: publishing:
+      go_settings: renamed_services: Publisher: TopicAdmin
+
   Fields:
     common: Some settings.
+    renamedServices: Map of service names to renamed services. Keys are the
+      package relative service names and values are the name to be used for
+      the service client and call options. Example: publishing: go_settings:
+      renamed_services: Publisher: TopicAdmin
   """
 
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class RenamedServicesValue(_messages.Message):
+    r"""Map of service names to renamed services. Keys are the package
+    relative service names and values are the name to be used for the service
+    client and call options. Example: publishing: go_settings:
+    renamed_services: Publisher: TopicAdmin
+
+    Messages:
+      AdditionalProperty: An additional property for a RenamedServicesValue
+        object.
+
+    Fields:
+      additionalProperties: Additional properties of type RenamedServicesValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a RenamedServicesValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
   common = _messages.MessageField('CommonLanguageSettings', 1)
+  renamedServices = _messages.MessageField('RenamedServicesValue', 2)
 
 
 class GoogleCloudServicenetworkingV1ConsumerConfigReservedRange(_messages.Message):
@@ -1788,8 +2002,9 @@ class JavaSettings(_messages.Message):
       option set in the protobuf. This should be used **only** by APIs who
       have already set the language_settings.java.package_name" field in
       gapic.yaml. API teams should use the protobuf java_package option where
-      possible. Example of a YAML configuration:: publishing: java_settings:
-      library_package: com.google.cloud.pubsub.v1
+      possible. Example of a YAML configuration:: publishing:
+      library_settings: java_settings: library_package:
+      com.google.cloud.pubsub.v1
     serviceClassNames: Configure the Java class name to use instead of the
       service's for its corresponding generated GAPIC client. Keys are fully-
       qualified service names as they appear in the protobuf (including the
@@ -1929,10 +2144,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListPeeredDnsDomainsResponse(_messages.Message):
@@ -2042,23 +2262,36 @@ class LongRunning(_messages.Message):
 
 
 class Method(_messages.Message):
-  r"""Method represents a method of an API interface.
+  r"""Method represents a method of an API interface. New usages of this
+  message as an alternative to MethodDescriptorProto are strongly discouraged.
+  This message does not reliability preserve all information necessary to
+  model the schema and preserve semantics. Instead make use of
+  FileDescriptorSet which preserves the necessary information.
 
   Enums:
-    SyntaxValueValuesEnum: The source syntax of this method.
+    SyntaxValueValuesEnum: The source syntax of this method. This field should
+      be ignored, instead the syntax should be inherited from Api. This is
+      similar to Field and EnumValue.
 
   Fields:
+    edition: The source edition string, only valid when syntax is
+      SYNTAX_EDITIONS. This field should be ignored, instead the edition
+      should be inherited from Api. This is similar to Field and EnumValue.
     name: The simple name of this method.
     options: Any metadata attached to the method.
     requestStreaming: If true, the request is streamed.
     requestTypeUrl: A URL of the input message type.
     responseStreaming: If true, the response is streamed.
     responseTypeUrl: The URL of the output message type.
-    syntax: The source syntax of this method.
+    syntax: The source syntax of this method. This field should be ignored,
+      instead the syntax should be inherited from Api. This is similar to
+      Field and EnumValue.
   """
 
   class SyntaxValueValuesEnum(_messages.Enum):
-    r"""The source syntax of this method.
+    r"""The source syntax of this method. This field should be ignored,
+    instead the syntax should be inherited from Api. This is similar to Field
+    and EnumValue.
 
     Values:
       SYNTAX_PROTO2: Syntax `proto2`.
@@ -2069,13 +2302,14 @@ class Method(_messages.Message):
     SYNTAX_PROTO3 = 1
     SYNTAX_EDITIONS = 2
 
-  name = _messages.StringField(1)
-  options = _messages.MessageField('Option', 2, repeated=True)
-  requestStreaming = _messages.BooleanField(3)
-  requestTypeUrl = _messages.StringField(4)
-  responseStreaming = _messages.BooleanField(5)
-  responseTypeUrl = _messages.StringField(6)
-  syntax = _messages.EnumField('SyntaxValueValuesEnum', 7)
+  edition = _messages.StringField(1)
+  name = _messages.StringField(2)
+  options = _messages.MessageField('Option', 3, repeated=True)
+  requestStreaming = _messages.BooleanField(4)
+  requestTypeUrl = _messages.StringField(5)
+  responseStreaming = _messages.BooleanField(6)
+  responseTypeUrl = _messages.StringField(7)
+  syntax = _messages.EnumField('SyntaxValueValuesEnum', 8)
 
 
 class MethodPolicy(_messages.Message):
@@ -2104,6 +2338,11 @@ class MethodSettings(_messages.Message):
       Example of a YAML configuration: publishing: method_settings: -
       selector: google.example.v1.ExampleService.CreateExample
       auto_populated_fields: - request_id
+    batching: Batching configuration for an API method in client libraries.
+      Example of a YAML configuration: publishing: method_settings: -
+      selector: google.example.v1.ExampleService.BatchCreateExample batching:
+      element_count_threshold: 1000 request_byte_threshold: 100000000
+      delay_threshold_millis: 10
     longRunning: Describes settings to use for long-running operations when
       generating API methods for RPCs. Complements RPCs that use the
       annotations in google/longrunning/operations.proto. Example of a YAML
@@ -2119,8 +2358,9 @@ class MethodSettings(_messages.Message):
   """
 
   autoPopulatedFields = _messages.StringField(1, repeated=True)
-  longRunning = _messages.MessageField('LongRunning', 2)
-  selector = _messages.StringField(3)
+  batching = _messages.MessageField('BatchingConfigProto', 2)
+  longRunning = _messages.MessageField('LongRunning', 3)
+  selector = _messages.StringField(4)
 
 
 class MetricDescriptor(_messages.Message):
@@ -2806,7 +3046,9 @@ class Operation(_messages.Message):
 
 class Option(_messages.Message):
   r"""A protocol buffer option, which can be attached to a message, field,
-  enumeration, etc.
+  enumeration, etc. New usages of this message as an alternative to
+  FileOptions, MessageOptions, FieldOptions, EnumOptions, EnumValueOptions,
+  ServiceOptions, or MethodOptions are strongly discouraged.
 
   Messages:
     ValueValue: The option's value packed in an Any message. If the value is a
@@ -2865,9 +3107,9 @@ class Page(_messages.Message):
   represent nested documentation set structure.
 
   Fields:
-    content: The Markdown content of the page. You can use (== include {path}
-      ==) to include content from a Markdown file. The content can be used to
-      produce the documentation page such as HTML format page.
+    content: The Markdown content of the page. You can use ```(== include
+      {path} ==)``` to include content from a Markdown file. The content can
+      be used to produce the documentation page such as HTML format page.
     name: The name of the page. It will be used as an identity of the page to
       generate URI of the page, text of the link to this page in navigation,
       etc. The full page name (start from the root page name to this page
@@ -2899,10 +3141,10 @@ class PeeredDnsDomain(_messages.Message):
   Fields:
     dnsSuffix: The DNS domain name suffix e.g. `example.com.`. Cloud DNS
       requires that a DNS suffix ends with a trailing dot.
-    name: User assigned name for this resource. Must be unique within the
-      consumer network. The name must be 1-63 characters long, must begin with
-      a letter, end with a letter or digit, and only contain lowercase
-      letters, digits or dashes.
+    name: Required. User assigned name for this resource. Must be unique
+      within the consumer network. The name must be 1-63 characters long, must
+      begin with a letter, end with a letter or digit, and only contain
+      lowercase letters, digits or dashes.
   """
 
   dnsSuffix = _messages.StringField(1)
@@ -2921,9 +3163,16 @@ class PhpSettings(_messages.Message):
 
   Fields:
     common: Some settings.
+    libraryPackage: The package name to use in Php. Clobbers the php_namespace
+      option set in the protobuf. This should be used **only** by APIs who
+      have already set the language_settings.php.package_name" field in
+      gapic.yaml. API teams should use the protobuf php_namespace option where
+      possible. Example of a YAML configuration:: publishing:
+      library_settings: php_settings: library_package: Google\Cloud\PubSub\V1
   """
 
   common = _messages.MessageField('CommonLanguageSettings', 1)
+  libraryPackage = _messages.StringField(2)
 
 
 class PolicyBinding(_messages.Message):
@@ -3314,10 +3563,11 @@ class SearchRangeRequest(_messages.Message):
       CIDR range notation. For example, '30' to find unused x.x.x.x/30 CIDR
       range. Actual range will be determined using allocated range for the
       consumer peered network and returned in the result.
-    network: Network name in the consumer project. This network must have been
-      already peered with a shared VPC network using CreateConnection method.
-      Must be in a form 'projects/{project}/global/networks/{network}'.
-      {project} is a project number, as in '12345' {network} is network name.
+    network: Required. Network name in the consumer project. This network must
+      have been already peered with a shared VPC network using
+      CreateConnection method. Must be in a form
+      'projects/{project}/global/networks/{network}'. {project} is a project
+      number, as in '12345' {network} is network name.
   """
 
   ipPrefixLength = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -3369,11 +3619,19 @@ class SelectiveGapicGeneration(_messages.Message):
   in a service for client libraries.
 
   Fields:
+    generateOmittedAsInternal: Setting this to true indicates to the client
+      generators that methods that would be excluded from the generation
+      should instead be generated in a way that indicates these methods should
+      not be consumed by end users. How this is expressed is up to individual
+      language implementations to decide. Some examples may be: added
+      annotations, obfuscated identifiers, or other language idiomatic
+      patterns.
     methods: An allowlist of the fully qualified names of RPCs that should be
       included on public client surfaces.
   """
 
-  methods = _messages.StringField(1, repeated=True)
+  generateOmittedAsInternal = _messages.BooleanField(1)
+  methods = _messages.StringField(2, repeated=True)
 
 
 class Service(_messages.Message):
@@ -3399,6 +3657,11 @@ class Service(_messages.Message):
       IDL during the normalization process. It is an error to specify an API
       interface here which cannot be resolved against the associated IDL
       files.
+    aspects: Configuration aspects. This is a repeated field to allow multiple
+      aspects to be configured. The kind field in each ConfigAspect specifies
+      the type of aspect. The spec field contains the configuration for that
+      aspect. The schema for the spec field is defined by the backend service
+      owners.
     authentication: Auth configuration.
     backend: API backend configuration.
     billing: Billing configuration.
@@ -3457,33 +3720,34 @@ class Service(_messages.Message):
   """
 
   apis = _messages.MessageField('Api', 1, repeated=True)
-  authentication = _messages.MessageField('Authentication', 2)
-  backend = _messages.MessageField('Backend', 3)
-  billing = _messages.MessageField('Billing', 4)
-  configVersion = _messages.IntegerField(5, variant=_messages.Variant.UINT32)
-  context = _messages.MessageField('Context', 6)
-  control = _messages.MessageField('Control', 7)
-  customError = _messages.MessageField('CustomError', 8)
-  documentation = _messages.MessageField('Documentation', 9)
-  endpoints = _messages.MessageField('Endpoint', 10, repeated=True)
-  enums = _messages.MessageField('Enum', 11, repeated=True)
-  http = _messages.MessageField('Http', 12)
-  id = _messages.StringField(13)
-  logging = _messages.MessageField('Logging', 14)
-  logs = _messages.MessageField('LogDescriptor', 15, repeated=True)
-  metrics = _messages.MessageField('MetricDescriptor', 16, repeated=True)
-  monitoredResources = _messages.MessageField('MonitoredResourceDescriptor', 17, repeated=True)
-  monitoring = _messages.MessageField('Monitoring', 18)
-  name = _messages.StringField(19)
-  producerProjectId = _messages.StringField(20)
-  publishing = _messages.MessageField('Publishing', 21)
-  quota = _messages.MessageField('Quota', 22)
-  sourceInfo = _messages.MessageField('SourceInfo', 23)
-  systemParameters = _messages.MessageField('SystemParameters', 24)
-  systemTypes = _messages.MessageField('Type', 25, repeated=True)
-  title = _messages.StringField(26)
-  types = _messages.MessageField('Type', 27, repeated=True)
-  usage = _messages.MessageField('Usage', 28)
+  aspects = _messages.MessageField('Aspect', 2, repeated=True)
+  authentication = _messages.MessageField('Authentication', 3)
+  backend = _messages.MessageField('Backend', 4)
+  billing = _messages.MessageField('Billing', 5)
+  configVersion = _messages.IntegerField(6, variant=_messages.Variant.UINT32)
+  context = _messages.MessageField('Context', 7)
+  control = _messages.MessageField('Control', 8)
+  customError = _messages.MessageField('CustomError', 9)
+  documentation = _messages.MessageField('Documentation', 10)
+  endpoints = _messages.MessageField('Endpoint', 11, repeated=True)
+  enums = _messages.MessageField('Enum', 12, repeated=True)
+  http = _messages.MessageField('Http', 13)
+  id = _messages.StringField(14)
+  logging = _messages.MessageField('Logging', 15)
+  logs = _messages.MessageField('LogDescriptor', 16, repeated=True)
+  metrics = _messages.MessageField('MetricDescriptor', 17, repeated=True)
+  monitoredResources = _messages.MessageField('MonitoredResourceDescriptor', 18, repeated=True)
+  monitoring = _messages.MessageField('Monitoring', 19)
+  name = _messages.StringField(20)
+  producerProjectId = _messages.StringField(21)
+  publishing = _messages.MessageField('Publishing', 22)
+  quota = _messages.MessageField('Quota', 23)
+  sourceInfo = _messages.MessageField('SourceInfo', 24)
+  systemParameters = _messages.MessageField('SystemParameters', 25)
+  systemTypes = _messages.MessageField('Type', 26, repeated=True)
+  title = _messages.StringField(27)
+  types = _messages.MessageField('Type', 28, repeated=True)
+  usage = _messages.MessageField('Usage', 29)
 
 
 class ServicenetworkingOperationsCancelRequest(_messages.Message):
@@ -3527,12 +3791,20 @@ class ServicenetworkingOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ServicenetworkingServicesAddSubnetworkRequest(_messages.Message):
@@ -3559,8 +3831,8 @@ class ServicenetworkingServicesConnectionsCreateRequest(_messages.Message):
 
   Fields:
     connection: A Connection resource to be passed as the request body.
-    parent: The service that is managing peering connectivity for a service
-      producer's organization. For Google services that support this
+    parent: Required. The service that is managing peering connectivity for a
+      service producer's organization. For Google services that support this
       functionality, this value is
       `services/servicenetworking.googleapis.com`.
   """
@@ -3592,14 +3864,14 @@ class ServicenetworkingServicesConnectionsListRequest(_messages.Message):
   r"""A ServicenetworkingServicesConnectionsListRequest object.
 
   Fields:
-    network: The name of service consumer's VPC network that's connected with
-      service producer network through a private connection. The network name
-      must be in the following format:
+    network: Required. The name of service consumer's VPC network that's
+      connected with service producer network through a private connection.
+      The network name must be in the following format:
       `projects/{project}/global/networks/{network}`. {project} is a project
       number, such as in `12345` that includes the VPC service consumer's VPC
       network. {network} is the name of the service consumer's VPC network.
-    parent: The service that is managing peering connectivity for a service
-      producer's organization. For Google services that support this
+    parent: Required. The service that is managing peering connectivity for a
+      service producer's organization. For Google services that support this
       functionality, this value is
       `services/servicenetworking.googleapis.com`. If you specify `services/-`
       as the parameter value, all configured peering services are listed.
@@ -3616,9 +3888,9 @@ class ServicenetworkingServicesConnectionsPatchRequest(_messages.Message):
     connection: A Connection resource to be passed as the request body.
     force: If a previously defined allocated range is removed, force flag must
       be set to true.
-    name: The private service connection that connects to a service producer
-      organization. The name includes both the private service name and the
-      VPC network peering name in the format of
+    name: Required. The private service connection that connects to a service
+      producer organization. The name includes both the private service name
+      and the VPC network peering name in the format of
       `services/{peering_service_name}/connections/{vpc_peering_name}`. For
       Google services that support this functionality, this is `services/servi
       cenetworking.googleapis.com/connections/servicenetworking-googleapis-
@@ -3639,8 +3911,8 @@ class ServicenetworkingServicesDisableVpcServiceControlsRequest(_messages.Messag
   Fields:
     disableVpcServiceControlsRequest: A DisableVpcServiceControlsRequest
       resource to be passed as the request body.
-    parent: The service that is managing peering connectivity for a service
-      producer's organization. For Google services that support this
+    parent: Required. The service that is managing peering connectivity for a
+      service producer's organization. For Google services that support this
       functionality, this value is
       `services/servicenetworking.googleapis.com`.
   """
@@ -3777,8 +4049,8 @@ class ServicenetworkingServicesEnableVpcServiceControlsRequest(_messages.Message
   Fields:
     enableVpcServiceControlsRequest: A EnableVpcServiceControlsRequest
       resource to be passed as the request body.
-    parent: The service that is managing peering connectivity for a service
-      producer's organization. For Google services that support this
+    parent: Required. The service that is managing peering connectivity for a
+      service producer's organization. For Google services that support this
       functionality, this value is
       `services/servicenetworking.googleapis.com`.
   """
@@ -3794,8 +4066,8 @@ class ServicenetworkingServicesProjectsGlobalNetworksDnsZonesGetRequest(_message
   Fields:
     name: Required. The network that the consumer is using to connect with
       services. Must be in the form of services/{service}/projects/{project}/g
-      lobal/networks/{network}/zones/{zoneName} Where {service} is the peering
-      service that is managing connectivity for the service producer's
+      lobal/networks/{network}/dnsZones/{zoneName} Where {service} is the
+      peering service that is managing connectivity for the service producer's
       organization. For Google services that support this {project} is the
       project number, as in '12345' {network} is the network name. {zoneName}
       is the DNS zone name
@@ -4247,7 +4519,11 @@ class SystemParameters(_messages.Message):
 
 
 class Type(_messages.Message):
-  r"""A protocol buffer message type.
+  r"""A protocol buffer message type. New usages of this message as an
+  alternative to DescriptorProto are strongly discouraged. This message does
+  not reliability preserve all information necessary to model the schema and
+  preserve semantics. Instead make use of FileDescriptorSet which preserves
+  the necessary information.
 
   Enums:
     SyntaxValueValuesEnum: The source syntax.
@@ -4355,21 +4631,14 @@ class Usage(_messages.Message):
 
 
 class UsageRule(_messages.Message):
-  r"""Usage configuration rules for the service. NOTE: Under development. Use
-  this rule to configure unregistered calls for the service. Unregistered
-  calls are calls that do not contain consumer project identity. (Example:
-  calls that do not contain an API key). By default, API methods do not allow
-  unregistered calls, and each method call must be identified by a consumer
-  project identity. Use this rule to allow/disallow unregistered calls.
-  Example of an API that wants to allow unregistered calls for entire service.
-  usage: rules: - selector: "*" allow_unregistered_calls: true Example of a
-  method that wants to allow unregistered calls. usage: rules: - selector:
-  "google.example.library.v1.LibraryService.CreateBook"
-  allow_unregistered_calls: true
+  r"""Usage configuration rules for the service.
 
   Fields:
-    allowUnregisteredCalls: If true, the selected method allows unregistered
-      calls, e.g. calls that don't identify any user or application.
+    allowUnregisteredCalls:  Use this rule to configure unregistered calls for
+      the service. Unregistered calls are calls that do not contain consumer
+      project identity. (Example: calls that do not contain an API key).
+      WARNING: By default, API methods do not allow unregistered calls, and
+      each method call must be identified by a consumer project identity.
     selector: Selects the methods to which this rule applies. Use '*' to
       indicate all methods in all APIs. Refer to selector for syntax details.
     skipServiceControl: If true, the selected method should skip service
@@ -4397,7 +4666,7 @@ class ValidateConsumerConfigRequest(_messages.Message):
     consumerProject: NETWORK_NOT_IN_CONSUMERS_PROJECT,
       NETWORK_NOT_IN_CONSUMERS_HOST_PROJECT, and HOST_PROJECT_NOT_FOUND are
       done when consumer_project is provided.
-    rangeReservation: RANGES_EXHAUSTED, RANGES_EXHAUSTED, and
+    rangeReservation: RANGES_EXHAUSTED, RANGES_NOT_RESERVED, and
       RANGES_DELETED_LATER are done when range_reservation is provided.
     validateNetwork: The validations will be performed in the order listed in
       the ValidationError enum. The first failure will return. If a validation
@@ -4457,6 +4726,9 @@ class ValidateConsumerConfigResponse(_messages.Message):
         api enabled.
       USE_PERMISSION_NOT_FOUND: The consumer project does not have the
         permission from the host project.
+      SN_SERVICE_AGENT_PERMISSION_DENIED_ON_CONSUMER_PROJECT: The SN service
+        agent {service-@service-networking.iam.gserviceaccount.com} does not
+        have the SN service agent role on the consumer project.
     """
     VALIDATION_ERROR_UNSPECIFIED = 0
     VALIDATION_NOT_REQUESTED = 1
@@ -4473,6 +4745,7 @@ class ValidateConsumerConfigResponse(_messages.Message):
     RANGES_DELETED_LATER = 12
     COMPUTE_API_NOT_ENABLED = 13
     USE_PERMISSION_NOT_FOUND = 14
+    SN_SERVICE_AGENT_PERMISSION_DENIED_ON_CONSUMER_PROJECT = 15
 
   existingSubnetworkCandidates = _messages.MessageField('Subnetwork', 1, repeated=True)
   isValid = _messages.BooleanField(2)

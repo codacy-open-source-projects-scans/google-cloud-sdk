@@ -19,6 +19,7 @@ from googlecloudsdk.api_lib.run import k8s_object
 
 # Label names as to be stored in k8s object metadata
 SERVICE_LABEL = 'serving.knative.dev/service'
+WORKER_POOL_LABEL = 'run.googleapis.com/workerPool'
 # Used to force a new revision, and also to tie a particular request for changes
 # to a particular created revision.
 NONCE_LABEL = 'client.knative.dev/nonce'
@@ -33,11 +34,29 @@ BASE_IMAGES_ANNOTATION = 'run.googleapis.com/base-images'
 # gcloud-disable-gdu-domain
 IDENTITY_ANNOTATION = 'run.googleapis.com/identity'
 # gcloud-disable-gdu-domain
+ENABLE_WORKLOAD_CERTIFICATE_ANNOTATION = (
+    'run.googleapis.com/enable-workload-certificate'
+)
+# gcloud-disable-gdu-domain
+MESH_DATAPLANE_ANNOTATION = 'run.googleapis.com/mesh-dataplane'
+# gcloud-disable-gdu-domain
 BASE_IMAGE_UPDATE_RUNTIME_CLASS_NAME = (
     'run.googleapis.com/linux-base-image-update'
 )
+# gcloud-disable-gdu-domain
+GPU_ZONAL_REDUNDANCY_DISABLED_ANNOTATION = (
+    'run.googleapis.com/gpu-zonal-redundancy-disabled'
+)
+# gcloud-disable-gdu-domain
+SOURCES_ANNOTATION = (
+    'run.googleapis.com/sources'
+)
 # If true, overflow scaling capabilities are enabled for this revision.
 OVERFLOW_SCALING_ANNOTATION = 'run.googleapis.com/overflow-scaling'
+# Annotation to set the CPU utilization target for scaling.
+CPU_UTILIZATION_ANNOTATION = 'run.googleapis.com/scaling-cpu-utilization'
+# Annotation to set the concurrency utilization target for scaling.
+CONCURRENCY_UTILIZATION_ANNOTATION = 'run.googleapis.com/scaling-concurrency-utilization'
 
 
 class Revision(container_resource.ContainerResource):
@@ -57,7 +76,15 @@ class Revision(container_resource.ContainerResource):
 
   @property
   def service_name(self):
-    return self.labels[SERVICE_LABEL]
+    return self.labels[SERVICE_LABEL] if SERVICE_LABEL in self.labels else None
+
+  @property
+  def worker_pool_name(self):
+    return (
+        self.labels[WORKER_POOL_LABEL]
+        if WORKER_POOL_LABEL in self.labels
+        else None
+    )
 
   @property
   def serving_state(self):

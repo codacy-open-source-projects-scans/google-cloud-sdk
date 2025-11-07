@@ -28,8 +28,6 @@ def _get_full_id_string(resource_type: str, resource_id: str) -> str:
   return f"{resource_type}/{resource_id}/locations/global/managementHub"
 
 
-# TODO: b/373586209 - Add GCS API error handling decorators for the API methods
-# if needed.
 class ManagementHubApi:
   """Client for Management Hub API."""
 
@@ -83,7 +81,9 @@ class ManagementHubApi:
           for bucket_id_regex in bucket_id_regexes
       ])
 
-    return self.messages.CloudStorageBuckets(cloudStorageBuckets=buckets_filter)
+    return self.messages.ManagementHubFilterCloudStorageBuckets(
+        cloudStorageBuckets=buckets_filter
+    )
 
   def _set_management_hub_filter(
       self,
@@ -114,7 +114,7 @@ class ManagementHubApi:
       The update mask to be used for the request.
     """
 
-    management_hub.filter = self.messages.Filter()
+    management_hub.filter = self.messages.ManagementHubFilter()
     update_mask = "edition_config"
 
     # Specific case for INHERIT config.
@@ -131,12 +131,16 @@ class ManagementHubApi:
     # Set the locations filter.
     if include_locations is not None:
       management_hub.filter.includedCloudStorageLocations = (
-          self.messages.CloudStorageLocations(locations=include_locations)
+          self.messages.ManagementHubFilterCloudStorageLocations(
+              locations=include_locations
+          )
       )
       update_mask += ",filter.included_cloud_storage_locations"
     if exclude_locations is not None:
       management_hub.filter.excludedCloudStorageLocations = (
-          self.messages.CloudStorageLocations(locations=exclude_locations)
+          self.messages.ManagementHubFilterCloudStorageLocations(
+              locations=exclude_locations
+          )
       )
       update_mask += ",filter.excluded_cloud_storage_locations"
 

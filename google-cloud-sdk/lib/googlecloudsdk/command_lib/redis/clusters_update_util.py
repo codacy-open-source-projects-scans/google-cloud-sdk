@@ -77,11 +77,14 @@ def UpdateMaintenanceWindowAny(unused_cluster_ref, args, patch_request):
   return patch_request
 
 
-def UpdateOnDemandMaintenance(unused_cluster_ref, args, patch_request):
-  """Hook to update on demand maintenance to the update mask of the request."""
-  if args.IsSpecified('ondemand_maintenance'):
+def UpdateSimulateMaintenanceEvent(unused_cluster_ref, args, patch_request):
+  """Hook to update simulate maintenance event to the update mask of the request."""
+  if args.IsSpecified('simulate_maintenance_event'):
+    patch_request.cluster.simulateMaintenanceEvent = (
+        args.simulate_maintenance_event
+    )
     patch_request = AddFieldToUpdateMask(
-        'ondemand_maintenance', patch_request
+        'simulate_maintenance_event', patch_request
     )
   return patch_request
 
@@ -91,6 +94,14 @@ def UpdateShardCount(unused_cluster_ref, args, patch_request):
   if args.IsSpecified('shard_count'):
     patch_request.cluster.shardCount = args.shard_count
     patch_request = AddFieldToUpdateMask('shard_count', patch_request)
+  return patch_request
+
+
+def UpdateMaintenanceVersion(unused_cluster_ref, args, patch_request):
+  """Hook to add maintenance version to the redis cluster update request."""
+  if args.IsSpecified('maintenance_version'):
+    patch_request.cluster.maintenanceVersion = args.maintenance_version
+    patch_request = AddFieldToUpdateMask('maintenance_version', patch_request)
   return patch_request
 
 
@@ -152,6 +163,13 @@ def UpdatePersistenceConfig(unused_cluster_ref, args, patch_request):
       patch_request.cluster.persistenceConfig.rdbConfig = None
     if not args.IsSpecified('aof_append_fsync'):
       patch_request.cluster.persistenceConfig.aofConfig = None
+  return patch_request
+
+
+def UpdateNodeType(unused_cluster_ref, args, patch_request):
+  """Hook to add node type to the redis cluster update request."""
+  if args.IsSpecified('node_type'):
+    patch_request = AddFieldToUpdateMask('node_type', patch_request)
   return patch_request
 
 

@@ -55,7 +55,7 @@ class LustreV1alpha(base_api.BaseApiClient):
           }
 
     def Create(self, request, global_params=None):
-      r"""Creates a new Instance in a given project and location.
+      r"""Creates a new instance in a given project and location.
 
       Args:
         request: (LustreProjectsLocationsInstancesCreateRequest) input message
@@ -82,7 +82,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def Delete(self, request, global_params=None):
-      r"""Deletes a single Instance.
+      r"""Deletes a single instance.
 
       Args:
         request: (LustreProjectsLocationsInstancesDeleteRequest) input message
@@ -109,7 +109,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def ExportData(self, request, global_params=None):
-      r"""Exports data from Lustre to Cloud Storage.
+      r"""Exports data from a Managed Lustre instance to Cloud Storage.
 
       Args:
         request: (LustreProjectsLocationsInstancesExportDataRequest) input message
@@ -136,7 +136,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def Get(self, request, global_params=None):
-      r"""Gets details of a single Instance.
+      r"""Gets details of a single instance.
 
       Args:
         request: (LustreProjectsLocationsInstancesGetRequest) input message
@@ -163,7 +163,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def ImportData(self, request, global_params=None):
-      r"""Imports data from Cloud Storage to Lustre.
+      r"""Imports data from Cloud Storage to a Managed Lustre instance.
 
       Args:
         request: (LustreProjectsLocationsInstancesImportDataRequest) input message
@@ -190,7 +190,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def List(self, request, global_params=None):
-      r"""Lists Instances in a given project and location.
+      r"""Lists instances in a given project and location.
 
       Args:
         request: (LustreProjectsLocationsInstancesListRequest) input message
@@ -217,7 +217,7 @@ class LustreV1alpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates the parameters of a single Instance.
+      r"""Updates the parameters of a single instance.
 
       Args:
         request: (LustreProjectsLocationsInstancesPatchRequest) input message
@@ -254,13 +254,13 @@ class LustreV1alpha(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (LustreProjectsLocationsOperationsCancelRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
       Returns:
-        (Empty) The response message.
+        (GoogleProtobufEmpty) The response message.
       """
       config = self.GetMethodConfig('Cancel')
       return self._RunMethod(
@@ -276,7 +276,7 @@ class LustreV1alpha(base_api.BaseApiClient):
         relative_path='v1alpha/{+name}:cancel',
         request_field='cancelOperationRequest',
         request_type_name='LustreProjectsLocationsOperationsCancelRequest',
-        response_type_name='Empty',
+        response_type_name='GoogleProtobufEmpty',
         supports_download=False,
     )
 
@@ -287,7 +287,7 @@ class LustreV1alpha(base_api.BaseApiClient):
         request: (LustreProjectsLocationsOperationsDeleteRequest) input message
         global_params: (StandardQueryParameters, default: None) global arguments
       Returns:
-        (Empty) The response message.
+        (GoogleProtobufEmpty) The response message.
       """
       config = self.GetMethodConfig('Delete')
       return self._RunMethod(
@@ -303,7 +303,7 @@ class LustreV1alpha(base_api.BaseApiClient):
         relative_path='v1alpha/{+name}',
         request_field='',
         request_type_name='LustreProjectsLocationsOperationsDeleteRequest',
-        response_type_name='Empty',
+        response_type_name='GoogleProtobufEmpty',
         supports_download=False,
     )
 
@@ -353,7 +353,7 @@ class LustreV1alpha(base_api.BaseApiClient):
         method_id='lustre.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1alpha/{+name}/operations',
         request_field='',
         request_type_name='LustreProjectsLocationsOperationsListRequest',
@@ -417,7 +417,7 @@ class LustreV1alpha(base_api.BaseApiClient):
         method_id='lustre.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1alpha/{+name}/locations',
         request_field='',
         request_type_name='LustreProjectsLocationsListRequest',

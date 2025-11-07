@@ -21,33 +21,54 @@ from __future__ import unicode_literals
 from googlecloudsdk.command_lib.database_migration.connection_profiles import flags as cp_flags
 
 
+def AddCloudSqlProjectIdFlag(parser):
+  """Add the Cloud SQL project ID for the Cloud SQL instance to the parser."""
+  parser.add_argument(
+      '--cloudsql-project-id',
+      required=False,
+      help=(
+          'The project id of the Cloud SQL instance. Only needed if the Cloud'
+          ' SQL instance is in a different project than the connection profile.'
+          ' This is only supported for source connection profiles for SQL'
+          ' Server.'
+      ),
+  )
+
+
 def AddCpDetailsFlag(parser):
   """Adds the source and destination parameters to the given parser."""
+  cp_params_group = parser.add_group(required=False, mutex=True)
+  AddHomogeneousSourceDetailsFlag(cp_params_group)
+  AddHeterogeneousSourceOrDagDetailsFlag(cp_params_group)
 
-  cp_params_group = parser.add_group(required=True, mutex=True)
-  AddSourceDetailsFlag(cp_params_group)
-  AddDestinationDetailsFlag(cp_params_group)
 
-
-def AddDestinationDetailsFlag(parser):
-  """Adds the destination connection profile parameters to the given parser."""
-  destination_cp_params_group = parser.add_group()
-  cp_flags.AddCloudSQLInstanceFlag(destination_cp_params_group, required=True)
+def AddCloudSqlInstanceFlags(parser):
+  """Adds flags for Cloud SQL instances to the given parser."""
+  cp_params_group = parser.add_group()
+  cp_flags.AddCloudSQLInstanceFlag(cp_params_group, required=False)
+  AddCloudSqlProjectIdFlag(cp_params_group)
   cp_flags.AddUsernameFlag(
-      destination_cp_params_group,
-      required=True,
+      cp_params_group,
       help_text="""\
           Username that Database Migration Service uses to connect to the
           database for metrics and observability. We highly recommend that you
           use the sqlserver user for this. Database Migration Service encrypts
           the value when storing it.
       """,
+      required=True,
   )
-  cp_flags.AddPasswordFlagGroup(destination_cp_params_group, required=True)
+  cp_flags.AddPasswordFlagGroup(cp_params_group, required=True)
 
 
-def AddSourceDetailsFlag(parser):
-  """Adds the source connection profile parameters to the given parser."""
+def AddHeterogeneousSourceOrDagDetailsFlag(parser):
+  """Adds heterogeneous source or DAG HMM source/destination parameters to the given parser."""
+  hetero_cp_params_group = parser.add_group()
+  cp_flags.AddHostFlag(hetero_cp_params_group, required=True)
+  cp_flags.AddPortFlag(hetero_cp_params_group, required=True)
+  cp_flags.AddDbmPortFlag(hetero_cp_params_group)
+
+
+def AddHomogeneousSourceDetailsFlag(parser):
   source_cp_params_group = parser.add_group()
   AddGcsBucket(source_cp_params_group)
   AddGcsPrefix(source_cp_params_group)
@@ -91,14 +112,5 @@ def AddProviderFlag(parser):
   parser.add_argument(
       '--provider',
       help='Database provider, for managed databases.',
-      choices=['RDS'],
+      choices=['CLOUDSQL', 'RDS'],
   )
-
-
-def AddDatabaseFlag(parser):
-  """Add the specific database within the host to the parser."""
-  parser.add_argument(
-      '--database',
-      required=False,
-      hidden=True,
-      help='The specific database within the host.')

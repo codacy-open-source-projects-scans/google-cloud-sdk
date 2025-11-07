@@ -21,7 +21,6 @@ import os
 import re
 import socket
 import tempfile
-import uuid
 
 from googlecloudsdk.command_lib.storage import path_util
 from googlecloudsdk.command_lib.storage.diagnose import diagnostic
@@ -33,8 +32,31 @@ from googlecloudsdk.core.util import files
 import requests
 
 
-_CORE_CHECK_NAME = 'Direct Connectivity Upload'
+_CORE_CHECK_NAME = 'Direct Connectivity Call'
 _SUCCESS = 'Success.'
+_NOT_FOUND = '[Not Found]'
+_METADATA_BASE_URL = (  # gcloud-disable-gdu-domain
+    'http://metadata.google.internal/computeMetadata/v1/instance/'
+)
+_METADATA_ZONE_URL = _METADATA_BASE_URL + 'zone'
+_METADATA_MTU_URL = _METADATA_BASE_URL + 'network-interfaces/0/mtu'
+_METADATA_NETWORK_URL = _METADATA_BASE_URL + 'network-interfaces/0/network'
+
+
+def _get_metadata_service_response(url):
+  """Returns response from the Metadata service."""
+  try:
+    response = requests.get(
+        # gcloud-disable-gdu-domain
+        url,
+        headers={'Metadata-Flavor': 'Google'},
+        timeout=5,
+    )
+    if response.status_code == 200:
+      return response.text.strip()
+  except requests.exceptions.RequestException:
+    pass
+  return ''
 
 
 def _get_ips(dns_path, service_name):
@@ -48,13 +70,17 @@ def _get_ips(dns_path, service_name):
   return res
 
 
-def _get_region_string_or_not_found(s):
-  return '"{}"'.format(s.lower()) if s else '[Not Found]'
+def _get_location_string_or_not_found(s):
+  return '"{}"'.format(s.lower()) if s else _NOT_FOUND
+
+
+def _check_zone_prefix(region, zone):
+  """Returns true if the region is a prefix of the given zone."""
+  return zone.lower().startswith(region.lower())
 
 
 def _exec_and_return_stdout(command):
-  """Returns standard output from executing gcloud command."""
-  command = execution_utils.ArgsForGcloud() + command
+  """Returns standard output from executing a command."""
   out = io.StringIO()
   execution_utils.Exec(
       command,
@@ -62,6 +88,18 @@ def _exec_and_return_stdout(command):
       out_func=out.write,
   )
   return out.getvalue().strip()
+
+
+def _exec_gcloud_and_return_stdout(command_args):
+  """Returns standard output from executing gcloud command."""
+  command = execution_utils.ArgsForGcloud() + command_args
+  return _exec_and_return_stdout(command)
+
+
+def _get_zone():
+  """Gets the zone of the VM from the Metadata service."""
+  response = _get_metadata_service_response(_METADATA_ZONE_URL)
+  return response.rsplit('/', 1)[-1]
 
 
 def _log_running_check(check_name):
@@ -79,7 +117,6 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
     """Initializes the Direct Connectivity Diagnostic."""
     self._bucket_resource = bucket_resource
     self._cleaned_up = False
-    self._object_path = 'direct_connectivity_diagnostics_' + str(uuid.uuid4())
     self._process_count = 1
     self._results = []
     self._retain_logs = bool(logs_path)
@@ -104,9 +141,6 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
     """Restores environment variables and cleans up temporary cloud object."""
     if not self._cleaned_up:
       super(DirectConnectivityDiagnostic, self)._post_process()
-      self._clean_up_objects(
-          self._bucket_resource.storage_url.url_string, self._object_path
-      )
       self._cleaned_up = True
 
   def _generic_check_for_string_in_logs(
@@ -120,9 +154,8 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
           return True
     return False
 
-  def _check_core_upload(self):
-    """Returns true if can upload object over Direct Connectivity infra."""
-    self._set_parallelism_env_vars()
+  def _check_core_buckets_describe_call(self):
+    """Returns true if get bucket success over Direct Connectivity infra."""
     self._set_env_variable('ATTEMPT_DIRECT_PATH', 1)
     self._set_env_variable(
         'CLOUDSDK_STORAGE_PREFERRED_API', 'grpc_with_json_fallback'
@@ -134,15 +167,14 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
       command = execution_utils.ArgsForGcloud() + [
           '--verbosity=debug',
           'storage',
-          'cp',
-          '-',
-          self._bucket_resource.storage_url.join(self._object_path).url_string,
+          'buckets',
+          'describe',
+          self._bucket_resource.storage_url.url_string,
       ]
 
       return_code = execution_utils.Exec(
           command,
           err_func=file_writer.write,
-          in_str=self._generate_random_string(length=1),
           no_exit=True,
       )
 
@@ -150,22 +182,11 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
       with files.FileReader(self._logs_path) as file_reader:
         for line in file_reader:
           if re.search(
-              r'(?:\[ipv6:(?:%5B)?2001:4860:80[4-7].+\])?(?:\[ipv4:(?:%5B)?34\.126.+\])?',
+              r'(?:\[ipv6:(?:%5B)?2001:4860:80[4-7].+\])|(?:\[ipv4:(?:%5B)?34\.126.+\])',
               line,
           ):
             return _SUCCESS
     return 'Failed. See log at ' + self._logs_path
-
-  def _check_grpc_allowlist(self):
-    """Checks if user on gRPC allowlist."""
-    if self._generic_check_for_string_in_logs(
-        target_string='not allowed to access the GCS gRPC API'
-    ):
-      return (
-          'Not allowlisted. Please contact a support representative'
-          ' for instructions.'
-      )
-    return _SUCCESS
 
   def _check_private_service_connect(self):
     """Checks if connecting to PSC endpoint."""
@@ -211,7 +232,7 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
         # gcloud-disable-gdu-domain
     ) + _get_ips('directpath-pa.googleapis.com', 'Traffic Director')
     firewall_response = json.loads(
-        _exec_and_return_stdout(
+        _exec_gcloud_and_return_stdout(
             ['compute', 'firewall-rules', 'list', '--format=json']
         )
     )
@@ -255,38 +276,68 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
       return 'Found conflicting firewalls. See STDERR messages.'
     return _SUCCESS
 
-  def _check_bucket_region_type(self):
-    """Checks if bucket has incompatible region type."""
-    if self._bucket_resource.location_type == 'dual-region':
-      return 'Found bucket {} is in incompatible dual-region.'.format(
-          self._bucket_resource
-      )
-    if self._bucket_resource.location_type == 'multi-region':
-      return (
-          'Found bucket {} is in multi-region. Direct Connectivity support is'
-          ' not yet available for all multi-regions.'.format(
-              self._bucket_resource
-          )
-      )
-    return _SUCCESS
+  def _check_bucket_region(self):
+    """Checks if bucket has problematic region."""
 
-  def _check_bucket_vm_region(self):
-    """Checks if bucket location matches VM zone."""
     bucket_location = self._bucket_resource.location.lower()
-    if self._vm_zone and self._vm_zone.lower().startswith(bucket_location):
+    vm_zone = _get_location_string_or_not_found(self._vm_zone)
+
+    # Provide a warning if the bucket zone does not match the VM zone.
+    if self._bucket_resource.location_type == 'zone':
+      bucket_zone = _get_location_string_or_not_found(
+          self._bucket_resource.data_locations[0]
+          if self._bucket_resource.data_locations
+          else None
+      )
+      if _NOT_FOUND in (bucket_zone, vm_zone) or bucket_zone != vm_zone:
+        return (
+            f'Rapid storage bucket "{self._bucket_resource}" zone '
+            f'{bucket_zone} does not '
+            f'match VM "{socket.gethostname()}" zone {vm_zone}. '
+            'Transfer performance between the bucket and VM may be degraded.'
+        )
+    # Dual-region buckets may have replicas in the same region as the VM. For
+    # custom dual-regions, the VM must be in one of the regions covered by the
+    # dual-region. For predefined dual-regions, the customer can check manually.
+    if self._bucket_resource.location_type == 'dual-region':
+      if self._bucket_resource.data_locations:
+        regions = self._bucket_resource.data_locations
+        for region in regions:
+          if _check_zone_prefix(region, self._vm_zone):
+            return _SUCCESS
+        return (
+            f'Bucket "{self._bucket_resource}" locations'
+            f' {_get_location_string_or_not_found(regions[0])} and'
+            f' {_get_location_string_or_not_found(regions[1])} do not include'
+            f' VM "{socket.gethostname()}" zone {vm_zone}'
+        )
+      location_string = _get_location_string_or_not_found(
+          self._bucket_resource.location
+      )
+      return (
+          f'Found bucket "{self._bucket_resource}" is in a dual-region. Ensure '
+          f'VM "{socket.gethostname()}" is in one of the regions covered by '
+          f'the dual-region by looking up the dual-region {location_string} in '
+          'the following table: '
+          'https://cloud.google.com/storage/docs/locations#predefined '
+          f'VM zone {vm_zone} should start with one of the regions covered by '
+          f'the dual-region {location_string}.'
+      )
+    # For other region types, the substring check is sufficient.
+    if self._vm_zone and _check_zone_prefix(bucket_location, self._vm_zone):
       return _SUCCESS
-    return 'Bucket "{}" region {} does not match VM "{}" zone {}'.format(
+    return 'Bucket "{}" location {} does not match VM "{}" zone {}'.format(
         self._bucket_resource,
-        _get_region_string_or_not_found(bucket_location),
+        _get_location_string_or_not_found(bucket_location),
         socket.gethostname(),
-        _get_region_string_or_not_found(self._vm_zone),
+        vm_zone,
     )
 
   def _check_vm_has_service_account(self):
     """Checks if VM has a service account."""
     if not self._vm_zone:
       return 'Found no VM zone and, therefore, could not check service account.'
-    service_accounts = _exec_and_return_stdout([
+    service_accounts = _exec_gcloud_and_return_stdout([
         'compute',
         'instances',
         'describe',
@@ -302,6 +353,20 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
         'https://cloud.google.com/compute/docs/instances/change-service-account'
     )
 
+  def _check_vm_mtu(self):
+    """Checks if VM has a MTU of at least 1460."""
+    mtu = _get_metadata_service_response(_METADATA_MTU_URL)
+    if not mtu:
+      return 'Could not determine MTU from metadata service.'
+    if mtu == '8896':
+      return _SUCCESS
+    network = _get_metadata_service_response(_METADATA_NETWORK_URL)
+    return (
+        f'Set the MTU of VPC network interface "{network}" to 8896 for optimal '
+        'transfer performance. See: '
+        'https://cloud.google.com/storage/docs/enable-grpc-api#configure-vpcsc'
+    )
+
   def _run(self):
     """Runs the diagnostic test."""
     log.warning(
@@ -311,40 +376,20 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
     )
 
     _log_running_check(_CORE_CHECK_NAME)
-    res = self._check_core_upload()
     self._results.append(
         diagnostic.DiagnosticOperationResult(
             name=_CORE_CHECK_NAME,
-            result=res,
+            result=self._check_core_buckets_describe_call(),
             payload_description=(
-                'Able to upload object to bucket using Direct'
+                'Able to get bucket metadata using Direct'
                 ' Connectivity network path.'
             ),
         )
     )
-    if res == _SUCCESS:
-      if not self._retain_logs and os.path.exists(self._logs_path):
-        os.remove(self._logs_path)
-      self._clean_up()
-      return
 
-    self._vm_zone = _exec_and_return_stdout([
-        'compute',
-        'instances',
-        'list',
-        '--filter=name:{}'.format(socket.gethostname()),
-        '--format=table[csv,no-heading](zone)',
-    ])
+    self._vm_zone = _get_zone()
 
     for check, name, description in [
-        (
-            self._check_grpc_allowlist,
-            'gRPC Allowlist',
-            (
-                'Checks for string in logs saying bucket or project is'
-                ' allowlisted to use the gRPC API.'
-            ),
-        ),
         (
             self._check_private_service_connect,
             'Private Service Connect',
@@ -379,22 +424,25 @@ class DirectConnectivityDiagnostic(diagnostic.Diagnostic):
             ),
         ),
         (
-            self._check_bucket_region_type,
-            'Bucket Region Type',
-            'Direct Connectivity does not yet support all bucket region types.',
-        ),
-        (
-            self._check_bucket_vm_region,
-            'Bucket Region Matches VM',
+            self._check_bucket_region,
+            'Bucket Region',
             (
-                'Direct Connectivity requires bucket be in the same region as'
-                ' the VM.'
+                'To get the best performance, the bucket should have a replica'
+                ' in the same region as the VM.'
             ),
         ),
         (
             self._check_vm_has_service_account,
             'VM has Service Account',
             'Direct Connectivity requires the VM have a service account.',
+        ),
+        (
+            self._check_vm_mtu,
+            'VPC Network MTU',
+            (
+                'Direct Connectivity performs best with a VPC network MTU of'
+                ' 8896.'
+            ),
         ),
     ]:
       try:

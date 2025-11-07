@@ -810,12 +810,13 @@ class DnsResourceRecordSetsListRequest(_messages.Message):
     maxResults: Optional. Maximum number of results to be returned. If
       unspecified, the server decides how many results to return.
     name: Restricts the list to return only records with this fully qualified
-      domain name.
+      domain name. Mutually exclusive with the {@code filter} field.
     pageToken: Optional. A tag returned by a previous list request that was
       truncated. Use this parameter to continue a previous list request.
     project: Identifies the project addressed by this request.
     type: Restricts the list to return only records of this type. If present,
-      the "name" parameter must also be present.
+      the "name" parameter must also be present. Mutually exclusive with the
+      {@code filter} field.
   """
 
   managedZone = _messages.StringField(1, required=True)
@@ -1643,6 +1644,7 @@ class ManagedZoneForwardingConfigNameServerTarget(_messages.Message):
       always sends queries through the VPC network for this target.
 
   Fields:
+    domainName: Fully qualified domain name for the forwarding target.
     forwardingPath: Forwarding path for this NameServerTarget. If unset or set
       to DEFAULT, Cloud DNS makes forwarding decisions based on IP address
       ranges; that is, RFC1918 addresses go to the VPC network, non-RFC1918
@@ -1671,10 +1673,11 @@ class ManagedZoneForwardingConfigNameServerTarget(_messages.Message):
     default = 0
     private = 1
 
-  forwardingPath = _messages.EnumField('ForwardingPathValueValuesEnum', 1)
-  ipv4Address = _messages.StringField(2)
-  ipv6Address = _messages.StringField(3)
-  kind = _messages.StringField(4, default='dns#managedZoneForwardingConfigNameServerTarget')
+  domainName = _messages.StringField(1)
+  forwardingPath = _messages.EnumField('ForwardingPathValueValuesEnum', 2)
+  ipv4Address = _messages.StringField(3)
+  ipv6Address = _messages.StringField(4)
+  kind = _messages.StringField(5, default='dns#managedZoneForwardingConfigNameServerTarget')
 
 
 class ManagedZoneOperationsListResponse(_messages.Message):
@@ -1973,6 +1976,7 @@ class Policy(_messages.Message):
     description: A mutable string of at most 1024 characters associated with
       this resource for the user's convenience. Has no effect on the policy's
       function.
+    dns64Config: Configurations related to DNS64 for this policy.
     enableInboundForwarding: Allows networks bound to this policy to receive
       DNS queries sent by VMs or applications over VPN connections. When
       enabled, a virtual IP address is allocated from each of the subnetworks
@@ -1989,12 +1993,13 @@ class Policy(_messages.Message):
 
   alternativeNameServerConfig = _messages.MessageField('PolicyAlternativeNameServerConfig', 1)
   description = _messages.StringField(2)
-  enableInboundForwarding = _messages.BooleanField(3)
-  enableLogging = _messages.BooleanField(4)
-  id = _messages.IntegerField(5, variant=_messages.Variant.UINT64)
-  kind = _messages.StringField(6, default='dns#policy')
-  name = _messages.StringField(7)
-  networks = _messages.MessageField('PolicyNetwork', 8, repeated=True)
+  dns64Config = _messages.MessageField('PolicyDns64Config', 3)
+  enableInboundForwarding = _messages.BooleanField(4)
+  enableLogging = _messages.BooleanField(5)
+  id = _messages.IntegerField(6, variant=_messages.Variant.UINT64)
+  kind = _messages.StringField(7, default='dns#policy')
+  name = _messages.StringField(8)
+  networks = _messages.MessageField('PolicyNetwork', 9, repeated=True)
 
 
 class PolicyAlternativeNameServerConfig(_messages.Message):
@@ -2054,6 +2059,31 @@ class PolicyAlternativeNameServerConfigTargetNameServer(_messages.Message):
   ipv4Address = _messages.StringField(2)
   ipv6Address = _messages.StringField(3)
   kind = _messages.StringField(4, default='dns#policyAlternativeNameServerConfigTargetNameServer')
+
+
+class PolicyDns64Config(_messages.Message):
+  r"""DNS64 policies
+
+  Fields:
+    kind: A string attribute.
+    scope: The scope to which DNS64 config will be applied to.
+  """
+
+  kind = _messages.StringField(1, default='dns#policyDns64Config')
+  scope = _messages.MessageField('PolicyDns64ConfigScope', 2)
+
+
+class PolicyDns64ConfigScope(_messages.Message):
+  r"""A PolicyDns64ConfigScope object.
+
+  Fields:
+    allQueries: Controls whether DNS64 is enabled globally for all networks
+      bound to the policy.
+    kind: A string attribute.
+  """
+
+  allQueries = _messages.BooleanField(1)
+  kind = _messages.StringField(2, default='dns#policyDns64ConfigScope')
 
 
 class PolicyNetwork(_messages.Message):
@@ -2173,8 +2203,9 @@ class RRSetRoutingPolicy(_messages.Message):
 
   Fields:
     geo: A RRSetRoutingPolicyGeoPolicy attribute.
-    healthCheck: The selfLink attribute of the HealthCheck resource to use for
-      this RRSetRoutingPolicy.
+    healthCheck: The fully qualified URL of the HealthCheck to use for this
+      RRSetRoutingPolicy. Format this URL like `https://www.googleapis.com/com
+      pute/v1/projects/{project}/global/healthChecks/{healthCheck}`.
       https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks
     kind: A string attribute.
     primaryBackup: A RRSetRoutingPolicyPrimaryBackupPolicy attribute.
@@ -2223,8 +2254,8 @@ class RRSetRoutingPolicyGeoPolicyGeoPolicyItem(_messages.Message):
       "southamerica-east1", "asia-east1", etc.
     rrdatas: A string attribute.
     signatureRrdatas: DNSSEC generated signatures for all the `rrdata` within
-      this item. If health checked targets are provided for DNSSEC enabled
-      zones, there's a restriction of 1 IP address per item.
+      this item. When using health-checked targets for DNSSEC-enabled zones,
+      you can only use at most one health-checked IP address per item.
   """
 
   healthCheckedTargets = _messages.MessageField('RRSetRoutingPolicyHealthCheckTargets', 1)
@@ -2237,7 +2268,8 @@ class RRSetRoutingPolicyGeoPolicyGeoPolicyItem(_messages.Message):
 class RRSetRoutingPolicyHealthCheckTargets(_messages.Message):
   r"""HealthCheckTargets describes endpoints to health-check when responding
   to Routing Policy queries. Only the healthy endpoints will be included in
-  the response.
+  the response. Set either `internal_load_balancer` or `external_endpoints`.
+  Do not set both.
 
   Fields:
     externalEndpoints: The Internet IP addresses to be health checked. The
@@ -2380,8 +2412,8 @@ class RRSetRoutingPolicyWrrPolicyWrrPolicyItem(_messages.Message):
     kind: A string attribute.
     rrdatas: A string attribute.
     signatureRrdatas: DNSSEC generated signatures for all the `rrdata` within
-      this item. Note that if health checked targets are provided for DNSSEC
-      enabled zones, there's a restriction of 1 IP address per item.
+      this item. When using health-checked targets for DNSSEC-enabled zones,
+      you can only use at most one health-checked IP address per item.
     weight: The weight corresponding to this `WrrPolicyItem` object. When
       multiple `WrrPolicyItem` objects are configured, the probability of
       returning an `WrrPolicyItem` object's data is proportional to its weight

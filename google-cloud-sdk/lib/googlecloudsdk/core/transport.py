@@ -19,11 +19,13 @@ from __future__ import division
 from __future__ import unicode_literals
 
 import abc
+import os
 import platform
 import re
 import time
 import uuid
 
+from googlecloudsdk.calliope import exceptions
 from googlecloudsdk.core import config
 from googlecloudsdk.core import log
 from googlecloudsdk.core import metrics
@@ -220,6 +222,16 @@ class RequestWrapper(six.with_metaclass(abc.ABCMeta, object)):
                   redact_request_body_reason if not show_request_body else None,
               ),
               LogResponse(streaming_response_body),
+          )
+      )
+    if (
+        'CLOUDSDK_CORE_DRY_RUN' in os.environ  # pylint: disable=undefined-variable
+        and os.environ['CLOUDSDK_CORE_DRY_RUN'] == '1'
+    ):
+      handlers.append(
+          Handler(
+              LogRequestDryRun(),
+              lambda *args: None,
           )
       )
 
@@ -492,6 +504,20 @@ def LogRequest(redact_token=True, redact_request_body_reason=None):
   return _LogRequest
 
 
+def LogRequestDryRun():
+  """Dry run the http request.
+
+  Returns:
+    A function that can be used in a Handler.request.
+  """
+
+  def _LogRequest(request):
+    """Blocks a dry-run request."""
+    raise exceptions.DryRunError(request)
+
+  return _LogRequest
+
+
 def LogResponse(streaming_response_body=False):
   """Logs the contents of the http response.
 
@@ -628,6 +654,7 @@ def MakeUserAgentString(cmd_path=None):
       ' from-script/{from_script}'
       ' python/{py_version}'
       ' term/{term}'
+      ' {gcloud_mcp_metrics}'
       ' {ua_fragment}'
   ).format(
       version=config.CLOUD_SDK_VERSION.replace(' ', '_'),
@@ -645,6 +672,7 @@ def MakeUserAgentString(cmd_path=None):
       ua_fragment=user_platform.UserAgentFragment(),
       from_script=console_io.IsRunFromShellScript(),
       term=console_attr.GetConsoleAttr().GetTermIdentifier(),
+      gcloud_mcp_metrics=GetValidMCPMetricsString(),
   )
 
 
@@ -670,3 +698,30 @@ def IsTokenUri(uri):
     return True
 
   return False
+
+
+def GetValidMCPMetricsString():
+  """Returns the valid MCP metrics string if it exists, otherwise returns empty string."""
+  if (
+      'GCLOUD_MCP_METRICS' in os.environ
+  ):
+    metrics_string = os.environ['GCLOUD_MCP_METRICS']
+    if ValidateMCPMetricsFormat(metrics_string):
+      return metrics_string
+  return ''
+
+
+def ValidateMCPMetricsFormat(metrics_string):
+  """Checks if a string follows the MCP metrics format.
+
+  Args:
+    metrics_string: The string to validate.
+
+  Returns:
+    True if the string matches the format, False otherwise.
+  """
+  pattern = (
+      r'goog-mcp/agent/[^/]+/agent-version/[^/]+/mcp-server/[^/]+/'
+      r'mcp-version/[^/]+/mcp-tool/[^/]+'
+  )
+  return re.fullmatch(pattern, metrics_string) is not None

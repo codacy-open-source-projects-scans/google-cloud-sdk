@@ -24,11 +24,19 @@ from googlecloudsdk.command_lib.compute import completers as compute_completers
 from googlecloudsdk.command_lib.compute import flags as compute_flags
 from googlecloudsdk.command_lib.util.apis import arg_utils
 
+DEFAULT_CREATE_FORMAT = """\
+    table(
+      name,
+      region.basename(),
+      network.basename().if(network),
+      ncc_gateway.basename().if(ncc_gateway)
+    )"""
+
 DEFAULT_LIST_FORMAT = """\
     table(
       name,
       region.basename(),
-      network.basename()
+      network.basename().yesno(no="N/A")
     )"""
 
 _MODE_CHOICES = {
@@ -84,7 +92,7 @@ def RouterArgumentForVpnTunnel(required=True):
       plural=False,
       required=required,
       regional_collection='compute.routers',
-      short_help='The Router to use for dynamic routing.',
+      short_help='Router to use for dynamic routing.',
       region_explanation=compute_flags.REGION_PROPERTY_EXPLANATION,
   )
 
@@ -101,7 +109,7 @@ def RouterArgumentForOtherResources(required=True, suppress_region=True):
       plural=False,
       required=required,
       regional_collection='compute.routers',
-      short_help='The Google Cloud Router to use for dynamic routing.',
+      short_help='Google Cloud Router to use for dynamic routing.',
       region_explanation=region_explanation,
       region_hidden=suppress_region,
   )
@@ -115,7 +123,7 @@ def RouterArgumentForNat():
       plural=False,
       required=True,
       regional_collection='compute.routers',
-      short_help='The Router to use for NAT.',
+      short_help='Router to use for NAT.',
       region_hidden=True,
   )
 
@@ -168,6 +176,15 @@ def AddBgpIdentifierRangeArg(parser):
           ' any IPv4 BGP session ranges. This is commonly called "router ID" by'
           ' other vendors.'
       ),
+  )
+
+
+def AddNccGatewayArg(parser):
+  """NccGateway for router."""
+  parser.add_argument(
+      '--ncc-gateway',
+      type=str,
+      help='The NCC gateway for this router.',
   )
 
 
@@ -235,12 +252,7 @@ def AddInterfaceArgs(parser, for_update=False):
     )
 
 
-def AddBgpPeerArgs(
-    parser,
-    for_add_bgp_peer=False,
-    is_update=False,
-    enable_route_policies=False,
-):
+def AddBgpPeerArgs(parser, for_add_bgp_peer=False, is_update=False):
   """Adds common arguments for managing BGP peers."""
 
   operation = 'updated'
@@ -465,25 +477,24 @@ def AddBgpPeerArgs(
         default=None,
         help='If specified, remove MD5 authentication from the BGP peer.',
     )
-  if enable_route_policies:
-    parser.add_argument(
-        '--export-policies',
-        metavar='EXPORT_POLICY',
-        type=arg_parsers.ArgList(),
-        help=(
-            'Comma-separated list of export policies. Passing an empty string'
-            ' removes all export policies.'
-        ),
-    )
-    parser.add_argument(
-        '--import-policies',
-        type=arg_parsers.ArgList(),
-        metavar='IMPORT_POLICY',
-        help=(
-            'Comma-separated list of import policies. Passing an empty string'
-            ' removes all import policies.'
-        ),
-    )
+  parser.add_argument(
+      '--export-policies',
+      metavar='EXPORT_POLICY',
+      type=arg_parsers.ArgList(),
+      help=(
+          'Comma-separated list of export policies. Passing an empty string'
+          ' removes all export policies.'
+      ),
+  )
+  parser.add_argument(
+      '--import-policies',
+      type=arg_parsers.ArgList(),
+      metavar='IMPORT_POLICY',
+      help=(
+          'Comma-separated list of import policies. Passing an empty string'
+          ' removes all import policies.'
+      ),
+  )
 
 
 def AddUpdateCustomAdvertisementArgs(parser, resource_str):

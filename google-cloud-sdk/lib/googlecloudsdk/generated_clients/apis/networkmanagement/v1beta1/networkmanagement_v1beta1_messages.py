@@ -97,9 +97,12 @@ class AbortInfo(_messages.Message):
         configuration was missing.
       ROUTE_CONFIG_NOT_FOUND: Aborted because expected route configuration was
         missing.
-      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT: Aborted because a PSC
+      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT: Aborted because PSC
         endpoint selection for the Google-managed service is ambiguous
         (several PSC endpoints satisfy test input).
+      GOOGLE_MANAGED_SERVICE_AMBIGUOUS_ENDPOINT: Aborted because endpoint
+        selection for the Google-managed service is ambiguous (several
+        endpoints satisfy test input).
       SOURCE_PSC_CLOUD_SQL_UNSUPPORTED: Aborted because tests with a PSC-based
         Cloud SQL instance as a source are not supported.
       SOURCE_REDIS_CLUSTER_UNSUPPORTED: Aborted because tests with a Redis
@@ -114,6 +117,11 @@ class AbortInfo(_messages.Message):
         in the Google-managed project.
       UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG: Aborted due to an unsupported
         configuration of the Google-managed project.
+      NO_SERVERLESS_IP_RANGES: Aborted because the source endpoint is a Cloud
+        Run revision with direct VPC access enabled, but there are no reserved
+        serverless IP ranges.
+      IP_VERSION_PROTOCOL_MISMATCH: Aborted because the used protocol is not
+        supported for the used IP version.
     """
     CAUSE_UNSPECIFIED = 0
     UNKNOWN_NETWORK = 1
@@ -144,13 +152,16 @@ class AbortInfo(_messages.Message):
     FIREWALL_CONFIG_NOT_FOUND = 26
     ROUTE_CONFIG_NOT_FOUND = 27
     GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT = 28
-    SOURCE_PSC_CLOUD_SQL_UNSUPPORTED = 29
-    SOURCE_REDIS_CLUSTER_UNSUPPORTED = 30
-    SOURCE_REDIS_INSTANCE_UNSUPPORTED = 31
-    SOURCE_FORWARDING_RULE_UNSUPPORTED = 32
-    NON_ROUTABLE_IP_ADDRESS = 33
-    UNKNOWN_ISSUE_IN_GOOGLE_MANAGED_PROJECT = 34
-    UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG = 35
+    GOOGLE_MANAGED_SERVICE_AMBIGUOUS_ENDPOINT = 29
+    SOURCE_PSC_CLOUD_SQL_UNSUPPORTED = 30
+    SOURCE_REDIS_CLUSTER_UNSUPPORTED = 31
+    SOURCE_REDIS_INSTANCE_UNSUPPORTED = 32
+    SOURCE_FORWARDING_RULE_UNSUPPORTED = 33
+    NON_ROUTABLE_IP_ADDRESS = 34
+    UNKNOWN_ISSUE_IN_GOOGLE_MANAGED_PROJECT = 35
+    UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG = 36
+    NO_SERVERLESS_IP_RANGES = 37
+    IP_VERSION_PROTOCOL_MISMATCH = 38
 
   cause = _messages.EnumField('CauseValueValuesEnum', 1)
   ipAddress = _messages.StringField(2)
@@ -370,12 +381,16 @@ class CloudRunRevisionEndpoint(_messages.Message):
   r"""Wrapper for Cloud Run revision attributes.
 
   Fields:
+    serviceUri: Output only. The URI of the Cloud Run service that the
+      revision belongs to. The format is:
+      projects/{project}/locations/{location}/services/{service}
     uri: A [Cloud Run](https://cloud.google.com/run) [revision](https://cloud.
       google.com/run/docs/reference/rest/v1/namespaces.revisions/get) URI. The
       format is: projects/{project}/locations/{location}/revisions/{revision}
   """
 
-  uri = _messages.StringField(1)
+  serviceUri = _messages.StringField(1)
+  uri = _messages.StringField(2)
 
 
 class CloudRunRevisionInfo(_messages.Message):
@@ -422,22 +437,17 @@ class ConnectivityTest(_messages.Message):
     LabelsValue: Resource labels to represent user-provided metadata.
 
   Fields:
-    bypassFirewallChecks: Whether the test should skip firewall checking. If
-      not provided, we assume false.
+    bypassFirewallChecks: Whether the analysis should skip firewall checking.
+      Default value is false.
     createTime: Output only. The time the test was created.
     description: The user-supplied description of the Connectivity Test.
       Maximum of 512 characters.
     destination: Required. Destination specification of the Connectivity Test.
-      You can use a combination of destination IP address, Compute Engine VM
-      instance, or VPC network to uniquely identify the destination location.
-      Even if the destination IP address is not unique, the source IP location
-      is unique. Usually, the analysis can infer the destination endpoint from
-      route information. If the destination you specify is a VM instance and
-      the instance has multiple network interfaces, then you must also specify
-      either a destination IP address or VPC network to identify the
-      destination interface. A reachability analysis proceeds even if the
-      destination location is ambiguous. However, the result can include
-      endpoints that you don't intend to test.
+      You can use a combination of destination IP address, URI of a supported
+      endpoint, project ID, or VPC network to identify the destination
+      location. Reachability analysis proceeds even if the destination
+      location is ambiguous. However, the test result might include endpoints
+      or use a destination that you don't intend to test.
     displayName: Output only. The display name of a Connectivity Test.
     labels: Resource labels to represent user-provided metadata.
     name: Identifier. Unique name of the resource using the form:
@@ -454,20 +464,18 @@ class ConnectivityTest(_messages.Message):
     relatedProjects: Other projects that may be relevant for reachability
       analysis. This is applicable to scenarios where a test can cross project
       boundaries.
+    returnReachabilityDetails: Output only. The reachability details of this
+      test from the latest run for the return path. The details are updated
+      when creating a new test, updating an existing test, or triggering a
+      one-time rerun of an existing test.
+    roundTrip: Whether run analysis for the return path from destination to
+      source. Default value is false.
     source: Required. Source specification of the Connectivity Test. You can
-      use a combination of source IP address, virtual machine (VM) instance,
-      or Compute Engine network to uniquely identify the source location.
-      Examples: If the source IP address is an internal IP address within a
-      Google Cloud Virtual Private Cloud (VPC) network, then you must also
-      specify the VPC network. Otherwise, specify the VM instance, which
-      already contains its internal IP address and VPC network information. If
-      the source of the test is within an on-premises network, then you must
-      provide the destination VPC network. If the source endpoint is a Compute
-      Engine VM instance with multiple network interfaces, the instance itself
-      is not sufficient to identify the endpoint. So, you must also specify
-      the source IP address or VPC network. A reachability analysis proceeds
-      even if the source location is ambiguous. However, the test result may
-      include endpoints that you don't intend to test.
+      use a combination of source IP address, URI of a supported endpoint,
+      project ID, or VPC network to identify the source location. Reachability
+      analysis might proceed even if the source location is ambiguous.
+      However, the test result might include endpoints or use a source that
+      you don't intend to test.
     updateTime: Output only. The time the test's configuration was updated.
   """
 
@@ -506,17 +514,23 @@ class ConnectivityTest(_messages.Message):
   protocol = _messages.StringField(9)
   reachabilityDetails = _messages.MessageField('ReachabilityDetails', 10)
   relatedProjects = _messages.StringField(11, repeated=True)
-  source = _messages.MessageField('Endpoint', 12)
-  updateTime = _messages.StringField(13)
+  returnReachabilityDetails = _messages.MessageField('ReachabilityDetails', 12)
+  roundTrip = _messages.BooleanField(13)
+  source = _messages.MessageField('Endpoint', 14)
+  updateTime = _messages.StringField(15)
 
 
 class DeliverInfo(_messages.Message):
   r"""Details of the final state "deliver" and associated resource.
 
   Enums:
+    GoogleServiceTypeValueValuesEnum: Recognized type of a Google Service the
+      packet is delivered to (if applicable).
     TargetValueValuesEnum: Target type where the packet is delivered to.
 
   Fields:
+    googleServiceType: Recognized type of a Google Service the packet is
+      delivered to (if applicable).
     ipAddress: IP address of the target (if applicable).
     pscGoogleApiTarget: PSC Google API target the packet is delivered to (if
       applicable).
@@ -525,6 +539,33 @@ class DeliverInfo(_messages.Message):
       (if applicable).
     target: Target type where the packet is delivered to.
   """
+
+  class GoogleServiceTypeValueValuesEnum(_messages.Enum):
+    r"""Recognized type of a Google Service the packet is delivered to (if
+    applicable).
+
+    Values:
+      GOOGLE_SERVICE_TYPE_UNSPECIFIED: Unspecified Google Service.
+      IAP: Identity aware proxy. https://cloud.google.com/iap/docs/using-tcp-
+        forwarding
+      GFE_PROXY_OR_HEALTH_CHECK_PROBER: One of two services sharing IP ranges:
+        * Load Balancer proxy * Centralized Health Check prober
+        https://cloud.google.com/load-balancing/docs/firewall-rules
+      CLOUD_DNS: Connectivity from Cloud DNS to forwarding targets or
+        alternate name servers that use private routing.
+        https://cloud.google.com/dns/docs/zones/forwarding-zones#firewall-
+        rules https://cloud.google.com/dns/docs/policies#firewall-rules
+      PRIVATE_GOOGLE_ACCESS: private.googleapis.com and
+        restricted.googleapis.com
+      SERVERLESS_VPC_ACCESS: Google API via Serverless VPC Access.
+        https://cloud.google.com/vpc/docs/serverless-vpc-access
+    """
+    GOOGLE_SERVICE_TYPE_UNSPECIFIED = 0
+    IAP = 1
+    GFE_PROXY_OR_HEALTH_CHECK_PROBER = 2
+    CLOUD_DNS = 3
+    PRIVATE_GOOGLE_ACCESS = 4
+    SERVERLESS_VPC_ACCESS = 5
 
   class TargetValueValuesEnum(_messages.Enum):
     r"""Target type where the packet is delivered to.
@@ -578,11 +619,32 @@ class DeliverInfo(_messages.Message):
     REDIS_INSTANCE = 16
     REDIS_CLUSTER = 17
 
-  ipAddress = _messages.StringField(1)
-  pscGoogleApiTarget = _messages.StringField(2)
-  resourceUri = _messages.StringField(3)
-  storageBucket = _messages.StringField(4)
-  target = _messages.EnumField('TargetValueValuesEnum', 5)
+  googleServiceType = _messages.EnumField('GoogleServiceTypeValueValuesEnum', 1)
+  ipAddress = _messages.StringField(2)
+  pscGoogleApiTarget = _messages.StringField(3)
+  resourceUri = _messages.StringField(4)
+  storageBucket = _messages.StringField(5)
+  target = _messages.EnumField('TargetValueValuesEnum', 6)
+
+
+class DirectVpcEgressConnectionInfo(_messages.Message):
+  r"""For display only. Metadata associated with a serverless direct VPC
+  egress connection.
+
+  Fields:
+    networkUri: URI of direct access network.
+    region: Region in which the Direct VPC egress is deployed.
+    selectedIpAddress: Selected starting IP address, from the selected IP
+      range.
+    selectedIpRange: Selected IP range.
+    subnetworkUri: URI of direct access subnetwork.
+  """
+
+  networkUri = _messages.StringField(1)
+  region = _messages.StringField(2)
+  selectedIpAddress = _messages.StringField(3)
+  selectedIpRange = _messages.StringField(4)
+  subnetworkUri = _messages.StringField(5)
 
 
 class DropInfo(_messages.Message):
@@ -593,9 +655,13 @@ class DropInfo(_messages.Message):
 
   Fields:
     cause: Cause that the packet is dropped.
+    destinationGeolocationCode: Geolocation (region code) of the destination
+      IP address (if relevant).
     destinationIp: Destination IP address of the dropped packet (if relevant).
     region: Region of the dropped packet (if relevant).
     resourceUri: URI of the resource that caused the drop.
+    sourceGeolocationCode: Geolocation (region code) of the source IP address
+      (if relevant).
     sourceIp: Source IP address of the dropped packet (if relevant).
   """
 
@@ -634,23 +700,26 @@ class DropInfo(_messages.Message):
         rule type is invalid (it's not a forwarding rule of the internal
         passthrough load balancer).
       NO_ROUTE_FROM_INTERNET_TO_PRIVATE_IPV6_ADDRESS: Packet is sent from the
-        Internet to the private IPv6 address.
+        Internet or Google service to the private IPv6 address.
+      NO_ROUTE_FROM_EXTERNAL_IPV6_SOURCE_TO_PRIVATE_IPV6_ADDRESS: Packet is
+        sent from the external IPv6 source address of an instance to the
+        private IPv6 address of an instance.
       VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH: The packet does not match a policy-
         based VPN tunnel local selector.
       VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH: The packet does not match a policy-
         based VPN tunnel remote selector.
       PRIVATE_TRAFFIC_TO_INTERNET: Packet with internal destination address
         sent to the internet gateway.
-      PRIVATE_GOOGLE_ACCESS_DISALLOWED: Instance with only an internal IP
-        address tries to access Google API and services, but private Google
-        access is not enabled in the subnet.
+      PRIVATE_GOOGLE_ACCESS_DISALLOWED: Endpoint with only an internal IP
+        address tries to access Google API and services, but Private Google
+        Access is not enabled in the subnet or is not applicable.
       PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED: Source endpoint tries
         to access Google API and services through the VPN tunnel to another
         network, but Private Google Access needs to be enabled in the source
         endpoint network.
-      NO_EXTERNAL_ADDRESS: Instance with only an internal IP address tries to
-        access external hosts, but Cloud NAT is not enabled in the subnet,
-        unless special configurations on a VM allow this connection.
+      NO_EXTERNAL_ADDRESS: Endpoint with only an internal IP address tries to
+        access external hosts, but there is no matching Cloud NAT gateway in
+        the subnet.
       UNKNOWN_INTERNAL_ADDRESS: Destination internal address cannot be
         resolved to a known target. If this is a shared VPC scenario, verify
         if the service project ID is provided as test input. Otherwise, verify
@@ -664,6 +733,11 @@ class DropInfo(_messages.Message):
         unavailable for traffic from the load balancer. For more details, see
         [Health check firewall rules](https://cloud.google.com/load-
         balancing/docs/health-checks#firewall_rules).
+      INGRESS_FIREWALL_TAGS_UNSUPPORTED_BY_DIRECT_VPC_EGRESS: Matching ingress
+        firewall rules by network tags for packets sent via serverless VPC
+        direct egress is unsupported. Behavior is undefined.
+        https://cloud.google.com/run/docs/configuring/vpc-direct-
+        vpc#limitations
       INSTANCE_NOT_RUNNING: Packet is sent from or to a Compute Engine
         instance that is not in a running state.
       GKE_CLUSTER_NOT_RUNNING: Packet sent from or to a GKE cluster that is
@@ -818,6 +892,42 @@ class DropInfo(_messages.Message):
       PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED: Sending packets processed by
         the Private NAT Gateways to the Private Service Connect endpoints is
         not supported.
+      PSC_PORT_MAPPING_PORT_MISMATCH: Packet is sent to the PSC port mapping
+        service, but its destination port does not match any port mapping
+        rules.
+      PSC_PORT_MAPPING_WITHOUT_PSC_CONNECTION_UNSUPPORTED: Sending packets
+        directly to the PSC port mapping service without going through the PSC
+        connection is not supported.
+      UNSUPPORTED_ROUTE_MATCHED_FOR_NAT64_DESTINATION: Packet with destination
+        IP address within the reserved NAT64 range is dropped due to matching
+        a route of an unsupported type.
+      TRAFFIC_FROM_HYBRID_ENDPOINT_TO_INTERNET_DISALLOWED: Packet could be
+        dropped because hybrid endpoint like a VPN gateway or Interconnect is
+        not allowed to send traffic to the Internet.
+      NO_MATCHING_NAT64_GATEWAY: Packet with destination IP address within the
+        reserved NAT64 range is dropped due to no matching NAT gateway in the
+        subnet.
+      LOAD_BALANCER_BACKEND_IP_VERSION_MISMATCH: Packet is dropped due to
+        being sent to a backend of a passthrough load balancer that doesn't
+        use the same IP version as the frontend.
+      NO_KNOWN_ROUTE_FROM_NCC_NETWORK_TO_DESTINATION: Packet from the unknown
+        NCC network is dropped due to no known route from the source network
+        to the destination IP address.
+      CLOUD_NAT_PROTOCOL_UNSUPPORTED: Packet is dropped by Cloud NAT due to
+        using an unsupported protocol.
+      L2_INTERCONNECT_UNSUPPORTED_PROTOCOL: Packet is dropped due to using an
+        unsupported protocol (any other than UDP) for L2 Interconnect.
+      L2_INTERCONNECT_UNSUPPORTED_PORT: Packet is dropped due to using an
+        unsupported port (any other than 6081) for L2 Interconnect.
+      L2_INTERCONNECT_DESTINATION_IP_MISMATCH: Packet is dropped due to
+        destination IP not matching the appliance mapping IPs configured on
+        the L2 Interconnect attachment.
+      NCC_ROUTE_WITHIN_HYBRID_SUBNET_UNSUPPORTED: Packet could be dropped
+        because it matches a route associated with an NCC spoke in the hybrid
+        subnet context, but such a configuration is not supported.
+      HYBRID_SUBNET_REGION_MISMATCH: Packet is dropped because the region of
+        the hybrid subnet is different from the region of the next hop of the
+        route matched within this hybrid subnet.
     """
     CAUSE_UNSPECIFIED = 0
     UNKNOWN_EXTERNAL_ADDRESS = 1
@@ -834,81 +944,98 @@ class DropInfo(_messages.Message):
     ROUTE_NEXT_HOP_VPN_TUNNEL_NOT_ESTABLISHED = 12
     ROUTE_NEXT_HOP_FORWARDING_RULE_TYPE_INVALID = 13
     NO_ROUTE_FROM_INTERNET_TO_PRIVATE_IPV6_ADDRESS = 14
-    VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH = 15
-    VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH = 16
-    PRIVATE_TRAFFIC_TO_INTERNET = 17
-    PRIVATE_GOOGLE_ACCESS_DISALLOWED = 18
-    PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED = 19
-    NO_EXTERNAL_ADDRESS = 20
-    UNKNOWN_INTERNAL_ADDRESS = 21
-    FORWARDING_RULE_MISMATCH = 22
-    FORWARDING_RULE_NO_INSTANCES = 23
-    FIREWALL_BLOCKING_LOAD_BALANCER_BACKEND_HEALTH_CHECK = 24
-    INSTANCE_NOT_RUNNING = 25
-    GKE_CLUSTER_NOT_RUNNING = 26
-    CLOUD_SQL_INSTANCE_NOT_RUNNING = 27
-    REDIS_INSTANCE_NOT_RUNNING = 28
-    REDIS_CLUSTER_NOT_RUNNING = 29
-    TRAFFIC_TYPE_BLOCKED = 30
-    GKE_MASTER_UNAUTHORIZED_ACCESS = 31
-    CLOUD_SQL_INSTANCE_UNAUTHORIZED_ACCESS = 32
-    DROPPED_INSIDE_GKE_SERVICE = 33
-    DROPPED_INSIDE_CLOUD_SQL_SERVICE = 34
-    GOOGLE_MANAGED_SERVICE_NO_PEERING = 35
-    GOOGLE_MANAGED_SERVICE_NO_PSC_ENDPOINT = 36
-    GKE_PSC_ENDPOINT_MISSING = 37
-    CLOUD_SQL_INSTANCE_NO_IP_ADDRESS = 38
-    GKE_CONTROL_PLANE_REGION_MISMATCH = 39
-    PUBLIC_GKE_CONTROL_PLANE_TO_PRIVATE_DESTINATION = 40
-    GKE_CONTROL_PLANE_NO_ROUTE = 41
-    CLOUD_SQL_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC = 42
-    PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION = 43
-    CLOUD_SQL_INSTANCE_NO_ROUTE = 44
-    CLOUD_SQL_CONNECTOR_REQUIRED = 45
-    CLOUD_FUNCTION_NOT_ACTIVE = 46
-    VPC_CONNECTOR_NOT_SET = 47
-    VPC_CONNECTOR_NOT_RUNNING = 48
-    VPC_CONNECTOR_SERVERLESS_TRAFFIC_BLOCKED = 49
-    VPC_CONNECTOR_HEALTH_CHECK_TRAFFIC_BLOCKED = 50
-    FORWARDING_RULE_REGION_MISMATCH = 51
-    PSC_CONNECTION_NOT_ACCEPTED = 52
-    PSC_ENDPOINT_ACCESSED_FROM_PEERED_NETWORK = 53
-    PSC_NEG_PRODUCER_ENDPOINT_NO_GLOBAL_ACCESS = 54
-    PSC_NEG_PRODUCER_FORWARDING_RULE_MULTIPLE_PORTS = 55
-    CLOUD_SQL_PSC_NEG_UNSUPPORTED = 56
-    NO_NAT_SUBNETS_FOR_PSC_SERVICE_ATTACHMENT = 57
-    PSC_TRANSITIVITY_NOT_PROPAGATED = 58
-    HYBRID_NEG_NON_DYNAMIC_ROUTE_MATCHED = 59
-    HYBRID_NEG_NON_LOCAL_DYNAMIC_ROUTE_MATCHED = 60
-    CLOUD_RUN_REVISION_NOT_READY = 61
-    DROPPED_INSIDE_PSC_SERVICE_PRODUCER = 62
-    LOAD_BALANCER_HAS_NO_PROXY_SUBNET = 63
-    CLOUD_NAT_NO_ADDRESSES = 64
-    ROUTING_LOOP = 65
-    DROPPED_INSIDE_GOOGLE_MANAGED_SERVICE = 66
-    LOAD_BALANCER_BACKEND_INVALID_NETWORK = 67
-    BACKEND_SERVICE_NAMED_PORT_NOT_DEFINED = 68
-    DESTINATION_IS_PRIVATE_NAT_IP_RANGE = 69
-    DROPPED_INSIDE_REDIS_INSTANCE_SERVICE = 70
-    REDIS_INSTANCE_UNSUPPORTED_PORT = 71
-    REDIS_INSTANCE_CONNECTING_FROM_PUPI_ADDRESS = 72
-    REDIS_INSTANCE_NO_ROUTE_TO_DESTINATION_NETWORK = 73
-    REDIS_INSTANCE_NO_EXTERNAL_IP = 74
-    REDIS_INSTANCE_UNSUPPORTED_PROTOCOL = 75
-    DROPPED_INSIDE_REDIS_CLUSTER_SERVICE = 76
-    REDIS_CLUSTER_UNSUPPORTED_PORT = 77
-    REDIS_CLUSTER_NO_EXTERNAL_IP = 78
-    REDIS_CLUSTER_UNSUPPORTED_PROTOCOL = 79
-    NO_ADVERTISED_ROUTE_TO_GCP_DESTINATION = 80
-    NO_TRAFFIC_SELECTOR_TO_GCP_DESTINATION = 81
-    NO_KNOWN_ROUTE_FROM_PEERED_NETWORK_TO_DESTINATION = 82
-    PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED = 83
+    NO_ROUTE_FROM_EXTERNAL_IPV6_SOURCE_TO_PRIVATE_IPV6_ADDRESS = 15
+    VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH = 16
+    VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH = 17
+    PRIVATE_TRAFFIC_TO_INTERNET = 18
+    PRIVATE_GOOGLE_ACCESS_DISALLOWED = 19
+    PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED = 20
+    NO_EXTERNAL_ADDRESS = 21
+    UNKNOWN_INTERNAL_ADDRESS = 22
+    FORWARDING_RULE_MISMATCH = 23
+    FORWARDING_RULE_NO_INSTANCES = 24
+    FIREWALL_BLOCKING_LOAD_BALANCER_BACKEND_HEALTH_CHECK = 25
+    INGRESS_FIREWALL_TAGS_UNSUPPORTED_BY_DIRECT_VPC_EGRESS = 26
+    INSTANCE_NOT_RUNNING = 27
+    GKE_CLUSTER_NOT_RUNNING = 28
+    CLOUD_SQL_INSTANCE_NOT_RUNNING = 29
+    REDIS_INSTANCE_NOT_RUNNING = 30
+    REDIS_CLUSTER_NOT_RUNNING = 31
+    TRAFFIC_TYPE_BLOCKED = 32
+    GKE_MASTER_UNAUTHORIZED_ACCESS = 33
+    CLOUD_SQL_INSTANCE_UNAUTHORIZED_ACCESS = 34
+    DROPPED_INSIDE_GKE_SERVICE = 35
+    DROPPED_INSIDE_CLOUD_SQL_SERVICE = 36
+    GOOGLE_MANAGED_SERVICE_NO_PEERING = 37
+    GOOGLE_MANAGED_SERVICE_NO_PSC_ENDPOINT = 38
+    GKE_PSC_ENDPOINT_MISSING = 39
+    CLOUD_SQL_INSTANCE_NO_IP_ADDRESS = 40
+    GKE_CONTROL_PLANE_REGION_MISMATCH = 41
+    PUBLIC_GKE_CONTROL_PLANE_TO_PRIVATE_DESTINATION = 42
+    GKE_CONTROL_PLANE_NO_ROUTE = 43
+    CLOUD_SQL_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC = 44
+    PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION = 45
+    CLOUD_SQL_INSTANCE_NO_ROUTE = 46
+    CLOUD_SQL_CONNECTOR_REQUIRED = 47
+    CLOUD_FUNCTION_NOT_ACTIVE = 48
+    VPC_CONNECTOR_NOT_SET = 49
+    VPC_CONNECTOR_NOT_RUNNING = 50
+    VPC_CONNECTOR_SERVERLESS_TRAFFIC_BLOCKED = 51
+    VPC_CONNECTOR_HEALTH_CHECK_TRAFFIC_BLOCKED = 52
+    FORWARDING_RULE_REGION_MISMATCH = 53
+    PSC_CONNECTION_NOT_ACCEPTED = 54
+    PSC_ENDPOINT_ACCESSED_FROM_PEERED_NETWORK = 55
+    PSC_NEG_PRODUCER_ENDPOINT_NO_GLOBAL_ACCESS = 56
+    PSC_NEG_PRODUCER_FORWARDING_RULE_MULTIPLE_PORTS = 57
+    CLOUD_SQL_PSC_NEG_UNSUPPORTED = 58
+    NO_NAT_SUBNETS_FOR_PSC_SERVICE_ATTACHMENT = 59
+    PSC_TRANSITIVITY_NOT_PROPAGATED = 60
+    HYBRID_NEG_NON_DYNAMIC_ROUTE_MATCHED = 61
+    HYBRID_NEG_NON_LOCAL_DYNAMIC_ROUTE_MATCHED = 62
+    CLOUD_RUN_REVISION_NOT_READY = 63
+    DROPPED_INSIDE_PSC_SERVICE_PRODUCER = 64
+    LOAD_BALANCER_HAS_NO_PROXY_SUBNET = 65
+    CLOUD_NAT_NO_ADDRESSES = 66
+    ROUTING_LOOP = 67
+    DROPPED_INSIDE_GOOGLE_MANAGED_SERVICE = 68
+    LOAD_BALANCER_BACKEND_INVALID_NETWORK = 69
+    BACKEND_SERVICE_NAMED_PORT_NOT_DEFINED = 70
+    DESTINATION_IS_PRIVATE_NAT_IP_RANGE = 71
+    DROPPED_INSIDE_REDIS_INSTANCE_SERVICE = 72
+    REDIS_INSTANCE_UNSUPPORTED_PORT = 73
+    REDIS_INSTANCE_CONNECTING_FROM_PUPI_ADDRESS = 74
+    REDIS_INSTANCE_NO_ROUTE_TO_DESTINATION_NETWORK = 75
+    REDIS_INSTANCE_NO_EXTERNAL_IP = 76
+    REDIS_INSTANCE_UNSUPPORTED_PROTOCOL = 77
+    DROPPED_INSIDE_REDIS_CLUSTER_SERVICE = 78
+    REDIS_CLUSTER_UNSUPPORTED_PORT = 79
+    REDIS_CLUSTER_NO_EXTERNAL_IP = 80
+    REDIS_CLUSTER_UNSUPPORTED_PROTOCOL = 81
+    NO_ADVERTISED_ROUTE_TO_GCP_DESTINATION = 82
+    NO_TRAFFIC_SELECTOR_TO_GCP_DESTINATION = 83
+    NO_KNOWN_ROUTE_FROM_PEERED_NETWORK_TO_DESTINATION = 84
+    PRIVATE_NAT_TO_PSC_ENDPOINT_UNSUPPORTED = 85
+    PSC_PORT_MAPPING_PORT_MISMATCH = 86
+    PSC_PORT_MAPPING_WITHOUT_PSC_CONNECTION_UNSUPPORTED = 87
+    UNSUPPORTED_ROUTE_MATCHED_FOR_NAT64_DESTINATION = 88
+    TRAFFIC_FROM_HYBRID_ENDPOINT_TO_INTERNET_DISALLOWED = 89
+    NO_MATCHING_NAT64_GATEWAY = 90
+    LOAD_BALANCER_BACKEND_IP_VERSION_MISMATCH = 91
+    NO_KNOWN_ROUTE_FROM_NCC_NETWORK_TO_DESTINATION = 92
+    CLOUD_NAT_PROTOCOL_UNSUPPORTED = 93
+    L2_INTERCONNECT_UNSUPPORTED_PROTOCOL = 94
+    L2_INTERCONNECT_UNSUPPORTED_PORT = 95
+    L2_INTERCONNECT_DESTINATION_IP_MISMATCH = 96
+    NCC_ROUTE_WITHIN_HYBRID_SUBNET_UNSUPPORTED = 97
+    HYBRID_SUBNET_REGION_MISMATCH = 98
 
   cause = _messages.EnumField('CauseValueValuesEnum', 1)
-  destinationIp = _messages.StringField(2)
-  region = _messages.StringField(3)
-  resourceUri = _messages.StringField(4)
-  sourceIp = _messages.StringField(5)
+  destinationGeolocationCode = _messages.StringField(2)
+  destinationIp = _messages.StringField(3)
+  region = _messages.StringField(4)
+  resourceUri = _messages.StringField(5)
+  sourceGeolocationCode = _messages.StringField(6)
+  sourceIp = _messages.StringField(7)
 
 
 class EdgeLocation(_messages.Message):
@@ -920,6 +1047,176 @@ class EdgeLocation(_messages.Message):
   """
 
   metropolitanArea = _messages.StringField(1)
+
+
+class EffectiveVpcFlowLogsConfig(_messages.Message):
+  r"""A configuration to generate a response for GetEffectiveVpcFlowLogsConfig
+  request.
+
+  Enums:
+    AggregationIntervalValueValuesEnum: The aggregation interval for the logs.
+      Default value is INTERVAL_5_SEC.
+    CrossProjectMetadataValueValuesEnum: Determines whether to include cross
+      project annotations in the logs. This field is available only for
+      organization configurations. If not specified in org configs will be set
+      to CROSS_PROJECT_METADATA_ENABLED.
+    MetadataValueValuesEnum: Configures whether all, none or a subset of
+      metadata fields should be added to the reported VPC flow logs. Default
+      value is INCLUDE_ALL_METADATA.
+    ScopeValueValuesEnum: Specifies the scope of the config (e.g., SUBNET,
+      NETWORK, ORGANIZATION..).
+    StateValueValuesEnum: The state of the VPC Flow Log configuration. Default
+      value is ENABLED. When creating a new configuration, it must be enabled.
+      Setting state=DISABLED will pause the log generation for this config.
+
+  Fields:
+    aggregationInterval: The aggregation interval for the logs. Default value
+      is INTERVAL_5_SEC.
+    crossProjectMetadata: Determines whether to include cross project
+      annotations in the logs. This field is available only for organization
+      configurations. If not specified in org configs will be set to
+      CROSS_PROJECT_METADATA_ENABLED.
+    filterExpr: Export filter used to define which VPC Flow Logs should be
+      logged.
+    flowSampling: The value of the field must be in (0, 1]. The sampling rate
+      of VPC Flow Logs where 1.0 means all collected logs are reported.
+      Setting the sampling rate to 0.0 is not allowed. If you want to disable
+      VPC Flow Logs, use the state field instead. Default value is 1.0.
+    interconnectAttachment: Traffic will be logged from the Interconnect
+      Attachment. Format:
+      projects/{project_id}/regions/{region}/interconnectAttachments/{name}
+    metadata: Configures whether all, none or a subset of metadata fields
+      should be added to the reported VPC flow logs. Default value is
+      INCLUDE_ALL_METADATA.
+    metadataFields: Custom metadata fields to include in the reported VPC flow
+      logs. Can only be specified if "metadata" was set to CUSTOM_METADATA.
+    name: Unique name of the configuration. The name can have one of the
+      following forms: - For project-level configurations: `projects/{project_
+      id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For
+      organization-level configurations: `organizations/{organization_id}/loca
+      tions/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For a
+      Compute config, the name will be the path of the subnet:
+      `projects/{project_id}/regions/{region}/subnetworks/{subnet_id}`
+    network: Traffic will be logged from VMs, VPN tunnels and Interconnect
+      Attachments within the network. Format:
+      projects/{project_id}/global/networks/{name}
+    scope: Specifies the scope of the config (e.g., SUBNET, NETWORK,
+      ORGANIZATION..).
+    state: The state of the VPC Flow Log configuration. Default value is
+      ENABLED. When creating a new configuration, it must be enabled. Setting
+      state=DISABLED will pause the log generation for this config.
+    subnet: Traffic will be logged from VMs within the subnetwork. Format:
+      projects/{project_id}/regions/{region}/subnetworks/{name}
+    vpnTunnel: Traffic will be logged from the VPN Tunnel. Format:
+      projects/{project_id}/regions/{region}/vpnTunnels/{name}
+  """
+
+  class AggregationIntervalValueValuesEnum(_messages.Enum):
+    r"""The aggregation interval for the logs. Default value is
+    INTERVAL_5_SEC.
+
+    Values:
+      AGGREGATION_INTERVAL_UNSPECIFIED: If not specified, will default to
+        INTERVAL_5_SEC.
+      INTERVAL_5_SEC: Aggregate logs in 5s intervals.
+      INTERVAL_30_SEC: Aggregate logs in 30s intervals.
+      INTERVAL_1_MIN: Aggregate logs in 1m intervals.
+      INTERVAL_5_MIN: Aggregate logs in 5m intervals.
+      INTERVAL_10_MIN: Aggregate logs in 10m intervals.
+      INTERVAL_15_MIN: Aggregate logs in 15m intervals.
+    """
+    AGGREGATION_INTERVAL_UNSPECIFIED = 0
+    INTERVAL_5_SEC = 1
+    INTERVAL_30_SEC = 2
+    INTERVAL_1_MIN = 3
+    INTERVAL_5_MIN = 4
+    INTERVAL_10_MIN = 5
+    INTERVAL_15_MIN = 6
+
+  class CrossProjectMetadataValueValuesEnum(_messages.Enum):
+    r"""Determines whether to include cross project annotations in the logs.
+    This field is available only for organization configurations. If not
+    specified in org configs will be set to CROSS_PROJECT_METADATA_ENABLED.
+
+    Values:
+      CROSS_PROJECT_METADATA_UNSPECIFIED: If not specified, the default is
+        CROSS_PROJECT_METADATA_ENABLED.
+      CROSS_PROJECT_METADATA_ENABLED: When CROSS_PROJECT_METADATA_ENABLED,
+        metadata from other projects will be included in the logs.
+      CROSS_PROJECT_METADATA_DISABLED: When CROSS_PROJECT_METADATA_DISABLED,
+        metadata from other projects will not be included in the logs.
+    """
+    CROSS_PROJECT_METADATA_UNSPECIFIED = 0
+    CROSS_PROJECT_METADATA_ENABLED = 1
+    CROSS_PROJECT_METADATA_DISABLED = 2
+
+  class MetadataValueValuesEnum(_messages.Enum):
+    r"""Configures whether all, none or a subset of metadata fields should be
+    added to the reported VPC flow logs. Default value is
+    INCLUDE_ALL_METADATA.
+
+    Values:
+      METADATA_UNSPECIFIED: If not specified, will default to
+        INCLUDE_ALL_METADATA.
+      INCLUDE_ALL_METADATA: Include all metadata fields.
+      EXCLUDE_ALL_METADATA: Exclude all metadata fields.
+      CUSTOM_METADATA: Include only custom fields (specified in
+        metadata_fields).
+    """
+    METADATA_UNSPECIFIED = 0
+    INCLUDE_ALL_METADATA = 1
+    EXCLUDE_ALL_METADATA = 2
+    CUSTOM_METADATA = 3
+
+  class ScopeValueValuesEnum(_messages.Enum):
+    r"""Specifies the scope of the config (e.g., SUBNET, NETWORK,
+    ORGANIZATION..).
+
+    Values:
+      SCOPE_UNSPECIFIED: Scope is unspecified.
+      SUBNET: Target resource is a subnet (Network Management API).
+      COMPUTE_API_SUBNET: Target resource is a subnet, and the config
+        originates from the Compute API.
+      NETWORK: Target resource is a network.
+      VPN_TUNNEL: Target resource is a VPN tunnel.
+      INTERCONNECT_ATTACHMENT: Target resource is an interconnect attachment.
+      ORGANIZATION: Configuration applies to an entire organization.
+    """
+    SCOPE_UNSPECIFIED = 0
+    SUBNET = 1
+    COMPUTE_API_SUBNET = 2
+    NETWORK = 3
+    VPN_TUNNEL = 4
+    INTERCONNECT_ATTACHMENT = 5
+    ORGANIZATION = 6
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""The state of the VPC Flow Log configuration. Default value is ENABLED.
+    When creating a new configuration, it must be enabled. Setting
+    state=DISABLED will pause the log generation for this config.
+
+    Values:
+      STATE_UNSPECIFIED: If not specified, will default to ENABLED.
+      ENABLED: When ENABLED, this configuration will generate logs.
+      DISABLED: When DISABLED, this configuration will not generate logs.
+    """
+    STATE_UNSPECIFIED = 0
+    ENABLED = 1
+    DISABLED = 2
+
+  aggregationInterval = _messages.EnumField('AggregationIntervalValueValuesEnum', 1)
+  crossProjectMetadata = _messages.EnumField('CrossProjectMetadataValueValuesEnum', 2)
+  filterExpr = _messages.StringField(3)
+  flowSampling = _messages.FloatField(4, variant=_messages.Variant.FLOAT)
+  interconnectAttachment = _messages.StringField(5)
+  metadata = _messages.EnumField('MetadataValueValuesEnum', 6)
+  metadataFields = _messages.StringField(7, repeated=True)
+  name = _messages.StringField(8)
+  network = _messages.StringField(9)
+  scope = _messages.EnumField('ScopeValueValuesEnum', 10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  subnet = _messages.StringField(12)
+  vpnTunnel = _messages.StringField(13)
 
 
 class Empty(_messages.Message):
@@ -944,22 +1241,26 @@ class Endpoint(_messages.Message):
       can be inferred from the source.
 
   Fields:
+    alloyDbInstance: An [AlloyDB Instance](https://cloud.google.com/alloydb)
+      URI.
     appEngineVersion: An [App Engine](https://cloud.google.com/appengine)
       [service version](https://cloud.google.com/appengine/docs/admin-
-      api/reference/rest/v1/apps.services.versions).
+      api/reference/rest/v1/apps.services.versions). Applicable only to source
+      endpoint.
     cloudFunction: A [Cloud Function](https://cloud.google.com/functions).
+      Applicable only to source endpoint.
     cloudRunRevision: A [Cloud Run](https://cloud.google.com/run) [revision](h
       ttps://cloud.google.com/run/docs/reference/rest/v1/namespaces.revisions/
-      get)
+      get) Applicable only to source endpoint.
     cloudSqlInstance: A [Cloud SQL](https://cloud.google.com/sql) instance
       URI.
     forwardingRule: A forwarding rule and its corresponding IP address
       represent the frontend configuration of a Google Cloud load balancer.
       Forwarding rules are also used for protocol forwarding, Private Service
       Connect and other network services to provide forwarding information in
-      the control plane. Format:
-      projects/{project}/global/forwardingRules/{id} or
-      projects/{project}/regions/{region}/forwardingRules/{id}
+      the control plane. Applicable only to destination endpoint. Format:
+      `projects/{project}/global/forwardingRules/{id}` or
+      `projects/{project}/regions/{region}/forwardingRules/{id}`
     forwardingRuleTarget: Output only. Specifies the type of the target of the
       forwarding rule.
     fqdn: DNS endpoint of [Google Kubernetes Engine cluster control
@@ -970,6 +1271,8 @@ class Endpoint(_messages.Message):
     gkeMasterCluster: A cluster URI for [Google Kubernetes Engine cluster
       control plane](https://cloud.google.com/kubernetes-
       engine/docs/concepts/cluster-architecture).
+    gkePod: A [GKE Pod](https://cloud.google.com/kubernetes-
+      engine/docs/concepts/pod) URI.
     instance: A Compute Engine instance URI.
     ipAddress: The IP address of the endpoint, which can be an external or
       internal IP.
@@ -977,23 +1280,25 @@ class Endpoint(_messages.Message):
       points to. Empty for forwarding rules not related to load balancers.
     loadBalancerType: Output only. Type of the load balancer the forwarding
       rule points to.
-    network: A Compute Engine network URI.
+    network: A VPC network URI.
     networkType: Type of the network where the endpoint is located. Applicable
       only to source endpoint, as destination network type can be inferred
       from the source.
     port: The IP protocol port of the endpoint. Only applicable when protocol
       is TCP or UDP.
-    projectId: Project ID where the endpoint is located. The Project ID can be
-      derived from the URI if you provide a VM instance or network URI. The
-      following are two cases where you must provide the project ID: 1. Only
-      the IP address is specified, and the IP address is within a Google Cloud
-      project. 2. When you are using Shared VPC and the IP address that you
-      provide is from the service project. In this case, the network that the
-      IP address resides in is defined in the host project.
+    projectId: Project ID where the endpoint is located. The project ID can be
+      derived from the URI if you provide a endpoint or network URI. The
+      following are two cases where you may need to provide the project ID: 1.
+      Only the IP address is specified, and the IP address is within a Google
+      Cloud project. 2. When you are using Shared VPC and the IP address that
+      you provide is from the service project. In this case, the network that
+      the IP address resides in is defined in the host project.
     redisCluster: A [Redis
       Cluster](https://cloud.google.com/memorystore/docs/cluster) URI.
+      Applicable only to destination endpoint.
     redisInstance: A [Redis
       Instance](https://cloud.google.com/memorystore/docs/redis) URI.
+      Applicable only to destination endpoint.
   """
 
   class ForwardingRuleTargetValueValuesEnum(_messages.Enum):
@@ -1055,30 +1360,33 @@ class Endpoint(_messages.Message):
         detailed output, specify the URI for the source or destination
         network.
       NON_GCP_NETWORK: A network hosted outside of Google Cloud. This can be
-        an on-premises network, or a network hosted by another cloud provider.
+        an on-premises network, an internet resource or a network hosted by
+        another cloud provider.
     """
     NETWORK_TYPE_UNSPECIFIED = 0
     GCP_NETWORK = 1
     NON_GCP_NETWORK = 2
 
-  appEngineVersion = _messages.MessageField('AppEngineVersionEndpoint', 1)
-  cloudFunction = _messages.MessageField('CloudFunctionEndpoint', 2)
-  cloudRunRevision = _messages.MessageField('CloudRunRevisionEndpoint', 3)
-  cloudSqlInstance = _messages.StringField(4)
-  forwardingRule = _messages.StringField(5)
-  forwardingRuleTarget = _messages.EnumField('ForwardingRuleTargetValueValuesEnum', 6)
-  fqdn = _messages.StringField(7)
-  gkeMasterCluster = _messages.StringField(8)
-  instance = _messages.StringField(9)
-  ipAddress = _messages.StringField(10)
-  loadBalancerId = _messages.StringField(11)
-  loadBalancerType = _messages.EnumField('LoadBalancerTypeValueValuesEnum', 12)
-  network = _messages.StringField(13)
-  networkType = _messages.EnumField('NetworkTypeValueValuesEnum', 14)
-  port = _messages.IntegerField(15, variant=_messages.Variant.INT32)
-  projectId = _messages.StringField(16)
-  redisCluster = _messages.StringField(17)
-  redisInstance = _messages.StringField(18)
+  alloyDbInstance = _messages.StringField(1)
+  appEngineVersion = _messages.MessageField('AppEngineVersionEndpoint', 2)
+  cloudFunction = _messages.MessageField('CloudFunctionEndpoint', 3)
+  cloudRunRevision = _messages.MessageField('CloudRunRevisionEndpoint', 4)
+  cloudSqlInstance = _messages.StringField(5)
+  forwardingRule = _messages.StringField(6)
+  forwardingRuleTarget = _messages.EnumField('ForwardingRuleTargetValueValuesEnum', 7)
+  fqdn = _messages.StringField(8)
+  gkeMasterCluster = _messages.StringField(9)
+  gkePod = _messages.StringField(10)
+  instance = _messages.StringField(11)
+  ipAddress = _messages.StringField(12)
+  loadBalancerId = _messages.StringField(13)
+  loadBalancerType = _messages.EnumField('LoadBalancerTypeValueValuesEnum', 14)
+  network = _messages.StringField(15)
+  networkType = _messages.EnumField('NetworkTypeValueValuesEnum', 16)
+  port = _messages.IntegerField(17, variant=_messages.Variant.INT32)
+  projectId = _messages.StringField(18)
+  redisCluster = _messages.StringField(19)
+  redisInstance = _messages.StringField(20)
 
 
 class EndpointInfo(_messages.Message):
@@ -1150,6 +1458,7 @@ class FirewallInfo(_messages.Message):
 
   Enums:
     FirewallRuleTypeValueValuesEnum: The firewall rule's type.
+    TargetTypeValueValuesEnum: Target type of the firewall rule.
 
   Fields:
     action: Possible values: ALLOW, DENY, APPLY_SECURITY_PROFILE_GROUP
@@ -1163,6 +1472,9 @@ class FirewallInfo(_messages.Message):
     policy: The name of the firewall policy that this rule is associated with.
       This field is not applicable to VPC firewall rules and implied VPC
       firewall rules.
+    policyPriority: The priority of the firewall policy that this rule is
+      associated with. This field is not applicable to VPC firewall rules and
+      implied VPC firewall rules.
     policyUri: The URI of the firewall policy that this rule is associated
       with. This field is not applicable to VPC firewall rules and implied VPC
       firewall rules.
@@ -1171,6 +1483,7 @@ class FirewallInfo(_messages.Message):
       firewall rule.
     targetTags: The target tags defined by the VPC firewall rule. This field
       is not applicable to firewall policy rules.
+    targetType: Target type of the firewall rule.
     uri: The URI of the firewall rule. This field is not applicable to implied
       VPC firewall rules.
   """
@@ -1212,6 +1525,8 @@ class FirewallInfo(_messages.Message):
         traffic goes through allow firewall rule. For details, see [firewall
         rules specifications](https://cloud.google.com/firewall/docs/firewalls
         #specifications)
+      ANALYSIS_SKIPPED: Firewall analysis was skipped due to executing
+        Connectivity Test in the BypassFirewallChecks mode
     """
     FIREWALL_RULE_TYPE_UNSPECIFIED = 0
     HIERARCHICAL_FIREWALL_POLICY_RULE = 1
@@ -1222,6 +1537,21 @@ class FirewallInfo(_messages.Message):
     NETWORK_REGIONAL_FIREWALL_POLICY_RULE = 6
     UNSUPPORTED_FIREWALL_POLICY_RULE = 7
     TRACKING_STATE = 8
+    ANALYSIS_SKIPPED = 9
+
+  class TargetTypeValueValuesEnum(_messages.Enum):
+    r"""Target type of the firewall rule.
+
+    Values:
+      TARGET_TYPE_UNSPECIFIED: Target type is not specified. In this case we
+        treat the rule as applying to INSTANCES target type.
+      INSTANCES: Firewall rule applies to instances.
+      INTERNAL_MANAGED_LB: Firewall rule applies to internal managed load
+        balancers.
+    """
+    TARGET_TYPE_UNSPECIFIED = 0
+    INSTANCES = 1
+    INTERNAL_MANAGED_LB = 2
 
   action = _messages.StringField(1)
   direction = _messages.StringField(2)
@@ -1229,11 +1559,13 @@ class FirewallInfo(_messages.Message):
   firewallRuleType = _messages.EnumField('FirewallRuleTypeValueValuesEnum', 4)
   networkUri = _messages.StringField(5)
   policy = _messages.StringField(6)
-  policyUri = _messages.StringField(7)
-  priority = _messages.IntegerField(8, variant=_messages.Variant.INT32)
-  targetServiceAccounts = _messages.StringField(9, repeated=True)
-  targetTags = _messages.StringField(10, repeated=True)
-  uri = _messages.StringField(11)
+  policyPriority = _messages.IntegerField(7, variant=_messages.Variant.INT32)
+  policyUri = _messages.StringField(8)
+  priority = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  targetServiceAccounts = _messages.StringField(10, repeated=True)
+  targetTags = _messages.StringField(11, repeated=True)
+  targetType = _messages.EnumField('TargetTypeValueValuesEnum', 12)
+  uri = _messages.StringField(13)
 
 
 class ForwardInfo(_messages.Message):
@@ -1264,6 +1596,7 @@ class ForwardInfo(_messages.Message):
       ANOTHER_PROJECT: Forwarded to a VPC network in another project.
       NCC_HUB: Forwarded to an NCC Hub.
       ROUTER_APPLIANCE: Forwarded to a router appliance.
+      SECURE_WEB_PROXY_GATEWAY: Forwarded to a Secure Web Proxy Gateway.
     """
     TARGET_UNSPECIFIED = 0
     PEERING_VPC = 1
@@ -1275,6 +1608,7 @@ class ForwardInfo(_messages.Message):
     ANOTHER_PROJECT = 7
     NCC_HUB = 8
     ROUTER_APPLIANCE = 9
+    SECURE_WEB_PROXY_GATEWAY = 10
 
   ipAddress = _messages.StringField(1)
   resourceUri = _messages.StringField(2)
@@ -1374,6 +1708,8 @@ class GoogleServiceInfo(_messages.Message):
       GOOGLE_API_VPC_SC: Google API via VPC Service Controls.
         https://cloud.google.com/vpc/docs/configure-private-service-connect-
         apis
+      SERVERLESS_VPC_ACCESS: Google API via Serverless VPC Access.
+        https://cloud.google.com/vpc/docs/serverless-vpc-access
     """
     GOOGLE_SERVICE_TYPE_UNSPECIFIED = 0
     IAP = 1
@@ -1382,13 +1718,32 @@ class GoogleServiceInfo(_messages.Message):
     GOOGLE_API = 4
     GOOGLE_API_PSC = 5
     GOOGLE_API_VPC_SC = 6
+    SERVERLESS_VPC_ACCESS = 7
 
   googleServiceType = _messages.EnumField('GoogleServiceTypeValueValuesEnum', 1)
   sourceIp = _messages.StringField(2)
 
 
+class HybridSubnetInfo(_messages.Message):
+  r"""For display only. Metadata associated with a hybrid subnet.
+
+  Fields:
+    displayName: Name of a hybrid subnet.
+    region: Name of a Google Cloud region where the hybrid subnet is
+      configured.
+    uri: URI of a hybrid subnet.
+  """
+
+  displayName = _messages.StringField(1)
+  region = _messages.StringField(2)
+  uri = _messages.StringField(3)
+
+
 class InstanceInfo(_messages.Message):
   r"""For display only. Metadata associated with a Compute Engine instance.
+
+  Enums:
+    StatusValueValuesEnum: The status of the instance.
 
   Fields:
     displayName: Name of a Compute Engine instance.
@@ -1399,9 +1754,24 @@ class InstanceInfo(_messages.Message):
     networkUri: URI of a Compute Engine network.
     pscNetworkAttachmentUri: URI of the PSC network attachment the NIC is
       attached to (if relevant).
+    running: Indicates whether the Compute Engine instance is running.
+      Deprecated: use the `status` field instead.
     serviceAccount: Service account authorized for the instance.
+    status: The status of the instance.
     uri: URI of a Compute Engine instance.
   """
+
+  class StatusValueValuesEnum(_messages.Enum):
+    r"""The status of the instance.
+
+    Values:
+      STATUS_UNSPECIFIED: Default unspecified value.
+      RUNNING: The instance is running.
+      NOT_RUNNING: The instance has any status other than "RUNNING".
+    """
+    STATUS_UNSPECIFIED = 0
+    RUNNING = 1
+    NOT_RUNNING = 2
 
   displayName = _messages.StringField(1)
   externalIp = _messages.StringField(2)
@@ -1410,8 +1780,55 @@ class InstanceInfo(_messages.Message):
   networkTags = _messages.StringField(5, repeated=True)
   networkUri = _messages.StringField(6)
   pscNetworkAttachmentUri = _messages.StringField(7)
-  serviceAccount = _messages.StringField(8)
-  uri = _messages.StringField(9)
+  running = _messages.BooleanField(8)
+  serviceAccount = _messages.StringField(9)
+  status = _messages.EnumField('StatusValueValuesEnum', 10)
+  uri = _messages.StringField(11)
+
+
+class InterconnectAttachmentInfo(_messages.Message):
+  r"""For display only. Metadata associated with an Interconnect attachment.
+
+  Enums:
+    TypeValueValuesEnum: The type of interconnect attachment this is.
+
+  Fields:
+    cloudRouterUri: URI of the Cloud Router to be used for dynamic routing.
+    displayName: Name of an Interconnect attachment.
+    interconnectUri: URI of the Interconnect where the Interconnect attachment
+      is configured.
+    l2AttachmentMatchedIpAddress: Appliance IP address that was matched for
+      L2_DEDICATED attachments.
+    region: Name of a Google Cloud region where the Interconnect attachment is
+      configured.
+    type: The type of interconnect attachment this is.
+    uri: URI of an Interconnect attachment.
+  """
+
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""The type of interconnect attachment this is.
+
+    Values:
+      TYPE_UNSPECIFIED: Unspecified type.
+      DEDICATED: Attachment to a dedicated interconnect.
+      PARTNER: Attachment to a partner interconnect, created by the customer.
+      PARTNER_PROVIDER: Attachment to a partner interconnect, created by the
+        partner.
+      L2_DEDICATED: Attachment to a L2 interconnect, created by the customer.
+    """
+    TYPE_UNSPECIFIED = 0
+    DEDICATED = 1
+    PARTNER = 2
+    PARTNER_PROVIDER = 3
+    L2_DEDICATED = 4
+
+  cloudRouterUri = _messages.StringField(1)
+  displayName = _messages.StringField(2)
+  interconnectUri = _messages.StringField(3)
+  l2AttachmentMatchedIpAddress = _messages.StringField(4)
+  region = _messages.StringField(5)
+  type = _messages.EnumField('TypeValueValuesEnum', 6)
+  uri = _messages.StringField(7)
 
 
 class LatencyDistribution(_messages.Message):
@@ -1473,10 +1890,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListVpcFlowLogsConfigsResponse(_messages.Message):
@@ -1797,12 +2219,14 @@ class NatInfo(_messages.Message):
         internal address.
       CLOUD_NAT: Cloud NAT Gateway.
       PRIVATE_SERVICE_CONNECT: Private service connect NAT.
+      GKE_POD_IP_MASQUERADING: GKE Pod IP address masquerading.
     """
     TYPE_UNSPECIFIED = 0
     INTERNAL_TO_EXTERNAL = 1
     EXTERNAL_TO_INTERNAL = 2
     CLOUD_NAT = 3
     PRIVATE_SERVICE_CONNECT = 4
+    GKE_POD_IP_MASQUERADING = 5
 
   natGatewayName = _messages.StringField(1)
   networkUri = _messages.StringField(2)
@@ -1821,7 +2245,6 @@ class NatInfo(_messages.Message):
 
 class NetworkInfo(_messages.Message):
   r"""For display only. Metadata associated with a Compute Engine network.
-  Next ID: 7
 
   Fields:
     displayName: Name of a Compute Engine network.
@@ -1839,6 +2262,201 @@ class NetworkInfo(_messages.Message):
   matchedSubnetUri = _messages.StringField(3)
   region = _messages.StringField(4)
   uri = _messages.StringField(5)
+
+
+class NetworkmanagementOrganizationsLocationsGetRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsGetRequest object.
+
+  Fields:
+    name: Resource name for the location.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsGlobalOperationsCancelRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsGlobalOperationsCancelRequest
+  object.
+
+  Fields:
+    cancelOperationRequest: A CancelOperationRequest resource to be passed as
+      the request body.
+    name: The name of the operation resource to be cancelled.
+  """
+
+  cancelOperationRequest = _messages.MessageField('CancelOperationRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsGlobalOperationsDeleteRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsGlobalOperationsDeleteRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource to be deleted.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsGlobalOperationsGetRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsGlobalOperationsGetRequest
+  object.
+
+  Fields:
+    name: The name of the operation resource.
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsGlobalOperationsListRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsGlobalOperationsListRequest
+  object.
+
+  Fields:
+    filter: The standard list filter.
+    name: The name of the operation's parent resource.
+    pageSize: The standard list page size.
+    pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
+  """
+
+  filter = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
+
+
+class NetworkmanagementOrganizationsLocationsListRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsListRequest object.
+
+  Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
+    filter: A filter to narrow down results to a preferred subset. The
+      filtering language accepts strings like `"displayName=tokyo"`, and is
+      documented in more detail in [AIP-160](https://google.aip.dev/160).
+    name: The resource that owns the locations collection, if applicable.
+    pageSize: The maximum number of results to return. If not set, the service
+      selects a default.
+    pageToken: A page token received from the `next_page_token` field in the
+      response. Send that page token to receive the subsequent page.
+  """
+
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
+
+
+class NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsCreateRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsCreateRequest
+  object.
+
+  Fields:
+    parent: Required. The parent resource of the VpcFlowLogsConfig to create,
+      in one of the following formats: - For project-level resources:
+      `projects/{project_id}/locations/global` - For organization-level
+      resources: `organizations/{organization_id}/locations/global`
+    vpcFlowLogsConfig: A VpcFlowLogsConfig resource to be passed as the
+      request body.
+    vpcFlowLogsConfigId: Required. ID of the `VpcFlowLogsConfig`.
+  """
+
+  parent = _messages.StringField(1, required=True)
+  vpcFlowLogsConfig = _messages.MessageField('VpcFlowLogsConfig', 2)
+  vpcFlowLogsConfigId = _messages.StringField(3)
+
+
+class NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsDeleteRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsDeleteRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the VpcFlowLogsConfig, in one of the
+      following formats: - For a project-level resource: `projects/{project_id
+      }/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For
+      an organization-level resource: `organizations/{organization_id}/locatio
+      ns/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsGetRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsGetRequest
+  object.
+
+  Fields:
+    name: Required. The resource name of the VpcFlowLogsConfig, in one of the
+      following formats: - For project-level resources: `projects/{project_id}
+      /locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For
+      organization-level resources: `organizations/{organization_id}/locations
+      /global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsListRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsListRequest
+  object.
+
+  Fields:
+    filter: Optional. Lists the `VpcFlowLogsConfigs` that match the filter
+      expression. A filter expression must use the supported [CEL logic
+      operators] (https://cloud.google.com/vpc/docs/about-flow-logs-
+      records#supported_cel_logic_operators).
+    orderBy: Optional. Field to use to sort the list.
+    pageSize: Optional. Number of `VpcFlowLogsConfigs` to return.
+    pageToken: Optional. Page token from an earlier query, as returned in
+      `next_page_token`.
+    parent: Required. The parent resource of the VpcFlowLogsConfig, in one of
+      the following formats: - For project-level resourcs:
+      `projects/{project_id}/locations/global` - For organization-level
+      resources: `organizations/{organization_id}/locations/global`
+  """
+
+  filter = _messages.StringField(1)
+  orderBy = _messages.StringField(2)
+  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(4)
+  parent = _messages.StringField(5, required=True)
+
+
+class NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsPatchRequest(_messages.Message):
+  r"""A NetworkmanagementOrganizationsLocationsVpcFlowLogsConfigsPatchRequest
+  object.
+
+  Fields:
+    name: Identifier. Unique name of the configuration. The name can have one
+      of the following forms: - For project-level configurations: `projects/{p
+      roject_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}
+      ` - For organization-level configurations: `organizations/{organization_
+      id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
+    updateMask: Required. Mask of fields to update. At least one path must be
+      supplied in this field. For example, to change the state of the
+      configuration to ENABLED, specify `update_mask` = `"state"`, and the
+      `vpc_flow_logs_config` would be: `vpc_flow_logs_config = { name =
+      "projects/my-project/locations/global/vpcFlowLogsConfigs/my-config"
+      state = "ENABLED" }`
+    vpcFlowLogsConfig: A VpcFlowLogsConfig resource to be passed as the
+      request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  updateMask = _messages.StringField(2)
+  vpcFlowLogsConfig = _messages.MessageField('VpcFlowLogsConfig', 3)
 
 
 class NetworkmanagementProjectsLocationsGetRequest(_messages.Message):
@@ -2066,18 +2684,29 @@ class NetworkmanagementProjectsLocationsGlobalOperationsListRequest(_messages.Me
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class NetworkmanagementProjectsLocationsListRequest(_messages.Message):
   r"""A NetworkmanagementProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -2088,10 +2717,11 @@ class NetworkmanagementProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsCreateRequest(_messages.Message):
@@ -2099,8 +2729,10 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsCreateRequest(_message
   object.
 
   Fields:
-    parent: Required. The parent resource of the VPC Flow Logs configuration
-      to create: `projects/{project_id}/locations/global`
+    parent: Required. The parent resource of the VpcFlowLogsConfig to create,
+      in one of the following formats: - For project-level resources:
+      `projects/{project_id}/locations/global` - For organization-level
+      resources: `organizations/{organization_id}/locations/global`
     vpcFlowLogsConfig: A VpcFlowLogsConfig resource to be passed as the
       request body.
     vpcFlowLogsConfigId: Required. ID of the `VpcFlowLogsConfig`.
@@ -2116,9 +2748,11 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsDeleteRequest(_message
   object.
 
   Fields:
-    name: Required. `VpcFlowLogsConfig` resource name using the form: `project
-      s/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config
-      }`
+    name: Required. The resource name of the VpcFlowLogsConfig, in one of the
+      following formats: - For a project-level resource: `projects/{project_id
+      }/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For
+      an organization-level resource: `organizations/{organization_id}/locatio
+      ns/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
   """
 
   name = _messages.StringField(1, required=True)
@@ -2128,9 +2762,11 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsGetRequest(_messages.M
   r"""A NetworkmanagementProjectsLocationsVpcFlowLogsConfigsGetRequest object.
 
   Fields:
-    name: Required. `VpcFlowLogsConfig` resource name using the form: `project
-      s/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config
-      }`
+    name: Required. The resource name of the VpcFlowLogsConfig, in one of the
+      following formats: - For project-level resources: `projects/{project_id}
+      /locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}` - For
+      organization-level resources: `organizations/{organization_id}/locations
+      /global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
   """
 
   name = _messages.StringField(1, required=True)
@@ -2149,8 +2785,10 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsListRequest(_messages.
     pageSize: Optional. Number of `VpcFlowLogsConfigs` to return.
     pageToken: Optional. Page token from an earlier query, as returned in
       `next_page_token`.
-    parent: Required. The parent resource of the VpcFlowLogsConfig:
-      `projects/{project_id}/locations/global`
+    parent: Required. The parent resource of the VpcFlowLogsConfig, in one of
+      the following formats: - For project-level resourcs:
+      `projects/{project_id}/locations/global` - For organization-level
+      resources: `organizations/{organization_id}/locations/global`
   """
 
   filter = _messages.StringField(1)
@@ -2165,11 +2803,17 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsPatchRequest(_messages
   object.
 
   Fields:
-    name: Identifier. Unique name of the configuration using the form: `projec
-      ts/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_confi
-      g_id}`
+    name: Identifier. Unique name of the configuration. The name can have one
+      of the following forms: - For project-level configurations: `projects/{p
+      roject_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}
+      ` - For organization-level configurations: `organizations/{organization_
+      id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
     updateMask: Required. Mask of fields to update. At least one path must be
-      supplied in this field.
+      supplied in this field. For example, to change the state of the
+      configuration to ENABLED, specify `update_mask` = `"state"`, and the
+      `vpc_flow_logs_config` would be: `vpc_flow_logs_config = { name =
+      "projects/my-project/locations/global/vpcFlowLogsConfigs/my-config"
+      state = "ENABLED" }`
     vpcFlowLogsConfig: A VpcFlowLogsConfig resource to be passed as the
       request body.
   """
@@ -2177,6 +2821,56 @@ class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsPatchRequest(_messages
   name = _messages.StringField(1, required=True)
   updateMask = _messages.StringField(2)
   vpcFlowLogsConfig = _messages.MessageField('VpcFlowLogsConfig', 3)
+
+
+class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsQueryOrgVpcFlowLogsConfigsRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsVpcFlowLogsConfigsQueryOrgVpcFlowLog
+  sConfigsRequest object.
+
+  Fields:
+    filter: Optional. Lists the `VpcFlowLogsConfigs` that match the filter
+      expression. A filter expression must use the supported [CEL logic
+      operators] (https://cloud.google.com/vpc/docs/about-flow-logs-
+      records#supported_cel_logic_operators).
+    pageSize: Optional. Number of `VpcFlowLogsConfigs` to return.
+    pageToken: Optional. Page token from an earlier query, as returned in
+      `next_page_token`.
+    parent: Required. The parent resource of the VpcFlowLogsConfig, specified
+      in the following format: `projects/{project_id}/locations/global`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
+class NetworkmanagementProjectsLocationsVpcFlowLogsConfigsShowEffectiveFlowLogsConfigsRequest(_messages.Message):
+  r"""A NetworkmanagementProjectsLocationsVpcFlowLogsConfigsShowEffectiveFlowL
+  ogsConfigsRequest object.
+
+  Fields:
+    filter: Optional. Lists the `EffectiveVpcFlowLogsConfigs` that match the
+      filter expression. A filter expression must use the supported [CEL logic
+      operators] (https://cloud.google.com/vpc/docs/about-flow-logs-
+      records#supported_cel_logic_operators).
+    pageSize: Optional. Number of `EffectiveVpcFlowLogsConfigs` to return.
+      Default is 30.
+    pageToken: Optional. Page token from an earlier query, as returned in
+      `next_page_token`.
+    parent: Required. The parent resource of the VpcFlowLogsConfig, specified
+      in the following format: `projects/{project_id}/locations/global`
+    resource: Required. The resource to get the effective VPC Flow Logs
+      configuration for. The resource must belong to the same project as the
+      parent. The resource must be a network, subnetwork, interconnect
+      attachment, VPN tunnel, or a project.
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+  resource = _messages.StringField(5)
 
 
 class Operation(_messages.Message):
@@ -2398,16 +3092,17 @@ class ProbingDetails(_messages.Message):
 
   Fields:
     abortCause: The reason probing was aborted.
-    destinationEgressLocation: The EdgeLocation from which a packet destined
-      for/originating from the internet will egress/ingress the Google
-      network. This will only be populated for a connectivity test which has
-      an internet destination/source address. The absence of this field *must
-      not* be used as an indication that the destination/source is part of the
-      Google network.
+    destinationEgressLocation: The EdgeLocation from which a packet, destined
+      to the internet, will egress the Google network. This will only be
+      populated for a connectivity test which has an internet destination
+      address. The absence of this field *must not* be used as an indication
+      that the destination is part of the Google network.
+    edgeResponses: Probing results for all edge devices.
     endpointInfo: The source and destination endpoints derived from the test
       input and used for active probing.
     error: Details about an internal failure or the cancellation of active
       probing.
+    probedAllDevices: Whether all relevant edge devices were probed.
     probingLatency: Latency as measured by active probing in one direction:
       from the source to the destination endpoint.
     result: The overall result of active probing.
@@ -2453,13 +3148,15 @@ class ProbingDetails(_messages.Message):
 
   abortCause = _messages.EnumField('AbortCauseValueValuesEnum', 1)
   destinationEgressLocation = _messages.MessageField('EdgeLocation', 2)
-  endpointInfo = _messages.MessageField('EndpointInfo', 3)
-  error = _messages.MessageField('Status', 4)
-  probingLatency = _messages.MessageField('LatencyDistribution', 5)
-  result = _messages.EnumField('ResultValueValuesEnum', 6)
-  sentProbeCount = _messages.IntegerField(7, variant=_messages.Variant.INT32)
-  successfulProbeCount = _messages.IntegerField(8, variant=_messages.Variant.INT32)
-  verifyTime = _messages.StringField(9)
+  edgeResponses = _messages.MessageField('SingleEdgeResponse', 3, repeated=True)
+  endpointInfo = _messages.MessageField('EndpointInfo', 4)
+  error = _messages.MessageField('Status', 5)
+  probedAllDevices = _messages.BooleanField(6)
+  probingLatency = _messages.MessageField('LatencyDistribution', 7)
+  result = _messages.EnumField('ResultValueValuesEnum', 8)
+  sentProbeCount = _messages.IntegerField(9, variant=_messages.Variant.INT32)
+  successfulProbeCount = _messages.IntegerField(10, variant=_messages.Variant.INT32)
+  verifyTime = _messages.StringField(11)
 
 
 class ProxyConnectionInfo(_messages.Message):
@@ -2494,6 +3191,21 @@ class ProxyConnectionInfo(_messages.Message):
   oldSourcePort = _messages.IntegerField(9, variant=_messages.Variant.INT32)
   protocol = _messages.StringField(10)
   subnetUri = _messages.StringField(11)
+
+
+class QueryOrgVpcFlowLogsConfigsResponse(_messages.Message):
+  r"""Response for the `QueryVpcFlowLogsConfigs` method.
+
+  Fields:
+    nextPageToken: Page token to fetch the next set of configurations.
+    unreachable: Locations that could not be reached (when querying all
+      locations with `-`).
+    vpcFlowLogsConfigs: List of VPC Flow Log configurations.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  unreachable = _messages.StringField(2, repeated=True)
+  vpcFlowLogsConfigs = _messages.MessageField('VpcFlowLogsConfig', 3, repeated=True)
 
 
 class ReachabilityDetails(_messages.Message):
@@ -2559,8 +3271,8 @@ class RedisClusterInfo(_messages.Message):
     displayName: Name of a Redis Cluster.
     location: Name of the region in which the Redis Cluster is defined. For
       example, "us-central1".
-    networkUri: URI of a Redis Cluster network in format
-      "projects/{project_id}/global/networks/{network_id}".
+    networkUri: URI of the network containing the Redis Cluster endpoints in
+      format "projects/{project_id}/global/networks/{network_id}".
     secondaryEndpointIpAddress: Secondary endpoint IP address of a Redis
       Cluster.
     uri: URI of a Redis Cluster in format
@@ -2606,34 +3318,56 @@ class RouteInfo(_messages.Message):
   Enums:
     NextHopTypeValueValuesEnum: Type of next hop.
     RouteScopeValueValuesEnum: Indicates where route is applicable.
+      Deprecated, routes with NCC_HUB scope are not included in the trace in
+      new tests.
     RouteTypeValueValuesEnum: Type of route.
 
   Fields:
-    advertisedRouteNextHopUri: For advertised routes, the URI of their next
+    advertisedRouteNextHopUri: For ADVERTISED routes, the URI of their next
       hop, i.e. the URI of the hybrid endpoint (VPN tunnel, Interconnect
       attachment, NCC router appliance) the advertised prefix is advertised
-      through, or URI of the source peered network.
-    advertisedRouteSourceRouterUri: For advertised dynamic routes, the URI of
+      through, or URI of the source peered network. Deprecated in favor of the
+      next_hop_uri field, not used in new tests.
+    advertisedRouteSourceRouterUri: For ADVERTISED dynamic routes, the URI of
       the Cloud Router that advertised the corresponding IP prefix.
     destIpRange: Destination IP range of the route.
-    destPortRanges: Destination port ranges of the route. Policy based routes
+    destPortRanges: Destination port ranges of the route. POLICY_BASED routes
       only.
     displayName: Name of a route.
     instanceTags: Instance tags of the route.
-    nccHubUri: URI of a NCC Hub. NCC_HUB routes only.
-    nccSpokeUri: URI of a NCC Spoke. NCC_HUB routes only.
-    networkUri: URI of a Compute Engine network. NETWORK routes only.
-    nextHop: Next hop of the route.
+    nccHubRouteUri: For PEERING_SUBNET and PEERING_DYNAMIC routes that are
+      advertised by NCC Hub, the URI of the corresponding route in NCC Hub's
+      routing table.
+    nccHubUri: URI of the NCC Hub the route is advertised by. PEERING_SUBNET
+      and PEERING_DYNAMIC routes that are advertised by NCC Hub only.
+    nccSpokeUri: URI of the destination NCC Spoke. PEERING_SUBNET and
+      PEERING_DYNAMIC routes that are advertised by NCC Hub only.
+    networkUri: URI of a VPC network where route is located.
+    nextHop: String type of the next hop of the route (for example, "VPN
+      tunnel"). Deprecated in favor of the next_hop_type and next_hop_uri
+      fields, not used in new tests.
+    nextHopNetworkUri: URI of a VPC network where the next hop resource is
+      located.
     nextHopType: Type of next hop.
+    nextHopUri: URI of the next hop resource.
+    originatingRouteDisplayName: For PEERING_SUBNET, PEERING_STATIC and
+      PEERING_DYNAMIC routes, the name of the originating
+      SUBNET/STATIC/DYNAMIC route.
+    originatingRouteUri: For PEERING_SUBNET and PEERING_STATIC routes, the URI
+      of the originating SUBNET/STATIC route.
     priority: Priority of the route.
-    protocols: Protocols of the route. Policy based routes only.
-    region: Region of the route (if applicable).
-    routeScope: Indicates where route is applicable.
+    protocols: Protocols of the route. POLICY_BASED routes only.
+    region: Region of the route. DYNAMIC, PEERING_DYNAMIC, POLICY_BASED and
+      ADVERTISED routes only. If set for POLICY_BASED route, this is a region
+      of VLAN attachments for Cloud Interconnect the route applies to.
+    routeScope: Indicates where route is applicable. Deprecated, routes with
+      NCC_HUB scope are not included in the trace in new tests.
     routeType: Type of route.
-    srcIpRange: Source IP address range of the route. Policy based routes
+    srcIpRange: Source IP address range of the route. POLICY_BASED routes
       only.
-    srcPortRanges: Source port ranges of the route. Policy based routes only.
-    uri: URI of a route (if applicable).
+    srcPortRanges: Source port ranges of the route. POLICY_BASED routes only.
+    uri: URI of a route. SUBNET, STATIC, PEERING_SUBNET (only for peering
+      network) and POLICY_BASED routes only.
   """
 
   class NextHopTypeValueValuesEnum(_messages.Enum):
@@ -2644,7 +3378,9 @@ class RouteInfo(_messages.Message):
       NEXT_HOP_IP: Next hop is an IP address.
       NEXT_HOP_INSTANCE: Next hop is a Compute Engine instance.
       NEXT_HOP_NETWORK: Next hop is a VPC network gateway.
-      NEXT_HOP_PEERING: Next hop is a peering VPC.
+      NEXT_HOP_PEERING: Next hop is a peering VPC. This scenario only happens
+        when the user doesn't have permissions to the project where the next
+        hop resource is located.
       NEXT_HOP_INTERCONNECT: Next hop is an interconnect.
       NEXT_HOP_VPN_TUNNEL: Next hop is a VPN tunnel.
       NEXT_HOP_VPN_GATEWAY: Next hop is a VPN gateway. This scenario only
@@ -2654,13 +3390,16 @@ class RouteInfo(_messages.Message):
         Cloud VPN gateway.
       NEXT_HOP_INTERNET_GATEWAY: Next hop is an internet gateway.
       NEXT_HOP_BLACKHOLE: Next hop is blackhole; that is, the next hop either
-        does not exist or is not running.
+        does not exist or is unusable.
       NEXT_HOP_ILB: Next hop is the forwarding rule of an Internal Load
         Balancer.
       NEXT_HOP_ROUTER_APPLIANCE: Next hop is a [router appliance
         instance](https://cloud.google.com/network-connectivity/docs/network-
         connectivity-center/concepts/ra-overview).
-      NEXT_HOP_NCC_HUB: Next hop is an NCC hub.
+      NEXT_HOP_NCC_HUB: Next hop is an NCC hub. This scenario only happens
+        when the user doesn't have permissions to the project where the next
+        hop resource is located.
+      SECURE_WEB_PROXY_GATEWAY: Next hop is Secure Web Proxy Gateway.
     """
     NEXT_HOP_TYPE_UNSPECIFIED = 0
     NEXT_HOP_IP = 1
@@ -2675,9 +3414,11 @@ class RouteInfo(_messages.Message):
     NEXT_HOP_ILB = 10
     NEXT_HOP_ROUTER_APPLIANCE = 11
     NEXT_HOP_NCC_HUB = 12
+    SECURE_WEB_PROXY_GATEWAY = 13
 
   class RouteScopeValueValuesEnum(_messages.Enum):
-    r"""Indicates where route is applicable.
+    r"""Indicates where route is applicable. Deprecated, routes with NCC_HUB
+    scope are not included in the trace in new tests.
 
     Values:
       ROUTE_SCOPE_UNSPECIFIED: Unspecified scope. Default value.
@@ -2697,9 +3438,10 @@ class RouteInfo(_messages.Message):
       STATIC: Static route created by the user, including the default route to
         the internet.
       DYNAMIC: Dynamic route exchanged between BGP peers.
-      PEERING_SUBNET: A subnet route received from peering network.
+      PEERING_SUBNET: A subnet route received from peering network or NCC Hub.
       PEERING_STATIC: A static route received from peering network.
-      PEERING_DYNAMIC: A dynamic route received from peering network.
+      PEERING_DYNAMIC: A dynamic route received from peering network or NCC
+        Hub.
       POLICY_BASED: Policy based route.
       ADVERTISED: Advertised route. Synthetic route which is used to
         transition from the StartFromPrivateNetwork state in Connectivity
@@ -2721,19 +3463,36 @@ class RouteInfo(_messages.Message):
   destPortRanges = _messages.StringField(4, repeated=True)
   displayName = _messages.StringField(5)
   instanceTags = _messages.StringField(6, repeated=True)
-  nccHubUri = _messages.StringField(7)
-  nccSpokeUri = _messages.StringField(8)
-  networkUri = _messages.StringField(9)
-  nextHop = _messages.StringField(10)
-  nextHopType = _messages.EnumField('NextHopTypeValueValuesEnum', 11)
-  priority = _messages.IntegerField(12, variant=_messages.Variant.INT32)
-  protocols = _messages.StringField(13, repeated=True)
-  region = _messages.StringField(14)
-  routeScope = _messages.EnumField('RouteScopeValueValuesEnum', 15)
-  routeType = _messages.EnumField('RouteTypeValueValuesEnum', 16)
-  srcIpRange = _messages.StringField(17)
-  srcPortRanges = _messages.StringField(18, repeated=True)
-  uri = _messages.StringField(19)
+  nccHubRouteUri = _messages.StringField(7)
+  nccHubUri = _messages.StringField(8)
+  nccSpokeUri = _messages.StringField(9)
+  networkUri = _messages.StringField(10)
+  nextHop = _messages.StringField(11)
+  nextHopNetworkUri = _messages.StringField(12)
+  nextHopType = _messages.EnumField('NextHopTypeValueValuesEnum', 13)
+  nextHopUri = _messages.StringField(14)
+  originatingRouteDisplayName = _messages.StringField(15)
+  originatingRouteUri = _messages.StringField(16)
+  priority = _messages.IntegerField(17, variant=_messages.Variant.INT32)
+  protocols = _messages.StringField(18, repeated=True)
+  region = _messages.StringField(19)
+  routeScope = _messages.EnumField('RouteScopeValueValuesEnum', 20)
+  routeType = _messages.EnumField('RouteTypeValueValuesEnum', 21)
+  srcIpRange = _messages.StringField(22)
+  srcPortRanges = _messages.StringField(23, repeated=True)
+  uri = _messages.StringField(24)
+
+
+class ServerlessExternalConnectionInfo(_messages.Message):
+  r"""For display only. Metadata associated with a serverless public
+  connection.
+
+  Fields:
+    selectedIpAddress: Selected starting IP address, from the Google dynamic
+      address pool.
+  """
+
+  selectedIpAddress = _messages.StringField(1)
 
 
 class ServerlessNegInfo(_messages.Message):
@@ -2762,6 +3521,71 @@ class SetIamPolicyRequest(_messages.Message):
 
   policy = _messages.MessageField('Policy', 1)
   updateMask = _messages.StringField(2)
+
+
+class ShowEffectiveFlowLogsConfigsResponse(_messages.Message):
+  r"""Response for the `ShowEffectiveFlowLogsConfigs` method.
+
+  Fields:
+    effectiveFlowLogsConfigs: List of Effective Vpc Flow Logs configurations.
+    nextPageToken: Page token to fetch the next set of configurations.
+    unreachable: Locations that could not be reached (when querying all
+      locations with `-`).
+  """
+
+  effectiveFlowLogsConfigs = _messages.MessageField('EffectiveVpcFlowLogsConfig', 1, repeated=True)
+  nextPageToken = _messages.StringField(2)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class SingleEdgeResponse(_messages.Message):
+  r"""Probing results for a single edge device.
+
+  Enums:
+    ResultValueValuesEnum: The overall result of active probing for this
+      egress device.
+
+  Fields:
+    destinationEgressLocation: The EdgeLocation from which a packet, destined
+      to the internet, will egress the Google network. This will only be
+      populated for a connectivity test which has an internet destination
+      address. The absence of this field *must not* be used as an indication
+      that the destination is part of the Google network.
+    destinationRouter: Router name in the format '{router}.{metroshard}'. For
+      example: pf01.aaa01, pr02.aaa01.
+    probingLatency: Latency as measured by active probing in one direction:
+      from the source to the destination endpoint.
+    result: The overall result of active probing for this egress device.
+    sentProbeCount: Number of probes sent.
+    successfulProbeCount: Number of probes that reached the destination.
+  """
+
+  class ResultValueValuesEnum(_messages.Enum):
+    r"""The overall result of active probing for this egress device.
+
+    Values:
+      PROBING_RESULT_UNSPECIFIED: No result was specified.
+      REACHABLE: At least 95% of packets reached the destination.
+      UNREACHABLE: No packets reached the destination.
+      REACHABILITY_INCONSISTENT: Less than 95% of packets reached the
+        destination.
+      UNDETERMINED: Reachability could not be determined. Possible reasons
+        are: * The user lacks permission to access some of the network
+        resources required to run the test. * No valid source endpoint could
+        be derived from the request. * An internal error occurred.
+    """
+    PROBING_RESULT_UNSPECIFIED = 0
+    REACHABLE = 1
+    UNREACHABLE = 2
+    REACHABILITY_INCONSISTENT = 3
+    UNDETERMINED = 4
+
+  destinationEgressLocation = _messages.MessageField('EdgeLocation', 1)
+  destinationRouter = _messages.StringField(2)
+  probingLatency = _messages.MessageField('LatencyDistribution', 3)
+  result = _messages.EnumField('ResultValueValuesEnum', 4)
+  sentProbeCount = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  successfulProbeCount = _messages.IntegerField(6, variant=_messages.Variant.INT32)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -2895,6 +3719,8 @@ class Step(_messages.Message):
     deliver: Display information of the final state "deliver" and reason.
     description: A description of the step. Usually this is a summary of the
       state.
+    directVpcEgressConnection: Display information of a serverless direct VPC
+      egress connection.
     drop: Display information of the final state "drop" and reason.
     endpoint: Display information of the source and destination under
       analysis. The endpoint information in an intermediate state may differ
@@ -2906,7 +3732,9 @@ class Step(_messages.Message):
     gkeMaster: Display information of a Google Kubernetes Engine cluster
       master.
     googleService: Display information of a Google service
+    hybridSubnet: Display information of a hybrid subnet.
     instance: Display information of a Compute Engine instance.
+    interconnectAttachment: Display information of an interconnect attachment.
     loadBalancer: Display information of the load balancers. Deprecated in
       favor of the `load_balancer_backend_info` field, not used in new tests.
     loadBalancerBackendInfo: Display information of a specific load balancer
@@ -2919,6 +3747,8 @@ class Step(_messages.Message):
     redisCluster: Display information of a Redis Cluster.
     redisInstance: Display information of a Redis Instance.
     route: Display information of a Compute Engine route.
+    serverlessExternalConnection: Display information of a serverless public
+      (external) connection.
     serverlessNeg: Display information of a Serverless network endpoint group
       backend. Used only for return traces.
     state: Each step is in one of the pre-defined states.
@@ -2993,11 +3823,21 @@ class Step(_messages.Message):
       ARRIVE_AT_EXTERNAL_LOAD_BALANCER: Forwarding state: arriving at a
         Compute Engine external load balancer. Deprecated in favor of the
         `ANALYZE_LOAD_BALANCER_BACKEND` state, not used in new tests.
+      ARRIVE_AT_HYBRID_SUBNET: Forwarding state: arriving at a hybrid subnet.
+        Appropriate routing configuration will be determined here.
       ARRIVE_AT_VPN_GATEWAY: Forwarding state: arriving at a Cloud VPN
         gateway.
       ARRIVE_AT_VPN_TUNNEL: Forwarding state: arriving at a Cloud VPN tunnel.
+      ARRIVE_AT_INTERCONNECT_ATTACHMENT: Forwarding state: arriving at an
+        interconnect attachment.
       ARRIVE_AT_VPC_CONNECTOR: Forwarding state: arriving at a VPC connector.
-      NAT: Transition state: packet header translated.
+      DIRECT_VPC_EGRESS_CONNECTION: Forwarding state: for packets originating
+        from a serverless endpoint forwarded through Direct VPC egress.
+      SERVERLESS_EXTERNAL_CONNECTION: Forwarding state: for packets
+        originating from a serverless endpoint forwarded through public
+        (external) connectivity.
+      NAT: Transition state: packet header translated. The `nat` field is
+        populated with the translation information.
       PROXY_CONNECTION: Transition state: original connection is terminated
         and a new proxied connection is initiated.
       DELIVER: Final state: packet could be delivered.
@@ -3032,16 +3872,20 @@ class Step(_messages.Message):
     ARRIVE_AT_INSTANCE = 21
     ARRIVE_AT_INTERNAL_LOAD_BALANCER = 22
     ARRIVE_AT_EXTERNAL_LOAD_BALANCER = 23
-    ARRIVE_AT_VPN_GATEWAY = 24
-    ARRIVE_AT_VPN_TUNNEL = 25
-    ARRIVE_AT_VPC_CONNECTOR = 26
-    NAT = 27
-    PROXY_CONNECTION = 28
-    DELIVER = 29
-    DROP = 30
-    FORWARD = 31
-    ABORT = 32
-    VIEWER_PERMISSION_MISSING = 33
+    ARRIVE_AT_HYBRID_SUBNET = 24
+    ARRIVE_AT_VPN_GATEWAY = 25
+    ARRIVE_AT_VPN_TUNNEL = 26
+    ARRIVE_AT_INTERCONNECT_ATTACHMENT = 27
+    ARRIVE_AT_VPC_CONNECTOR = 28
+    DIRECT_VPC_EGRESS_CONNECTION = 29
+    SERVERLESS_EXTERNAL_CONNECTION = 30
+    NAT = 31
+    PROXY_CONNECTION = 32
+    DELIVER = 33
+    DROP = 34
+    FORWARD = 35
+    ABORT = 36
+    VIEWER_PERMISSION_MISSING = 37
 
   abort = _messages.MessageField('AbortInfo', 1)
   appEngineVersion = _messages.MessageField('AppEngineVersionInfo', 2)
@@ -3051,29 +3895,33 @@ class Step(_messages.Message):
   cloudSqlInstance = _messages.MessageField('CloudSQLInstanceInfo', 6)
   deliver = _messages.MessageField('DeliverInfo', 7)
   description = _messages.StringField(8)
-  drop = _messages.MessageField('DropInfo', 9)
-  endpoint = _messages.MessageField('EndpointInfo', 10)
-  firewall = _messages.MessageField('FirewallInfo', 11)
-  forward = _messages.MessageField('ForwardInfo', 12)
-  forwardingRule = _messages.MessageField('ForwardingRuleInfo', 13)
-  gkeMaster = _messages.MessageField('GKEMasterInfo', 14)
-  googleService = _messages.MessageField('GoogleServiceInfo', 15)
-  instance = _messages.MessageField('InstanceInfo', 16)
-  loadBalancer = _messages.MessageField('LoadBalancerInfo', 17)
-  loadBalancerBackendInfo = _messages.MessageField('LoadBalancerBackendInfo', 18)
-  nat = _messages.MessageField('NatInfo', 19)
-  network = _messages.MessageField('NetworkInfo', 20)
-  projectId = _messages.StringField(21)
-  proxyConnection = _messages.MessageField('ProxyConnectionInfo', 22)
-  redisCluster = _messages.MessageField('RedisClusterInfo', 23)
-  redisInstance = _messages.MessageField('RedisInstanceInfo', 24)
-  route = _messages.MessageField('RouteInfo', 25)
-  serverlessNeg = _messages.MessageField('ServerlessNegInfo', 26)
-  state = _messages.EnumField('StateValueValuesEnum', 27)
-  storageBucket = _messages.MessageField('StorageBucketInfo', 28)
-  vpcConnector = _messages.MessageField('VpcConnectorInfo', 29)
-  vpnGateway = _messages.MessageField('VpnGatewayInfo', 30)
-  vpnTunnel = _messages.MessageField('VpnTunnelInfo', 31)
+  directVpcEgressConnection = _messages.MessageField('DirectVpcEgressConnectionInfo', 9)
+  drop = _messages.MessageField('DropInfo', 10)
+  endpoint = _messages.MessageField('EndpointInfo', 11)
+  firewall = _messages.MessageField('FirewallInfo', 12)
+  forward = _messages.MessageField('ForwardInfo', 13)
+  forwardingRule = _messages.MessageField('ForwardingRuleInfo', 14)
+  gkeMaster = _messages.MessageField('GKEMasterInfo', 15)
+  googleService = _messages.MessageField('GoogleServiceInfo', 16)
+  hybridSubnet = _messages.MessageField('HybridSubnetInfo', 17)
+  instance = _messages.MessageField('InstanceInfo', 18)
+  interconnectAttachment = _messages.MessageField('InterconnectAttachmentInfo', 19)
+  loadBalancer = _messages.MessageField('LoadBalancerInfo', 20)
+  loadBalancerBackendInfo = _messages.MessageField('LoadBalancerBackendInfo', 21)
+  nat = _messages.MessageField('NatInfo', 22)
+  network = _messages.MessageField('NetworkInfo', 23)
+  projectId = _messages.StringField(24)
+  proxyConnection = _messages.MessageField('ProxyConnectionInfo', 25)
+  redisCluster = _messages.MessageField('RedisClusterInfo', 26)
+  redisInstance = _messages.MessageField('RedisInstanceInfo', 27)
+  route = _messages.MessageField('RouteInfo', 28)
+  serverlessExternalConnection = _messages.MessageField('ServerlessExternalConnectionInfo', 29)
+  serverlessNeg = _messages.MessageField('ServerlessNegInfo', 30)
+  state = _messages.EnumField('StateValueValuesEnum', 31)
+  storageBucket = _messages.MessageField('StorageBucketInfo', 32)
+  vpcConnector = _messages.MessageField('VpcConnectorInfo', 33)
+  vpnGateway = _messages.MessageField('VpnGatewayInfo', 34)
+  vpnTunnel = _messages.MessageField('VpnTunnelInfo', 35)
 
 
 class StorageBucketInfo(_messages.Message):
@@ -3160,15 +4008,19 @@ class VpcFlowLogsConfig(_messages.Message):
   Enums:
     AggregationIntervalValueValuesEnum: Optional. The aggregation interval for
       the logs. Default value is INTERVAL_5_SEC.
+    CrossProjectMetadataValueValuesEnum: Optional. Determines whether to
+      include cross project annotations in the logs. This field is available
+      only for organization configurations. If not specified in org configs
+      will be set to CROSS_PROJECT_METADATA_ENABLED.
     MetadataValueValuesEnum: Optional. Configures whether all, none or a
       subset of metadata fields should be added to the reported VPC flow logs.
       Default value is INCLUDE_ALL_METADATA.
     StateValueValuesEnum: Optional. The state of the VPC Flow Log
       configuration. Default value is ENABLED. When creating a new
-      configuration, it must be enabled.
-    TargetResourceStateValueValuesEnum: Output only. A diagnostic bit -
-      describes the state of the configured target resource for diagnostic
-      purposes.
+      configuration, it must be enabled. Setting state=DISABLED will pause the
+      log generation for this config.
+    TargetResourceStateValueValuesEnum: Output only. Describes the state of
+      the configured target resource for diagnostic purposes.
 
   Messages:
     LabelsValue: Optional. Resource labels to represent user-provided
@@ -3178,6 +4030,10 @@ class VpcFlowLogsConfig(_messages.Message):
     aggregationInterval: Optional. The aggregation interval for the logs.
       Default value is INTERVAL_5_SEC.
     createTime: Output only. The time the config was created.
+    crossProjectMetadata: Optional. Determines whether to include cross
+      project annotations in the logs. This field is available only for
+      organization configurations. If not specified in org configs will be set
+      to CROSS_PROJECT_METADATA_ENABLED.
     description: Optional. The user-supplied description of the VPC Flow Logs
       configuration. Maximum of 512 characters.
     filterExpr: Optional. Export filter used to define which VPC Flow Logs
@@ -3197,13 +4053,21 @@ class VpcFlowLogsConfig(_messages.Message):
     metadataFields: Optional. Custom metadata fields to include in the
       reported VPC flow logs. Can only be specified if "metadata" was set to
       CUSTOM_METADATA.
-    name: Identifier. Unique name of the configuration using the form: `projec
-      ts/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_confi
-      g_id}`
+    name: Identifier. Unique name of the configuration. The name can have one
+      of the following forms: - For project-level configurations: `projects/{p
+      roject_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}
+      ` - For organization-level configurations: `organizations/{organization_
+      id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}`
+    network: Traffic will be logged from VMs, VPN tunnels and Interconnect
+      Attachments within the network. Format:
+      projects/{project_id}/global/networks/{name}
     state: Optional. The state of the VPC Flow Log configuration. Default
       value is ENABLED. When creating a new configuration, it must be enabled.
-    targetResourceState: Output only. A diagnostic bit - describes the state
-      of the configured target resource for diagnostic purposes.
+      Setting state=DISABLED will pause the log generation for this config.
+    subnet: Traffic will be logged from VMs within the subnetwork. Format:
+      projects/{project_id}/regions/{region}/subnetworks/{name}
+    targetResourceState: Output only. Describes the state of the configured
+      target resource for diagnostic purposes.
     updateTime: Output only. The time the config was updated.
     vpnTunnel: Traffic will be logged from the VPN Tunnel. Format:
       projects/{project_id}/regions/{region}/vpnTunnels/{name}
@@ -3231,6 +4095,24 @@ class VpcFlowLogsConfig(_messages.Message):
     INTERVAL_10_MIN = 5
     INTERVAL_15_MIN = 6
 
+  class CrossProjectMetadataValueValuesEnum(_messages.Enum):
+    r"""Optional. Determines whether to include cross project annotations in
+    the logs. This field is available only for organization configurations. If
+    not specified in org configs will be set to
+    CROSS_PROJECT_METADATA_ENABLED.
+
+    Values:
+      CROSS_PROJECT_METADATA_UNSPECIFIED: If not specified, the default is
+        CROSS_PROJECT_METADATA_ENABLED.
+      CROSS_PROJECT_METADATA_ENABLED: When CROSS_PROJECT_METADATA_ENABLED,
+        metadata from other projects will be included in the logs.
+      CROSS_PROJECT_METADATA_DISABLED: When CROSS_PROJECT_METADATA_DISABLED,
+        metadata from other projects will not be included in the logs.
+    """
+    CROSS_PROJECT_METADATA_UNSPECIFIED = 0
+    CROSS_PROJECT_METADATA_ENABLED = 1
+    CROSS_PROJECT_METADATA_DISABLED = 2
+
   class MetadataValueValuesEnum(_messages.Enum):
     r"""Optional. Configures whether all, none or a subset of metadata fields
     should be added to the reported VPC flow logs. Default value is
@@ -3251,7 +4133,8 @@ class VpcFlowLogsConfig(_messages.Message):
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Optional. The state of the VPC Flow Log configuration. Default value
-    is ENABLED. When creating a new configuration, it must be enabled.
+    is ENABLED. When creating a new configuration, it must be enabled. Setting
+    state=DISABLED will pause the log generation for this config.
 
     Values:
       STATE_UNSPECIFIED: If not specified, will default to ENABLED.
@@ -3263,8 +4146,8 @@ class VpcFlowLogsConfig(_messages.Message):
     DISABLED = 2
 
   class TargetResourceStateValueValuesEnum(_messages.Enum):
-    r"""Output only. A diagnostic bit - describes the state of the configured
-    target resource for diagnostic purposes.
+    r"""Output only. Describes the state of the configured target resource for
+    diagnostic purposes.
 
     Values:
       TARGET_RESOURCE_STATE_UNSPECIFIED: Unspecified target resource state.
@@ -3302,18 +4185,21 @@ class VpcFlowLogsConfig(_messages.Message):
 
   aggregationInterval = _messages.EnumField('AggregationIntervalValueValuesEnum', 1)
   createTime = _messages.StringField(2)
-  description = _messages.StringField(3)
-  filterExpr = _messages.StringField(4)
-  flowSampling = _messages.FloatField(5, variant=_messages.Variant.FLOAT)
-  interconnectAttachment = _messages.StringField(6)
-  labels = _messages.MessageField('LabelsValue', 7)
-  metadata = _messages.EnumField('MetadataValueValuesEnum', 8)
-  metadataFields = _messages.StringField(9, repeated=True)
-  name = _messages.StringField(10)
-  state = _messages.EnumField('StateValueValuesEnum', 11)
-  targetResourceState = _messages.EnumField('TargetResourceStateValueValuesEnum', 12)
-  updateTime = _messages.StringField(13)
-  vpnTunnel = _messages.StringField(14)
+  crossProjectMetadata = _messages.EnumField('CrossProjectMetadataValueValuesEnum', 3)
+  description = _messages.StringField(4)
+  filterExpr = _messages.StringField(5)
+  flowSampling = _messages.FloatField(6, variant=_messages.Variant.FLOAT)
+  interconnectAttachment = _messages.StringField(7)
+  labels = _messages.MessageField('LabelsValue', 8)
+  metadata = _messages.EnumField('MetadataValueValuesEnum', 9)
+  metadataFields = _messages.StringField(10, repeated=True)
+  name = _messages.StringField(11)
+  network = _messages.StringField(12)
+  state = _messages.EnumField('StateValueValuesEnum', 13)
+  subnet = _messages.StringField(14)
+  targetResourceState = _messages.EnumField('TargetResourceStateValueValuesEnum', 15)
+  updateTime = _messages.StringField(16)
+  vpnTunnel = _messages.StringField(17)
 
 
 class VpnGatewayInfo(_messages.Message):

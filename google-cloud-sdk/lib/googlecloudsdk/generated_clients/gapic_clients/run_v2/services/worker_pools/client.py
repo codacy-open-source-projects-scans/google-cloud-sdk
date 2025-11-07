@@ -39,6 +39,8 @@ except AttributeError:  # pragma: NO COVER
 from google.api import launch_stage_pb2  # type: ignore
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
 from cloudsdk.google.protobuf import field_mask_pb2  # type: ignore
 from cloudsdk.google.protobuf import timestamp_pb2  # type: ignore
 from googlecloudsdk.generated_clients.gapic_clients.run_v2.services.worker_pools import pagers
@@ -252,6 +254,17 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
     def parse_secret_version_path(path: str) -> Dict[str,str]:
         """Parses a secret_version path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/secrets/(?P<secret>.+?)/versions/(?P<version>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def worker_pool_path(project: str,location: str,worker_pool: str,) -> str:
+        """Returns a fully-qualified worker_pool string."""
+        return "projects/{project}/locations/{location}/workerPools/{worker_pool}".format(project=project, location=location, worker_pool=worker_pool, )
+
+    @staticmethod
+    def parse_worker_pool_path(path: str) -> Dict[str,str]:
+        """Parses a worker_pool path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/workerPools/(?P<worker_pool>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -696,13 +709,11 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
                 The request object. Request message for creating a
                 WorkerPool.
             parent (str):
-                Required. The location and project in
-                which this worker pool should be
-                created. Format:
-                projects/{project}/locations/{location},
-                where {project} can be project id or
-                number. Only lowercase characters,
-                digits, and hyphens.
+                Required. The location and project in which this worker
+                pool should be created. Format:
+                ``projects/{project}/locations/{location}``, where
+                ``{project}`` can be project id or number. Only
+                lowercase characters, digits, and hyphens.
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -718,7 +729,7 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
                 Required. The unique identifier for the WorkerPool. It
                 must begin with letter, and cannot end with hyphen; must
                 contain fewer than 50 characters. The name of the worker
-                pool becomes {parent}/workerPools/{worker_pool_id}.
+                pool becomes ``{parent}/workerPools/{worker_pool_id}``.
 
                 This corresponds to the ``worker_pool_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -843,8 +854,8 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
                 WorkerPool by its full name.
             name (str):
                 Required. The full name of the WorkerPool. Format:
-                projects/{project}/locations/{location}/workerPools/{worker_pool},
-                where {project} can be project id or number.
+                ``projects/{project}/locations/{location}/workerPools/{worker_pool}``,
+                where ``{project}`` can be project id or number.
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -959,13 +970,11 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
                 The request object. Request message for retrieving a list
                 of WorkerPools.
             parent (str):
-                Required. The location and project to
-                list resources on. Location must be a
-                valid Google Cloud region, and cannot be
-                the "-" wildcard. Format:
-                projects/{project}/locations/{location},
-                where {project} can be project id or
-                number.
+                Required. The location and project to list resources on.
+                Location must be a valid Google Cloud region, and cannot
+                be the "-" wildcard. Format:
+                ``projects/{project}/locations/{location}``, where
+                ``{project}`` can be project id or number.
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1221,8 +1230,8 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
                 WorkerPool by its full name.
             name (str):
                 Required. The full name of the WorkerPool. Format:
-                projects/{project}/locations/{location}/workerPools/{worker_pool},
-                where {project} can be project id or number.
+                ``projects/{project}/locations/{location}/workerPools/{worker_pool}``,
+                where ``{project}`` can be project id or number.
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1296,6 +1305,375 @@ class WorkerPoolsClient(metaclass=WorkerPoolsClientMeta):
             self._transport.operations_client,
             worker_pool.WorkerPool,
             metadata_type=worker_pool.WorkerPool,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_iam_policy(self,
+            request: Optional[Union[iam_policy_pb2.GetIamPolicyRequest, dict]] = None,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> policy_pb2.Policy:
+        r"""Gets the IAM Access Control policy currently in
+        effect for the given Cloud Run WorkerPool. This result
+        does not include any inherited policies.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.iam.v1 import iam_policy_pb2  # type: ignore
+            from googlecloudsdk.generated_clients.gapic_clients import run_v2
+
+            def sample_get_iam_policy():
+                # Create a client
+                client = run_v2.WorkerPoolsClient()
+
+                # Initialize request argument(s)
+                request = iam_policy_pb2.GetIamPolicyRequest(
+                    resource="resource_value",
+                )
+
+                # Make the request
+                response = client.get_iam_policy(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.iam.v1.iam_policy_pb2.GetIamPolicyRequest, dict]):
+                The request object. Request message for ``GetIamPolicy`` method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.iam.v1.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy. It is used to
+                   specify access control policies for Cloud Platform
+                   resources.
+
+                   A Policy is a collection of bindings. A binding binds
+                   one or more members to a single role. Members can be
+                   user accounts, service accounts, Google groups, and
+                   domains (such as G Suite). A role is a named list of
+                   permissions (defined by IAM or configured by users).
+                   A binding can optionally specify a condition, which
+                   is a logic expression that further constrains the
+                   role binding based on attributes about the request
+                   and/or target resource.
+
+                   **JSON Example**
+
+                      {
+                         "bindings": [
+                            {
+                               "role":
+                               "roles/resourcemanager.organizationAdmin",
+                               "members": [ "user:mike@example.com",
+                               "group:admins@example.com",
+                               "domain:google.com",
+                               "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                               ]
+
+                            }, { "role":
+                            "roles/resourcemanager.organizationViewer",
+                            "members": ["user:eve@example.com"],
+                            "condition": { "title": "expirable access",
+                            "description": "Does not grant access after
+                            Sep 2020", "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')", } }
+
+                         ]
+
+                      }
+
+                   **YAML Example**
+
+                      bindings: - members: - user:\ mike@example.com -
+                      group:\ admins@example.com - domain:google.com -
+                      serviceAccount:\ my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin -
+                      members: - user:\ eve@example.com role:
+                      roles/resourcemanager.organizationViewer
+                      condition: title: expirable access description:
+                      Does not grant access after Sep 2020 expression:
+                      request.time <
+                      timestamp('2020-10-01T00:00:00.000Z')
+
+                   For a description of IAM and its features, see the
+                   [IAM developer's
+                   guide](\ https://cloud.google.com/iam/docs).
+
+        """
+        # Create or coerce a protobuf request object.
+        if isinstance(request, dict):
+            # - The request isn't a proto-plus wrapped type,
+            #   so it must be constructed via keyword expansion.
+            request = iam_policy_pb2.GetIamPolicyRequest(**request)
+        elif not request:
+            # Null request, just make one.
+            request = iam_policy_pb2.GetIamPolicyRequest()
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_iam_policy]
+
+         # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ("resource", request.resource),
+            )),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def set_iam_policy(self,
+            request: Optional[Union[iam_policy_pb2.SetIamPolicyRequest, dict]] = None,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> policy_pb2.Policy:
+        r"""Sets the IAM Access control policy for the specified
+        WorkerPool. Overwrites any existing policy.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.iam.v1 import iam_policy_pb2  # type: ignore
+            from googlecloudsdk.generated_clients.gapic_clients import run_v2
+
+            def sample_set_iam_policy():
+                # Create a client
+                client = run_v2.WorkerPoolsClient()
+
+                # Initialize request argument(s)
+                request = iam_policy_pb2.SetIamPolicyRequest(
+                    resource="resource_value",
+                )
+
+                # Make the request
+                response = client.set_iam_policy(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.iam.v1.iam_policy_pb2.SetIamPolicyRequest, dict]):
+                The request object. Request message for ``SetIamPolicy`` method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.iam.v1.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy. It is used to
+                   specify access control policies for Cloud Platform
+                   resources.
+
+                   A Policy is a collection of bindings. A binding binds
+                   one or more members to a single role. Members can be
+                   user accounts, service accounts, Google groups, and
+                   domains (such as G Suite). A role is a named list of
+                   permissions (defined by IAM or configured by users).
+                   A binding can optionally specify a condition, which
+                   is a logic expression that further constrains the
+                   role binding based on attributes about the request
+                   and/or target resource.
+
+                   **JSON Example**
+
+                      {
+                         "bindings": [
+                            {
+                               "role":
+                               "roles/resourcemanager.organizationAdmin",
+                               "members": [ "user:mike@example.com",
+                               "group:admins@example.com",
+                               "domain:google.com",
+                               "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                               ]
+
+                            }, { "role":
+                            "roles/resourcemanager.organizationViewer",
+                            "members": ["user:eve@example.com"],
+                            "condition": { "title": "expirable access",
+                            "description": "Does not grant access after
+                            Sep 2020", "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')", } }
+
+                         ]
+
+                      }
+
+                   **YAML Example**
+
+                      bindings: - members: - user:\ mike@example.com -
+                      group:\ admins@example.com - domain:google.com -
+                      serviceAccount:\ my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin -
+                      members: - user:\ eve@example.com role:
+                      roles/resourcemanager.organizationViewer
+                      condition: title: expirable access description:
+                      Does not grant access after Sep 2020 expression:
+                      request.time <
+                      timestamp('2020-10-01T00:00:00.000Z')
+
+                   For a description of IAM and its features, see the
+                   [IAM developer's
+                   guide](\ https://cloud.google.com/iam/docs).
+
+        """
+        # Create or coerce a protobuf request object.
+        if isinstance(request, dict):
+            # - The request isn't a proto-plus wrapped type,
+            #   so it must be constructed via keyword expansion.
+            request = iam_policy_pb2.SetIamPolicyRequest(**request)
+        elif not request:
+            # Null request, just make one.
+            request = iam_policy_pb2.SetIamPolicyRequest()
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.set_iam_policy]
+
+         # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ("resource", request.resource),
+            )),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def test_iam_permissions(self,
+            request: Optional[Union[iam_policy_pb2.TestIamPermissionsRequest, dict]] = None,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> iam_policy_pb2.TestIamPermissionsResponse:
+        r"""Returns permissions that a caller has on the
+        specified Project.
+        There are no permissions required for making this API
+        call.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.iam.v1 import iam_policy_pb2  # type: ignore
+            from googlecloudsdk.generated_clients.gapic_clients import run_v2
+
+            def sample_test_iam_permissions():
+                # Create a client
+                client = run_v2.WorkerPoolsClient()
+
+                # Initialize request argument(s)
+                request = iam_policy_pb2.TestIamPermissionsRequest(
+                    resource="resource_value",
+                    permissions=['permissions_value1', 'permissions_value2'],
+                )
+
+                # Make the request
+                response = client.test_iam_permissions(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.iam.v1.iam_policy_pb2.TestIamPermissionsRequest, dict]):
+                The request object. Request message for ``TestIamPermissions`` method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.iam.v1.iam_policy_pb2.TestIamPermissionsResponse:
+                Response message for TestIamPermissions method.
+        """
+        # Create or coerce a protobuf request object.
+        if isinstance(request, dict):
+            # - The request isn't a proto-plus wrapped type,
+            #   so it must be constructed via keyword expansion.
+            request = iam_policy_pb2.TestIamPermissionsRequest(**request)
+        elif not request:
+            # Null request, just make one.
+            request = iam_policy_pb2.TestIamPermissionsRequest()
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.test_iam_permissions]
+
+         # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ("resource", request.resource),
+            )),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.

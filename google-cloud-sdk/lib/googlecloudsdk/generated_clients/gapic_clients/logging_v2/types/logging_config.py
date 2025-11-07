@@ -480,7 +480,7 @@ class LogExclusion(proto.Message):
 
     Attributes:
         name (str):
-            Output only. A client-assigned identifier, such as
+            Optional. A client-assigned identifier, such as
             ``"load-balancer-exclusion"``. Identifiers are limited to
             100 characters and can include only letters, digits,
             underscores, hyphens, and periods. First character has to be
@@ -600,8 +600,8 @@ class LogSink(proto.Message):
 
     Attributes:
         name (str):
-            Output only. The client-assigned sink identifier, unique
-            within the project.
+            Optional. The client-assigned sink identifier, unique within
+            the project.
 
             For example: ``"my-syslog-errors-to-pubsub"``.
 
@@ -663,7 +663,7 @@ class LogSink(proto.Message):
             filters will not be exported.
 
             If a log entry is matched by both ``filter`` and one of
-            ``exclusion_filters`` it will not be exported.
+            ``exclusions`` it will not be exported.
         output_version_format (googlecloudsdk.generated_clients.gapic_clients.logging_v2.types.LogSink.VersionFormat):
             Deprecated. This field is unused.
         writer_identity (str):
@@ -1803,8 +1803,7 @@ class CreateViewRequest(proto.Message):
         view_id (str):
             Required. A client-assigned identifier such as
             ``"my-view"``. Identifiers are limited to 100 characters and
-            can include only letters, digits, underscores, hyphens, and
-            periods.
+            can include only letters, digits, underscores, and hyphens.
         view (googlecloudsdk.generated_clients.gapic_clients.logging_v2.types.LogView):
             Required. The new view.
     """
@@ -2670,10 +2669,7 @@ class CreateLinkRequest(proto.Message):
 
             ::
 
-                "projects/[PROJECT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]"
-                "organizations/[ORGANIZATION_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]"
-                "billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]"
-                "folders/[FOLDER_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]".
+                "projects/[PROJECT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]".
         link (googlecloudsdk.generated_clients.gapic_clients.logging_v2.types.Link):
             Required. The new link.
         link_id (str):
@@ -3320,8 +3316,8 @@ class CopyLogEntriesRequest(proto.Message):
             20k characters. An empty filter matches all log
             entries.
         destination (str):
-            Required. Destination to which to copy log
-            entries.
+            Required. Destination to which to copy log entries. For
+            example: "storage.googleapis.com/[GCS_BUCKET]".
     """
 
     name: str = proto.Field(

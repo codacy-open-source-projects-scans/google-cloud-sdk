@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         'ServiceScaling',
         'WorkerPoolScaling',
         'NodeSelector',
+        'BuildConfig',
     },
 )
 
@@ -291,6 +292,11 @@ class ServiceScaling(proto.Message):
             on the percent of traffic they are receiving.
         scaling_mode (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.ServiceScaling.ScalingMode):
             Optional. The scaling mode for the service.
+        max_instance_count (int):
+            Optional. total max instances for the
+            service. This number of instances is divided
+            among all revisions with specified traffic based
+            on the percent of traffic they are receiving.
         manual_instance_count (int):
             Optional. total instance count for the
             service in manual scaling mode. This number of
@@ -327,6 +333,10 @@ class ServiceScaling(proto.Message):
         number=3,
         enum=ScalingMode,
     )
+    max_instance_count: int = proto.Field(
+        proto.INT32,
+        number=4,
+    )
     manual_instance_count: int = proto.Field(
         proto.INT32,
         number=6,
@@ -337,15 +347,21 @@ class ServiceScaling(proto.Message):
 class WorkerPoolScaling(proto.Message):
     r"""Worker pool scaling settings.
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         min_instance_count (int):
             Optional. The minimum count of instances
             distributed among revisions based on the
             specified instance split percentages.
+
+            This field is a member of `oneof`_ ``_min_instance_count``.
         max_instance_count (int):
             Optional. The maximum count of instances
             distributed among revisions based on the
             specified instance split percentages.
+
+            This field is a member of `oneof`_ ``_max_instance_count``.
         scaling_mode (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.WorkerPoolScaling.ScalingMode):
             Optional. The scaling mode for the worker
             pool.
@@ -363,22 +379,15 @@ class WorkerPoolScaling(proto.Message):
             during changes from one revision to another but
             specifying how many extra instances can be
             brought up at a time.
-        max_unavailable (int):
-            Optional. A maximum percentage of instances
-            that may be unavailable during changes from one
-            revision to another.
+        manual_instance_count (int):
+            Optional. The total number of instances in
+            manual scaling mode.
 
-            When set to a positive value, the server may
-            bring down instances before bringing up new
-            instances. This can prevent a spike of total
-            active instances during changes from one
-            revision by reducing the pool of instances
-            before bringing up new ones. Some requests may
-            be slow or fail to serve during the transition.
+            This field is a member of `oneof`_ ``_manual_instance_count``.
     """
     class ScalingMode(proto.Enum):
         r"""The scaling mode for the worker pool. If not provided, it
-        defaults to AUTOMATIC.
+        defaults to MANUAL
 
         Values:
             SCALING_MODE_UNSPECIFIED (0):
@@ -387,8 +396,7 @@ class WorkerPoolScaling(proto.Message):
                 Automatically scale between min and max
                 instances.
             MANUAL (2):
-                Scale to exactly min instances and ignore the
-                max instances.
+                Scale to manual instance count.
         """
         SCALING_MODE_UNSPECIFIED = 0
         AUTOMATIC = 1
@@ -397,10 +405,12 @@ class WorkerPoolScaling(proto.Message):
     min_instance_count: int = proto.Field(
         proto.INT32,
         number=1,
+        optional=True,
     )
     max_instance_count: int = proto.Field(
         proto.INT32,
         number=2,
+        optional=True,
     )
     scaling_mode: ScalingMode = proto.Field(
         proto.ENUM,
@@ -411,9 +421,10 @@ class WorkerPoolScaling(proto.Message):
         proto.INT32,
         number=3,
     )
-    max_unavailable: int = proto.Field(
+    manual_instance_count: int = proto.Field(
         proto.INT32,
-        number=4,
+        number=6,
+        optional=True,
     )
 
 
@@ -429,6 +440,90 @@ class NodeSelector(proto.Message):
     accelerator: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class BuildConfig(proto.Message):
+    r"""Describes the Build step of the function that builds a
+    container from the given source.
+
+    Attributes:
+        name (str):
+            Output only. The Cloud Build name of the
+            latest successful deployment of the function.
+        source_location (str):
+            The Cloud Storage bucket URI where the
+            function source code is located.
+        function_target (str):
+            Optional. The name of the function (as
+            defined in source code) that will be executed.
+            Defaults to the resource name suffix, if not
+            specified. For backward compatibility, if
+            function with given name is not found, then the
+            system will try to use function named
+            "function".
+        image_uri (str):
+            Optional. Artifact Registry URI to store the
+            built image.
+        base_image (str):
+            Optional. The base image used to build the
+            function.
+        enable_automatic_updates (bool):
+            Optional. Sets whether the function will
+            receive automatic base image updates.
+        worker_pool (str):
+            Optional. Name of the Cloud Build Custom Worker Pool that
+            should be used to build the Cloud Run function. The format
+            of this field is
+            ``projects/{project}/locations/{region}/workerPools/{workerPool}``
+            where ``{project}`` and ``{region}`` are the project id and
+            region respectively where the worker pool is defined and
+            ``{workerPool}`` is the short name of the worker pool.
+        environment_variables (MutableMapping[str, str]):
+            Optional. User-provided build-time
+            environment variables for the function
+        service_account (str):
+            Optional. Service account to be used for building the
+            container. The format of this field is
+            ``projects/{projectId}/serviceAccounts/{serviceAccountEmail}``.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    source_location: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    function_target: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    image_uri: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    base_image: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    enable_automatic_updates: bool = proto.Field(
+        proto.BOOL,
+        number=6,
+    )
+    worker_pool: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    environment_variables: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=8,
+    )
+    service_account: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
 
 

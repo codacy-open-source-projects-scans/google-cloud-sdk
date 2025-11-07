@@ -963,7 +963,7 @@ def _LoadFromFileOverride(cred_file_override, scopes, use_google_auth):
         cred._token_uri = token_uri_override
         # pylint: enable=protected-access
     elif cred_type == c_creds.CredentialTypeGoogleAuth.USER_ACCOUNT:
-      token_uri_override = auth_util.GetTokenUri()
+      token_uri_override = c_creds.GetDefaultTokenUri()
       # pylint: disable=protected-access
       cred._token_uri = token_uri_override
       # pylint: enable=protected-access
@@ -1541,12 +1541,27 @@ def _RefreshServiceAccountIdTokenGoogleAuth(cred, request_client):
 
   try:
     id_token_cred.refresh(request_client)
-  except google_auth_exceptions.RefreshError:
+  except google_auth_exceptions.RefreshError as e:
     # ID token refresh does not work in testgaia because the Cloud SDK
     # client ID (http://shortn/_BVYwsLLdaJ) is not set up to work with this
     # environment. The running command should not break because of this and
     # should proceed without a new ID token.
-    return None
+
+    # The refresh error's args[1] is the 2nd part (the json with 'error').
+    # It is a AIP-193 format error message. In the code below we refer to
+    # the json part with 'error' as the "AIP-193 error message".
+    error = e.args[1].get('error', '') if len(e.args) > 1 else ''
+    if (
+        'message' in error
+        and 'iam.serviceAccounts.getOpenIdToken' in error['message']
+    ):
+      steps = (
+          'You can find step-by-step instructions here:'
+          ' https://cloud.google.com/iam/docs/create-short-lived-credentials-direct#sa-credentials-oidc'
+          ' on how to resolve this error.'
+      )
+      log.error('%s %s', error['message'], steps)
+      return None
 
   return id_token_cred.token
 
@@ -1742,7 +1757,7 @@ def AcquireFromToken(refresh_token,
   use_google_auth = use_google_auth and (not GoogleAuthDisabledGlobally())
 
   if token_uri is None:
-    token_uri = auth_util.GetTokenUri()
+    token_uri = c_creds.GetDefaultTokenUri()
   if use_google_auth:
     # Import only when necessary to decrease the startup time. Move it to
     # global once google-auth is ready to replace oauth2client.

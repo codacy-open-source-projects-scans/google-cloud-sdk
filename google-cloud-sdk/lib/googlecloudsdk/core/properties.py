@@ -32,7 +32,6 @@ from googlecloudsdk.core.configurations import named_configs
 from googlecloudsdk.core.configurations import properties_file as prop_files_lib
 from googlecloudsdk.core.docker import constants as const_lib
 from googlecloudsdk.core.resource import resource_printer_types as formats
-from googlecloudsdk.core.universe_descriptor import universe_descriptor
 from googlecloudsdk.core.util import encoding
 from googlecloudsdk.core.util import http_proxy_types
 from googlecloudsdk.core.util import scaled_integer
@@ -220,6 +219,29 @@ def _HumanReadableByteAmountValidator(size_string):
     raise InvalidValueError(str(e))
 
 
+def IsInternalUserCheck():
+  """Checks if the current user is an internal Google user.
+
+  Checks the 'CLOUDSDK_INTERNAL_USER' environment variable first to decide
+  whther the current user is an internal Google user.
+  If the variable is not set, falls back to checking if the user's email
+  domain is 'google.com'.
+
+  Returns:
+    bool: True if the user is an internal user, False otherwise.
+  """
+  if 'CLOUDSDK_INTERNAL_USER' in os.environ:
+    return (
+        encoding.GetEncodedValue(os.environ, 'CLOUDSDK_INTERNAL_USER') == 'true'
+    )
+  user_email = VALUES.core.account.Get()
+  if user_email:
+    parts = user_email.split('@')
+    if len(parts) == 2:
+      return parts[1] == 'google.com'
+  return False
+
+
 class Error(exceptions.Error):
   """Exceptions for the properties module."""
 
@@ -334,7 +356,6 @@ class PropertyValue(object):
     FLAG = 'flag'
     CALLBACK = 'callback'
     DEFAULT = 'default'
-    FEATURE_FLAG = 'feature flag'
 
   def __init__(self, value, source=PropertySource.UNKNOWN):
     self.value = value
@@ -466,6 +487,8 @@ class _Sections(object):
     recaptcha: Section, The section containing recaptcha properties for the
       Cloud SDK.
     redis: Section, The section containing redis properties for the Cloud SDK.
+    regional: Section, The section containing regional endpoint properties for
+      the Cloud SDK.
     resource_policy: Section, The section containing resource policy
       configurations for the Cloud SDK.
     run: Section, The section containing run properties for the Cloud SDK.
@@ -567,6 +590,7 @@ class _Sections(object):
     self.pubsub = _SectionPubsub()
     self.recaptcha = _SectionRecaptcha()
     self.redis = _SectionRedis()
+    self.regional = _SectionRegional()
     self.resource_policy = _SectionResourcePolicy()
     self.run = _SectionRun()
     self.runapps = _SectionRunApps()
@@ -649,6 +673,7 @@ class _Sections(object):
         self.proxy,
         self.recaptcha,
         self.redis,
+        self.regional,
         self.resource_policy,
         self.run,
         self.runapps,
@@ -879,8 +904,7 @@ class _Section(object):
            validator=None,
            choices=None,
            completer=None,
-           default_flag=None,
-           is_feature_flag=None):
+           default_flag=None):
     prop = _Property(
         section=self.__name,
         name=name,
@@ -892,8 +916,7 @@ class _Section(object):
         validator=validator,
         choices=choices,
         completer=completer,
-        default_flag=default_flag,
-        is_feature_flag=is_feature_flag)
+        default_flag=default_flag)
     self.__properties[name] = prop
     return prop
 
@@ -1197,8 +1220,6 @@ class _SectionApiEndpointOverrides(_Section):
     self.apikeys = self._Add(
         'apikeys', command='gcloud services api-keys', hidden=True
     )
-    self.appconfigmanager = self._Add(
-        'appconfigmanager', command='gcloud app-config-manager', hidden=True)
     self.appengine = self._Add('appengine', command='gcloud app')
     self.apphub = self._Add('apphub', command='gcloud apphub')
     self.artifactregistry = self._Add(
@@ -1215,7 +1236,10 @@ class _SectionApiEndpointOverrides(_Section):
         'baremetalsolution', command='gcloud bms')
     self.batch = self._Add('batch', command='gcloud batch', hidden=True)
     self.beyondcorp = self._Add('beyondcorp', hidden=True)
+    self.biglake = self._Add(
+        'biglake', command='gcloud biglake', hidden=True)
     self.bigquery = self._Add('bigquery', hidden=True)
+    self.bigquerymigration = self._Add('bigquerymigration', hidden=True)
     self.bigtableadmin = self._Add('bigtableadmin', command='gcloud bigtable')
     self.binaryauthorization = self._Add(
         'binaryauthorization', command='gcloud container binauthz', hidden=True)
@@ -1237,6 +1261,8 @@ class _SectionApiEndpointOverrides(_Section):
         'cloudfunctions', command='gcloud functions')
     self.cloudidentity = self._Add('cloudidentity', command='gcloud identity')
     self.cloudkms = self._Add('cloudkms', command='gcloud kms')
+    self.cloudlocationfinder = self._Add(
+        'cloudlocationfinder', command='gcloud cloudlocationfinder')
     self.cloudnumberregistry = self._Add(
         'cloudnumberregistry',
         command='gcloud cloudnumberregistry', hidden=True)
@@ -1247,6 +1273,11 @@ class _SectionApiEndpointOverrides(_Section):
     self.cloudresourcesearch = self._Add('cloudresourcesearch', hidden=True)
     self.cloudscheduler = self._Add(
         'cloudscheduler', command='gcloud scheduler')
+    self.cloudsecuritycompliance = self._Add(
+        'cloudsecuritycompliance',
+        command='gcloud compliance-manager', hidden=True)
+    self.cloudshell = self._Add(
+        'cloudshell', command='gcloud cloud-shell', hidden=True)
     self.cloudtasks = self._Add('cloudtasks', command='gcloud tasks')
     self.cloudtrace = self._Add('cloudtrace', command='gcloud trace')
     self.composer = self._Add('composer', command='gcloud composer')
@@ -1277,6 +1308,9 @@ class _SectionApiEndpointOverrides(_Section):
     self.datastream = self._Add('datastream', command='gcloud datastream')
     self.deploymentmanager = self._Add(
         'deploymentmanager', command='gcloud deployment-manager')
+    # TODO(b/420912196): Unhide after gcloud client releases to GA.
+    self.designcenter = self._Add(
+        'designcenter', command='gcloud design-center', hidden=True)
     self.developerconnect = self._Add(
         'developerconnect', command='gcloud developer-connect')
     self.discovery = self._Add('discovery', hidden=True)
@@ -1295,9 +1329,20 @@ class _SectionApiEndpointOverrides(_Section):
     self.firebasedataconnect = self._Add(
         'firebasedataconnect', command='gcloud firebase-data-connect')
     self.firestore = self._Add('firestore', command='gcloud firestore')
+    self.geminicloudassist = self._Add(
+        'geminicloudassist', command='gcloud geminicloudassist', hidden=True
+    )
     self.genomics = self._Add('genomics', command='gcloud genomics')
     self.gkebackup = self._Add('gkebackup', hidden=True)
     self.gkehub = self._Add('gkehub', hidden=True)
+    self.gkerecommender = self._Add('gkerecommender', hidden=True)
+    self.hypercomputecluster = self._Add(
+        'hypercomputecluster', command='gcloud cluster-director')
+    self.observability = self._Add(
+        'observability', command='gcloud observability')
+    self.transcoder = self._Add(
+        'transcoder', command='gcloud transcoder', hidden=True
+    )
     self.gkemulticloud = self._Add(
         'gkemulticloud',
         help_text='Overrides API endpoint for `gcloud container aws`, '
@@ -1368,7 +1413,9 @@ class _SectionApiEndpointOverrides(_Section):
     self.policysimulator = self._Add('policysimulator', hidden=True)
     self.policytroubleshooter = self._Add('policytroubleshooter', hidden=True)
     self.privateca = self._Add('privateca', command='gcloud privateca')
-    self.privilegedaccessmanager = self._Add('pam', command='gcloud pam')
+    self.privilegedaccessmanager = self._Add(
+        'privilegedaccessmanager', command='gcloud pam'
+    )
     self.publicca = self._Add('publicca', command='gcloud publicca')
     self.pubsub = self._Add('pubsub', command='gcloud pubsub')
     self.pubsublite = self._Add('pubsublite', hidden=True)
@@ -1378,8 +1425,6 @@ class _SectionApiEndpointOverrides(_Section):
     self.redis = self._Add('redis', command='gcloud redis')
     self.remotebuildexecution = self._Add('remotebuildexecution', hidden=True)
     self.replicapoolupdater = self._Add('replicapoolupdater', hidden=True)
-    self.resourcesettings = self._Add(
-        'resourcesettings', command='gcloud resource-settings')
     self.run = self._Add('run', command='gcloud run')
     self.runapps = self._Add('runapps', hidden=True)
     self.runtimeconfig = self._Add(
@@ -1392,8 +1437,6 @@ class _SectionApiEndpointOverrides(_Section):
     self.seclm = self._Add(
         'seclm', command='gcloud seclm', hidden=True)
     self.secrets = self._Add('secretmanager', command='gcloud secrets')
-    self.securedlandingzone = self._Add(
-        'securedlandingzone', hidden=True, command='gcloud scc slz-overwatch')
     self.securesourcemanager = self._Add('securesourcemanager', hidden=True)
     self.securitycentermanagement = self._Add(
         'securitycentermanagement', command='gcloud scc manage', hidden=True
@@ -2199,11 +2242,6 @@ class _SectionCore(_Section):
         hidden=True,
         help_text='If True, the parser for gcloud Resource Identifiers will be '
         'enabled when interpreting resource arguments.')
-    self.enable_feature_flags = self._AddBool(
-        'enable_feature_flags',
-        default=True,
-        help_text='If True, remote config-file driven feature flags will be '
-        'enabled.')
     self.resource_completion_style = self._Add(
         'resource_completion_style',
         choices=('flags', 'gri'),
@@ -2471,7 +2509,10 @@ class _SectionCore(_Section):
         hidden=True)
 
     self.universe_domain = self._Add(
-        'universe_domain', hidden=True, default='googleapis.com')
+        'universe_domain',
+        help_text='Sets the domain of the universe to use for API requests.',
+        default='googleapis.com',
+    )
 
     self.credentialed_hosted_repo_domains = self._Add(
         'credentialed_hosted_repo_domains', hidden=True)
@@ -3249,6 +3290,32 @@ class _SectionRedis(_Section):
         'provided by a flag, the command will fall back to this value, if set.')
 
 
+class _SectionRegional(_Section):
+  """Contains the properties for the 'regional' section."""
+
+  REGIONAL_ONLY = 'regional-only'
+  AUTO = 'auto'
+  LEGACY = 'legacy'
+
+  def __init__(self):
+    super(_SectionRegional, self).__init__('regional', hidden=True)
+    self.endpoint_mode = self._Add(
+        'endpoint_mode',
+        choices=[self.REGIONAL_ONLY, self.AUTO, self.LEGACY],
+        default=self.LEGACY,
+        help_text="""\
+Determines how regional endpoints are used. The choices are:
+    *   `legacy` - Use global/locational endpoints.
+    *   `regional-only` - Use only regional endpoints.
+    *   `auto` - Allow commands to choose between regional/global endpoints, preferring regional if available.
+"""
+    )
+    self.default_endpoint_location = self._Add(
+        'default_endpoint_location',
+        help_text='Specifies the regional endpoint location to use by default.',
+    )
+
+
 class _SectionResourcePolicy(_Section):
   """Contains the properties for the 'resource_policy' section."""
 
@@ -3440,6 +3507,7 @@ class _SectionStorage(_Section):
   DEFAULT_MULTIPART_THRESHOLD = '8Mi'
   DEFAULT_MULTIPART_CHUNKSIZE = '8Mi'
   DEFAULT_RESUMABLE_THRESHOLD = '8Mi'
+  DEFAULT_BIDI_STREAMING_FLUSH_SIZE = '100Mi'
   DEFAULT_RSYNC_LIST_CHUNK_SIZE = 32000
 
   def __init__(self):
@@ -3498,7 +3566,7 @@ class _SectionStorage(_Section):
         'download_chunk_size',
         default=self.DEFAULT_DOWNLOAD_CHUNK_SIZE,
         validator=_HumanReadableByteAmountValidator,
-        help_text='Chunk size used for downloadinging to clouds.',
+        help_text='Chunk size used for downloading to clouds.',
     )
 
     self.enable_task_graph_debugging = self._AddBool(
@@ -3506,6 +3574,16 @@ class _SectionStorage(_Section):
         default=False,
         hidden=True,
         help_text='Enables task graph debugging for gcloud storage commands.',
+    )
+
+    # TODO(b/437832680): Enable this property once implementation is complete.
+    self.enable_zonal_buckets_bidi_streaming = self._AddBool(
+        'enable_zonal_buckets_bidi_streaming',
+        default=False,
+        hidden=True,
+        help_text=(
+            'Enables zonal buckets bidi streaming for gcloud storage commands.'
+        ),
     )
 
     self.task_graph_debugging_snapshot_duration = self._Add(
@@ -3626,6 +3704,16 @@ class _SectionStorage(_Section):
         'into a single object. Otherwise, files smaller than this threshold '
         'will be uploaded by the Boto3 client in a single stream.')
 
+    self.multiprocessing_default_method = self._Add(
+        'multiprocessing_default_method',
+        default=None,
+        hidden=True,
+        help_text='Specifies the default method to use for multiprocessing in'
+        ' storage commands. If not set, the default method is determined by the'
+        ' operating system and python version.',
+        choices=['fork', 'spawn', 'forkserver'],
+    )
+
     self.process_count = self._Add(
         'process_count',
         help_text='The maximum number of processes parallel execution should '
@@ -3731,6 +3819,29 @@ class _SectionStorage(_Section):
         'Cloud Storage this limit is 32. This property has no effect if '
         'parallel_composite_upload_enabled is set to False.')
 
+    self.bidi_streaming_flush_size = self._Add(
+        'bidi_streaming_flush_size',
+        default=self.DEFAULT_BIDI_STREAMING_FLUSH_SIZE,
+        hidden=True,
+        validator=_HumanReadableByteAmountValidator,
+        help_text=(
+            'The size of the in-memory buffer that is flushed during bidi'
+            ' streaming uploads. Ensure this is within your machine\'s RAM'
+            ' limits.'
+        ),
+    )
+
+    self.bidi_streaming_finalize_writes = self._AddBool(
+        'bidi_streaming_finalize_writes',
+        default=False,
+        hidden=True,
+        help_text=(
+            'If True, the upload will be finalized when the last chunk is'
+            ' written. If False, objects will be left in the default'
+            ' unfinalized state.'
+        ),
+    )
+
     self.rsync_files_directory = self._Add(
         'rsync_files_directory',
         default=os.path.join(
@@ -3749,6 +3860,27 @@ class _SectionStorage(_Section):
             'Number of files processed at a time by the rsync command when'
             ' it builds and compares the list of files at the source'
             ' and destination.'
+        ),
+    )
+
+    self.use_url_based_rsync_sorting = self._AddBool(
+        'use_url_based_rsync_sorting',
+        default=False,
+        hidden=True,
+        help_text=(
+            'Enables url based sorting for tracker files used by gcloud storage'
+            ' rsync .'
+        ),
+    )
+
+    self.use_gsutil_rsync_delete_unmatched_destination_objects_behavior = self._AddBool(
+        'use_gsutil_rsync_delete_unmatched_destination_objects_behavior',
+        default=True,
+        help_text=(
+            'If True, rsync will preserve unmatched destination objects while'
+            ' using --delete-unmatched-destination-objects flag along with'
+            ' other flags such as --no-clobber, --skip-unsupported and'
+            ' --skip-if-dest-has-newer-mtime just as it would with gsutil.'
         ),
     )
 
@@ -3866,14 +3998,6 @@ class _SectionTest(_Section):
     self.results_base_url = self._Add('results_base_url', hidden=True)
     self.matrix_status_interval = self._Add(
         'matrix_status_interval', hidden=True)
-
-    self.feature_flag = self._Add(
-        'feature_flag',
-        hidden=True,
-        internal=True,
-        is_feature_flag=True,
-        help_text=('Run `gcloud meta test --feature-flag` to test the value of '
-                   'this feature flag.'))
 
 
 class _SectionTranscoder(_Section):
@@ -4029,9 +4153,6 @@ class _Property(object):
       was invalid.
     choices: [str], The allowable values for this property.  This is included in
       the help text and used in tab completion.
-    is_feature_flag: bool, True to enable feature flags. False to disable
-      feature bool, if True, this property is a feature flag property. See
-      go/cloud-sdk-feature-flags for more information.
   """
 
   def __init__(self,
@@ -4045,8 +4166,7 @@ class _Property(object):
                validator=None,
                choices=None,
                completer=None,
-               default_flag=None,
-               is_feature_flag=None):
+               default_flag=None):
     self.__section = section
     self.__name = name
     self.__help_text = help_text
@@ -4058,7 +4178,6 @@ class _Property(object):
     self.__choices = choices
     self.__completer = completer
     self.__default_flag = default_flag
-    self.__is_feature_flag = is_feature_flag
 
   @property
   def section(self):
@@ -4099,10 +4218,6 @@ class _Property(object):
   @property
   def default_flag(self):
     return self.__default_flag
-
-  @property
-  def is_feature_flag(self):
-    return self.__is_feature_flag
 
   def __hash__(self):
     return hash(self.section) + hash(self.name)
@@ -4509,25 +4624,6 @@ def _GetProperty(prop, properties_file, required):
   return None
 
 
-def GetValueFromFeatureFlag(prop):
-  """Gets the property value from the Feature Flags yaml.
-
-  Args:
-    prop: The property to get
-
-  Returns:
-    str, the value of the property, or None if it is not set.
-  """
-  # pylint: disable=g-import-not-at-top
-  from googlecloudsdk.core.feature_flags import config as feature_flags_config
-  # pylint: enable=g-import-not-at-top
-  ff_config = feature_flags_config.GetFeatureFlagsConfig(
-      VALUES.core.account.Get(), VALUES.core.project.Get())
-  if ff_config:
-    return Stringize(ff_config.Get(prop))
-  return None
-
-
 def _GetPropertyWithoutDefault(prop, properties_file):
   """Gets the given property without using a default.
 
@@ -4556,18 +4652,7 @@ def _GetPropertyWithoutDefault(prop, properties_file):
       return PropertyValue(
           Stringize(value), PropertyValue.PropertySource.CALLBACK)
 
-  # Feature Flag callback
-  if (prop.is_feature_flag and prop != VALUES.core.enable_feature_flags and
-      FeatureFlagEnabled()):
-    return PropertyValue(
-        GetValueFromFeatureFlag(prop),
-        PropertyValue.PropertySource.FEATURE_FLAG)
-
   return None
-
-
-def FeatureFlagEnabled():
-  return VALUES.core.enable_feature_flags.GetBool()
 
 
 def _GetPropertyWithoutCallback(prop, properties_file):
@@ -4668,26 +4753,6 @@ def GetUniverseDomain():
   """Get the universe domain."""
 
   return VALUES.core.universe_domain.Get()
-
-
-def GetUniverseDocumentDomain() -> str:
-  """Returns the universe document domain.
-
-  If the universe domain is not available, returns the default document domain.
-
-  Returns:
-    The universe document domain.
-  """
-  try:
-    universe_domain = GetUniverseDomain()
-    universe_descriptor_data = universe_descriptor.UniverseDescriptor()
-    cached_descriptor_data = universe_descriptor_data.Get(universe_domain)
-    if cached_descriptor_data and cached_descriptor_data.documentation_domain:
-      return cached_descriptor_data.documentation_domain
-  except universe_descriptor.UniverseDescriptorError:
-    pass
-
-  return 'cloud.google.com'
 
 
 def GetMetricsEnvironment():

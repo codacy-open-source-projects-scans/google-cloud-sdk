@@ -72,6 +72,62 @@ class CreateReferenceRequest(_messages.Message):
   requestId = _messages.StringField(4)
 
 
+class DataResidencyAugmentedView(_messages.Message):
+  r"""Next tag: 9
+
+  Enums:
+    ResourceStateValueValuesEnum: The state of the current augmented view,
+      which can be used to determine whether this resource should be monitored
+      by DRZ or not.
+
+  Fields:
+    crGopoGuris: Cloud resource to Google owned production object mapping in
+      the form of GURIs. The GURIs should be available in DG KB storage/cns
+      tables. This is the preferred way of providing cloud resource mappings.
+      For further details please read go/cloud-resource-monitoring_sig
+    crGopoPrefixes: Cloud resource to Google owned production object mapping
+      in the form of prefixes. These should be available in DG KB storage/cns
+      tables. The entity type, which is the part of the string before the
+      first colon in the GURI, must be completely specified in prefix. For
+      details about GURI please read go/guri. For further details about the
+      field please read go/cloud-resource-monitoring_sig.
+    mstDebugInfo: Extra debug information (which does not contain any customer
+      data) used for better understanding of the DRZ violations (for MST
+      pipeline specifically). See more details from b/376318043.
+    resourceState: The state of the current augmented view, which can be used
+      to determine whether this resource should be monitored by DRZ or not.
+    serviceData: Service-specific data. Only required for pre-determined
+      services. Generally used to bind a Cloud Resource to some a TI container
+      that uniquely specifies a customer. See milestone 2 of DRZ KR8 SIG for
+      more information.
+    tpIds: The list of project_id's of the tenant projects in the 'google.com'
+      org which serve the Cloud Resource. See go/drz-mst-sig for more details.
+  """
+
+  class ResourceStateValueValuesEnum(_messages.Enum):
+    r"""The state of the current augmented view, which can be used to
+    determine whether this resource should be monitored by DRZ or not.
+
+    Values:
+      RESOURCE_STATE_UNSPECIFIED: The resource state is unspecified.
+      MONITORABLE: The resource is in a state that is ready to be monitored by
+        DRZ.
+      EXEMPTED: The resource is in a state that is exempted from DRZ
+        monitoring due to reasons such as the cloud resource is in a non-ready
+        state.
+    """
+    RESOURCE_STATE_UNSPECIFIED = 0
+    MONITORABLE = 1
+    EXEMPTED = 2
+
+  crGopoGuris = _messages.StringField(1, repeated=True)
+  crGopoPrefixes = _messages.StringField(2, repeated=True)
+  mstDebugInfo = _messages.MessageField('MstDebugInfo', 3)
+  resourceState = _messages.EnumField('ResourceStateValueValuesEnum', 4)
+  serviceData = _messages.MessageField('ServiceData', 5)
+  tpIds = _messages.StringField(6, repeated=True)
+
+
 class DeleteReferenceRequest(_messages.Message):
   r"""The DeleteReferenceRequest request.
 
@@ -134,11 +190,25 @@ class Destination(_messages.Message):
       delivered to the destination. If not set, the message will be delivered
       in the format it was originally delivered to the Stream. This field can
       only be set if `Stream.input_payload_format` is also set.
-    serviceEndpoint: Required. The URL of a endpoint to route traffic to. If a
-      DNS FQDN is provided as the endpoint, Message Streams will create a
-      peering zone to the consumer VPC and forward DNS requests to the VPC
-      specified by network config to resolve the service endpoint. See:
-      https://cloud.google.com/dns/docs/zones/zones-overview#peering_zones
+    serviceEndpoint: Required. The URL of a endpoint to route traffic to. If
+      this is a Multi-Single Tenant Stream (i.e. when use_shared_pool is set
+      to false) then: If a DNS FQDN is provided as the endpoint, Message
+      Streams will create a peering zone to the consumer VPC and forward DNS
+      requests to the VPC specified by network config to resolve the service
+      endpoint. See: https://cloud.google.com/dns/docs/zones/zones-
+      overview#peering_zones If this is a Multi-Tenant Stream (i.e. when
+      use_shared_pool is set to true) then: - If the service_endpoint starts
+      with http:// or https:// then the Stream uses Harpoon to reach the HTTP
+      endpoint. - If the service_endpoint is set to pubsub://* and the
+      dynamic_http_headers_enabled is set to true then the stream uses the
+      X-Google-Destination-Pubsub-Topic header to identify the Pub/Sub topic
+      to be used when sending the message (see go/mi-ms-dynamic-stream-ug).
+      NOTE: when setting service_endpoint to pubsub://* then the
+      dynamic_http_headers_enabled MUST be set to true. - For stubby
+      endpoints, we follow the format described in go/cloud-pubsub-on-
+      borg#using-a-push-subscription-with-a-stubby-push-endpoint. The stubby
+      endpoint must implement the [`CloudEventReceiver`](cs/symbol:orchestrati
+      on.convoy.CloudEventReceiver) service.
   """
 
   authenticationConfig = _messages.MessageField('AuthenticationConfig', 1)
@@ -286,10 +356,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListReferencesRequest(_messages.Message):
@@ -549,35 +624,113 @@ class MessageBindingHttp(_messages.Message):
   the incoming message request will fail with a persistent error.
 
   Fields:
-    celExpression: Required. The CEL expression used to construct a new HTTP
-      request to be sent to the final destination. The CEL expression may
-      access the message in the intermediary format in its definition. The
-      result of the CEL expression must be a map of key/value pairs such that:
-      - If a map named headers exists on the result of the expression, then
-      its key/value pairs are directly mapped to the HTTP request headers. The
-      headers' values are constructed from the corresponding value type's
-      canonical representation. If the headers field doesn't exist then the
-      resulting HTTP request will be without headers. - If a field named body
-      exists on the result of the expression then its value is directly mapped
-      to the body of the request. If the value of the body field is of type
-      bytes or string then it is used for the HTTP request body as-is, with no
-      conversion. If the body field is of any other type then it is converted
-      to a JSON string. If the body field doesn't exist then the resulting
-      HTTP request will be without a body. - Any other fields in the resulting
-      expression will be ignored. Headers added to the request by previous
-      filters in the chain can be accessed in the CEL expression using the
+    celExpression: Required. The CEL expression used to modify how the
+      destination-bound HTTP request is constructed. If a binding expression
+      is not specified here, the message is treated as a CloudEvent and is
+      mapped to the HTTP request according to the CloudEvent HTTP Protocol
+      Binding Binary Content Mode (https://github.com/cloudevents/spec/blob/ma
+      in/cloudevents/bindings/http-protocol-binding.md#31-binary-content-
+      mode). In this representation, all fields except the `data` and
+      `datacontenttype` field on the message are mapped to HTTP request
+      headers with a prefix of `ce-`. To construct the HTTP request payload
+      and the value of the content-type HTTP header, the payload format is
+      defined as follows: 1) Use the output_payload_format on the
+      Stream.Destination if it is set, else: 2) Use the input_payload_format
+      on the Stream if it is set, else: 3) Treat the payload as opaque binary
+      data. The `data` field of the message is converted to the payload format
+      or left as-is for case 3) and then attached as the payload of the HTTP
+      request. The `content-type` header on the HTTP request is set to the
+      payload format type or left empty for case 3). However, if a mediation
+      has updated the `datacontenttype` field on the message so that it is not
+      the same as the payload format type but it is still a prefix of the
+      payload format type, then the `content-type` header on the HTTP request
+      is set to this `datacontenttype` value. For example, if the
+      `datacontenttype` is "application/json" and the payload format type is
+      "application/json; charset=utf-8", then the `content-type` header on the
+      HTTP request is set to "application/json; charset=utf-8". If a non-empty
+      binding expression is specified then this expression is used to modify
+      the default CloudEvent HTTP Protocol Binding Binary Content
+      representation. The result of the CEL expression must be a map of
+      key/value pairs which is used as follows: - If a map named `headers`
+      exists on the result of the expression, then its key/value pairs are
+      directly mapped to the HTTP request headers. The headers values are
+      constructed from the corresponding value type's canonical
+      representation. If the `headers` field doesn't exist then the resulting
+      HTTP request will be the headers of the CloudEvent HTTP Binding Binary
+      Content Mode representation of the final message. Note: If the specified
+      binding expression, has updated the `datacontenttype` field on the
+      message so that it is not the same as the payload format type but it is
+      still a prefix of the payload format type, then the `content-type`
+      header in the `headers` map is set to this `datacontenttype` value. - If
+      a field named `body` exists on the result of the expression then its
+      value is directly mapped to the body of the request. If the value of the
+      `body` field is of type bytes or string then it is used for the HTTP
+      request body as-is, with no conversion. If the body field is of any
+      other type then it is converted to a JSON string. If the body field does
+      not exist then the resulting payload of the HTTP request will be data
+      value of the CloudEvent HTTP Binding Binary Content Mode representation
+      of the final message as described earlier. - Any other fields in the
+      resulting expression will be ignored. The CEL expression may access the
+      incoming CloudEvent message in its definition, as follows: - The `data`
+      field of the incoming CloudEvent message can be accessed using the
+      `message.data` value. Subfields of `message.data` may also be accessed
+      if an input_payload_format has been specified on the Stream. - Each
+      attribute of the incoming CloudEvent message can be accessed using the
+      `message.` value, where is replaced with the name of the attribute. -
+      Existing headers can be accessed in the CEL expression using the
       `headers` variable. The `headers` variable defines a map of key/value
-      pairs corresponding to only the HTTP headers added by previous filters
-      in the chain and not the headers present on the original incoming
-      request. For example, the following CEL expression can be used to
-      construct a Headers-only HTTP request by adding an additional header to
-      the headers added by previous filters in the chain: ``` {"headers":
-      headers.merge({"new-header-key": "new-header-value"})} ``` Additionally,
-      the following CEL extension functions are provided for use in this CEL
-      expression: - toBase64Url(): Converts a CelValue to a base64url encoded
-      string. - toJsonString(): Converts a CelValue to a JSON string. -
-      merge(): Merges the given CEL map with the existing CEL map. - toMap():
-      Converts a CEL list of CEL maps to a single CEL map.
+      pairs corresponding to the HTTP headers of the CloudEvent HTTP Binding
+      Binary Content Mode representation of the final message as described
+      earlier. For example, the following CEL expression can be used to
+      construct an HTTP request by adding an additional header to the HTTP
+      headers of the CloudEvent HTTP Binding Binary Content Mode
+      representation of the final message and by overwriting the body of the
+      request: ``` { "headers": headers.merge({"new-header-key": "new-header-
+      value"}), "body": "new-body" } ``` - The default binding for the message
+      payload can be accessed using the `body` variable. It conatins a string
+      representation of the message payload in the format specified by the
+      `output_payload_format` field. If the `input_payload_format` field is
+      not set, the `body` variable contains the same message payload bytes
+      that were published. Additionally, the following CEL extension functions
+      are provided for use in this CEL expression: - toBase64Url:
+      map.toBase64Url() -> string - Converts a CelValue to a base64url encoded
+      string - toJsonString: map.toJsonString() -> string - Converts a
+      CelValue to a JSON string - merge: map1.merge(map2) -> map3 - Merges the
+      passed CEL map with the existing CEL map the function is applied to. -
+      If the same key exists in both maps, if the key's value is type map both
+      maps are merged else the value from the passed map is used. -
+      denormalize: map.denormalize() -> map - Denormalizes a CEL map such that
+      every value of type map or key in the map is expanded to return a single
+      level map. - The resulting keys are "." separated indices of the map
+      keys. - For example: { "a": 1, "b": { "c": 2, "d": 3 } "e": [4, 5] }
+      .denormalize() -> { "a": 1, "b.c": 2, "b.d": 3, "e.0": 4, "e.1": 5 } -
+      setField: map.setField(key, value) -> message - Sets the field of the
+      message with the given key to the given value. - If the field is not
+      present it will be added. - If the field is present it will be
+      overwritten. - The key can be a dot separated path to set a field in a
+      nested message. - Key must be of type string. - Value may be any valid
+      type. - removeFields: map.removeFields([key1, key2, ...]) -> message -
+      Removes the fields of the map with the given keys. - The keys can be a
+      dot separated path to remove a field in a nested message. - If a key is
+      not found it will be ignored. - Keys must be of type string. - toMap:
+      [map1, map2, ...].toMap() -> map - Converts a CEL list of CEL maps to a
+      single CEL map - toCloudEventJsonWithPayloadFormat:
+      message.toCloudEventJsonWithPayloadFormat() -> map - Converts a message
+      to the corresponding structure of JSON format for CloudEvents. - It
+      converts `data` to destination payload format specified in
+      `output_payload_format`. If `output_payload_format` is not set, the data
+      will remain unchanged. - It also sets the corresponding datacontenttype
+      of the CloudEvent, as indicated by `output_payload_format`. If no
+      `output_payload_format` is set it will use the value of the
+      "datacontenttype" attribute on the CloudEvent if present, else remove
+      "datacontenttype" attribute. - This function expects that the content of
+      the message will adhere to the standard CloudEvent format. If it doesn't
+      then this function will fail. - The result is a CEL map that corresponds
+      to the JSON representation of the CloudEvent. To convert that data to a
+      JSON string it can be chained with the toJsonString function. The Stream
+      expects that the message it receives adheres to the standard CloudEvent
+      format. If it doesn't then the outgoing message request may fail with a
+      persistent error.
   """
 
   celExpression = _messages.StringField(1)
@@ -611,6 +764,9 @@ class MessagestreamsProjectsLocationsListRequest(_messages.Message):
   r"""A MessagestreamsProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -623,11 +779,12 @@ class MessagestreamsProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  includeUnrevealedLocations = _messages.BooleanField(2)
-  name = _messages.StringField(3, required=True)
-  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(5)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  includeUnrevealedLocations = _messages.BooleanField(3)
+  name = _messages.StringField(4, required=True)
+  pageSize = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(6)
 
 
 class MessagestreamsProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -671,12 +828,20 @@ class MessagestreamsProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class MessagestreamsProjectsLocationsStreamsCreateRequest(_messages.Message):
@@ -713,6 +878,9 @@ class MessagestreamsProjectsLocationsStreamsDeleteRequest(_messages.Message):
   Fields:
     etag: Optional. If provided, the stream will only be deleted if the etag
       matches the current etag on the resource.
+    force: Optional. If set to true, any retry policies from this stream will
+      also be deleted. Followed the best practice from
+      https://aip.dev/135#cascading-delete
     name: Required. Name of the resource
     requestId: Optional. An optional request ID to identify requests. Specify
       a unique request ID so that if you must retry your request, the server
@@ -728,8 +896,9 @@ class MessagestreamsProjectsLocationsStreamsDeleteRequest(_messages.Message):
   """
 
   etag = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
+  force = _messages.BooleanField(2)
+  name = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
 
 
 class MessagestreamsProjectsLocationsStreamsGetRequest(_messages.Message):
@@ -846,6 +1015,91 @@ class MessagestreamsProjectsLocationsStreamsRetryPoliciesListRequest(_messages.M
   pageSize = _messages.IntegerField(1, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(2)
   parent = _messages.StringField(3, required=True)
+
+
+class MetricsConfig(_messages.Message):
+  r"""The configuration for optional annotations on Metrics emitted by the
+  Stream resource.
+
+  Messages:
+    LabelsValue: Optional. Labels store a set of opaque key-value pairs that
+      are supplied by the client and optionally processed in the downstream
+      systems depending on the Stream filter. These are alternatively known as
+      System Labels, and are not visible to the end user without explicit
+      configuration. These labels are used to annotate the metrics emitted by
+      the Stream resource. Billing metrics will inherit these labels and be
+      used in the billing pipeline via MTX Transformations to reroute the
+      metrics to the correct billing resource.
+
+  Fields:
+    labels: Optional. Labels store a set of opaque key-value pairs that are
+      supplied by the client and optionally processed in the downstream
+      systems depending on the Stream filter. These are alternatively known as
+      System Labels, and are not visible to the end user without explicit
+      configuration. These labels are used to annotate the metrics emitted by
+      the Stream resource. Billing metrics will inherit these labels and be
+      used in the billing pipeline via MTX Transformations to reroute the
+      metrics to the correct billing resource.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class LabelsValue(_messages.Message):
+    r"""Optional. Labels store a set of opaque key-value pairs that are
+    supplied by the client and optionally processed in the downstream systems
+    depending on the Stream filter. These are alternatively known as System
+    Labels, and are not visible to the end user without explicit
+    configuration. These labels are used to annotate the metrics emitted by
+    the Stream resource. Billing metrics will inherit these labels and be used
+    in the billing pipeline via MTX Transformations to reroute the metrics to
+    the correct billing resource.
+
+    Messages:
+      AdditionalProperty: An additional property for a LabelsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type LabelsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a LabelsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  labels = _messages.MessageField('LabelsValue', 1)
+
+
+class MstDebugInfo(_messages.Message):
+  r"""Per request from b/376318043, this message captures the metadata of
+  cloud resources that are created by CCFE and CLH (which then triggers the
+  creation of the multi-single tenant project that is of interest to DRZ).
+  Specifically, it contains the canonical name of the cloud resource as well
+  as several related creation/update timestamps, which can help service teams
+  to better understand the cause of DRZ violations. Next tag: 5
+
+  Fields:
+    canonicalCloudResourceName: Canonical resource name: projects/{consumer-
+      project-number}/locations/{location-name}[/{collection}/{resource-
+      name}]+ e.g. 'projects/12345/locations/us-central1/fooBars/foo-bar-1'
+    ccfePublicUpdateTime: Time when the cloud resource was last updated by the
+      CCFE.
+    clhDataUpdateTime: Time when the cloud resource was last updated by the
+      Control Logic Handler (CLH).
+    cloudResourceCreationTime: Time when the cloud resource was created in
+      CCFE.
+  """
+
+  canonicalCloudResourceName = _messages.StringField(1)
+  ccfePublicUpdateTime = _messages.StringField(2)
+  clhDataUpdateTime = _messages.StringField(3)
+  cloudResourceCreationTime = _messages.StringField(4)
 
 
 class MutualTlsAuthConfig(_messages.Message):
@@ -1025,6 +1279,34 @@ class OperationMetadata(_messages.Message):
   verb = _messages.StringField(7)
 
 
+class PersistentDiskData(_messages.Message):
+  r"""Persistent Disk service-specific Data. Contains information that may not
+  be appropriate for the generic DRZ Augmented View. This currently includes
+  LSV Colossus Roots and GCS Buckets.
+
+  Fields:
+    cfsRoots: Path to Colossus root for an LSV. NOTE: Unlike `cr_ti_guris` and
+      `cr_ti_prefixes`, the field `cfs_roots` below does not need to be a GUri
+      or GUri prefix. It can simply be any valid CFS or CFS2 Path. The DRZ KR8
+      SIG has more details overall, but generally the `cfs_roots` provided
+      here should be scoped to an individual Persistent Disk. An example for a
+      PD Disk with a disk ID 3277719120423414466, follows: * `cr_ti_guris`
+      could be '/cfs2/pj/pd-cloud-prod' as this is a valid GUri present in the
+      DG KB and contains enough information to perform location monitoring and
+      scope ownership of the Production Object. * `cfs_roots` would be:
+      '/cfs2/pj/pd-cloud-staging/lsv000001234@/
+      lsv/projects~773365403387~zones~2700~disks~3277719120423414466 ~bank-
+      blue-careful-3526-lsv00054DB1B7254BA3/' as this allows us to enumerate
+      the files on CFS2 that belong to an individual Disk.
+    gcsBucketNames: The GCS Buckets that back this snapshot or image. This is
+      required as `cr_ti_prefixes` and `cr_ti_guris` only accept TI resources.
+      This should be the globally unique bucket name.
+  """
+
+  cfsRoots = _messages.StringField(1, repeated=True)
+  gcsBucketNames = _messages.StringField(2, repeated=True)
+
+
 class ProtobufFormat(_messages.Message):
   r"""The format of a Protobuf message payload.
 
@@ -1116,25 +1398,30 @@ class SaslAuthConfig(_messages.Message):
   r"""SASL/Plain or SASL/SCRAM mechanism configuration.
 
   Enums:
-    MechanismValueValuesEnum:
+    MechanismValueValuesEnum: Required. The authentication method used by the
+      Kafka broker.
 
   Fields:
-    mechanism: A MechanismValueValuesEnum attribute.
-    passwordSecret: Required. The password for the authentication identity may
-      be loaded from Secret Manager. Supported Formats:
+    mechanism: Required. The authentication method used by the Kafka broker.
+    passwordSecret: Required. The password for the authentication identity
+      loaded from Secret Manager. Supported Formats:
       `projects/{project}/secrets/{secret}/versions/{version}` `projects/{proj
       ect}/locations/{location}/secrets/{secret}/versions/{version}`
     username: Required. The SASL authentication identity (username).
+    usernameSecret: Required. The SASL authentication identity (username)
+      loaded from Secret Manager. Supported Formats:
+      `projects/{project}/secrets/{secret}/versions/{version}` `projects/{proj
+      ect}/locations/{location}/secrets/{secret}/versions/{version}`
   """
 
   class MechanismValueValuesEnum(_messages.Enum):
-    r"""MechanismValueValuesEnum enum type.
+    r"""Required. The authentication method used by the Kafka broker.
 
     Values:
-      AUTH_MECHANISM_UNSPECIFIED: <no description>
-      PLAIN: <no description>
-      SHA_256: <no description>
-      SHA_512: <no description>
+      AUTH_MECHANISM_UNSPECIFIED: No authentication mechanism was specified.
+      PLAIN: SASL/Plain authentication mechanism.
+      SHA_256: SASL/SCRAM-SHA-256 authentication mechanism.
+      SHA_512: SASL/SCRAM-SHA-512 authentication mechanism.
     """
     AUTH_MECHANISM_UNSPECIFIED = 0
     PLAIN = 1
@@ -1144,13 +1431,27 @@ class SaslAuthConfig(_messages.Message):
   mechanism = _messages.EnumField('MechanismValueValuesEnum', 1)
   passwordSecret = _messages.StringField(2)
   username = _messages.StringField(3)
+  usernameSecret = _messages.StringField(4)
+
+
+class ServiceData(_messages.Message):
+  r"""This message defines service-specific data that certain service teams
+  must provide as part of the Data Residency Augmented View for a resource.
+  Next ID: 2
+
+  Fields:
+    pd: Auxiliary data for the persistent disk pipeline provided to provide
+      the LSV Colossus Roots and GCS Buckets.
+  """
+
+  pd = _messages.MessageField('PersistentDiskData', 1)
 
 
 class Source(_messages.Message):
   r"""Represents the source where we stream data from.
 
   Fields:
-    kafka: A KafkaSource attribute.
+    kafka: Configurations of the Kafka client streaming from a Kafka cluster.
     networkConfig: Optional. Network config is used to configure how Message
       Streams resolves and connect to a source.
     pubsubSubscription: A string attribute.
@@ -1291,6 +1592,9 @@ class Stream(_messages.Message):
       https://google.aip.dev/128#annotations
     createTime: Output only. [Output only] Create time stamp
     displayName: Optional. Display name of resource.
+    errorMessageBus: Optional. The resource name of the Message Bus to send
+      error messages to. This field enables dead-letter/persistent error
+      handling. See go/eaa-dlq-edd for details.
     etag: Output only. This checksum is computed by the server based on the
       value of other fields, and might be sent only on create requests to
       ensure that the client has an up-to-date value before proceeding.
@@ -1307,6 +1611,7 @@ class Stream(_messages.Message):
     loggingConfig: Optional. Config to control Platform Logging for Streams.
     mediations: Optional. Mediations to define the way to modify the incoming
       message.
+    metricsConfig: Optional. Config to control Metrics for Streams.
     name: The resource name of the stream. Must be unique within the location
       of the project and must be in
       `projects/{project}/locations/{location}/streams/{stream}` format.
@@ -1415,21 +1720,23 @@ class Stream(_messages.Message):
   annotations = _messages.MessageField('AnnotationsValue', 1)
   createTime = _messages.StringField(2)
   displayName = _messages.StringField(3)
-  etag = _messages.StringField(4)
-  eventarcTransformationType = _messages.EnumField('EventarcTransformationTypeValueValuesEnum', 5)
-  inputPayloadFormat = _messages.MessageField('MessagePayloadFormat', 6)
-  labels = _messages.MessageField('LabelsValue', 7)
-  loggingConfig = _messages.MessageField('LoggingConfig', 8)
-  mediations = _messages.MessageField('Mediation', 9, repeated=True)
-  name = _messages.StringField(10)
-  replyBus = _messages.StringField(11)
-  retryPolicy = _messages.MessageField('InlineRetryPolicy', 12)
-  source = _messages.MessageField('Source', 13)
-  streamAction = _messages.MessageField('StreamAction', 14)
-  streamIdentityOverride = _messages.StringField(15)
-  uid = _messages.StringField(16)
-  updateTime = _messages.StringField(17)
-  useSharedPool = _messages.BooleanField(18)
+  errorMessageBus = _messages.StringField(4)
+  etag = _messages.StringField(5)
+  eventarcTransformationType = _messages.EnumField('EventarcTransformationTypeValueValuesEnum', 6)
+  inputPayloadFormat = _messages.MessageField('MessagePayloadFormat', 7)
+  labels = _messages.MessageField('LabelsValue', 8)
+  loggingConfig = _messages.MessageField('LoggingConfig', 9)
+  mediations = _messages.MessageField('Mediation', 10, repeated=True)
+  metricsConfig = _messages.MessageField('MetricsConfig', 11)
+  name = _messages.StringField(12)
+  replyBus = _messages.StringField(13)
+  retryPolicy = _messages.MessageField('InlineRetryPolicy', 14)
+  source = _messages.MessageField('Source', 15)
+  streamAction = _messages.MessageField('StreamAction', 16)
+  streamIdentityOverride = _messages.StringField(17)
+  uid = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
+  useSharedPool = _messages.BooleanField(20)
 
 
 class StreamAction(_messages.Message):

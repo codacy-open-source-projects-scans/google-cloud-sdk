@@ -115,12 +115,58 @@ class Collections(enum.Enum):
       ['projectsId', 'locationsId', 'cloudVmClustersId', 'dbNodesId'],
       True
   )
+  PROJECTS_LOCATIONS_DATABASECHARACTERSETS = (
+      'projects.locations.databaseCharacterSets',
+      'projects/{projectsId}/locations/{locationsId}/databaseCharacterSets/'
+      '{databaseCharacterSetsId}',
+      {},
+      ['projectsId', 'locationsId', 'databaseCharacterSetsId'],
+      True
+  )
+  PROJECTS_LOCATIONS_DATABASES = (
+      'projects.locations.databases',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/databases/'
+              '{databasesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DBSYSTEMINITIALSTORAGESIZES = (
+      'projects.locations.dbSystemInitialStorageSizes',
+      'projects/{projectsId}/locations/{locationsId}/'
+      'dbSystemInitialStorageSizes/{dbSystemInitialStorageSizesId}',
+      {},
+      ['projectsId', 'locationsId', 'dbSystemInitialStorageSizesId'],
+      True
+  )
   PROJECTS_LOCATIONS_DBSYSTEMSHAPES = (
       'projects.locations.dbSystemShapes',
       'projects/{projectsId}/locations/{locationsId}/dbSystemShapes/'
       '{dbSystemShapesId}',
       {},
       ['projectsId', 'locationsId', 'dbSystemShapesId'],
+      True
+  )
+  PROJECTS_LOCATIONS_DBSYSTEMS = (
+      'projects.locations.dbSystems',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/dbSystems/'
+              '{dbSystemsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DBVERSIONS = (
+      'projects.locations.dbVersions',
+      'projects/{projectsId}/locations/{locationsId}/dbVersions/'
+      '{dbVersionsId}',
+      {},
+      ['projectsId', 'locationsId', 'dbVersionsId'],
       True
   )
   PROJECTS_LOCATIONS_ENTITLEMENTS = (
@@ -131,12 +177,80 @@ class Collections(enum.Enum):
       ['projectsId', 'locationsId', 'entitlementsId'],
       True
   )
+  PROJECTS_LOCATIONS_EXADBVMCLUSTERS = (
+      'projects.locations.exadbVmClusters',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/exadbVmClusters/'
+              '{exadbVmClustersId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_EXADBVMCLUSTERS_DBNODES = (
+      'projects.locations.exadbVmClusters.dbNodes',
+      'projects/{projectsId}/locations/{locationsId}/exadbVmClusters/'
+      '{exadbVmClustersId}/dbNodes/{dbNodesId}',
+      {},
+      ['projectsId', 'locationsId', 'exadbVmClustersId', 'dbNodesId'],
+      True
+  )
+  PROJECTS_LOCATIONS_EXASCALEDBSTORAGEVAULTS = (
+      'projects.locations.exascaleDbStorageVaults',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'exascaleDbStorageVaults/{exascaleDbStorageVaultsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_GIVERSIONS = (
       'projects.locations.giVersions',
       'projects/{projectsId}/locations/{locationsId}/giVersions/'
       '{giVersionsId}',
       {},
       ['projectsId', 'locationsId', 'giVersionsId'],
+      True
+  )
+  PROJECTS_LOCATIONS_GIVERSIONS_MINORVERSIONS = (
+      'projects.locations.giVersions.minorVersions',
+      'projects/{projectsId}/locations/{locationsId}/giVersions/'
+      '{giVersionsId}/minorVersions/{minorVersionsId}',
+      {},
+      ['projectsId', 'locationsId', 'giVersionsId', 'minorVersionsId'],
+      True
+  )
+  PROJECTS_LOCATIONS_KEYRINGS_CRYPTOKEYS = (
+      'projects.locations.keyRings.cryptoKeys',
+      'projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/'
+      'cryptoKeys/{cryptoKeysId}',
+      {},
+      ['projectsId', 'locationsId', 'keyRingsId', 'cryptoKeysId'],
+      True
+  )
+  PROJECTS_LOCATIONS_ODBNETWORKS = (
+      'projects.locations.odbNetworks',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/odbNetworks/'
+              '{odbNetworksId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_ODBNETWORKS_ODBSUBNETS = (
+      'projects.locations.odbNetworks.odbSubnets',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/odbNetworks/'
+              '{odbNetworksId}/odbSubnets/{odbSubnetsId}',
+      },
+      ['name'],
       True
   )
   PROJECTS_LOCATIONS_OPERATIONS = (
@@ -146,6 +260,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/operations/'
               '{operationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_PLUGGABLEDATABASES = (
+      'projects.locations.pluggableDatabases',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'pluggableDatabases/{pluggableDatabasesId}',
       },
       ['name'],
       True

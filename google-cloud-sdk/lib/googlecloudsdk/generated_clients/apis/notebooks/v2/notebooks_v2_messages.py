@@ -41,6 +41,9 @@ class AcceleratorConfig(_messages.Message):
       NVIDIA_TESLA_A100: Accelerator type is Nvidia Tesla A100 - 40GB.
       NVIDIA_A100_80GB: Accelerator type is Nvidia Tesla A100 - 80GB.
       NVIDIA_L4: Accelerator type is Nvidia Tesla L4.
+      NVIDIA_H100_80GB: Accelerator type is Nvidia Tesla H100 - 80GB.
+      NVIDIA_H100_MEGA_80GB: Accelerator type is Nvidia Tesla H100 - MEGA
+        80GB.
       NVIDIA_TESLA_T4_VWS: Accelerator type is NVIDIA Tesla T4 Virtual
         Workstations.
       NVIDIA_TESLA_P100_VWS: Accelerator type is NVIDIA Tesla P100 Virtual
@@ -56,9 +59,11 @@ class AcceleratorConfig(_messages.Message):
     NVIDIA_TESLA_A100 = 5
     NVIDIA_A100_80GB = 6
     NVIDIA_L4 = 7
-    NVIDIA_TESLA_T4_VWS = 8
-    NVIDIA_TESLA_P100_VWS = 9
-    NVIDIA_TESLA_P4_VWS = 10
+    NVIDIA_H100_80GB = 8
+    NVIDIA_H100_MEGA_80GB = 9
+    NVIDIA_TESLA_T4_VWS = 10
+    NVIDIA_TESLA_P100_VWS = 11
+    NVIDIA_TESLA_P4_VWS = 12
 
   coreCount = _messages.IntegerField(1)
   type = _messages.EnumField('TypeValueValuesEnum', 2)
@@ -225,6 +230,68 @@ class CancelOperationRequest(_messages.Message):
   r"""The request message for Operations.CancelOperation."""
 
 
+class CheckAuthorizationRequest(_messages.Message):
+  r"""Request message for checking authorization for the instance owner.
+
+  Messages:
+    AuthorizationDetailsValue: Optional. The details of the OAuth
+      authorization response. This may include additional params such as
+      dry_run, version_info, origin, propagate, etc.
+
+  Fields:
+    authorizationDetails: Optional. The details of the OAuth authorization
+      response. This may include additional params such as dry_run,
+      version_info, origin, propagate, etc.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class AuthorizationDetailsValue(_messages.Message):
+    r"""Optional. The details of the OAuth authorization response. This may
+    include additional params such as dry_run, version_info, origin,
+    propagate, etc.
+
+    Messages:
+      AdditionalProperty: An additional property for a
+        AuthorizationDetailsValue object.
+
+    Fields:
+      additionalProperties: Additional properties of type
+        AuthorizationDetailsValue
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a AuthorizationDetailsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A string attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  authorizationDetails = _messages.MessageField('AuthorizationDetailsValue', 1)
+
+
+class CheckAuthorizationResponse(_messages.Message):
+  r"""Response message for checking authorization for the instance owner.
+
+  Fields:
+    createTime: Output only. Timestamp when this Authorization request was
+      created.
+    oauth_uri: If the user has not completed OAuth consent, then the oauth_url
+      is returned. Otherwise, this field is not set.
+    success: Success indicates that the user completed OAuth consent and
+      access tokens can be generated.
+  """
+
+  createTime = _messages.StringField(1)
+  oauth_uri = _messages.StringField(2)
+  success = _messages.BooleanField(3)
+
+
 class CheckInstanceUpgradabilityResponse(_messages.Message):
   r"""Response for checking if a notebook instance is upgradeable.
 
@@ -245,6 +312,33 @@ class CheckInstanceUpgradabilityResponse(_messages.Message):
   upgradeable = _messages.BooleanField(4)
 
 
+class ConfidentialInstanceConfig(_messages.Message):
+  r"""A set of Confidential Instance options.
+
+  Enums:
+    ConfidentialInstanceTypeValueValuesEnum: Optional. Defines the type of
+      technology used by the confidential instance.
+
+  Fields:
+    confidentialInstanceType: Optional. Defines the type of technology used by
+      the confidential instance.
+  """
+
+  class ConfidentialInstanceTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Defines the type of technology used by the confidential
+    instance.
+
+    Values:
+      CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED: No type specified. Do not use
+        this value.
+      SEV: AMD Secure Encrypted Virtualization.
+    """
+    CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED = 0
+    SEV = 1
+
+  confidentialInstanceType = _messages.EnumField('ConfidentialInstanceTypeValueValuesEnum', 1)
+
+
 class Config(_messages.Message):
   r"""Response for getting WbI configurations in a location
 
@@ -252,12 +346,16 @@ class Config(_messages.Message):
     availableImages: Output only. The list of available images to create a
       WbI.
     defaultValues: Output only. The default values for configuration.
+    disableWorkbenchLegacyCreation: Output only. Flag to disable the creation
+      of legacy Workbench notebooks (User-managed notebooks and Google-managed
+      notebooks).
     supportedValues: Output only. The supported values for configuration.
   """
 
   availableImages = _messages.MessageField('ImageRelease', 1, repeated=True)
   defaultValues = _messages.MessageField('DefaultValues', 2)
-  supportedValues = _messages.MessageField('SupportedValues', 3)
+  disableWorkbenchLegacyCreation = _messages.BooleanField(3)
+  supportedValues = _messages.MessageField('SupportedValues', 4)
 
 
 class ContainerImage(_messages.Message):
@@ -537,6 +635,7 @@ class GceSetup(_messages.Message):
       selected](https://cloud.google.com/compute/docs/gpus/#gpus-list).
       Currently supports only one accelerator configuration.
     bootDisk: Optional. The boot disk for the VM.
+    confidentialInstanceConfig: Optional. Confidential instance configuration.
     containerImage: Optional. Use a container image to start the notebook
       instance.
     dataDisks: Optional. Data disks attached to the VM instance. Currently
@@ -546,6 +645,8 @@ class GceSetup(_messages.Message):
     enableIpForwarding: Optional. Flag to enable ip forwarding or not, default
       false/off. https://cloud.google.com/vpc/docs/using-routes#canipforward
     gpuDriverConfig: Optional. Configuration for GPU drivers.
+    instanceId: Output only. The unique ID of the Compute Engine instance
+      resource.
     machineType: Optional. The machine type of the VM instance.
       https://cloud.google.com/compute/docs/machine-resource
     metadata: Optional. Custom metadata to apply to this instance.
@@ -556,7 +657,7 @@ class GceSetup(_messages.Message):
     networkInterfaces: Optional. The network interfaces for the VM. Supports
       only one interface.
     reservationAffinity: Optional. Specifies the reservations that this
-      instance can consume from. Next ID: 17
+      instance can consume from.
     serviceAccounts: Optional. The service account that serves as an identity
       for the VM instance. Currently supports only one service account.
     shieldedInstanceConfig: Optional. Shielded VM configuration. [Images using
@@ -596,20 +697,55 @@ class GceSetup(_messages.Message):
 
   acceleratorConfigs = _messages.MessageField('AcceleratorConfig', 1, repeated=True)
   bootDisk = _messages.MessageField('BootDisk', 2)
-  containerImage = _messages.MessageField('ContainerImage', 3)
-  dataDisks = _messages.MessageField('DataDisk', 4, repeated=True)
-  disablePublicIp = _messages.BooleanField(5)
-  enableIpForwarding = _messages.BooleanField(6)
-  gpuDriverConfig = _messages.MessageField('GPUDriverConfig', 7)
-  machineType = _messages.StringField(8)
-  metadata = _messages.MessageField('MetadataValue', 9)
-  minCpuPlatform = _messages.StringField(10)
-  networkInterfaces = _messages.MessageField('NetworkInterface', 11, repeated=True)
-  reservationAffinity = _messages.MessageField('ReservationAffinity', 12)
-  serviceAccounts = _messages.MessageField('ServiceAccount', 13, repeated=True)
-  shieldedInstanceConfig = _messages.MessageField('ShieldedInstanceConfig', 14)
-  tags = _messages.StringField(15, repeated=True)
-  vmImage = _messages.MessageField('VmImage', 16)
+  confidentialInstanceConfig = _messages.MessageField('ConfidentialInstanceConfig', 3)
+  containerImage = _messages.MessageField('ContainerImage', 4)
+  dataDisks = _messages.MessageField('DataDisk', 5, repeated=True)
+  disablePublicIp = _messages.BooleanField(6)
+  enableIpForwarding = _messages.BooleanField(7)
+  gpuDriverConfig = _messages.MessageField('GPUDriverConfig', 8)
+  instanceId = _messages.StringField(9)
+  machineType = _messages.StringField(10)
+  metadata = _messages.MessageField('MetadataValue', 11)
+  minCpuPlatform = _messages.StringField(12)
+  networkInterfaces = _messages.MessageField('NetworkInterface', 13, repeated=True)
+  reservationAffinity = _messages.MessageField('ReservationAffinity', 14)
+  serviceAccounts = _messages.MessageField('ServiceAccount', 15, repeated=True)
+  shieldedInstanceConfig = _messages.MessageField('ShieldedInstanceConfig', 16)
+  tags = _messages.StringField(17, repeated=True)
+  vmImage = _messages.MessageField('VmImage', 18)
+
+
+class GenerateAccessTokenRequest(_messages.Message):
+  r"""Request message for generating an EUC for the instance owner.
+
+  Fields:
+    vmToken: Required. The VM identity token (a JWT) for authenticating the
+      VM. https://cloud.google.com/compute/docs/instances/verifying-instance-
+      identity
+  """
+
+  vmToken = _messages.StringField(1)
+
+
+class GenerateAccessTokenResponse(_messages.Message):
+  r"""Response message for generating an EUC for the instance owner.
+
+  Fields:
+    access_token: Short-lived access token string which may be used to access
+      Google APIs.
+    expires_in: The time in seconds when the access token expires. Typically
+      that's 3600.
+    scope: Space-separated list of scopes contained in the returned token.
+      https://cloud.google.com/docs/authentication/token-types#access-contents
+    token_type: Type of the returned access token (e.g. "Bearer"). It
+      specifies how the token must be used. Bearer tokens may be used by any
+      entity without proof of identity.
+  """
+
+  access_token = _messages.StringField(1)
+  expires_in = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  scope = _messages.StringField(3)
+  token_type = _messages.StringField(4)
 
 
 class ImageRelease(_messages.Message):
@@ -646,6 +782,13 @@ class Instance(_messages.Message):
       CreateInstance request.
     disableProxyAccess: Optional. If true, the notebook instance will not
       register with the proxy.
+    enableDeletionProtection: Optional. If true, deletion protection will be
+      enabled for this Workbench Instance. If false, deletion protection will
+      be disabled for this Workbench Instance.
+    enableManagedEuc: Optional. Flag to enable managed end user credentials
+      for the instance.
+    enableThirdPartyIdentity: Optional. Flag that specifies that a notebook
+      can be accessed with third party identity provider.
     gceSetup: Optional. Compute Engine setup for the notebook. Uses notebook-
       defined fields.
     healthInfo: Output only. Additional information about instance health.
@@ -654,13 +797,13 @@ class Instance(_messages.Message):
       "jupyterlab_status": "-1", "updated": "2020-10-18 09:40:03.573409" }
     healthState: Output only. Instance health_state.
     id: Output only. Unique ID of the resource.
-    instanceOwners: Optional. Input only. The owner of this instance after
-      creation. Format: `alias@example.com` Currently supports one owner only.
-      If not specified, all of the service account users of your VM instance's
+    instanceOwners: Optional. The owner of this instance after creation.
+      Format: `alias@example.com` Currently supports one owner only. If not
+      specified, all of the service account users of your VM instance's
       service account can use the instance.
     labels: Optional. Labels to apply to this instance. These can be later
       modified by the UpdateInstance method.
-    name: Output only. The name of this notebook instance. Format:
+    name: Output only. Identifier. The name of this notebook instance. Format:
       `projects/{project_id}/locations/{location}/instances/{instance_id}`
     proxyUri: Output only. The proxy endpoint that is used to access the
       Jupyter notebook.
@@ -777,20 +920,23 @@ class Instance(_messages.Message):
   createTime = _messages.StringField(1)
   creator = _messages.StringField(2)
   disableProxyAccess = _messages.BooleanField(3)
-  gceSetup = _messages.MessageField('GceSetup', 4)
-  healthInfo = _messages.MessageField('HealthInfoValue', 5)
-  healthState = _messages.EnumField('HealthStateValueValuesEnum', 6)
-  id = _messages.StringField(7)
-  instanceOwners = _messages.StringField(8, repeated=True)
-  labels = _messages.MessageField('LabelsValue', 9)
-  name = _messages.StringField(10)
-  proxyUri = _messages.StringField(11)
-  satisfiesPzi = _messages.BooleanField(12)
-  satisfiesPzs = _messages.BooleanField(13)
-  state = _messages.EnumField('StateValueValuesEnum', 14)
-  thirdPartyProxyUrl = _messages.StringField(15)
-  updateTime = _messages.StringField(16)
-  upgradeHistory = _messages.MessageField('UpgradeHistoryEntry', 17, repeated=True)
+  enableDeletionProtection = _messages.BooleanField(4)
+  enableManagedEuc = _messages.BooleanField(5)
+  enableThirdPartyIdentity = _messages.BooleanField(6)
+  gceSetup = _messages.MessageField('GceSetup', 7)
+  healthInfo = _messages.MessageField('HealthInfoValue', 8)
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 9)
+  id = _messages.StringField(10)
+  instanceOwners = _messages.StringField(11, repeated=True)
+  labels = _messages.MessageField('LabelsValue', 12)
+  name = _messages.StringField(13)
+  proxyUri = _messages.StringField(14)
+  satisfiesPzi = _messages.BooleanField(15)
+  satisfiesPzs = _messages.BooleanField(16)
+  state = _messages.EnumField('StateValueValuesEnum', 17)
+  thirdPartyProxyUrl = _messages.StringField(18)
+  updateTime = _messages.StringField(19)
+  upgradeHistory = _messages.MessageField('UpgradeHistoryEntry', 20, repeated=True)
 
 
 class ListInstancesResponse(_messages.Message):
@@ -830,10 +976,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class Location(_messages.Message):
@@ -966,6 +1117,20 @@ class NotebooksProjectsLocationsGetRequest(_messages.Message):
   name = _messages.StringField(1, required=True)
 
 
+class NotebooksProjectsLocationsInstancesCheckAuthorizationRequest(_messages.Message):
+  r"""A NotebooksProjectsLocationsInstancesCheckAuthorizationRequest object.
+
+  Fields:
+    checkAuthorizationRequest: A CheckAuthorizationRequest resource to be
+      passed as the request body.
+    name: Required. The name of the Notebook Instance resource. Format:
+      `projects/{project}/locations/{location}/instances/{instance}`
+  """
+
+  checkAuthorizationRequest = _messages.MessageField('CheckAuthorizationRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
 class NotebooksProjectsLocationsInstancesCheckUpgradabilityRequest(_messages.Message):
   r"""A NotebooksProjectsLocationsInstancesCheckUpgradabilityRequest object.
 
@@ -1018,6 +1183,20 @@ class NotebooksProjectsLocationsInstancesDiagnoseRequest(_messages.Message):
   """
 
   diagnoseInstanceRequest = _messages.MessageField('DiagnoseInstanceRequest', 1)
+  name = _messages.StringField(2, required=True)
+
+
+class NotebooksProjectsLocationsInstancesGenerateAccessTokenRequest(_messages.Message):
+  r"""A NotebooksProjectsLocationsInstancesGenerateAccessTokenRequest object.
+
+  Fields:
+    generateAccessTokenRequest: A GenerateAccessTokenRequest resource to be
+      passed as the request body.
+    name: Required. Format:
+      `projects/{project}/locations/{location}/instances/{instance_id}`
+  """
+
+  generateAccessTokenRequest = _messages.MessageField('GenerateAccessTokenRequest', 1)
   name = _messages.StringField(2, required=True)
 
 
@@ -1094,10 +1273,28 @@ class NotebooksProjectsLocationsInstancesPatchRequest(_messages.Message):
 
   Fields:
     instance: A Instance resource to be passed as the request body.
-    name: Output only. The name of this notebook instance. Format:
+    name: Output only. Identifier. The name of this notebook instance. Format:
       `projects/{project_id}/locations/{location}/instances/{instance_id}`
     requestId: Optional. Idempotent request UUID.
-    updateMask: Required. Mask used to update an instance
+    updateMask: Required. Mask used to update an instance. Updatable fields: *
+      `labels` * `gce_setup.min_cpu_platform` * `gce_setup.metadata` *
+      `gce_setup.machine_type` * `gce_setup.accelerator_configs` *
+      `gce_setup.accelerator_configs.type` *
+      `gce_setup.accelerator_configs.core_count` *
+      `gce_setup.gpu_driver_config` *
+      `gce_setup.gpu_driver_config.enable_gpu_driver` *
+      `gce_setup.gpu_driver_config.custom_gpu_driver_path` *
+      `gce_setup.shielded_instance_config` *
+      `gce_setup.shielded_instance_config.enable_secure_boot` *
+      `gce_setup.shielded_instance_config.enable_vtpm` *
+      `gce_setup.shielded_instance_config.enable_integrity_monitoring` *
+      `gce_setup.reservation_affinity` *
+      `gce_setup.reservation_affinity.consume_reservation_type` *
+      `gce_setup.reservation_affinity.key` *
+      `gce_setup.reservation_affinity.values` * `gce_setup.tags` *
+      `gce_setup.container_image` * `gce_setup.container_image.repository` *
+      `gce_setup.container_image.tag` * `gce_setup.disable_public_ip` *
+      `disable_proxy_access`
   """
 
   instance = _messages.MessageField('Instance', 1)
@@ -1268,6 +1465,9 @@ class NotebooksProjectsLocationsListRequest(_messages.Message):
   r"""A NotebooksProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1278,10 +1478,11 @@ class NotebooksProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class NotebooksProjectsLocationsOperationsCancelRequest(_messages.Message):
@@ -1325,12 +1526,20 @@ class NotebooksProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class Operation(_messages.Message):
@@ -1562,28 +1771,29 @@ class ReservationAffinity(_messages.Message):
   r"""A reservation that an instance can consume from.
 
   Enums:
-    ConsumeReservationTypeValueValuesEnum: Specifies the type of reservation
-      from which this instance can consume resources: RESERVATION_ANY
-      (default), RESERVATION_SPECIFIC, or RESERVATION_NONE. See Consuming
-      reserved instances for examples.
+    ConsumeReservationTypeValueValuesEnum: Required. Specifies the type of
+      reservation from which this instance can consume resources:
+      RESERVATION_ANY (default), RESERVATION_SPECIFIC, or RESERVATION_NONE.
+      See Consuming reserved instances for examples.
 
   Fields:
-    consumeReservationType: Specifies the type of reservation from which this
-      instance can consume resources: RESERVATION_ANY (default),
+    consumeReservationType: Required. Specifies the type of reservation from
+      which this instance can consume resources: RESERVATION_ANY (default),
       RESERVATION_SPECIFIC, or RESERVATION_NONE. See Consuming reserved
       instances for examples.
-    key: Corresponds to the label key of a reservation resource. To target a
-      RESERVATION_SPECIFIC by name, use compute.googleapis.com/reservation-
-      name as the key and specify the name of your reservation as its value.
-    values: Corresponds to the label values of a reservation resource. This
-      can be either a name to a reservation in the same project or
-      "projects/different-project/reservations/some-reservation-name" to
+    key: Optional. Corresponds to the label key of a reservation resource. To
+      target a RESERVATION_SPECIFIC by name, use
+      compute.googleapis.com/reservation-name as the key and specify the name
+      of your reservation as its value.
+    values: Optional. Corresponds to the label values of a reservation
+      resource. This can be either a name to a reservation in the same project
+      or "projects/different-project/reservations/some-reservation-name" to
       target a shared reservation in the same zone but in a different project.
   """
 
   class ConsumeReservationTypeValueValuesEnum(_messages.Enum):
-    r"""Specifies the type of reservation from which this instance can consume
-    resources: RESERVATION_ANY (default), RESERVATION_SPECIFIC, or
+    r"""Required. Specifies the type of reservation from which this instance
+    can consume resources: RESERVATION_ANY (default), RESERVATION_SPECIFIC, or
     RESERVATION_NONE. See Consuming reserved instances for examples.
 
     Values:
@@ -1682,14 +1892,13 @@ class ShieldedInstanceConfig(_messages.Message):
       boot integrity of the VM instance. The attestation is performed against
       the integrity policy baseline. This baseline is initially derived from
       the implicitly trusted boot image when the VM instance is created.
-      Enabled by default.
     enableSecureBoot: Optional. Defines whether the VM instance has Secure
       Boot enabled. Secure Boot helps ensure that the system only runs
       authentic software by verifying the digital signature of all boot
       components, and halting the boot process if signature verification
       fails. Disabled by default.
     enableVtpm: Optional. Defines whether the VM instance has the vTPM
-      enabled. Enabled by default.
+      enabled.
   """
 
   enableIntegrityMonitoring = _messages.BooleanField(1)

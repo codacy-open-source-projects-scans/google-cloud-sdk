@@ -161,6 +161,11 @@ class Parameter(_messages.Message):
   Fields:
     createTime: Output only. [Output only] Create time stamp
     format: Optional. Specifies the format of a Parameter.
+    kmsKey: Optional. Customer managed encryption key (CMEK) to use for
+      encrypting the Parameter Versions. If not set, the default Google-
+      managed encryption key will be used. Cloud KMS CryptoKeys must reside in
+      the same location as the Parameter. The expected format is
+      `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
     labels: Optional. Labels as key value pairs
     name: Identifier. [Output only] The resource name of the Parameter in the
       format `projects/*/locations/*/parameters/*`.
@@ -210,10 +215,11 @@ class Parameter(_messages.Message):
 
   createTime = _messages.StringField(1)
   format = _messages.EnumField('FormatValueValuesEnum', 2)
-  labels = _messages.MessageField('LabelsValue', 3)
-  name = _messages.StringField(4)
-  policyMember = _messages.MessageField('ResourcePolicyMember', 5)
-  updateTime = _messages.StringField(6)
+  kmsKey = _messages.StringField(3)
+  labels = _messages.MessageField('LabelsValue', 4)
+  name = _messages.StringField(5)
+  policyMember = _messages.MessageField('ResourcePolicyMember', 6)
+  updateTime = _messages.StringField(7)
 
 
 class ParameterVersion(_messages.Message):
@@ -226,6 +232,10 @@ class ParameterVersion(_messages.Message):
       is true). If true any calls will always default to BASIC view even if
       the user explicitly passes FULL view as part of the request. A render
       call on a disabled resource fails with an error. Default value is False.
+    kmsKeyVersion: Optional. Output only. [Output only] The resource name of
+      the KMS key version used to encrypt the ParameterVersion payload. This
+      field is populated only if the Parameter resource has customer managed
+      encryption key (CMEK) configured.
     name: Identifier. [Output only] The resource name of the ParameterVersion
       in the format `projects/*/locations/*/parameters/*/versions/*`.
     payload: Required. Immutable. Payload content of a ParameterVersion
@@ -236,9 +246,10 @@ class ParameterVersion(_messages.Message):
 
   createTime = _messages.StringField(1)
   disabled = _messages.BooleanField(2)
-  name = _messages.StringField(3)
-  payload = _messages.MessageField('ParameterVersionPayload', 4)
-  updateTime = _messages.StringField(5)
+  kmsKeyVersion = _messages.StringField(3)
+  name = _messages.StringField(4)
+  payload = _messages.MessageField('ParameterVersionPayload', 5)
+  updateTime = _messages.StringField(6)
 
 
 class ParameterVersionPayload(_messages.Message):
@@ -265,6 +276,9 @@ class ParametermanagerProjectsLocationsListRequest(_messages.Message):
   r"""A ParametermanagerProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -275,10 +289,11 @@ class ParametermanagerProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ParametermanagerProjectsLocationsParametersCreateRequest(_messages.Message):
@@ -558,7 +573,7 @@ class RenderParameterVersionResponse(_messages.Message):
     renderedPayload: Output only. Server generated rendered version of the
       user provided payload data (ParameterVersionPayload) which has
       substitutions of all (if any) references to a SecretManager
-      SecretVersion resources. This substituion only works for a Parameter
+      SecretVersion resources. This substitution only works for a Parameter
       which is in JSON or YAML format.
   """
 
@@ -568,21 +583,22 @@ class RenderParameterVersionResponse(_messages.Message):
 
 
 class ResourcePolicyMember(_messages.Message):
-  r"""Output-only policy member strings of a Google Cloud resource.
+  r"""Output-only policy member strings of a Google Cloud resource's built-in
+  identity.
 
   Fields:
     iamPolicyNamePrincipal: Output only. IAM policy binding member referring
       to a Google Cloud resource by user-assigned name
       (https://google.aip.dev/122). If a resource is deleted and recreated
       with the same name, the binding will be applicable to the new resource.
-      Example: `principal://appconfigmanager.googleapis.com/projects/12345/nam
-      e/locations/us-central1-a/configs/my-config`
+      Example: `principal://parametermanager.googleapis.com/projects/12345/nam
+      e/locations/us-central1-a/parameters/my-parameter`
     iamPolicyUidPrincipal: Output only. IAM policy binding member referring to
       a Google Cloud resource by system-assigned unique identifier
       (https://google.aip.dev/148#uid). If a resource is deleted and recreated
       with the same name, the binding will not be applicable to the new
-      resource Example: `principal://appconfigmanager.googleapis.com/projects/
-      12345/uid/locations/us-central1-a/configs/a918fed5`
+      resource Example: `principal://parametermanager.googleapis.com/projects/
+      12345/uid/locations/us-central1-a/parameters/a918fed5`
   """
 
   iamPolicyNamePrincipal = _messages.StringField(1)

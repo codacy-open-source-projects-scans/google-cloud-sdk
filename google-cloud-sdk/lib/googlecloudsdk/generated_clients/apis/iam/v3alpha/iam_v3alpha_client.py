@@ -206,6 +206,33 @@ class IamV3alpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def SearchPolicyBindings(self, request, global_params=None):
+      r"""Returns all policy bindings that bind a specific policy if a user has searchPolicyBindings permission on that policy.
+
+      Args:
+        request: (IamFoldersLocationsAccessPoliciesSearchPolicyBindingsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleIamV3alphaSearchAccessPolicyBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('SearchPolicyBindings')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SearchPolicyBindings.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3alpha/folders/{foldersId}/locations/{locationsId}/accessPolicies/{accessPoliciesId}:searchPolicyBindings',
+        http_method='GET',
+        method_id='iam.folders.locations.accessPolicies.searchPolicyBindings',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v3alpha/{+name}:searchPolicyBindings',
+        request_field='',
+        request_type_name='IamFoldersLocationsAccessPoliciesSearchPolicyBindingsRequest',
+        response_type_name='GoogleIamV3alphaSearchAccessPolicyBindingsResponse',
+        supports_download=False,
+    )
+
   class FoldersLocationsOperationsService(base_api.BaseApiService):
     """Service class for the folders_locations_operations resource."""
 
@@ -362,7 +389,7 @@ class IamV3alpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update, and the IAM permission to remove the existing policy from the binding. Target is immutable and cannot be updated. Once the binding is updated, the new policy is applied to the target.
+      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update. Target and policy are immutable and cannot be updated.
 
       Args:
         request: (IamFoldersLocationsPolicyBindingsPatchRequest) input message
@@ -407,7 +434,7 @@ class IamV3alpha(base_api.BaseApiClient):
         method_id='iam.folders.locations.policyBindings.searchTargetPolicyBindings',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken', 'target'],
+        query_params=['filter', 'pageSize', 'pageToken', 'target'],
         relative_path='v3alpha/{+parent}/policyBindings:searchTargetPolicyBindings',
         request_field='',
         request_type_name='IamFoldersLocationsPolicyBindingsSearchTargetPolicyBindingsRequest',
@@ -580,6 +607,33 @@ class IamV3alpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def SearchPolicyBindings(self, request, global_params=None):
+      r"""Returns all policy bindings that bind a specific policy if a user has searchPolicyBindings permission on that policy.
+
+      Args:
+        request: (IamOrganizationsLocationsAccessPoliciesSearchPolicyBindingsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleIamV3alphaSearchAccessPolicyBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('SearchPolicyBindings')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SearchPolicyBindings.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3alpha/organizations/{organizationsId}/locations/{locationsId}/accessPolicies/{accessPoliciesId}:searchPolicyBindings',
+        http_method='GET',
+        method_id='iam.organizations.locations.accessPolicies.searchPolicyBindings',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v3alpha/{+name}:searchPolicyBindings',
+        request_field='',
+        request_type_name='IamOrganizationsLocationsAccessPoliciesSearchPolicyBindingsRequest',
+        response_type_name='GoogleIamV3alphaSearchAccessPolicyBindingsResponse',
+        supports_download=False,
+    )
+
   class OrganizationsLocationsOperationsService(base_api.BaseApiService):
     """Service class for the organizations_locations_operations resource."""
 
@@ -736,7 +790,7 @@ class IamV3alpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update, and the IAM permission to remove the existing policy from the binding. Target is immutable and cannot be updated. Once the binding is updated, the new policy is applied to the target.
+      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update. Target and policy are immutable and cannot be updated.
 
       Args:
         request: (IamOrganizationsLocationsPolicyBindingsPatchRequest) input message
@@ -781,7 +835,7 @@ class IamV3alpha(base_api.BaseApiClient):
         method_id='iam.organizations.locations.policyBindings.searchTargetPolicyBindings',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken', 'target'],
+        query_params=['filter', 'pageSize', 'pageToken', 'target'],
         relative_path='v3alpha/{+parent}/policyBindings:searchTargetPolicyBindings',
         request_field='',
         request_type_name='IamOrganizationsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest',
@@ -1126,6 +1180,33 @@ class IamV3alpha(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def SearchPolicyBindings(self, request, global_params=None):
+      r"""Returns all policy bindings that bind a specific policy if a user has searchPolicyBindings permission on that policy.
+
+      Args:
+        request: (IamProjectsLocationsAccessPoliciesSearchPolicyBindingsRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (GoogleIamV3alphaSearchAccessPolicyBindingsResponse) The response message.
+      """
+      config = self.GetMethodConfig('SearchPolicyBindings')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    SearchPolicyBindings.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v3alpha/projects/{projectsId}/locations/{locationsId}/accessPolicies/{accessPoliciesId}:searchPolicyBindings',
+        http_method='GET',
+        method_id='iam.projects.locations.accessPolicies.searchPolicyBindings',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['pageSize', 'pageToken'],
+        relative_path='v3alpha/{+name}:searchPolicyBindings',
+        request_field='',
+        request_type_name='IamProjectsLocationsAccessPoliciesSearchPolicyBindingsRequest',
+        response_type_name='GoogleIamV3alphaSearchAccessPolicyBindingsResponse',
+        supports_download=False,
+    )
+
   class ProjectsLocationsOperationsService(base_api.BaseApiService):
     """Service class for the projects_locations_operations resource."""
 
@@ -1282,7 +1363,7 @@ class IamV3alpha(base_api.BaseApiClient):
     )
 
     def Patch(self, request, global_params=None):
-      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update, and the IAM permission to remove the existing policy from the binding. Target is immutable and cannot be updated. Once the binding is updated, the new policy is applied to the target.
+      r"""Updates a policy binding and returns a long-running operation. Callers will need the IAM permissions on the policy and target in the binding to update. Target and policy are immutable and cannot be updated.
 
       Args:
         request: (IamProjectsLocationsPolicyBindingsPatchRequest) input message
@@ -1327,7 +1408,7 @@ class IamV3alpha(base_api.BaseApiClient):
         method_id='iam.projects.locations.policyBindings.searchTargetPolicyBindings',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken', 'target'],
+        query_params=['filter', 'pageSize', 'pageToken', 'target'],
         relative_path='v3alpha/{+parent}/policyBindings:searchTargetPolicyBindings',
         request_field='',
         request_type_name='IamProjectsLocationsPolicyBindingsSearchTargetPolicyBindingsRequest',

@@ -60,6 +60,19 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  ORGANIZATIONS_LOCATIONS_FIREWALLENDPOINTS_WILDFIREVERDICTCHANGEREQUESTS = (
+      'organizations.locations.firewallEndpoints.wildfireVerdictChangeRequests',
+      '{+name}',
+      {
+          '':
+              'organizations/{organizationsId}/locations/{locationsId}/'
+              'firewallEndpoints/{firewallEndpointsId}/'
+              'wildfireVerdictChangeRequests/'
+              '{wildfireVerdictChangeRequestsId}',
+      },
+      ['name'],
+      True
+  )
   ORGANIZATIONS_LOCATIONS_OPERATIONS = (
       'organizations.locations.operations',
       '{+name}',
@@ -161,6 +174,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'clientTlsPolicies/{clientTlsPoliciesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DNSTHREATDETECTORS = (
+      'projects.locations.dnsThreatDetectors',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'dnsThreatDetectors/{dnsThreatDetectorsId}',
       },
       ['name'],
       True
@@ -296,6 +320,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'mirroringEndpointGroups/{mirroringEndpointGroupsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_MIRRORINGENDPOINTS = (
+      'projects.locations.mirroringEndpoints',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'mirroringEndpoints/{mirroringEndpointsId}',
       },
       ['name'],
       True
@@ -439,6 +474,26 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'ullMirroringEngines/{ullMirroringEnginesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_ULLMIRRORINGINFRAS = (
+      'projects.locations.ullMirroringInfras',
+      'projects/{projectsId}/locations/{locationsId}/ullMirroringInfras/'
+      '{ullMirroringInfrasId}',
+      {},
+      ['projectsId', 'locationsId', 'ullMirroringInfrasId'],
+      True
+  )
+  PROJECTS_LOCATIONS_ULLMIRRORINGINFRAS_ULLMIRROREDNETWORKS = (
+      'projects.locations.ullMirroringInfras.ullMirroredNetworks',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'ullMirroringInfras/{ullMirroringInfrasId}/ullMirroredNetworks/'
+              '{ullMirroredNetworksId}',
       },
       ['name'],
       True

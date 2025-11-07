@@ -33,6 +33,7 @@ from googlecloudsdk.core import exceptions
 from googlecloudsdk.core import log
 from googlecloudsdk.core import properties
 from googlecloudsdk.core.util import retry
+import six
 
 
 class FeatureCommand(hub_base.HubCommand):
@@ -112,7 +113,6 @@ class EnableCommandMixin(FeatureCommand):
     if exc_type != apitools_exceptions.HttpBadRequestError:
       return False
     error = core_api_exceptions.HttpErrorPayload(exc_value)
-    # TODO(b/188807249): Add a reference to this error in the error package.
     if not (error.status_description == 'FAILED_PRECONDITION' and
             self.feature.api in error.message and
             'is not enabled' in error.message):
@@ -124,40 +124,79 @@ class EnableCommandMixin(FeatureCommand):
 class EnableCommand(EnableCommandMixin, calliope_base.CreateCommand):
   """Base class for the command that enables a Feature."""
 
-  def Run(self, args):
+  def Run(self, _):
     return self.Enable(self.messages.Feature())
-
-
-class DisableCommand(FeatureCommand, calliope_base.DeleteCommand):
-  """Base class for the command that disables a Feature."""
-
-  @staticmethod
-  def Args(parser):
-    parser.add_argument(
-        '--force',
-        action='store_true',
-        help='Disable this feature, even if it is currently in use. '
-        'Force disablement may result in unexpected behavior.')
-
-  def Run(self, args):
-    return self.Disable(args.force)
-
-  def Disable(self, force):
-    try:
-      op = self.hubclient.DeleteFeature(self.FeatureResourceName(), force=force)
-    except apitools_exceptions.HttpNotFoundError:
-      return  # Already disabled.
-    message = 'Waiting for Feature {} to be deleted'.format(
-        self.feature.display_name)
-    self.WaitForHubOp(
-        self.hubclient.resourceless_waiter, op, message=message, warnings=False)
 
 
 class DescribeCommand(FeatureCommand, calliope_base.DescribeCommand):
   """Base class for the command that describes the status of a Feature."""
 
-  def Run(self, args):
+  def Run(self, _):
     return self.GetFeature()
+
+  # TODO(b/440616932): Add Python unit tests for this function instead of
+  # relying on the unit tests of the describe command on the config-management
+  # surface.
+  def filter_feature_for_memberships(self, feature, memberships):
+    """Leave only specs and states of Memberships in the Feature.
+
+    Respects the order of the Membership specs in the original Feature.
+
+    Args:
+      feature: Feature in the v1 API.
+      memberships: List of resource names according to go/resource-names.
+        Ideally, the existence of these Memberships will have been verified.
+    Returns:
+      None
+    Raises:
+      exceptions.Error: if any of Memberships does not have a spec in Feature.
+    """
+    # Hash Memberships without project to remove project number vs. id
+    # inconsistency.
+    memberships_by_location_and_name = {
+        util.MembershipPartialName(m): m for m in memberships
+    }
+    membership_specs_by_location_and_name = {}
+    if feature.membershipSpecs:
+      membership_specs_by_location_and_name = {
+          util.MembershipPartialName(entry.key): entry
+          for entry in feature.membershipSpecs.additionalProperties
+          # Optimization: only include specs for the specified Memberships.
+          if util.MembershipPartialName(entry.key)
+          in memberships_by_location_and_name
+      }
+    missing_memberships = [
+        m
+        for location_name, m in memberships_by_location_and_name.items()
+        if location_name not in membership_specs_by_location_and_name
+    ]
+    if missing_memberships:
+      raise exceptions.Error(
+          ('The following requested memberships are not configured on the {}'
+           ' feature, under membershipSpecs: {}'
+          ).format(self.feature.display_name, missing_memberships)
+      )
+    membership_states_by_location_and_name = {}
+    if feature.membershipStates:
+      membership_states_by_location_and_name = {
+          util.MembershipPartialName(entry.key): entry
+          for entry in feature.membershipStates.additionalProperties
+          if util.MembershipPartialName(entry.key)
+          in membership_specs_by_location_and_name
+      }
+    # Dictionaries preserve insertion order, which increases ease of test.
+    feature.membershipSpecs = self.messages.Feature.MembershipSpecsValue(
+        additionalProperties=list(
+            membership_specs_by_location_and_name.values()
+        )
+    )
+    feature.membershipStates = self.messages.Feature.MembershipStatesValue(
+        additionalProperties=[
+            membership_states_by_location_and_name[m]
+            for m in membership_specs_by_location_and_name
+            if m in membership_states_by_location_and_name
+        ]
+    )
 
 
 class UpdateCommandMixin(FeatureCommand):
@@ -183,6 +222,74 @@ class UpdateCommand(UpdateCommandMixin, calliope_base.UpdateCommand):
   Because Features updates are often bespoke actions, there is no default
   `Run` override like some of the other classes.
   """
+
+
+class DisableCommand(UpdateCommandMixin, calliope_base.DeleteCommand):
+  """Base class for the command that disables an entire or parts of a Feature.
+  """
+
+  FORCE_FLAG = calliope_base.Argument(
+      '--force',
+      action='store_true',
+      help=(
+          'Force disablement.'
+          ' Bypasses any prompts for confirmation.'
+          ' When disabling the entire feature, proceeds'
+          ' even if the feature is in use.'
+          ' Might result in unexpected behavior.'
+      ),
+  )
+  FLEET_DEFAULT_MEMBER_CONFIG_FLAG = calliope_base.Argument(
+      '--fleet-default-member-config',
+      # Note that this flag should actually follow
+      # yaqs/eng/q/4400496223010684928, but many
+      # feature surfaces have already adopted store_true.
+      action='store_true',
+      help=(
+          'Disable the [fleet-default membership configuration]('
+          'https://cloud.google.com/kubernetes-engine/fleet-management/docs/manage-features).'
+          ' Does not change existing membership configurations.'
+          ' Does nothing if the feature is disabled.'
+      ),
+  )
+  support_fleet_default = False
+
+  @classmethod
+  def Args(cls, parser):
+    cls.FORCE_FLAG.AddToParser(parser)
+    if cls.support_fleet_default:
+      cls.FLEET_DEFAULT_MEMBER_CONFIG_FLAG.AddToParser(parser)
+
+  def Run(self, args):
+    if self.support_fleet_default and args.fleet_default_member_config:
+      self.clear_fleet_default()
+    else:
+      self.Disable(args.force)
+
+  def Disable(self, force):
+    try:
+      op = self.hubclient.DeleteFeature(self.FeatureResourceName(), force=force)
+    except apitools_exceptions.HttpNotFoundError:
+      return  # Already disabled.
+    message = 'Waiting for Feature {} to be deleted'.format(
+        self.feature.display_name)
+    self.WaitForHubOp(
+        self.hubclient.resourceless_waiter, op, message=message, warnings=False)
+
+  def clear_fleet_default(self):
+    mask = ['fleet_default_member_config']
+    # Feature cannot be empty on update, which would be the case without the
+    # placeholder name field when we try to clear the fleet default config.
+    # The placeholder name field must not be in the mask, lest we actually
+    # change the feature name.
+    # TODO(b/302390572): Replace with better solution if found.
+    patch = self.messages.Feature(name='placeholder')
+    try:
+      return self.Update(mask, patch)
+    except exceptions.Error as e:
+      # Do not error or log if feature does not exist.
+      if six.text_type(e) != six.text_type(self.FeatureNotEnabledError()):
+        raise e
 
 
 def ParseMembership(args,
@@ -320,7 +427,10 @@ def ParseMembershipsPlural(args,
     log.status.Print('Selecting membership [{}].'.format(all_memberships[0]))
     return [all_memberships[0]]
   if prompt:
-    membership = resources.PromptForMembership(cancel=prompt_cancel)
+    membership = resources.PromptForMembership(
+        flag='--memberships',
+        cancel=prompt_cancel,
+    )
     if membership:
       memberships.append(membership)
     return memberships

@@ -31,10 +31,6 @@ class NoFieldsSpecifiedError(exceptions.Error):
   """Error when no fields were specified for a Patch operation."""
 
 
-class MessageBusAlreadyExistsInProjectError(exceptions.Error):
-  """Error when a MessageBus already exists in the project."""
-
-
 def GetMessageBusURI(resource):
   message_buses = resources.REGISTRY.ParseRelativeName(
       resource.name, collection='eventarc.projects.locations.messageBuses'
@@ -171,6 +167,7 @@ class MessageBusClientV1(base.EventarcClientBase):
       event_source,
       event_data,
       event_attributes,
+      destination_enrollment_ref,
   ):
     """Publish a Cloud Event to a MessageBus.
 
@@ -183,6 +180,8 @@ class MessageBusClientV1(base.EventarcClientBase):
       event_source: str, the source of the event.
       event_data: str, the data of the event.
       event_attributes: dict, the attributes of the event.
+      destination_enrollment_ref: Resource, the enrollment to deliver the event
+        to.
     """
 
     publish_req = self._publishing_messages.EventarcpublishingProjectsLocationsMessageBusesPublishRequest(
@@ -193,6 +192,11 @@ class MessageBusClientV1(base.EventarcClientBase):
             ),
             avroMessage=avro_message,
             jsonMessage=json_message,
+            destinationEnrollment=(
+                destination_enrollment_ref.RelativeName()
+                if destination_enrollment_ref
+                else None
+            ),
         ),
     )
 
@@ -261,17 +265,6 @@ class MessageBusClientV1(base.EventarcClientBase):
       raise NoFieldsSpecifiedError('Must specify at least one field to update.')
     return ','.join(update_mask)
 
-  def RaiseErrorIfMessageBusExists(self, project):
-    list_req = self._messages.EventarcProjectsLocationsMessageBusesListRequest(
-        parent=f'projects/{project}/locations/-'
-    )
-    response = self._service.List(list_req)
-    if getattr(response, 'messageBuses'):
-      raise MessageBusAlreadyExistsInProjectError(
-          'A message bus already exists in the project. Currently, only one'
-          ' message bus per project is supported.'
-      )
-
   def LabelsValueClass(self):
     """Returns the labels value class."""
     return self._messages.MessageBus.LabelsValue
@@ -286,7 +279,7 @@ class MessageBusClientV1(base.EventarcClientBase):
         or event_data is None
     ):
       return None
-    return self._publishing_messages.IoCloudeventsV1CloudEvent(
+    return self._publishing_messages.GoogleCloudEventarcPublishingV1CloudEvent(
         id=event_id,
         type=event_type,
         source=event_source,
@@ -298,11 +291,11 @@ class MessageBusClientV1(base.EventarcClientBase):
   def _BuildCloudEventAttributes(self, event_attributes):
     if event_attributes is None:
       return None
-    return self._publishing_messages.IoCloudeventsV1CloudEvent.AttributesValue(
+    return self._publishing_messages.GoogleCloudEventarcPublishingV1CloudEvent.AttributesValue(
         additionalProperties=[
-            self._publishing_messages.IoCloudeventsV1CloudEvent.AttributesValue.AdditionalProperty(
+            self._publishing_messages.GoogleCloudEventarcPublishingV1CloudEvent.AttributesValue.AdditionalProperty(
                 key=key,
-                value=self._publishing_messages.IoCloudeventsV1CloudEventCloudEventAttributeValue(
+                value=self._publishing_messages.GoogleCloudEventarcPublishingV1CloudEventCloudEventAttributeValue(
                     ceString=value
                 ),
             )

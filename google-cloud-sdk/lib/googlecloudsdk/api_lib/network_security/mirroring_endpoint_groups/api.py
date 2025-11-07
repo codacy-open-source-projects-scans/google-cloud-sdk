@@ -30,8 +30,11 @@ from googlecloudsdk.core import resources
 _API_VERSION_FOR_TRACK = {
     base.ReleaseTrack.ALPHA: 'v1alpha1',
     base.ReleaseTrack.BETA: 'v1beta1',
+    base.ReleaseTrack.GA: 'v1',
 }
 _API_NAME = 'networksecurity'
+
+_PACKET_BROKER_SUPPORTED = (base.ReleaseTrack.ALPHA,)
 
 
 def GetMessagesModule(release_track=base.ReleaseTrack.ALPHA):
@@ -61,6 +64,7 @@ class Client:
   """
 
   def __init__(self, release_track):
+    self._release_track = release_track
     self._client = GetClientInstance(release_track)
     self._endpoint_group_client = (
         self._client.projects_locations_mirroringEndpointGroups
@@ -76,8 +80,9 @@ class Client:
       self,
       endpoint_group_id,
       parent,
-      mirroring_deployment_group,
+      deployment_groups,
       description,
+      endpoint_group_type='DIRECT',
       labels=None,
   ):
     """Calls the CreateEndpointGroup API.
@@ -85,9 +90,10 @@ class Client:
     Args:
       endpoint_group_id: The ID of the Endpoint Group to create.
       parent: The parent of the Endpoint Group to create.
-      mirroring_deployment_group: The Mirroring Deployment Group to associate
-        with the Endpoint Group.
+      deployment_groups: The Mirroring Deployment Group(s) to associate with the
+        Endpoint Group. Can be a single string or a list of strings.
       description: Description of the Endpoint Group.
+      endpoint_group_type: Type of the Endpoint Group (DIRECT or BROKER).
       labels: Labels to apply to the Endpoint Group.
 
     Returns:
@@ -96,12 +102,31 @@ class Client:
 
     endpoint_group = self.messages.MirroringEndpointGroup(
         labels=labels,
-        mirroringDeploymentGroup=mirroring_deployment_group,
+        description=description,
     )
 
-    # BETA API doesn't have the new field yet, so don't assign it.
-    if hasattr(endpoint_group, 'description'):
-      endpoint_group.description = description
+    if self._release_track in _PACKET_BROKER_SUPPORTED:
+      if not endpoint_group_type:
+        endpoint_group_type = 'DIRECT'
+
+      endpoint_group.type = (
+          self.messages.MirroringEndpointGroup.TypeValueValuesEnum(
+              endpoint_group_type
+          )
+      )
+      if endpoint_group_type == 'BROKER':
+        if isinstance(deployment_groups, list):
+          endpoint_group.mirroringDeploymentGroups = deployment_groups
+        else:
+          endpoint_group.mirroringDeploymentGroups = [deployment_groups]
+      elif endpoint_group_type == 'DIRECT':
+        endpoint_group.mirroringDeploymentGroup = deployment_groups
+      else:
+        raise ValueError(
+            f'Unsupported endpoint group type: {endpoint_group_type}'
+        )
+    else:
+      endpoint_group.mirroringDeploymentGroup = deployment_groups
 
     create_request = self.messages.NetworksecurityProjectsLocationsMirroringEndpointGroupsCreateRequest(
         mirroringEndpointGroup=endpoint_group,
@@ -131,18 +156,13 @@ class Client:
     """
     endpoint_group = self.messages.MirroringEndpointGroup(
         labels=update_fields.get('labels', None),
+        description=description,
     )
-
-    # TODO(b/381836581): Remove this check once the field is
-    # available in BETA and V1 (and b/381837549).
-    # BETA API doesn't have the new field yet, so don't assign it.
-    if hasattr(endpoint_group, 'description'):
-      endpoint_group.description = description
 
     update_request = self.messages.NetworksecurityProjectsLocationsMirroringEndpointGroupsPatchRequest(
         name=name,
         mirroringEndpointGroup=endpoint_group,
-        updateMask=','.join(update_fields.keys())
+        updateMask=','.join(update_fields.keys()),
     )
     return self._endpoint_group_client.Patch(update_request)
 

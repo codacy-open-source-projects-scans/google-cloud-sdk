@@ -43,6 +43,7 @@ class AlloydbV1beta(base_api.BaseApiClient):
     self.projects_locations_clusters_instances = self.ProjectsLocationsClustersInstancesService(self)
     self.projects_locations_clusters_users = self.ProjectsLocationsClustersUsersService(self)
     self.projects_locations_clusters = self.ProjectsLocationsClustersService(self)
+    self.projects_locations_endpoints = self.ProjectsLocationsEndpointsService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
     self.projects_locations_supportedDatabaseFlags = self.ProjectsLocationsSupportedDatabaseFlagsService(self)
     self.projects_locations = self.ProjectsLocationsService(self)
@@ -898,6 +899,33 @@ class AlloydbV1beta(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def RestoreFromCloudSQL(self, request, global_params=None):
+      r"""Restores an AlloyDB cluster from a CloudSQL resource.
+
+      Args:
+        request: (AlloydbProjectsLocationsClustersRestoreFromCloudSQLRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('RestoreFromCloudSQL')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    RestoreFromCloudSQL.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta/projects/{projectsId}/locations/{locationsId}/clusters:restoreFromCloudSQL',
+        http_method='POST',
+        method_id='alloydb.projects.locations.clusters.restoreFromCloudSQL',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=[],
+        relative_path='v1beta/{+parent}/clusters:restoreFromCloudSQL',
+        request_field='restoreFromCloudSQLRequest',
+        request_type_name='AlloydbProjectsLocationsClustersRestoreFromCloudSQLRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def Switchover(self, request, global_params=None):
       r"""Switches the roles of PRIMARY and SECONDARY clusters without any data loss. This promotes the SECONDARY cluster to PRIMARY and sets up the original PRIMARY cluster to replicate from this newly promoted cluster.
 
@@ -952,6 +980,70 @@ class AlloydbV1beta(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsEndpointsService(base_api.BaseApiService):
+    """Service class for the projects_locations_endpoints resource."""
+
+    _NAME = 'projects_locations_endpoints'
+
+    def __init__(self, client):
+      super(AlloydbV1beta.ProjectsLocationsEndpointsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Get(self, request, global_params=None):
+      r"""Gets details of a single Endpoint.
+
+      Args:
+        request: (AlloydbProjectsLocationsEndpointsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Endpoint) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta/projects/{projectsId}/locations/{locationsId}/endpoints/{endpointsId}',
+        http_method='GET',
+        method_id='alloydb.projects.locations.endpoints.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1beta/{+name}',
+        request_field='',
+        request_type_name='AlloydbProjectsLocationsEndpointsGetRequest',
+        response_type_name='Endpoint',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Lists Endpoints in a given project and location.
+
+      Args:
+        request: (AlloydbProjectsLocationsEndpointsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListEndpointsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta/projects/{projectsId}/locations/{locationsId}/endpoints',
+        http_method='GET',
+        method_id='alloydb.projects.locations.endpoints.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1beta/{+parent}/endpoints',
+        request_field='',
+        request_type_name='AlloydbProjectsLocationsEndpointsListRequest',
+        response_type_name='ListEndpointsResponse',
+        supports_download=False,
+    )
+
   class ProjectsLocationsOperationsService(base_api.BaseApiService):
     """Service class for the projects_locations_operations resource."""
 
@@ -963,7 +1055,7 @@ class AlloydbV1beta(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (AlloydbProjectsLocationsOperationsCancelRequest) input message
@@ -1062,7 +1154,7 @@ class AlloydbV1beta(base_api.BaseApiClient):
         method_id='alloydb.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1beta/{+name}/operations',
         request_field='',
         request_type_name='AlloydbProjectsLocationsOperationsListRequest',
@@ -1099,7 +1191,7 @@ class AlloydbV1beta(base_api.BaseApiClient):
         method_id='alloydb.projects.locations.supportedDatabaseFlags.list',
         ordered_params=['parent'],
         path_params=['parent'],
-        query_params=['pageSize', 'pageToken'],
+        query_params=['pageSize', 'pageToken', 'scope'],
         relative_path='v1beta/{+parent}/supportedDatabaseFlags',
         request_field='',
         request_type_name='AlloydbProjectsLocationsSupportedDatabaseFlagsListRequest',
@@ -1163,7 +1255,7 @@ class AlloydbV1beta(base_api.BaseApiClient):
         method_id='alloydb.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1beta/{+name}/locations',
         request_field='',
         request_type_name='AlloydbProjectsLocationsListRequest',

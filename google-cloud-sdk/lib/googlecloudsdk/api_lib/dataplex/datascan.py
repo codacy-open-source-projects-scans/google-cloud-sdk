@@ -107,16 +107,83 @@ def GenerateDataDiscoverySpec(args: parser_extensions.Namespace):
   module = dataplex_api.GetMessageModule()
 
   datadiscoveryspec = module.GoogleCloudDataplexV1DataDiscoverySpec()
+
+  # BigQuery publishing config.
   datadiscoveryspec.bigqueryPublishingConfig = (
-      module.GoogleCloudDataplexV1DataDiscoverySpecBigQueryPublishingConfig(
-          connection=args.bigquery_publishing_connection
-      )
+      module.GoogleCloudDataplexV1DataDiscoverySpecBigQueryPublishingConfig()
   )
+  if args.IsKnownAndSpecified('bigquery_publishing_connection'):
+    datadiscoveryspec.bigqueryPublishingConfig.connection = (
+        args.bigquery_publishing_connection
+    )
   if args.IsKnownAndSpecified('bigquery_publishing_table_type'):
     datadiscoveryspec.bigqueryPublishingConfig.tableType = module.GoogleCloudDataplexV1DataDiscoverySpecBigQueryPublishingConfig.TableTypeValueValuesEnum(
         args.bigquery_publishing_table_type
     )
+  if args.IsKnownAndSpecified('bigquery_publishing_dataset_project'):
+    datadiscoveryspec.bigqueryPublishingConfig.project = (
+        args.bigquery_publishing_dataset_project
+    )
+  if args.IsKnownAndSpecified('bigquery_publishing_dataset_location'):
+    datadiscoveryspec.bigqueryPublishingConfig.location = (
+        args.bigquery_publishing_dataset_location
+    )
+
+  datadiscoveryspec.storageConfig = (
+      module.GoogleCloudDataplexV1DataDiscoverySpecStorageConfig()
+  )
+  if args.IsKnownAndSpecified('storage_include_patterns'):
+    datadiscoveryspec.storageConfig.includePatterns = (
+        args.storage_include_patterns
+    )
+  if args.IsKnownAndSpecified('storage_exclude_patterns'):
+    datadiscoveryspec.storageConfig.excludePatterns = (
+        args.storage_exclude_patterns
+    )
+
+  # CSV options.
+  datadiscoveryspec.storageConfig.csvOptions = (
+      module.GoogleCloudDataplexV1DataDiscoverySpecStorageConfigCsvOptions()
+  )
+  if args.IsKnownAndSpecified('csv_delimiter'):
+    datadiscoveryspec.storageConfig.csvOptions.delimiter = args.csv_delimiter
+  if args.IsKnownAndSpecified('csv_header_row_count'):
+    try:
+      datadiscoveryspec.storageConfig.csvOptions.headerRows = int(
+          args.csv_header_row_count
+      )
+    except ValueError:
+      raise ValueError(
+          'csv_header_row_count must be an integer, but got'
+          f' {args.csv_header_row_count}'
+      )
+  if args.IsKnownAndSpecified('csv_quote_character'):
+    datadiscoveryspec.storageConfig.csvOptions.quote = args.csv_quote_character
+  if args.IsKnownAndSpecified('csv_encoding'):
+    datadiscoveryspec.storageConfig.csvOptions.encoding = args.csv_encoding
+  if args.IsKnownAndSpecified('csv_disable_type_inference'):
+    datadiscoveryspec.storageConfig.csvOptions.typeInferenceDisabled = (
+        args.csv_disable_type_inference
+    )
+
+  # JSON options.
+  datadiscoveryspec.storageConfig.jsonOptions = (
+      module.GoogleCloudDataplexV1DataDiscoverySpecStorageConfigJsonOptions()
+  )
+  if args.IsKnownAndSpecified('json_encoding'):
+    datadiscoveryspec.storageConfig.jsonOptions.encoding = args.json_encoding
+  if args.IsKnownAndSpecified('json_disable_type_inference'):
+    datadiscoveryspec.storageConfig.jsonOptions.typeInferenceDisabled = (
+        args.json_disable_type_inference
+    )
+
   return datadiscoveryspec
+
+
+def GenerateDataDocumentationSpec():
+  """Generate DataDocumentationSpec From Arguments."""
+  module = dataplex_api.GetMessageModule()
+  return module.GoogleCloudDataplexV1DataDocumentationSpec()
 
 
 def GenerateSchedule(args):
@@ -185,6 +252,31 @@ def GenerateUpdateMask(args: parser_extensions.Namespace):
       'bigquery_publishing_connection': (
           'dataDiscoverySpec.bigqueryPublishingConfig.connection'
       ),
+      'bigquery_publishing_dataset_location': (
+          'dataDiscoverySpec.bigqueryPublishingConfig.location'
+      ),
+      'bigquery_publishing_dataset_project': (
+          'dataDiscoverySpec.bigqueryPublishingConfig.project'
+      ),
+      'storage_include_patterns': (
+          'dataDiscoverySpec.storageConfig.includePatterns'
+      ),
+      'storage_exclude_patterns': (
+          'dataDiscoverySpec.storageConfig.excludePatterns'
+      ),
+      'csv_delimiter': 'dataDiscoverySpec.storageConfig.csvOptions.delimiter',
+      'csv_header_row_count': (
+          'dataDiscoverySpec.storageConfig.csvOptions.headerRows'
+      ),
+      'csv_quote_character': 'dataDiscoverySpec.storageConfig.csvOptions.quote',
+      'csv_encoding': 'dataDiscoverySpec.storageConfig.csvOptions.encoding',
+      'csv_disable_type_inference': (
+          'dataDiscoverySpec.storageConfig.csvOptions.typeInferenceDisabled'
+      ),
+      'json_encoding': 'dataDiscoverySpec.storageConfig.jsonOptions.encoding',
+      'json_disable_type_inference': (
+          'dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled'
+      ),
   }
 
   for arg, val in args_to_mask.items():
@@ -230,6 +322,8 @@ def GenerateDatascanForCreateRequest(args: parser_extensions.Namespace):
       )
   elif args.scan_type == 'DISCOVERY':
     request.dataDiscoverySpec = GenerateDataDiscoverySpec(args)
+  elif args.scan_type == 'DOCUMENTATION':
+    request.dataDocumentationSpec = GenerateDataDocumentationSpec()
   return request
 
 
@@ -261,6 +355,8 @@ def GenerateDatascanForUpdateRequest(args: parser_extensions.Namespace):
       request.dataQualitySpec = module.GoogleCloudDataplexV1DataQualitySpec()
   elif args.scan_type == 'DISCOVERY':
     request.dataDiscoverySpec = GenerateDataDiscoverySpec(args)
+  elif args.scan_type == 'DOCUMENTATION':
+    request.dataDocumentationSpec = GenerateDataDocumentationSpec()
   return request
 
 

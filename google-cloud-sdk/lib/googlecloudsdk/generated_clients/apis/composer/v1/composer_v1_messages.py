@@ -105,6 +105,9 @@ class CheckUpgradeResponse(_messages.Message):
 
   Fields:
     buildLogUri: Output only. Url for a docker build log of an upgraded image.
+    configConflicts: Output only. Contains information about environment
+      configuration that is incompatible with the new image version, except
+      for pypi modules conflicts.
     containsPypiModulesConflict: Output only. Whether build has succeeded or
       failed on modules conflicts.
     imageVersion: Composer image for which the build was happening.
@@ -156,10 +159,11 @@ class CheckUpgradeResponse(_messages.Message):
     additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
 
   buildLogUri = _messages.StringField(1)
-  containsPypiModulesConflict = _messages.EnumField('ContainsPypiModulesConflictValueValuesEnum', 2)
-  imageVersion = _messages.StringField(3)
-  pypiConflictBuildLogExtract = _messages.StringField(4)
-  pypiDependencies = _messages.MessageField('PypiDependenciesValue', 5)
+  configConflicts = _messages.MessageField('ConfigConflict', 2, repeated=True)
+  containsPypiModulesConflict = _messages.EnumField('ContainsPypiModulesConflictValueValuesEnum', 3)
+  imageVersion = _messages.StringField(4)
+  pypiConflictBuildLogExtract = _messages.StringField(5)
+  pypiDependencies = _messages.MessageField('PypiDependenciesValue', 6)
 
 
 class CidrBlock(_messages.Message):
@@ -419,6 +423,21 @@ class ComposerProjectsLocationsEnvironmentsPollAirflowCommandRequest(_messages.M
   pollAirflowCommandRequest = _messages.MessageField('PollAirflowCommandRequest', 2)
 
 
+class ComposerProjectsLocationsEnvironmentsRestartWebServerRequest(_messages.Message):
+  r"""A ComposerProjectsLocationsEnvironmentsRestartWebServerRequest object.
+
+  Fields:
+    name: Required. The resource name of the environment to restart the web
+      server for, in the form: "projects/{projectId}/locations/{locationId}/en
+      vironments/{environmentId}"
+    restartWebServerRequest: A RestartWebServerRequest resource to be passed
+      as the request body.
+  """
+
+  name = _messages.StringField(1, required=True)
+  restartWebServerRequest = _messages.MessageField('RestartWebServerRequest', 2)
+
+
 class ComposerProjectsLocationsEnvironmentsSaveSnapshotRequest(_messages.Message):
   r"""A ComposerProjectsLocationsEnvironmentsSaveSnapshotRequest object.
 
@@ -641,12 +660,20 @@ class ComposerProjectsLocationsOperationsListRequest(_messages.Message):
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class ComposerWorkload(_messages.Message):
@@ -729,10 +756,38 @@ class ComposerWorkloadStatus(_messages.Message):
   statusMessage = _messages.StringField(3)
 
 
+class ConfigConflict(_messages.Message):
+  r"""Environment configuration conflict.
+
+  Enums:
+    TypeValueValuesEnum: Conflict type. It can be blocking or non-blocking.
+
+  Fields:
+    message: Conflict message.
+    type: Conflict type. It can be blocking or non-blocking.
+  """
+
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""Conflict type. It can be blocking or non-blocking.
+
+    Values:
+      CONFLICT_TYPE_UNSPECIFIED: Conflict type is unknown.
+      BLOCKING: Conflict is blocking, the upgrade would fail.
+      NON_BLOCKING: Conflict is non-blocking. The upgrade would succeed, but
+        the environment configuration would be changed.
+    """
+    CONFLICT_TYPE_UNSPECIFIED = 0
+    BLOCKING = 1
+    NON_BLOCKING = 2
+
+  message = _messages.StringField(1)
+  type = _messages.EnumField('TypeValueValuesEnum', 2)
+
+
 class DagProcessorResource(_messages.Message):
   r"""Configuration for resources used by Airflow DAG processors. This field
   is supported for Cloud Composer environments in versions
-  composer-3.*.*-airflow-*.*.* and newer.
+  composer-3-airflow-*.*.*-build.* and newer.
 
   Fields:
     count: Optional. The number of DAG processors. If not provided or set to
@@ -1256,10 +1311,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListUserWorkloadsConfigMapsResponse(_messages.Message):
@@ -1364,7 +1424,8 @@ class MasterAuthorizedNetworksConfig(_messages.Message):
   Fields:
     cidrBlocks: Up to 50 external networks that could access Kubernetes master
       through HTTPS.
-    enabled: Whether or not master authorized networks feature is enabled.
+    enabled: Optional. Whether or not master authorized networks feature is
+      enabled.
   """
 
   cidrBlocks = _messages.MessageField('CidrBlock', 1, repeated=True)
@@ -1377,19 +1438,19 @@ class NetworkingConfig(_messages.Message):
 
   Enums:
     ConnectionTypeValueValuesEnum: Optional. Indicates the user requested
-      specifc connection type between Tenant and Customer projects. You cannot
-      set networking connection type in public IP environment.
+      specific connection type between Tenant and Customer projects. You
+      cannot set networking connection type in public IP environment.
 
   Fields:
-    connectionType: Optional. Indicates the user requested specifc connection
+    connectionType: Optional. Indicates the user requested specific connection
       type between Tenant and Customer projects. You cannot set networking
       connection type in public IP environment.
   """
 
   class ConnectionTypeValueValuesEnum(_messages.Enum):
-    r"""Optional. Indicates the user requested specifc connection type between
-    Tenant and Customer projects. You cannot set networking connection type in
-    public IP environment.
+    r"""Optional. Indicates the user requested specific connection type
+    between Tenant and Customer projects. You cannot set networking connection
+    type in public IP environment.
 
     Values:
       CONNECTION_TYPE_UNSPECIFIED: No specific connection type was requested,
@@ -1418,7 +1479,7 @@ class NodeConfig(_messages.Message):
       case of overlap, IPs from this range will not be accessible in the
       user's VPC network. Cannot be updated. If not specified, the default
       value of '100.64.128.0/20' is used. This field is supported for Cloud
-      Composer environments in versions composer-3.*.*-airflow-*.*.* and
+      Composer environments in versions composer-3-airflow-*.*.*-build.* and
       newer.
     composerNetworkAttachment: Optional. Network Attachment that Cloud
       Composer environment is connected to, which provides connectivity with a
@@ -1429,7 +1490,7 @@ class NodeConfig(_messages.Message):
       disabled. Network attachment must be provided in format projects/{projec
       t}/regions/{region}/networkAttachments/{networkAttachment}. This field
       is supported for Cloud Composer environments in versions
-      composer-3.*.*-airflow-*.*.* and newer.
+      composer-3-airflow-*.*.*-build.* and newer.
     diskSizeGb: Optional. The disk size in GB used for node VMs. Minimum size
       is 30GB. If unspecified, defaults to 100GB. Cannot be updated. This
       field is supported for Cloud Composer environments in versions
@@ -1657,6 +1718,7 @@ class OperationMetadata(_messages.Message):
       LOAD_SNAPSHOT: Loads snapshot of the resource operation.
       DATABASE_FAILOVER: Triggers failover of environment's Cloud SQL instance
         (only for highly resilient environments).
+      MIGRATE: Migrates resource to a new major version.
     """
     TYPE_UNSPECIFIED = 0
     CREATE = 1
@@ -1666,6 +1728,7 @@ class OperationMetadata(_messages.Message):
     SAVE_SNAPSHOT = 5
     LOAD_SNAPSHOT = 6
     DATABASE_FAILOVER = 7
+    MIGRATE = 8
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Output only. The current operation state.
@@ -1776,7 +1839,7 @@ class PrivateEnvironmentConfig(_messages.Message):
       `NodeConfig.composer_network_attachment` field are specified). If
       `false`, the builds also have access to the internet. This field is
       supported for Cloud Composer environments in versions
-      composer-3.*.*-airflow-*.*.* and newer.
+      composer-3-airflow-*.*.*-build.* and newer.
     enablePrivateEnvironment: Optional. If `true`, a Private IP Cloud Composer
       environment is created. If this field is set to true,
       `IPAllocationPolicy.use_ip_aliases` must be set to true for Cloud
@@ -1821,6 +1884,10 @@ class RecoveryConfig(_messages.Message):
   """
 
   scheduledSnapshotsConfig = _messages.MessageField('ScheduledSnapshotsConfig', 1)
+
+
+class RestartWebServerRequest(_messages.Message):
+  r"""Restart Airflow web server."""
 
 
 class SaveSnapshotRequest(_messages.Message):
@@ -1894,7 +1961,7 @@ class SoftwareConfig(_messages.Message):
     WebServerPluginsModeValueValuesEnum: Optional. Whether or not the web
       server uses custom plugins. If unspecified, the field defaults to
       `PLUGINS_ENABLED`. This field is supported for Cloud Composer
-      environments in versions composer-3.*.*-airflow-*.*.* and newer.
+      environments in versions composer-3-airflow-*.*.*-build.* and newer.
 
   Messages:
     AirflowConfigOverridesValue: Optional. Apache Airflow configuration
@@ -1991,14 +2058,14 @@ class SoftwareConfig(_messages.Message):
     webServerPluginsMode: Optional. Whether or not the web server uses custom
       plugins. If unspecified, the field defaults to `PLUGINS_ENABLED`. This
       field is supported for Cloud Composer environments in versions
-      composer-3.*.*-airflow-*.*.* and newer.
+      composer-3-airflow-*.*.*-build.* and newer.
   """
 
   class WebServerPluginsModeValueValuesEnum(_messages.Enum):
     r"""Optional. Whether or not the web server uses custom plugins. If
     unspecified, the field defaults to `PLUGINS_ENABLED`. This field is
     supported for Cloud Composer environments in versions
-    composer-3.*.*-airflow-*.*.* and newer.
+    composer-3-airflow-*.*.*-build.* and newer.
 
     Values:
       WEB_SERVER_PLUGINS_MODE_UNSPECIFIED: Default mode.
@@ -2499,7 +2566,7 @@ class WorkloadsConfig(_messages.Message):
   Fields:
     dagProcessor: Optional. Resources used by Airflow DAG processors. This
       field is supported for Cloud Composer environments in versions
-      composer-3.*.*-airflow-*.*.* and newer.
+      composer-3-airflow-*.*.*-build.* and newer.
     scheduler: Optional. Resources used by Airflow schedulers.
     triggerer: Optional. Resources used by Airflow triggerers.
     webServer: Optional. Resources used by Airflow web server.

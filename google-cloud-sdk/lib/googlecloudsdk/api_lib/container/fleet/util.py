@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- #
-# Copyright 2022 Google LLC. All Rights Reserved.
+# Copyright 2025 Google LLC. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -117,15 +117,24 @@ def MembershipResourceName(project, membership, location='global'):
 
 
 def MembershipFeatureResourceName(
-    project, membership, feature, location='global'
+    project,
+    membership,
+    feature,
+    location='global',
+    release_track=base.ReleaseTrack.ALPHA,
 ):
   # See command_lib/container/fleet/resources.yaml
-  return resources.REGISTRY.Create(
-      'gkehub.projects.locations.memberships.features',
-      projectsId=project,
-      locationsId=location,
-      membershipsId=membership,
-      featuresId=feature,
+  return resources.REGISTRY.Parse(
+      line=None,
+      params={
+          'projectsId': project,
+          'locationsId': location,
+          'membershipsId': membership,
+          'featuresId': feature,
+      },
+      collection='gkehub.projects.locations.memberships.features',
+      # Defaults to v1 without specifying api version.
+      api_version=V2_VERSION_MAP[release_track],
   ).RelativeName()
 
 
@@ -456,4 +465,33 @@ def RolloutId(args: parser_extensions.Namespace) -> str:
   rollout_ref = RolloutRef(args)
   if rollout_ref:
     return rollout_ref.Name()
+  return None
+
+
+def RolloutSequenceRef(
+    args: parser_extensions.Namespace,
+) -> resources.Resource:
+  if getattr(args.CONCEPTS, 'rolloutsequence', None):
+    return args.CONCEPTS.rolloutsequence.Parse()
+  return None
+
+
+def RolloutSequenceName(args: parser_extensions.Namespace) -> str:
+  rollout_sequence_ref = RolloutSequenceRef(args)
+  if rollout_sequence_ref:
+    return rollout_sequence_ref.RelativeName()
+  return None
+
+
+def RolloutSequenceParentName(args: parser_extensions.Namespace):
+  rollout_sequence_ref = RolloutSequenceRef(args)
+  if rollout_sequence_ref:
+    return rollout_sequence_ref.Parent().RelativeName()
+  return None
+
+
+def RolloutSequenceId(args: parser_extensions.Namespace) -> str:
+  rollout_sequence_ref = RolloutSequenceRef(args)
+  if rollout_sequence_ref:
+    return rollout_sequence_ref.Name()
   return None

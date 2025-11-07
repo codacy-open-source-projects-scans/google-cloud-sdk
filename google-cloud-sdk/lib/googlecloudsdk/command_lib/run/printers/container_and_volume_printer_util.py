@@ -83,6 +83,7 @@ def GetContainer(
           k8s_util.GetStartupProbe(container, labels, is_primary),
       ),
       ('Liveness Probe', k8s_util.GetLivenessProbe(container)),
+      ('Readiness Probe', k8s_util.GetReadinessProbe(container)),
       ('Container Dependencies', ', '.join(dependencies)),
   ])
 
@@ -214,6 +215,15 @@ def _FormatVolume(volume):
           ('bucket', bucket),
           ('read-only', volume.csi.readOnly),
           ('mount-options', mount_options),
+      ])
+    elif volume.csi.driver == 'cloudsql.run.googleapis.com':
+      instances = None
+      for prop in volume.csi.volumeAttributes.additionalProperties:
+        if prop.key == 'instances':
+          instances = prop.value
+      return cp.Labeled([
+          ('type', 'cloudsql'),
+          ('instances', instances),
       ])
 
 

@@ -47,22 +47,22 @@ class CreateWorkerPoolRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The location and project in which
-            this worker pool should be created. Format:
-            projects/{project}/locations/{location}, where
-            {project} can be project id or number. Only
-            lowercase characters, digits, and hyphens.
+            Required. The location and project in which this worker pool
+            should be created. Format:
+            ``projects/{project}/locations/{location}``, where
+            ``{project}`` can be project id or number. Only lowercase
+            characters, digits, and hyphens.
         worker_pool (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.WorkerPool):
             Required. The WorkerPool instance to create.
         worker_pool_id (str):
             Required. The unique identifier for the WorkerPool. It must
             begin with letter, and cannot end with hyphen; must contain
             fewer than 50 characters. The name of the worker pool
-            becomes {parent}/workerPools/{worker_pool_id}.
+            becomes ``{parent}/workerPools/{worker_pool_id}``.
         validate_only (bool):
-            Indicates that the request should be
-            validated and default values populated, without
-            persisting the request or creating any
+            Optional. Indicates that the request should
+            be validated and default values populated,
+            without persisting the request or creating any
             resources.
     """
 
@@ -94,16 +94,29 @@ class UpdateWorkerPoolRequest(proto.Message):
         worker_pool (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.WorkerPool):
             Required. The WorkerPool to be updated.
         validate_only (bool):
-            Indicates that the request should be
-            validated and default values populated, without
-            persisting the request or updating any
+            Optional. Indicates that the request should
+            be validated and default values populated,
+            without persisting the request or updating any
             resources.
         allow_missing (bool):
             Optional. If set to true, and if the
             WorkerPool does not exist, it will create a new
-            one. The caller must have 'run.services.create'
-            permissions if this is set to true and the
-            WorkerPool does not exist.
+            one. The caller must have
+            'run.workerpools.create' permissions if this is
+            set to true and the WorkerPool does not exist.
+        force_new_revision (bool):
+            Optional. If set to true, a new revision will
+            be created from the template even if the system
+            doesn't detect any changes from the previously
+            deployed revision.
+
+            This may be useful for cases where the
+            underlying resources need to be recreated or
+            reinitialized. For example if the image is
+            specified by label, but the underlying image
+            digest has changed) or if the container performs
+            deployment initialization work that needs to be
+            performed again.
     """
 
     update_mask: field_mask_pb2.FieldMask = proto.Field(
@@ -124,6 +137,10 @@ class UpdateWorkerPoolRequest(proto.Message):
         proto.BOOL,
         number=4,
     )
+    force_new_revision: bool = proto.Field(
+        proto.BOOL,
+        number=5,
+    )
 
 
 class ListWorkerPoolsRequest(proto.Message):
@@ -131,11 +148,11 @@ class ListWorkerPoolsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The location and project to list
-            resources on. Location must be a valid Google
-            Cloud region, and cannot be the "-" wildcard.
-            Format: projects/{project}/locations/{location},
-            where {project} can be project id or number.
+            Required. The location and project to list resources on.
+            Location must be a valid Google Cloud region, and cannot be
+            the "-" wildcard. Format:
+            ``projects/{project}/locations/{location}``, where
+            ``{project}`` can be project id or number.
         page_size (int):
             Maximum number of WorkerPools to return in
             this call.
@@ -198,8 +215,8 @@ class GetWorkerPoolRequest(proto.Message):
     Attributes:
         name (str):
             Required. The full name of the WorkerPool. Format:
-            projects/{project}/locations/{location}/workerPools/{worker_pool},
-            where {project} can be project id or number.
+            ``projects/{project}/locations/{location}/workerPools/{worker_pool}``,
+            where ``{project}`` can be project id or number.
     """
 
     name: str = proto.Field(
@@ -214,11 +231,11 @@ class DeleteWorkerPoolRequest(proto.Message):
     Attributes:
         name (str):
             Required. The full name of the WorkerPool. Format:
-            projects/{project}/locations/{location}/workerPools/{worker_pool},
-            where {project} can be project id or number.
+            ``projects/{project}/locations/{location}/workerPools/{worker_pool}``,
+            where ``{project}`` can be project id or number.
         validate_only (bool):
-            Indicates that the request should be
-            validated without actually deleting any
+            Optional. Indicates that the request should
+            be validated without actually deleting any
             resources.
         etag (str):
             A system-generated fingerprint for this
@@ -256,7 +273,7 @@ class WorkerPool(proto.Message):
             CreateWorkerPoolRequest.worker_id.
 
             Format:
-            projects/{project}/locations/{location}/workerPools/{worker_id}
+            ``projects/{project}/locations/{location}/workerPools/{worker_id}``
         description (str):
             User-provided description of the WorkerPool.
             This field currently has a 512-character limit.
@@ -280,23 +297,22 @@ class WorkerPool(proto.Message):
             https://cloud.google.com/resource-manager/docs/creating-managing-labels
             or https://cloud.google.com/run/docs/configuring/labels.
 
-            .. raw:: html
-
-                <p>Cloud Run API v2 does not support labels with  `run.googleapis.com`,
-                `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev`
-                namespaces, and they will be rejected. All system labels in v1 now have a
-                corresponding field in v2 WorkerPool.
+            Cloud Run API v2 does not support labels with
+            ``run.googleapis.com``, ``cloud.googleapis.com``,
+            ``serving.knative.dev``, or ``autoscaling.knative.dev``
+            namespaces, and they will be rejected. All system labels in
+            v1 now have a corresponding field in v2 WorkerPool.
         annotations (MutableMapping[str, str]):
             Optional. Unstructured key value map that may be set by
             external tools to store and arbitrary metadata. They are not
             queryable and should be preserved when modifying objects.
 
-            .. raw:: html
-
-                <p>Cloud Run API v2 does not support annotations with `run.googleapis.com`,
-                `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev`
-                namespaces, and they will be rejected in new resources. All system
-                annotations in v1 now have a corresponding field in v2 WorkerPool.
+            Cloud Run API v2 does not support annotations with
+            ``run.googleapis.com``, ``cloud.googleapis.com``,
+            ``serving.knative.dev``, or ``autoscaling.knative.dev``
+            namespaces, and they will be rejected in new resources. All
+            system annotations in v1 now have a corresponding field in
+            v2 WorkerPool.
 
             .. raw:: html
 
@@ -333,11 +349,9 @@ class WorkerPool(proto.Message):
             that stage. On read (or output), describes whether the
             resource uses preview features.
 
-            .. raw:: html
-
-                <p>
-                For example, if ALPHA is provided as input, but only BETA and GA-level
-                features are used, this field will be BETA on output.
+            For example, if ALPHA is provided as input, but only BETA
+            and GA-level features are used, this field will be BETA on
+            output.
         binary_authorization (googlecloudsdk.generated_clients.gapic_clients.run_v2.types.BinaryAuthorization):
             Optional. Settings for the Binary
             Authorization feature.
@@ -354,7 +368,7 @@ class WorkerPool(proto.Message):
             settings
         observed_generation (int):
             Output only. The generation of this WorkerPool currently
-            serving traffic. See comments in ``reconciling`` for
+            serving workloads. See comments in ``reconciling`` for
             additional information on reconciliation process in Cloud
             Run. Please note that unlike v1, this is an int64 value. As
             with most Google APIs, its JSON representation will be a
@@ -374,7 +388,7 @@ class WorkerPool(proto.Message):
             Run.
         latest_ready_revision (str):
             Output only. Name of the latest revision that is serving
-            traffic. See comments in ``reconciling`` for additional
+            workloads. See comments in ``reconciling`` for additional
             information on reconciliation process in Cloud Run.
         latest_created_revision (str):
             Output only. Name of the last created revision. See comments
@@ -404,28 +418,28 @@ class WorkerPool(proto.Message):
             steps to bring the WorkerPool to the desired serving state.
             This process is called reconciliation. While reconciliation
             is in process, ``observed_generation``,
-            ``latest_ready_revison``, ``traffic_statuses``, and ``uri``
-            will have transient values that might mismatch the intended
-            state: Once reconciliation is over (and this field is
-            false), there are two possible outcomes: reconciliation
+            ``latest_ready_revison``, ``instance_split_statuses``, and
+            ``uri`` will have transient values that might mismatch the
+            intended state: Once reconciliation is over (and this field
+            is false), there are two possible outcomes: reconciliation
             succeeded and the serving state matches the WorkerPool, or
             there was an error, and reconciliation failed. This state
             can be found in ``terminal_condition.state``.
 
             If reconciliation succeeded, the following fields will
-            match: ``traffic`` and ``traffic_statuses``,
+            match: ``instance_splits`` and ``instance_split_statuses``,
             ``observed_generation`` and ``generation``,
             ``latest_ready_revision`` and ``latest_created_revision``.
 
-            If reconciliation failed, ``traffic_statuses``,
+            If reconciliation failed, ``instance_split_statuses``,
             ``observed_generation``, and ``latest_ready_revision`` will
             have the state of the last serving revision, or empty for
             newly created WorkerPools. Additional information on the
             failure can be found in ``terminal_condition`` and
             ``conditions``.
         etag (str):
-            Output only. A system-generated fingerprint
-            for this version of the resource. May be used to
+            Optional. A system-generated fingerprint for
+            this version of the resource. May be used to
             detect modification conflict during updates.
     """
 

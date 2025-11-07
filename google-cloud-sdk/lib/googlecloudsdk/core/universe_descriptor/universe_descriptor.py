@@ -30,9 +30,10 @@ implement their own calls to fetch / update the descriptors.
 """
 
 import json
-import os
+import logging
 import sqlite3
 from typing import Any, Dict, List, Mapping, Set, TypedDict
+from urllib import parse
 
 from cloudsdk.google.protobuf import json_format
 from googlecloudsdk.core import config
@@ -40,6 +41,7 @@ from googlecloudsdk.core import exceptions
 from googlecloudsdk.core import properties
 from googlecloudsdk.core.configurations import named_configs
 from googlecloudsdk.core.configurations import properties_file
+from googlecloudsdk.core.console import console_io
 from googlecloudsdk.core.universe_descriptor.v1 import universe_descriptor_data_pb2
 from googlecloudsdk.core.util import pkg_resources
 import requests
@@ -105,6 +107,45 @@ class UniverseDescriptorDataSQLiteError(UniverseDescriptorError, sqlite3.Error):
         'A SQLite error occurred while querying the universe descriptor with'
         f' universe domain [{universe_domain}]. Request exception: {str(error)}'
     )
+
+
+def GetUniverseDomainDescriptor() -> (
+    universe_descriptor_data_pb2.UniverseDescriptorData
+):
+  """Returns the universe domain descriptor.
+
+  If the universe domain is not available, returns the default domain.
+
+  Returns:
+    The universe domain descriptor.
+  """
+  universe_desc = UniverseDescriptor()
+  try:
+    return universe_desc.Get(properties.GetUniverseDomain())
+  except UniverseDescriptorError:
+    pass
+
+  return universe_desc.Get(properties.VALUES.core.universe_domain.default)
+
+
+def GetUniverseDocumentDomain() -> str:
+  """Returns the universe document domain.
+
+  If the universe domain is not available, returns the default document domain.
+
+  Returns:
+    The universe document domain.
+  """
+  try:
+    universe_domain = properties.GetUniverseDomain()
+    universe_descriptor_data = UniverseDescriptor()
+    cached_descriptor_data = universe_descriptor_data.Get(universe_domain)
+    if cached_descriptor_data and cached_descriptor_data.documentation_domain:
+      return cached_descriptor_data.documentation_domain
+  except UniverseDescriptorError:
+    pass
+
+  return 'cloud.google.com'
 
 
 def _GetValidatedDescriptorData(
@@ -256,22 +297,88 @@ class UniverseDescriptor:
       if not fetch_if_not_cached:
         raise UniverseDescriptorDataSQLiteError(universe_domain, e) from e
     try:
-      return self.UpdateDescriptorFromUniverseDomain(universe_domain)
+      return self.UpdateDescriptorFromUniverseDomain(universe_domain)[0]
     except sqlite3.Error as e:
       raise UniverseDescriptorDataSQLiteError(universe_domain, e) from e
 
   def UpdateAllDescriptors(self) -> None:
     """Refreshes all descriptors according to config universe domains."""
     all_config_universe_domains = GetAllConfigUniverseDomains()
+    descriptor_list = []
     for config_universe_domain in sorted(all_config_universe_domains):
       try:
-        self.UpdateDescriptorFromUniverseDomain(config_universe_domain)
+        udd, _ = self.UpdateDescriptorFromUniverseDomain(config_universe_domain)
+        descriptor_list.append(udd)
       except (UniverseDescriptorFetchError, UniverseDescriptorDataError):
         pass
+    logging.info('descriptor_list: %s', descriptor_list)
+
+  def IsDomainUpdatedFromDeprecatedToPrimary(
+      self, universe_domain: str, disable_prompts: bool = False
+  ) -> bool:
+    """Checks if the given domain is deprecated. If not, returns False.
+
+    If the domain is deprecated, it will show a prompt to users to choose
+    whether to switch to the primary domain.
+    If user chooses to switch, the active config will be updated with the
+    primary domain. Return True.
+    Else, the active config will not be updated. Return False.
+
+    Args:
+      universe_domain: The universe domain to update the descriptor of.
+      disable_prompts: Whether to disable prompts.
+
+    Returns:
+      True if the old domain is deprecated and switched to the primary domain.
+      False otherwise.
+    """
+    if universe_domain == 'googleapis.com':
+      return False
+    # step 1: read the universe descriptor data from the domain in active
+    # config.
+    active_domain_udd = self._GetDescriptorFileFromBucket(universe_domain)
+    if active_domain_udd.get('state') == 'primary':
+      return False
+    # step 2: find the universeShortName associated with the active config.
+    universe_short_name = active_domain_udd.get('universeShortName', '')
+    # step 3: Find the recommended primary domain with the same
+    # universeShortName.
+    recommended_domain_udd = self._GetDescriptorFileFromBucket(
+        universe_domain, universe_short_name
+    )
+    recommended_primary_domain = recommended_domain_udd.get(
+        'universeDomain', ''
+    )
+
+    # step 4: if interacive mode, display a prompt.
+    # Else, display a warning to recommend the primary domain.
+    if console_io.IsInteractive() and not disable_prompts:
+      if console_io.PromptContinue(
+          'The universe_domain [%s] is deprecated and will be deleted soon.'
+          ' Would you like to switch to the primary universe_domain [%s]?'
+          % (universe_domain, recommended_primary_domain)
+      ):
+        active_config = named_configs.ConfigurationStore.ActiveConfig()
+        active_config.PersistProperty(
+            'core', 'universe_domain', recommended_primary_domain
+        )
+        logging.info(
+            'Switched to primary domain %s', recommended_primary_domain
+        )
+        return True
+    else:
+      logging.warning(
+          'The specified universe_domain [%s] is deprecated and will be'
+          ' deleted soon. Please update your configuration to use the primary'
+          ' domain [%s].',
+          universe_domain,
+          recommended_primary_domain,
+      )
+    return False
 
   def UpdateDescriptorFromUniverseDomain(
       self, universe_domain: str
-  ) -> Mapping[str, Any]:
+  ) -> (Mapping[str, Any], bool):
     """Refreshes a singular descriptor according to the universe domain given.
 
     Fetches the latest descriptor for a universe domain and stores it in the
@@ -281,7 +388,11 @@ class UniverseDescriptor:
       universe_domain: The universe domain to update the dscriptor of.
 
     Returns:
-      The universe descriptor message for the given universe_domain.
+      A tuple containing:
+        - Descriptor data: The universe descriptor message for the given
+          universe_domain.
+        - is_deprecated_and_switched: True if the domain is deprecated and
+          switched to the primary domain. False otherwise.
     """
     if universe_domain == properties.VALUES.core.universe_domain.default:
       descriptor_data = json.loads(
@@ -295,9 +406,12 @@ class UniverseDescriptor:
     descriptor_data_message = _GetValidatedDescriptorData(
         descriptor_data, universe_domain
     )
+    is_deprecated_and_switched = self.IsDomainUpdatedFromDeprecatedToPrimary(
+        universe_domain
+    )
     self._StoreInConfigCache(descriptor_data)
     self._AddToInMemoryCache(universe_domain, descriptor_data_message)
-    return descriptor_data
+    return descriptor_data, is_deprecated_and_switched
 
   def DeleteDescriptorFromUniverseDomain(self, universe_domain: str) -> bool:
     """Deletes a descriptor in the config cache with the given universe domain.
@@ -367,7 +481,7 @@ class UniverseDescriptor:
       ) from e
 
   def _GetDescriptorFileFromBucket(
-      self, universe_domain: str
+      self, universe_domain: str, universe_short_name: str = None
   ) -> Dict[str, Any]:
     """Fetches the universe descriptor file from GCS.
 
@@ -378,6 +492,8 @@ class UniverseDescriptor:
 
     Args:
       universe_domain: The universe domain used to construct the request URI to.
+      universe_short_name: Optional, this is used to find the recommended
+        primary domain with the same universeShortName.
 
     Returns:
       The universe descriptor data JSON dictionary.
@@ -400,6 +516,21 @@ class UniverseDescriptor:
           universe_domain, 'Descriptor not found in JSON array'
       )
 
+    def _GetRecommendedDescriptorFromJsonList(
+        json_list: List[Any],
+    ) -> Dict[str, Any]:
+      """Gets the recommended descriptor from the JSON list."""
+      for descriptor in json_list:
+        if (
+            (short_name := descriptor.get('universeShortName'))
+            and (short_name == universe_short_name)
+            and descriptor.get('state', '') == 'primary'
+        ):
+          return descriptor
+      raise UniverseDescriptorDataError(
+          universe_domain, 'Recommended Descriptor not found in JSON array'
+      )
+
     def _GetDescriptorFromJson(
         json_obj: Any,
     ) -> Dict[str, Any]:
@@ -419,11 +550,15 @@ class UniverseDescriptor:
             universe_domain, 'Invalid JSON object'
         )
       if isinstance(json_obj, List):
-        return _GetDescriptorFromJsonList(json_obj)
+        if universe_short_name is not None:
+          return _GetRecommendedDescriptorFromJsonList(json_obj)
+        else:
+          return _GetDescriptorFromJsonList(json_obj)
       return json_obj
 
-    descriptor_data_uri = (
-        f'https://storage.{os.path.join(universe_domain, DESCRIPTOR_DATA_BUCKET_NAME, DESCRIPTOR_DATA_FILE_NAME)}'
+    descriptor_data_uri = parse.urljoin(
+        f'https://storage.{universe_domain}',
+        f'{DESCRIPTOR_DATA_BUCKET_NAME}/{DESCRIPTOR_DATA_FILE_NAME}',
     )
     try:
       try:
@@ -431,8 +566,9 @@ class UniverseDescriptor:
         return _GetDescriptorFromJson(response.json())
       except Exception:  # pylint: disable=broad-except
         # Try backup bucket
-        descriptor_data_uri = (
-            f'https://storage.{os.path.join(universe_domain, DESCRIPTOR_DATA_BUCKET_BACKUP_NAME, DESCRIPTOR_DATA_FILE_NAME)}'
+        descriptor_data_uri = parse.urljoin(
+            f'https://storage.{universe_domain}',
+            f'{DESCRIPTOR_DATA_BUCKET_BACKUP_NAME}/{DESCRIPTOR_DATA_FILE_NAME}',
         )
         response = requests.get(descriptor_data_uri)
         return _GetDescriptorFromJson(response.json())

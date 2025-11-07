@@ -17,6 +17,16 @@ from apitools.base.py import extra_types
 package = 'securityposture'
 
 
+class Allowed(_messages.Message):
+  r"""Allowed IP rule.
+
+  Fields:
+    ipRules: Optional. Optional list of allowed IP rules.
+  """
+
+  ipRules = _messages.MessageField('IpRule', 1, repeated=True)
+
+
 class AssetDetails(_messages.Message):
   r"""Details of a Cloud Asset Inventory asset that caused a violation.
 
@@ -56,6 +66,12 @@ class Constraint(_messages.Message):
   r"""Metadata for a constraint in a Policy.
 
   Fields:
+    dataAccessGovernancePolicy: Optional. Data Access Governance policy
+      constraint.
+    dataFlowGovernancePolicy: Optional. Data Flow Governance policy
+      constraint.
+    dataRetentionAndDeletionPolicy: Optional. Data Retention and Deletion
+      policy constraint.
     orgPolicyConstraint: Optional. A predefined organization policy
       constraint.
     orgPolicyConstraintCustom: Optional. A custom organization policy
@@ -67,11 +83,14 @@ class Constraint(_messages.Message):
       Health Analytics.
   """
 
-  orgPolicyConstraint = _messages.MessageField('OrgPolicyConstraint', 1)
-  orgPolicyConstraintCustom = _messages.MessageField('OrgPolicyConstraintCustom', 2)
-  regoPolicy = _messages.MessageField('RegoPolicy', 3)
-  securityHealthAnalyticsCustomModule = _messages.MessageField('SecurityHealthAnalyticsCustomModule', 4)
-  securityHealthAnalyticsModule = _messages.MessageField('SecurityHealthAnalyticsModule', 5)
+  dataAccessGovernancePolicy = _messages.MessageField('DataAccessGovernancePolicy', 1)
+  dataFlowGovernancePolicy = _messages.MessageField('DataFlowGovernancePolicy', 2)
+  dataRetentionAndDeletionPolicy = _messages.MessageField('DataRetentionAndDeletionPolicy', 3)
+  orgPolicyConstraint = _messages.MessageField('OrgPolicyConstraint', 4)
+  orgPolicyConstraintCustom = _messages.MessageField('OrgPolicyConstraintCustom', 5)
+  regoPolicy = _messages.MessageField('RegoPolicy', 6)
+  securityHealthAnalyticsCustomModule = _messages.MessageField('SecurityHealthAnalyticsCustomModule', 7)
+  securityHealthAnalyticsModule = _messages.MessageField('SecurityHealthAnalyticsModule', 8)
 
 
 class CreateIaCValidationReportRequest(_messages.Message):
@@ -106,28 +125,51 @@ class CreatePredictionRequest(_messages.Message):
       BASIC_POSTURE: Basic predefined posture prediction type.
       NATURAL_LANGUAGE_QUERY: Posture prediction type to query predictions
         based on an intent provided in the request.
+      ADVANCED_POSTURE: Advanced posture prediction type.
     """
     PREDICTION_TYPE_UNSPECIFIED = 0
     BASIC_POSTURE = 1
     NATURAL_LANGUAGE_QUERY = 2
+    ADVANCED_POSTURE = 3
 
   environmentOptions = _messages.MessageField('EnvironmentOptions', 1)
   intent = _messages.StringField(2)
   predictionType = _messages.EnumField('PredictionTypeValueValuesEnum', 3)
 
 
-class CreateRemediationRequest(_messages.Message):
-  r"""Request message for creating a Remediation.
+class CreateRemediationIntentRequest(_messages.Message):
+  r"""Request message for creating a RemediationIntent.
+
+  Enums:
+    WorkflowTypeValueValuesEnum: Optional. Type of workflow for the
+      remediation intent. If not specified, the default workflow type is semi-
+      autonomous.
 
   Fields:
-    remediationData: Required. Files data
-    remediationIntentName: Required. Name of the remediation intent associated
-      with this remediation. Format:
-      organizations//locations/global/remediationIntents/
+    findingName: Optional. Canonical name of the finding for which the
+      remediation intent is created. Eg format for finding at project level: p
+      rojects/{project_id}/sources/{source}/locations/{location}/findings/{fin
+      ding_id}
+    workflowType: Optional. Type of workflow for the remediation intent. If
+      not specified, the default workflow type is semi-autonomous.
   """
 
-  remediationData = _messages.MessageField('RemediationData', 1)
-  remediationIntentName = _messages.StringField(2)
+  class WorkflowTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Type of workflow for the remediation intent. If not
+    specified, the default workflow type is semi-autonomous.
+
+    Values:
+      WORKFLOW_TYPE_UNSPECIFIED: Workflow type unspecified.
+      WORKFLOW_TYPE_MANUAL: Workflow type is manual.
+      WORKFLOW_TYPE_SEMI_AUTONOMOUS: Semi autonomous workflow type, triggered
+        periodically.
+    """
+    WORKFLOW_TYPE_UNSPECIFIED = 0
+    WORKFLOW_TYPE_MANUAL = 1
+    WORKFLOW_TYPE_SEMI_AUTONOMOUS = 2
+
+  findingName = _messages.StringField(1)
+  workflowType = _messages.EnumField('WorkflowTypeValueValuesEnum', 2)
 
 
 class CustomConfig(_messages.Message):
@@ -193,6 +235,117 @@ class CustomOutputSpec(_messages.Message):
   properties = _messages.MessageField('Property', 1, repeated=True)
 
 
+class DataAccessGovernancePolicy(_messages.Message):
+  r"""A governance policy that specifies the principals that can access data
+  without generating logs.
+
+  Fields:
+    displayName: A user-specified description of the policy. The maximum
+      length is 63 characters.
+    name: Output only. Uniquely identifies the policy. The name is ignored
+      when creating the policy. The name is generated by the server with the
+      format eg.
+      `dataassetgroups/{data_asset_group_ref}/policies/{policy_id}`. `organiza
+      tions/org_id/locations/location/resourceGroups/rg_id/policies/policy_id`
+    rules: Rules that specify the principals that can access data without
+      generating logs.
+  """
+
+  displayName = _messages.StringField(1)
+  name = _messages.StringField(2)
+  rules = _messages.MessageField('DataAccessGovernancePolicyRule', 3, repeated=True)
+
+
+class DataAccessGovernancePolicyRule(_messages.Message):
+  r"""A rule that specifies the principals that a
+  [DataAccessGovernancePolicy[] applies to.
+
+  Fields:
+    allowedPrincipals: Principals that can access data without generating
+      logs.
+    description: A user-specified description of the rule. The maximum length
+      is 255 characters.
+    ruleId: A user-specified identifier for the rule.
+  """
+
+  allowedPrincipals = _messages.StringField(1, repeated=True)
+  description = _messages.StringField(2)
+  ruleId = _messages.StringField(3)
+
+
+class DataFlowGovernancePolicy(_messages.Message):
+  r"""A governance policy that defines the locations that data can flow
+  through.
+
+  Fields:
+    displayName: A user-specified description of the policy. The maximum
+      length is 63 characters.
+    name: Output only. Uniquely identifies the policy. The name is ignored
+      when creating the policy. The name is generated by the server with the
+      format eg.
+      `dataassetgroups/{data_asset_group_ref}/policies/{policy_id}`. `organiza
+      tions/org_id/locations/location/resourceGroups/rg_id/policies/policy_id`
+    rules: Rules that specify the locations that data can flow through.
+  """
+
+  displayName = _messages.StringField(1)
+  name = _messages.StringField(2)
+  rules = _messages.MessageField('DataFlowGovernancePolicyRule', 3, repeated=True)
+
+
+class DataFlowGovernancePolicyRule(_messages.Message):
+  r"""A rule in a [DataFlowGovernancePolicy[] that specifies the locations
+  that data can flow through.
+
+  Fields:
+    allowedDataRegions: The [Unicode Common Locale Data Repository
+      (CLDR)](https://cldr.unicode.org/) territory codes of the locations that
+      data can flow through. No logs are generated for data that flows through
+      these locations.
+    description: A user-specified description of the rule. The maximum length
+      is 255 characters.
+    ruleId: A user-specified identifier for the rule.
+  """
+
+  allowedDataRegions = _messages.StringField(1, repeated=True)
+  description = _messages.StringField(2)
+  ruleId = _messages.StringField(3)
+
+
+class DataRetentionAndDeletionPolicy(_messages.Message):
+  r"""A policy that prescribes minimum and maximum allowed 'age' of customer's
+  data asset.
+
+  Fields:
+    displayName: A user-specified description of the policy. The maximum
+      length is 63 characters.
+    maxTtlFromCreationSeconds: Defines a maximum allowed TTL from the asset's
+      creation time.
+    maxTtlFromLastModificationSeconds: Defines a maximum allowed TTL from the
+      asset's last modification time.
+    name: Output only. Uniquely identifies the policy. The name is ignored
+      when creating the policy. The name is generated by the server with the
+      format eg.
+      `dataassetgroups/{data_asset_group_ref}/policies/{policy_id}`. `organiza
+      tions/org_id/locations/location/resourceGroups/rg_id/policies/policy_id`
+  """
+
+  displayName = _messages.StringField(1)
+  maxTtlFromCreationSeconds = _messages.IntegerField(2)
+  maxTtlFromLastModificationSeconds = _messages.IntegerField(3)
+  name = _messages.StringField(4)
+
+
+class Denied(_messages.Message):
+  r"""Denied IP rule.
+
+  Fields:
+    ipRules: Optional. Optional list of denied IP rules.
+  """
+
+  ipRules = _messages.MessageField('IpRule', 1, repeated=True)
+
+
 class Empty(_messages.Message):
   r"""A generic empty message that you can re-use to avoid defining duplicated
   empty messages in your APIs. A typical example is to use it as the request
@@ -233,6 +386,18 @@ class EnvironmentOptions(_messages.Message):
   customerIndustries = _messages.StringField(3, repeated=True)
   industryStandards = _messages.MessageField('IndustryStandard', 4, repeated=True)
   services = _messages.MessageField('GcpServices', 5, repeated=True)
+
+
+class ErrorDetails(_messages.Message):
+  r"""Error details in case of failure while generating remediation.
+
+  Fields:
+    errorCode: Optional. Error code.
+    reason: Optional. Reason for the error.
+  """
+
+  errorCode = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  reason = _messages.StringField(2)
 
 
 class Expr(_messages.Message):
@@ -297,6 +462,53 @@ class FileData(_messages.Message):
 
   fileContent = _messages.StringField(1)
   filePath = _messages.StringField(2)
+
+
+class Finding(_messages.Message):
+  r"""Finding information relayed during remediation fixing process
+
+  Fields:
+    category: Optional. Category of the finding, like UNUSED_IAM_ROLE,
+      IAM_ROLE_HAS_EXCESSIVE_PERMISSIONS etc.
+    findingMetadata: Optional. Finding metadata of the finding associated with
+      this remediation intent.
+    findingName: Required. Finding canonical name, used to identify the
+      finding within an organization.
+    resourceName: Optional. Resource name on which the finding is present.
+  """
+
+  category = _messages.StringField(1)
+  findingMetadata = _messages.MessageField('FindingMetadata', 2)
+  findingName = _messages.StringField(3)
+  resourceName = _messages.StringField(4)
+
+
+class FindingMetadata(_messages.Message):
+  r"""Finding metadata of the finding associated with this remediation intent.
+
+  Fields:
+    firewallRule: Firewall rules of the finding associated with this
+      remediation intent.
+    iamBindingsList: IAM bindings of the finding associated with this
+      remediation intent.
+  """
+
+  firewallRule = _messages.MessageField('FirewallRule', 1)
+  iamBindingsList = _messages.MessageField('IAMBindingsList', 2)
+
+
+class FirewallRule(_messages.Message):
+  r"""FirewallRule captures the details of a firewall rule for OPEN_FIREWALL
+  Type finding. Error details in case of failure while generating remediation.
+
+  Fields:
+    ipRules: Required. IP rules associated with the finding.
+    name: Required. The name of the firewall rule. For example, "//compute.goo
+      gleapis.com/projects/{project_id}/global/firewalls/{firewall_name}".
+  """
+
+  ipRules = _messages.MessageField('IpRules', 1)
+  name = _messages.StringField(2)
 
 
 class GcpServices(_messages.Message):
@@ -394,11 +606,11 @@ class GoogleCloudSecuritypostureV1PolicyRule(_messages.Message):
   policy constraint.
 
   Messages:
-    ParametersValue: Optional. Required for GMCs if parameters defined in
-      constraints. Pass parameter values when policy enforcement is enabled.
+    ParametersValue: Optional. Required for managed constraints if parameters
+      are defined. Passes parameter values when policy enforcement is enabled.
       Ensure that parameter value types match those defined in the constraint
-      definition. For example: { "allowedLocations" : ["us-east1", "us-
-      west1"], "allowAll" : true }
+      definition. For example: ``` { "allowedLocations": ["us-east1", "us-
+      west1"], "allowAll": true } ```
 
   Fields:
     allowAll: Whether to allow any value for a list constraint. Valid only for
@@ -422,23 +634,24 @@ class GoogleCloudSecuritypostureV1PolicyRule(_messages.Message):
       list constraints.
     enforce: Whether to enforce the constraint. Valid only for boolean
       constraints.
-    parameters: Optional. Required for GMCs if parameters defined in
-      constraints. Pass parameter values when policy enforcement is enabled.
+    parameters: Optional. Required for managed constraints if parameters are
+      defined. Passes parameter values when policy enforcement is enabled.
       Ensure that parameter value types match those defined in the constraint
-      definition. For example: { "allowedLocations" : ["us-east1", "us-
-      west1"], "allowAll" : true }
-    resourceTypes: Optional. The resource types policy can support, only used
-      for Google managed constraint and method type is GOVERN_TAGS.
+      definition. For example: ``` { "allowedLocations": ["us-east1", "us-
+      west1"], "allowAll": true } ```
+    resourceTypes: Optional. The resource types policies can support, only
+      used for managed constraints. Method type is `GOVERN_TAGS`.
     values: The allowed and denied values for a list constraint. Valid only
       for list constraints.
   """
 
   @encoding.MapUnrecognizedFields('additionalProperties')
   class ParametersValue(_messages.Message):
-    r"""Optional. Required for GMCs if parameters defined in constraints. Pass
-    parameter values when policy enforcement is enabled. Ensure that parameter
-    value types match those defined in the constraint definition. For example:
-    { "allowedLocations" : ["us-east1", "us-west1"], "allowAll" : true }
+    r"""Optional. Required for managed constraints if parameters are defined.
+    Passes parameter values when policy enforcement is enabled. Ensure that
+    parameter value types match those defined in the constraint definition.
+    For example: ``` { "allowedLocations": ["us-east1", "us-west1"],
+    "allowAll": true } ```
 
     Messages:
       AdditionalProperty: An additional property for a ParametersValue object.
@@ -496,6 +709,53 @@ class GoogleCloudSecuritypostureV1PolicyRuleStringValues(_messages.Message):
   deniedValues = _messages.StringField(2, repeated=True)
 
 
+class IAMBinding(_messages.Message):
+  r"""IAMBinding captures a member's role addition, removal, or state.
+
+  Enums:
+    ActionValueValuesEnum: Required. The action that was performed on the IAM
+      binding.
+
+  Fields:
+    action: Required. The action that was performed on the IAM binding.
+    member: Required. The member to whom the role is assigned. For example,
+      `user:222larabrown@gmail.com`, `group:admins@example.com`, or
+      `domain:google.com`.
+    role: Required. The role that is assigned to the member. For example,
+      `roles/viewer`, `roles/editor`, or `roles/owner`.
+  """
+
+  class ActionValueValuesEnum(_messages.Enum):
+    r"""Required. The action that was performed on the IAM binding.
+
+    Values:
+      ACTION_UNSPECIFIED: Unspecified.
+      ADD: Addition of an IAM binding.
+      REMOVE: Removal of an IAM binding.
+    """
+    ACTION_UNSPECIFIED = 0
+    ADD = 1
+    REMOVE = 2
+
+  action = _messages.EnumField('ActionValueValuesEnum', 1)
+  member = _messages.StringField(2)
+  role = _messages.StringField(3)
+
+
+class IAMBindingsList(_messages.Message):
+  r"""List of IAM bindings of the finding associated with this remediation
+  intent.
+
+  Fields:
+    iamBindings: Required. List of IAM bindings of the finding associated with
+      this remediation intent. Example: [{"role": "roles/owner", "member":
+      ["user:test@gmail.com"], Action: "ADD"}] It will be used to fetch the TF
+      state of the finding.
+  """
+
+  iamBindings = _messages.MessageField('IAMBinding', 1, repeated=True)
+
+
 class IaC(_messages.Message):
   r"""Details of an infrastructure-as-code (IaC) configuration.
 
@@ -534,6 +794,71 @@ class IndustryStandard(_messages.Message):
   version = _messages.StringField(2)
 
 
+class IpRule(_messages.Message):
+  r"""IP rule information.
+
+  Fields:
+    portRanges: Optional. An optional list of ports to which this rule
+      applies. This field is only applicable for the UDP or (S)TCP protocols.
+      Each entry must be either an integer or a range including a min and max
+      port number.
+    protocol: Required. The IP protocol this rule applies to. This value can
+      either be one of the following well known protocol strings (TCP, UDP,
+      ICMP, ESP, AH, IPIP, SCTP) or a string representation of the integer
+      value.
+  """
+
+  portRanges = _messages.MessageField('PortRange', 1, repeated=True)
+  protocol = _messages.StringField(2)
+
+
+class IpRules(_messages.Message):
+  r"""IP rules associated with the finding.
+
+  Enums:
+    DirectionValueValuesEnum: Required. The direction that the rule is
+      applicable to, one of ingress or egress.
+
+  Fields:
+    allowed: Tuple with allowed rules.
+    denied: Tuple with denied rules.
+    destinationIpRanges: Optional. If destination IP ranges are specified, the
+      firewall rule applies only to traffic that has a destination IP address
+      in these ranges. These ranges must be expressed in CIDR format. Only
+      supports IPv4.
+    direction: Required. The direction that the rule is applicable to, one of
+      ingress or egress.
+    exposedServices: Optional. Name of the network protocol service, such as
+      FTP, that is exposed by the open port. Follows the naming convention
+      available at: https://www.iana.org/assignments/service-names-port-
+      numbers/service-names-port-numbers.xhtml.
+    sourceIpRanges: Optional. If source IP ranges are specified, the firewall
+      rule applies only to traffic that has a source IP address in these
+      ranges. These ranges must be expressed in CIDR format. Only supports
+      IPv4.
+  """
+
+  class DirectionValueValuesEnum(_messages.Enum):
+    r"""Required. The direction that the rule is applicable to, one of ingress
+    or egress.
+
+    Values:
+      DIRECTION_UNSPECIFIED: Unspecified direction value.
+      INGRESS: Ingress direction value.
+      EGRESS: Egress direction value.
+    """
+    DIRECTION_UNSPECIFIED = 0
+    INGRESS = 1
+    EGRESS = 2
+
+  allowed = _messages.MessageField('Allowed', 1)
+  denied = _messages.MessageField('Denied', 2)
+  destinationIpRanges = _messages.StringField(3, repeated=True)
+  direction = _messages.EnumField('DirectionValueValuesEnum', 4)
+  exposedServices = _messages.StringField(5, repeated=True)
+  sourceIpRanges = _messages.StringField(6, repeated=True)
+
+
 class ListLocationsResponse(_messages.Message):
   r"""The response message for Locations.ListLocations.
 
@@ -554,10 +879,15 @@ class ListOperationsResponse(_messages.Message):
     nextPageToken: The standard List next-page token.
     operations: A list of operations that matches the specified filter in the
       request.
+    unreachable: Unordered list. Unreachable resources. Populated when the
+      request sets `ListOperationsRequest.return_partial_success` and reads
+      across collections e.g. when attempting to list all resources across all
+      supported locations.
   """
 
   nextPageToken = _messages.StringField(1)
   operations = _messages.MessageField('Operation', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
 
 
 class ListPostureDeploymentsResponse(_messages.Message):
@@ -630,6 +960,21 @@ class ListPredictionsResponse(_messages.Message):
 
   nextPageToken = _messages.StringField(1)
   predictions = _messages.MessageField('Prediction', 2, repeated=True)
+  unreachable = _messages.StringField(3, repeated=True)
+
+
+class ListRemediationIntentsResponse(_messages.Message):
+  r"""Message for response to listing Remediation Intents.
+
+  Fields:
+    nextPageToken: A token identifying a page of results the server should
+      return.
+    remediationIntents: The list of Remediation Intents.
+    unreachable: Unreachable resources.
+  """
+
+  nextPageToken = _messages.StringField(1)
+  remediationIntents = _messages.MessageField('RemediationIntent', 2, repeated=True)
   unreachable = _messages.StringField(3, repeated=True)
 
 
@@ -846,6 +1191,7 @@ class OperationMetadata(_messages.Message):
     endTime: Output only. The time at which the operation finished running.
     errorMessage: Output only. An error message. Returned when a
       PostureDeployment enters a failure state like UPDATE_FAILED.
+    predictionMetadata: Output only. Metadata for Prediction LRO.
     requestedCancellation: Output only. Whether a request to cancel the
       operation has been received. For operations that have been cancelled
       successfully, the Operation.error field contains the error code
@@ -860,10 +1206,11 @@ class OperationMetadata(_messages.Message):
   createTime = _messages.StringField(2)
   endTime = _messages.StringField(3)
   errorMessage = _messages.StringField(4)
-  requestedCancellation = _messages.BooleanField(5)
-  statusMessage = _messages.StringField(6)
-  target = _messages.StringField(7)
-  verb = _messages.StringField(8)
+  predictionMetadata = _messages.MessageField('PredictionMetadata', 5)
+  requestedCancellation = _messages.BooleanField(6)
+  statusMessage = _messages.StringField(7)
+  target = _messages.StringField(8)
+  verb = _messages.StringField(9)
 
 
 class OrgPolicyConstraint(_messages.Message):
@@ -890,6 +1237,17 @@ class OrgPolicyConstraintCustom(_messages.Message):
   policyRules = _messages.MessageField('GoogleCloudSecuritypostureV1PolicyRule', 2, repeated=True)
 
 
+class OutputData(_messages.Message):
+  r"""Output data for a remediation intent. This contains the output data for
+  the generated remediation which returns the updated terraform files.
+
+  Fields:
+    tfData: Optional. Output Terraform file information.
+  """
+
+  tfData = _messages.MessageField('TfData', 1)
+
+
 class Policy(_messages.Message):
   r"""The details of a policy, including the constraints that it includes.
 
@@ -898,6 +1256,8 @@ class Policy(_messages.Message):
       helps enforce.
     constraint: Required. The constraints that the policy includes.
     description: Optional. A description of the policy.
+    findingCategory: Output only. Finding category of the asset violation
+      findings that will be generated on the deployment of the policy.
     policyId: Required. A user-specified identifier for the policy. In a
       PolicySet, each policy must have a unique identifier.
   """
@@ -905,7 +1265,8 @@ class Policy(_messages.Message):
   complianceStandards = _messages.MessageField('ComplianceStandard', 1, repeated=True)
   constraint = _messages.MessageField('Constraint', 2)
   description = _messages.StringField(3)
-  policyId = _messages.StringField(4)
+  findingCategory = _messages.StringField(4)
+  policyId = _messages.StringField(5)
 
 
 class PolicyDetails(_messages.Message):
@@ -935,12 +1296,14 @@ class PolicyDetails(_messages.Message):
       SECURITY_HEALTH_ANALYTICS_MODULE: A built-in detector for Security
         Health Analytics.
       ORG_POLICY: A predefined organization policy constraint.
+      REGO_POLICY: A custom rego policy constraint.
     """
     CONSTRAINT_TYPE_UNSPECIFIED = 0
     SECURITY_HEALTH_ANALYTICS_CUSTOM_MODULE = 1
     ORG_POLICY_CUSTOM = 2
     SECURITY_HEALTH_ANALYTICS_MODULE = 3
     ORG_POLICY = 4
+    REGO_POLICY = 5
 
   complianceStandards = _messages.StringField(1, repeated=True)
   constraint = _messages.StringField(2)
@@ -963,11 +1326,27 @@ class PolicySet(_messages.Message):
   policySetId = _messages.StringField(3)
 
 
+class PortRange(_messages.Message):
+  r"""A port range which is inclusive of the min and max values. Values are
+  between 0 and 2^16-1. The max can be equal / must be not smaller than the
+  min value. If min and max are equal this indicates that it is a single port.
+
+  Fields:
+    max: Required. Maximum port value.
+    min: Required. Minimum port value.
+  """
+
+  max = _messages.IntegerField(1)
+  min = _messages.IntegerField(2)
+
+
 class Posture(_messages.Message):
   r"""The details of a posture.
 
   Enums:
     CategoriesValueListEntryValuesEnum:
+    PostureTypeValueValuesEnum: Optional. Immutable. The type of the posture.
+      The default value is SECURITY.
     StateValueValuesEnum: Required. The state of the posture at the specified
       `revision_id`.
 
@@ -992,6 +1371,8 @@ class Posture(_messages.Message):
     name: Required. Identifier. The name of the posture, in the format
       `organizations/{organization}/locations/global/postures/{posture_id}`.
     policySets: Required. The PolicySet resources that the posture includes.
+    postureType: Optional. Immutable. The type of the posture. The default
+      value is SECURITY.
     reconciling: Output only. Whether the posture is in the process of being
       updated.
     revisionId: Output only. Immutable. An opaque eight-character string that
@@ -1019,6 +1400,23 @@ class Posture(_messages.Message):
     GCP = 3
     AZURE = 4
     GEMINI_ASSISTED = 5
+
+  class PostureTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Immutable. The type of the posture. The default value is
+    SECURITY.
+
+    Values:
+      POSTURE_TYPE_UNSPECIFIED: Default value. This value is unused.
+      SECURITY_POSTURE: A security posture.
+      SECURITY: <no description>
+      DATA_POSTURE: A data posture.
+      DATA_SECURITY: <no description>
+    """
+    POSTURE_TYPE_UNSPECIFIED = 0
+    SECURITY_POSTURE = 1
+    SECURITY = 2
+    DATA_POSTURE = 3
+    DATA_SECURITY = 4
 
   class StateValueValuesEnum(_messages.Enum):
     r"""Required. The state of the posture at the specified `revision_id`.
@@ -1068,10 +1466,11 @@ class Posture(_messages.Message):
   etag = _messages.StringField(5)
   name = _messages.StringField(6)
   policySets = _messages.MessageField('PolicySet', 7, repeated=True)
-  reconciling = _messages.BooleanField(8)
-  revisionId = _messages.StringField(9)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
-  updateTime = _messages.StringField(11)
+  postureType = _messages.EnumField('PostureTypeValueValuesEnum', 8)
+  reconciling = _messages.BooleanField(9)
+  revisionId = _messages.StringField(10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  updateTime = _messages.StringField(12)
 
 
 class PostureDeployment(_messages.Message):
@@ -1325,16 +1724,70 @@ class Prediction(_messages.Message):
       BASIC_POSTURE: Basic predefined posture prediction type.
       NATURAL_LANGUAGE_QUERY: Posture prediction type to query predictions
         based on an intent provided in the request.
+      ADVANCED_POSTURE: Advanced posture prediction type.
     """
     PREDICTION_TYPE_UNSPECIFIED = 0
     BASIC_POSTURE = 1
     NATURAL_LANGUAGE_QUERY = 2
+    ADVANCED_POSTURE = 3
 
   createTime = _messages.StringField(1)
   environmentOptions = _messages.MessageField('EnvironmentOptions', 2)
   name = _messages.StringField(3)
   posture = _messages.MessageField('Posture', 4)
   predictionType = _messages.EnumField('PredictionTypeValueValuesEnum', 5)
+
+
+class PredictionMetadata(_messages.Message):
+  r"""Metadata for Prediction LRO.
+
+  Enums:
+    OperationStateValueValuesEnum: Output only. Progress state of the given
+      operation.
+
+  Fields:
+    environmentOptions: Output only. The environment options used to generate
+      the prediction.
+    operationState: Output only. Progress state of the given operation.
+  """
+
+  class OperationStateValueValuesEnum(_messages.Enum):
+    r"""Output only. Progress state of the given operation.
+
+    Values:
+      OPERATION_STATE_UNSPECIFIED: Operation state unspecified.
+      ENQUEUED: Operation is enqueued.
+      ROUTING_USER_INTENT: Operation is routing user intent.
+      GENERATING_SHA_BUILT_IN_POLICIES: Operation is generating SHA built-in
+        policies.
+      GENERATING_SHA_CUSTOM_POLICIES: Operation is generating SHA custom
+        policies.
+      GENERATING_ORG_BUILT_IN_POLICIES: Operation is generating org built-in
+        policies.
+      GENERATING_ORG_CUSTOM_POLICIES: Operation is generating org custom
+        policies.
+      GENERATING_REGO_POLICIES: Operation is generating Rego policies.
+      FILTERING_POLICIES: Operation is filtering policies.
+      GENERATING_PREDICTION: Operation is generating prediction.
+      PREDICTION_GENERATED: Operation has generated prediction.
+      ADDING_POLICIES: Operation is adding policies for natural language
+        query.
+    """
+    OPERATION_STATE_UNSPECIFIED = 0
+    ENQUEUED = 1
+    ROUTING_USER_INTENT = 2
+    GENERATING_SHA_BUILT_IN_POLICIES = 3
+    GENERATING_SHA_CUSTOM_POLICIES = 4
+    GENERATING_ORG_BUILT_IN_POLICIES = 5
+    GENERATING_ORG_CUSTOM_POLICIES = 6
+    GENERATING_REGO_POLICIES = 7
+    FILTERING_POLICIES = 8
+    GENERATING_PREDICTION = 9
+    PREDICTION_GENERATED = 10
+    ADDING_POLICIES = 11
+
+  environmentOptions = _messages.MessageField('EnvironmentOptions', 1)
+  operationState = _messages.EnumField('OperationStateValueValuesEnum', 2)
 
 
 class Property(_messages.Message):
@@ -1351,6 +1804,24 @@ class Property(_messages.Message):
   valueExpression = _messages.MessageField('Expr', 2)
 
 
+class PullRequest(_messages.Message):
+  r"""Pull request information.
+
+  Fields:
+    comments: Optional. Comments on the pull request.
+    modifiedFileOwners: Optional. Modified file owners.
+    modifiedFilePaths: Optional. Modified file paths.
+    remediationExplanation: Optional. Explanation of the remediation.
+    url: Optional. URL of the pull request.
+  """
+
+  comments = _messages.StringField(1)
+  modifiedFileOwners = _messages.StringField(2, repeated=True)
+  modifiedFilePaths = _messages.StringField(3, repeated=True)
+  remediationExplanation = _messages.StringField(4)
+  url = _messages.StringField(5)
+
+
 class RegoPolicy(_messages.Message):
   r"""Message for Rego policy constraint.
 
@@ -1363,6 +1834,8 @@ class RegoPolicy(_messages.Message):
       format. Total size of rego policy should not exceed 24KB.
     id: Required. The unique identifier (ID) for the rego policy. It should be
       unique across the posture. The regex pattern for id should be ^A-Za-z*$.
+      This field is also used as the finding category for all the asset
+      violation findings that the detector returns.
     nextSteps: Optional. Next steps required to fix an asset violation against
       this rego policy.
     severity: Optional. Severity of the asset violation against this rego
@@ -1392,14 +1865,137 @@ class RegoPolicy(_messages.Message):
   severity = _messages.EnumField('SeverityValueValuesEnum', 4)
 
 
-class RemediationData(_messages.Message):
-  r"""Data to be used for a remediation intent.
+class RemediationArtifacts(_messages.Message):
+  r"""Details related to artifacts produced for the intent eg PR info, and
+  owner identification.
 
   Fields:
-    tfData: Input Terraform file information.
+    prData: Raised pull request information.
   """
 
-  tfData = _messages.MessageField('TfData', 1)
+  prData = _messages.MessageField('PullRequest', 1)
+
+
+class RemediationInput(_messages.Message):
+  r"""Input data to be used for a remediation intent. Also contains error
+  message in case of failure.
+
+  Fields:
+    errorDetails: Output only. Error details in case of failure.
+    tfData: Optional. Input Terraform file information.
+  """
+
+  errorDetails = _messages.MessageField('ErrorDetails', 1)
+  tfData = _messages.MessageField('TfData', 2)
+
+
+class RemediationIntent(_messages.Message):
+  r"""Definition of the resource 'RemediationIntent'.
+
+  Enums:
+    IacTypeValueValuesEnum: Optional. Type of IAC for the remediation intent.
+    StateValueValuesEnum: Output only. State of the remediation intent.
+    WorkflowTypeValueValuesEnum: Required. Type of workflow for the
+      remediation intent.
+
+  Fields:
+    createTime: Output only. The timestamp when the remediation intent was
+      created.
+    errorDetails: Output only. Error details in case of failure.
+    etag: Optional. To prevent concurrent updates from overwriting each other,
+      always provide the `etag` when you update a remediation intent. You can
+      also provide the `etag` when you delete a remediation intent, to help
+      ensure that you're deleting the intended version of the remediation
+      intent.
+    findingData: Output only. SCC findings data, fields like finding name,
+      severity, category, resource etc.
+    iacType: Optional. Type of IAC for the remediation intent.
+    name: Required. Identifier. The name of this Remediation Intent resource,
+      in the format of
+      organizations/{organization}/locations/{location}/remediationIntents/.
+    remediatedOutput: Output only. Output remediated files data generated
+      using LLM having code fix.
+    remediationArtifacts: Output only. Details related to the artifacts
+      generated for the remediation, eg Pull Request.
+    remediationInput: Required. Input files data required for the remediation
+      of the intent.
+    repositoryData: Relevant repository data for which intent is created.
+    state: Output only. State of the remediation intent.
+    workflowType: Required. Type of workflow for the remediation intent.
+  """
+
+  class IacTypeValueValuesEnum(_messages.Enum):
+    r"""Optional. Type of IAC for the remediation intent.
+
+    Values:
+      IAC_TYPE_UNSPECIFIED: Unspecified IAC type.
+      IAC_TYPE_TERRAFORM: Terraform IAC type.
+    """
+    IAC_TYPE_UNSPECIFIED = 0
+    IAC_TYPE_TERRAFORM = 1
+
+  class StateValueValuesEnum(_messages.Enum):
+    r"""Output only. State of the remediation intent.
+
+    Values:
+      STATE_UNSPECIFIED: Unspecified remediation intent state.
+      REMEDIATION_INTENT_ENQUEUED: Remediation intent is enqueued.
+      REMEDIATION_IN_PROGRESS: Remediation for the intent is in progress.
+      REMEDIATION_FAILED: Remediation for the intent process has failed.
+      REMEDIATION_SUCCESS: Remediation generation by LLM is successful.
+      PR_GENERATION_SUCCESS: PR generated successfully.
+      PR_GENERATION_FAILED: PR generation failed, post remediation successful
+        creation.
+    """
+    STATE_UNSPECIFIED = 0
+    REMEDIATION_INTENT_ENQUEUED = 1
+    REMEDIATION_IN_PROGRESS = 2
+    REMEDIATION_FAILED = 3
+    REMEDIATION_SUCCESS = 4
+    PR_GENERATION_SUCCESS = 5
+    PR_GENERATION_FAILED = 6
+
+  class WorkflowTypeValueValuesEnum(_messages.Enum):
+    r"""Required. Type of workflow for the remediation intent.
+
+    Values:
+      WORKFLOW_TYPE_UNSPECIFIED: Workflow type unspecified.
+      WORKFLOW_TYPE_MANUAL: Workflow type is manual.
+      WORKFLOW_TYPE_SEMI_AUTONOMOUS: Semi autonomous workflow type, triggered
+        periodically.
+    """
+    WORKFLOW_TYPE_UNSPECIFIED = 0
+    WORKFLOW_TYPE_MANUAL = 1
+    WORKFLOW_TYPE_SEMI_AUTONOMOUS = 2
+
+  createTime = _messages.StringField(1)
+  errorDetails = _messages.MessageField('ErrorDetails', 2)
+  etag = _messages.StringField(3)
+  findingData = _messages.MessageField('Finding', 4)
+  iacType = _messages.EnumField('IacTypeValueValuesEnum', 5)
+  name = _messages.StringField(6)
+  remediatedOutput = _messages.MessageField('RemediationOutput', 7)
+  remediationArtifacts = _messages.MessageField('RemediationArtifacts', 8)
+  remediationInput = _messages.MessageField('RemediationInput', 9)
+  repositoryData = _messages.MessageField('RepositoryData', 10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  workflowType = _messages.EnumField('WorkflowTypeValueValuesEnum', 12)
+
+
+class RemediationOutput(_messages.Message):
+  r"""Remediated output data for a remediation intent.
+
+  Fields:
+    outputData: Optional. Output data for the remediation intent. The field is
+      repeated to support multiple output data for a single remediation intent
+      for multiple iam bindings.
+    remediationExplanation: Optional. Explanation of the remediation. The
+      field is used to support multiple explanations for a single remediation
+      intent for multiple iam bindings.
+  """
+
+  outputData = _messages.MessageField('OutputData', 1, repeated=True)
+  remediationExplanation = _messages.StringField(2)
 
 
 class Report(_messages.Message):
@@ -1420,6 +2016,16 @@ class Report(_messages.Message):
   updateTime = _messages.StringField(4)
 
 
+class RepositoryData(_messages.Message):
+  r"""Relevant repository related data for the intent.
+
+  Fields:
+    repositoryUrl: Required. Repository url.
+  """
+
+  repositoryUrl = _messages.StringField(1)
+
+
 class ResourceSelector(_messages.Message):
   r"""A selector for the resource types to run the detector on.
 
@@ -1432,16 +2038,14 @@ class ResourceSelector(_messages.Message):
 
 
 class ResourceTypes(_messages.Message):
-  r"""Set multiple resource types for one policy, eg: resourceTypes: included:
-  - compute.googleapis.com/Instance - compute.googleapis.com/Disk Constraint
-  definition contains an empty resource type in order to support multiple
-  resource types in the policy. Only support Google managed constriaint and
-  method type is GOVERN_TAGS Refer go/multi-resource-support-force-tags-gmc to
-  get more details.
+  r"""Set multiple resource types for one policy, for example: ```
+  resourceTypes: included: - compute.googleapis.com/Instance -
+  compute.googleapis.com/Disk ``` Constraint definition contains an empty
+  resource type in order to support multiple resource types in the policy.
+  Only supports managed constraints. Method type is `GOVERN_TAGS`.
 
   Fields:
-    included: Optional. The resource type we currently support.
-      cloud/orgpolicy/customconstraintconfig/prod/resource_types.prototext
+    included: Optional. The resource types we currently support.
   """
 
   included = _messages.StringField(1, repeated=True)
@@ -1457,9 +2061,10 @@ class SecurityHealthAnalyticsCustomModule(_messages.Message):
   Fields:
     config: Required. Configuration settings for the custom module.
     displayName: Optional. The display name of the custom module. This value
-      is used as the finding category for all findings that the custom module
-      returns. The display name must contain between 1 and 128 alphanumeric
-      characters or underscores, and it must start with a lowercase letter.
+      is used as the finding category for all the asset violation findings
+      that the custom module returns. The display name must contain between 1
+      and 128 alphanumeric characters or underscores, and it must start with a
+      lowercase letter.
     id: Output only. Immutable. The unique identifier for the custom module.
       Contains 1 to 20 digits.
     moduleEnablementState: Whether the custom module is enabled at a specified
@@ -1496,7 +2101,8 @@ class SecurityHealthAnalyticsModule(_messages.Message):
     moduleEnablementState: Whether the detector is enabled at a specified
       level of the resource hierarchy.
     moduleName: Required. The name of the detector. For example,
-      `BIGQUERY_TABLE_CMEK_DISABLED`.
+      `BIGQUERY_TABLE_CMEK_DISABLED`. This field is also used as the finding
+      category for all the asset violation findings that the detector returns.
   """
 
   class ModuleEnablementStateValueValuesEnum(_messages.Enum):
@@ -1557,12 +2163,20 @@ class SecuritypostureOrganizationsLocationsOperationsListRequest(_messages.Messa
     name: The name of the operation's parent resource.
     pageSize: The standard list page size.
     pageToken: The standard list page token.
+    returnPartialSuccess: When set to `true`, operations that are reachable
+      are returned as normal, and those that are unreachable are returned in
+      the [ListOperationsResponse.unreachable] field. This can only be `true`
+      when reading across collections e.g. when `parent` is set to
+      `"projects/example/locations/-"`. This field is not by default supported
+      and will result in an `UNIMPLEMENTED` error if set unless explicitly
+      documented otherwise in service or product specific documentation.
   """
 
   filter = _messages.StringField(1)
   name = _messages.StringField(2, required=True)
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
+  returnPartialSuccess = _messages.BooleanField(5)
 
 
 class SecuritypostureOrganizationsLocationsPostureDeploymentsCreateRequest(_messages.Message):
@@ -1866,18 +2480,106 @@ class SecuritypostureOrganizationsLocationsPredictionsListRequest(_messages.Mess
   parent = _messages.StringField(4, required=True)
 
 
-class SecuritypostureOrganizationsLocationsRemediationsCreateRequest(_messages.Message):
-  r"""A SecuritypostureOrganizationsLocationsRemediationsCreateRequest object.
+class SecuritypostureOrganizationsLocationsRemediationIntentsCreateRequest(_messages.Message):
+  r"""A SecuritypostureOrganizationsLocationsRemediationIntentsCreateRequest
+  object.
 
   Fields:
-    createRemediationRequest: A CreateRemediationRequest resource to be passed
-      as the request body.
+    createRemediationIntentRequest: A CreateRemediationIntentRequest resource
+      to be passed as the request body.
     parent: Required. The parent resource name. The format of this value is as
       follows: `organizations/{organization}/locations/{location}`
   """
 
-  createRemediationRequest = _messages.MessageField('CreateRemediationRequest', 1)
+  createRemediationIntentRequest = _messages.MessageField('CreateRemediationIntentRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class SecuritypostureOrganizationsLocationsRemediationIntentsDeleteRequest(_messages.Message):
+  r"""A SecuritypostureOrganizationsLocationsRemediationIntentsDeleteRequest
+  object.
+
+  Fields:
+    etag: Optional. An opaque identifier for the current version of the
+      remediation intent. If you provide this value, then it must match the
+      existing value. If the values don't match, then the request fails with
+      an ABORTED error. If you omit this value, then the remediation intent is
+      deleted regardless of its current `etag` value.
+    name: Required. The name of the RemediationIntent, in the format `organiza
+      tions/{organization}/locations/global/remediationIntents/{remediationInt
+      ent_id}`.
+  """
+
+  etag = _messages.StringField(1)
+  name = _messages.StringField(2, required=True)
+
+
+class SecuritypostureOrganizationsLocationsRemediationIntentsGetRequest(_messages.Message):
+  r"""A SecuritypostureOrganizationsLocationsRemediationIntentsGetRequest
+  object.
+
+  Fields:
+    name: Required. Name of the resource. The format of this value is as
+      follows: `organizations/{organization}/locations/{location}/remediationI
+      ntents/{intentID}`
+  """
+
+  name = _messages.StringField(1, required=True)
+
+
+class SecuritypostureOrganizationsLocationsRemediationIntentsListRequest(_messages.Message):
+  r"""A SecuritypostureOrganizationsLocationsRemediationIntentsListRequest
+  object.
+
+  Fields:
+    filter: Optional. Filter to be applied on the resource, defined by EBNF
+      grammar https://google.aip.dev/assets/misc/ebnf-filtering.txt.
+    pageSize: Optional. Requested page size. Server may return fewer items
+      than requested. If unspecified, server will pick an appropriate default.
+    pageToken: Optional. A token identifying a page of results the server
+      should return.
+    parent: Required. Parent value for ListRemediationIntentsRequest. The
+      format of this value is as follows:
+      `organizations/{organization}/locations/{location}`
+  """
+
+  filter = _messages.StringField(1)
+  pageSize = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
+
+
+class SecuritypostureOrganizationsLocationsRemediationIntentsPatchRequest(_messages.Message):
+  r"""A SecuritypostureOrganizationsLocationsRemediationIntentsPatchRequest
+  object.
+
+  Fields:
+    name: Required. Identifier. The name of this Remediation Intent resource,
+      in the format of
+      organizations/{organization}/locations/{location}/remediationIntents/.
+    remediationIntent: A RemediationIntent resource to be passed as the
+      request body.
+    updateMask: Optional. Field mask is used to specify the fields to be
+      overwritten in the RemediationIntent resource by the update method. You
+      can update only the following fields depending on the state transition:
+      * RemediationIntent.state (MUST for any transition) *
+      RemediationIntent.remediation_input (update to IN_PROGRESS state) *
+      RemediationIntent.remediation_artifacts (update to PR_GENERATION_SUCCESS
+      state) * RemediationIntent.error_details (update to PR_GENERATION_FAILED
+      state) Also the allowable state transitions are: *
+      RemediationIntent.State.ENQUEUED to RemediationIntent.State.IN_PROGRESS
+      * RemediationIntent.State.REMEDIATION_SUCCESS to
+      RemediationIntent.State.PR_GENERATION_SUCCESS *
+      RemediationIntent.State.REMEDIATION_SUCCESS to
+      RemediationIntent.State.PR_GENERATION_FAILED The fields specified in the
+      update_mask are relative to the resource, not the full request. A field
+      will be overwritten if it is in the mask. If the user does not provide a
+      mask then all relevant fields will be overwritten.
+  """
+
+  name = _messages.StringField(1, required=True)
+  remediationIntent = _messages.MessageField('RemediationIntent', 2)
+  updateMask = _messages.StringField(3)
 
 
 class SecuritypostureOrganizationsLocationsReportsCreateIaCValidationReportRequest(_messages.Message):
@@ -1943,6 +2645,9 @@ class SecuritypostureProjectsLocationsListRequest(_messages.Message):
   r"""A SecuritypostureProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -1955,11 +2660,12 @@ class SecuritypostureProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  includeUnrevealedLocations = _messages.BooleanField(2)
-  name = _messages.StringField(3, required=True)
-  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(5)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  includeUnrevealedLocations = _messages.BooleanField(3)
+  name = _messages.StringField(4, required=True)
+  pageSize = _messages.IntegerField(5, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(6)
 
 
 class StandardQueryParameters(_messages.Message):
@@ -2077,7 +2783,7 @@ class Status(_messages.Message):
 
 
 class TfData(_messages.Message):
-  r"""Terraform data : tf state information and tf files
+  r"""Stores terraform data like tf state information and tf files
 
   Fields:
     fileData: Required. Terraform files data

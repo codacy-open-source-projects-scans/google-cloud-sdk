@@ -43,6 +43,7 @@ class NetappV1beta1(base_api.BaseApiClient):
     self.projects_locations_backupPolicies = self.ProjectsLocationsBackupPoliciesService(self)
     self.projects_locations_backupVaults_backups = self.ProjectsLocationsBackupVaultsBackupsService(self)
     self.projects_locations_backupVaults = self.ProjectsLocationsBackupVaultsService(self)
+    self.projects_locations_hostGroups = self.ProjectsLocationsHostGroupsService(self)
     self.projects_locations_kmsConfigs = self.ProjectsLocationsKmsConfigsService(self)
     self.projects_locations_operations = self.ProjectsLocationsOperationsService(self)
     self.projects_locations_storagePools = self.ProjectsLocationsStoragePoolsService(self)
@@ -633,6 +634,151 @@ class NetappV1beta1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+  class ProjectsLocationsHostGroupsService(base_api.BaseApiService):
+    """Service class for the projects_locations_hostGroups resource."""
+
+    _NAME = 'projects_locations_hostGroups'
+
+    def __init__(self, client):
+      super(NetappV1beta1.ProjectsLocationsHostGroupsService, self).__init__(client)
+      self._upload_configs = {
+          }
+
+    def Create(self, request, global_params=None):
+      r"""Creates a new host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsCreateRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Create')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Create.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/hostGroups',
+        http_method='POST',
+        method_id='netapp.projects.locations.hostGroups.create',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['hostGroupId'],
+        relative_path='v1beta1/{+parent}/hostGroups',
+        request_field='hostGroup',
+        request_type_name='NetappProjectsLocationsHostGroupsCreateRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Delete(self, request, global_params=None):
+      r"""Deletes a host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsDeleteRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Delete')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Delete.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='DELETE',
+        method_id='netapp.projects.locations.hostGroups.delete',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1beta1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsDeleteRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Get(self, request, global_params=None):
+      r"""Returns details of the specified host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsGetRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (HostGroup) The response message.
+      """
+      config = self.GetMethodConfig('Get')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Get.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='GET',
+        method_id='netapp.projects.locations.hostGroups.get',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1beta1/{+name}',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsGetRequest',
+        response_type_name='HostGroup',
+        supports_download=False,
+    )
+
+    def List(self, request, global_params=None):
+      r"""Returns a list of host groups in a location. Use '-' as location to list host groups across all locations.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsListRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (ListHostGroupsResponse) The response message.
+      """
+      config = self.GetMethodConfig('List')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    List.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/hostGroups',
+        http_method='GET',
+        method_id='netapp.projects.locations.hostGroups.list',
+        ordered_params=['parent'],
+        path_params=['parent'],
+        query_params=['filter', 'orderBy', 'pageSize', 'pageToken'],
+        relative_path='v1beta1/{+parent}/hostGroups',
+        request_field='',
+        request_type_name='NetappProjectsLocationsHostGroupsListRequest',
+        response_type_name='ListHostGroupsResponse',
+        supports_download=False,
+    )
+
+    def Patch(self, request, global_params=None):
+      r"""Updates an existing host group.
+
+      Args:
+        request: (NetappProjectsLocationsHostGroupsPatchRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Patch')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Patch.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/hostGroups/{hostGroupsId}',
+        http_method='PATCH',
+        method_id='netapp.projects.locations.hostGroups.patch',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=['updateMask'],
+        relative_path='v1beta1/{+name}',
+        request_field='hostGroup',
+        request_type_name='NetappProjectsLocationsHostGroupsPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
   class ProjectsLocationsKmsConfigsService(base_api.BaseApiService):
     """Service class for the projects_locations_kmsConfigs resource."""
 
@@ -843,7 +989,7 @@ class NetappV1beta1(base_api.BaseApiClient):
           }
 
     def Cancel(self, request, global_params=None):
-      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+      r"""Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
 
       Args:
         request: (NetappProjectsLocationsOperationsCancelRequest) input message
@@ -942,7 +1088,7 @@ class NetappV1beta1(base_api.BaseApiClient):
         method_id='netapp.projects.locations.operations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['filter', 'pageSize', 'pageToken', 'returnPartialSuccess'],
         relative_path='v1beta1/{+name}/operations',
         request_field='',
         request_type_name='NetappProjectsLocationsOperationsListRequest',
@@ -1783,6 +1929,33 @@ class NetappV1beta1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def EstablishPeering(self, request, global_params=None):
+      r"""Establish volume peering. This is used to establish cluster and svm peerings between the GCNV and OnPrem clusters.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesEstablishPeeringRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('EstablishPeering')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    EstablishPeering.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}:establishPeering',
+        http_method='POST',
+        method_id='netapp.projects.locations.volumes.establishPeering',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1beta1/{+name}:establishPeering',
+        request_field='establishVolumePeeringRequest',
+        request_type_name='NetappProjectsLocationsVolumesEstablishPeeringRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def Get(self, request, global_params=None):
       r"""Gets details of a single Volume.
 
@@ -1860,6 +2033,33 @@ class NetappV1beta1(base_api.BaseApiClient):
         relative_path='v1beta1/{+name}',
         request_field='volume',
         request_type_name='NetappProjectsLocationsVolumesPatchRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
+    def Restore(self, request, global_params=None):
+      r"""Restore files from a backup to a volume.
+
+      Args:
+        request: (NetappProjectsLocationsVolumesRestoreRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('Restore')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    Restore.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1beta1/projects/{projectsId}/locations/{locationsId}/volumes/{volumesId}:restore',
+        http_method='POST',
+        method_id='netapp.projects.locations.volumes.restore',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1beta1/{+name}:restore',
+        request_field='restoreBackupFilesRequest',
+        request_type_name='NetappProjectsLocationsVolumesRestoreRequest',
         response_type_name='Operation',
         supports_download=False,
     )
@@ -1947,7 +2147,7 @@ class NetappV1beta1(base_api.BaseApiClient):
         method_id='netapp.projects.locations.list',
         ordered_params=['name'],
         path_params=['name'],
-        query_params=['filter', 'pageSize', 'pageToken'],
+        query_params=['extraLocationTypes', 'filter', 'pageSize', 'pageToken'],
         relative_path='v1beta1/{+name}/locations',
         request_field='',
         request_type_name='NetappProjectsLocationsListRequest',

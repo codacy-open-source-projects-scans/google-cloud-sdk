@@ -448,6 +448,9 @@ class CloudtasksProjectsLocationsListRequest(_messages.Message):
   r"""A CloudtasksProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -458,10 +461,11 @@ class CloudtasksProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class CloudtasksProjectsLocationsQueuesCreateRequest(_messages.Message):
@@ -897,7 +901,7 @@ class CreateTaskRequest(_messages.Message):
       de-duplication. If a task's ID is identical to that of an existing task
       or a task that was deleted or executed recently then the call will fail
       with ALREADY_EXISTS. The IDs of deleted tasks are not immediately
-      available for reuse. It can take up to 4 hours (or 9 days if the task's
+      available for reuse. It can take up to 24 hours (or 9 days if the task's
       queue was created using a queue.yaml or queue.xml) for the task ID to be
       released and made available again. Because there is an extra lookup cost
       to identify duplicate task names, these CreateTask calls have
@@ -1879,7 +1883,13 @@ class RetryConfig(_messages.Message):
       when the queue is created, Cloud Tasks will pick the default. -1
       indicates unlimited attempts. This field has the same meaning as
       [task_retry_limit in queue.yaml/xml](https://cloud.google.com/appengine/
-      docs/standard/python/config/queueref#retry_parameters).
+      docs/standard/python/config/queueref#retry_parameters). Note: Cloud
+      Tasks stops retrying only when `max_attempts` and `max_retry_duration`
+      are both satisfied. When the task has been attempted `max_attempts`
+      times and when the `max_retry_duration` time has passed, no further
+      attempts are made, and the task is deleted. If you want your task to
+      retry infinitely, you must set `max_attempts` to -1 and
+      `max_retry_duration` to 0.
     maxBackoff: A task will be scheduled for retry between min_backoff and
       max_backoff duration after it fails, if the queue's RetryConfig
       specifies that the task should be retried. If unspecified when the queue
@@ -2283,10 +2293,10 @@ class UriOverride(_messages.Message):
       task URL. Setting the path value to an empty string clears the URI path
       segment.
     port: Port override. When specified, replaces the port part of the task
-      URI. For instance, for a URI http://www.google.com/foo and port=123, the
-      overridden URI becomes http://www.google.com:123/foo. Note that the port
-      value must be a positive integer. Setting the port to 0 (Zero) clears
-      the URI port.
+      URI. For instance, for a URI "https://www.example.com/example" and
+      port=123, the overridden URI becomes
+      "https://www.example.com:123/example". Note that the port value must be
+      a positive integer. Setting the port to 0 (Zero) clears the URI port.
     queryOverride: URI Query. When specified, replaces the query part of the
       task URI. Setting the query value to an empty string clears the URI
       query segment.
@@ -2303,10 +2313,10 @@ class UriOverride(_messages.Message):
 
     Values:
       SCHEME_UNSPECIFIED: Scheme unspecified. Defaults to HTTPS.
-      HTTP: Convert the scheme to HTTP, e.g., https://www.google.ca will
-        change to http://www.google.ca.
-      HTTPS: Convert the scheme to HTTPS, e.g., http://www.google.ca will
-        change to https://www.google.ca.
+      HTTP: Convert the scheme to HTTP, e.g., "https://www.example.com" will
+        change to "http://www.example.com".
+      HTTPS: Convert the scheme to HTTPS, e.g., "http://www.example.com" will
+        change to "https://www.example.com".
     """
     SCHEME_UNSPECIFIED = 0
     HTTP = 1

@@ -14,14 +14,10 @@
 # limitations under the License.
 """Utilities for building the dataproc clusters CLI."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-
 import collections
 import re
 import textwrap
-
+from typing import Dict, List
 from apitools.base.py import encoding
 from googlecloudsdk.api_lib.compute import utils as api_utils
 from googlecloudsdk.api_lib.dataproc import compute_helpers
@@ -43,7 +39,17 @@ from googlecloudsdk.core.console import console_io
 from googlecloudsdk.core.util import times
 import six
 
+
 GENERATED_LABEL_PREFIX = 'goog-dataproc-'
+
+VALID_DISK_TYPES = (
+    'hyperdisk-balanced',
+    'hyperdisk-extreme',
+    'hyperdisk-ml',
+    'hyperdisk-throughput',
+)
+
+ALLOWED_DISK_CONFIG_KEYSET = frozenset({'type', 'size', 'iops', 'throughput'})
 
 
 # beta is unused but still useful when we add new beta features
@@ -66,14 +72,14 @@ def ArgsForClusterRef(
     beta: whether or not this is a beta command (may affect flag visibility)
     alpha: whether or not this is a alpha command (may affect flag visibility)
     include_deprecated: whether deprecated flags should be included
-    include_ttl_config: whether to include Scheduled Delete(TTL) args
+    include_ttl_config: whether to include Scheduled Delete and Stop (TTL) args
     include_gke_platform_args: whether to include GKE-based cluster args
     include_driver_pool_args: whether to include driver pool cluster args
   """
   labels_util.AddCreateLabelsFlags(parser)
   # 30m is backend timeout + 5m for safety buffer.
   flags.AddTimeoutFlag(parser, default='35m')
-  flags.AddZoneFlag(parser, short_flags=include_deprecated)
+  flags.AddZoneAndExcludedZonesFlags(parser, short_flags=include_deprecated)
   flags.AddComponentFlag(parser)
 
   platform_group = parser.add_argument_group(mutex=True)
@@ -90,6 +96,17 @@ def ArgsForClusterRef(
       help=(
           'Metadata to be made available to the guest operating system '
           'running on the instances'
+      ),
+      metavar='KEY=VALUE',
+  )
+  gce_platform_group.add_argument(
+      '--resource-manager-tags',
+      type=arg_parsers.ArgDict(min_length=1),
+      action='append',
+      default=None,
+      help=(
+          'Specifies a list of resource manager tags to apply to each cluster'
+          ' node (master and worker nodes). '
       ),
       metavar='KEY=VALUE',
   )
@@ -267,6 +284,21 @@ def ArgsForClusterRef(
       type=ArgMultiValueDict(),
       action=arg_parsers.FlattenAction(),
   )
+
+  parser.add_argument(
+      '--cluster-type',
+      metavar='TYPE',
+      choices=['standard', 'single-node', 'zero-scale'],
+      help='The type of cluster.',
+  )
+
+  parser.add_argument(
+      '--tier',
+      metavar='TIER',
+      choices=['premium', 'standard'],
+      help='Cluster tier',
+  )
+
   image_parser = parser.add_mutually_exclusive_group()
   # TODO(b/73291743): Add external doc link to --image
   image_parser.add_argument(
@@ -603,6 +635,42 @@ If you want to enable all scopes use the 'cloud-platform' scope.
       hidden=True,
   )
 
+  attached_disk_detailed_help = """\
+      A list of disk configurations to attach to nodes.
+      Each configuration should be a string with the format:
+      type=<disk_type>,(optional)size=<size>,(optional)iops=<iops>,
+      (optional)throughput=<throughput>, separated by semicolon.
+
+      Allowed disk types are: hyperdisk-balanced, hyperdisk-extreme,
+      hyperdisk-ml, hyperdisk-throughput.
+
+      Example:
+      type=hyperdisk-balanced,iops=1000,throughput=500,size=100G;type=hyperdisk-throughput,size=2000G'
+      """
+
+  parser.add_argument(
+      '--master-attached-disks',
+      help=attached_disk_detailed_help,
+      type=DiskConfigParser(),
+      hidden=True,
+  )
+
+  parser.add_argument(
+      '--worker-attached-disks',
+      help=attached_disk_detailed_help,
+      type=DiskConfigParser(),
+      hidden=True,
+  )
+
+  parser.add_argument(
+      '--secondary-worker-attached-disks',
+      help=attached_disk_detailed_help,
+      type=DiskConfigParser(),
+      hidden=True,
+  )
+
+  # Note: include_driver_pool_args is only supported in the default universe.
+  # The check occurs in create.py.
   if include_driver_pool_args:
     flags.AddDriverPoolId(parser)
     parser.add_argument(
@@ -637,10 +705,15 @@ If you want to enable all scopes use the 'cloud-platform' scope.
   parser.add_argument(
       '--enable-component-gateway',
       action='store_true',
-      help="""\
-        Enable access to the web UIs of selected components on the cluster
-        through the component gateway.
-        """,
+      help=arg_parsers.UniverseHelpText(
+          default=(
+              'Enable access to the web UIs of selected components on the'
+              ' cluster through the component gateway.'
+          ),
+          universe_help=(
+              'Component gateway is only supported in the default universe'
+          ),
+      ),
   )
   parser.add_argument(
       '--node-group',
@@ -688,14 +761,42 @@ If you want to enable all scopes use the 'cloud-platform' scope.
         and the image is SEV Compatible.
         """,
     )
-  parser.add_argument(
+  metastore_group = parser.add_argument_group(mutex=True)  # Mutually exclusive
+  metastore_group.add_argument(
       '--dataproc-metastore',
-      help="""\
-      Specify the name of a Dataproc Metastore service to be used as an
-      external metastore in the format:
-      "projects/{project-id}/locations/{region}/services/{service-name}".
-      """,
+      help=arg_parsers.UniverseHelpText(
+          default="""\
+          Specify the name of a Dataproc Metastore service to be used as an
+          external metastore in the format:
+          "projects/{project-id}/locations/{region}/services/{service-name}".
+          """,
+          universe_help="""\
+          Dataproc Metastore is only supported in the default universe.
+          """,
+      ),
   )
+  # Not mutually exclusive
+  if alpha or beta:
+    bqms_group = metastore_group.add_argument_group(help='BQMS flags')
+    bqms_group.add_argument(
+        '--bigquery-metastore-project-id',
+        help="""\
+      The project ID of the  BigQuery metastore database to be used as an external metastore.
+        """,
+    )
+    bqms_group.add_argument(
+        '--bigquery-metastore-database-location',
+        help="""\
+      Location of the  BigQuery metastore database to be used as an external metastore.
+        """,
+    )
+    bqms_group.add_argument(
+        '--bigquery-metastore',
+        action='store_true',
+        help="""\
+        Indicates that BigQuery metastore is to be used.
+        """,
+    )
 
   parser.add_argument(
       '--enable-node-groups',
@@ -712,12 +813,23 @@ If you want to enable all scopes use the 'cloud-platform' scope.
   )
 
   if include_ttl_config:
-    parser.add_argument(
+    auto_delete_idle_group = parser.add_mutually_exclusive_group()
+    auto_delete_idle_group.add_argument(
         '--max-idle',
         type=arg_parsers.Duration(),
+        hidden=True,
         help="""\
-          The duration before cluster is auto-deleted after last job completes,
-          such as "2h" or "1d".
+          The duration after the last job completes to autto-delete the
+          cluster, such as "2h" or "1d".
+          See $ gcloud topic datetimes for information on duration formats.
+          """,
+    )
+    auto_delete_idle_group.add_argument(
+        '--delete-max-idle',
+        type=arg_parsers.Duration(),
+        help="""\
+          The duration after the last job completes to auto-delete the
+          cluster, such as "2h" or "1d".
           See $ gcloud topic datetimes for information on duration formats.
           """,
     )
@@ -726,9 +838,10 @@ If you want to enable all scopes use the 'cloud-platform' scope.
     auto_delete_group.add_argument(
         '--max-age',
         type=arg_parsers.Duration(),
+        hidden=True,
         help="""\
-          The lifespan of the cluster before it is auto-deleted, such as
-          "2h" or "1d".
+          The lifespan of the cluster, with auto-deletion upon completion,
+          such as "2h" or "1d".
           See $ gcloud topic datetimes for information on duration formats.
           """,
     )
@@ -736,10 +849,59 @@ If you want to enable all scopes use the 'cloud-platform' scope.
     auto_delete_group.add_argument(
         '--expiration-time',
         type=arg_parsers.Datetime.Parse,
+        hidden=True,
         help="""\
-          The time when cluster will be auto-deleted, such as
+          The time when the cluster will be auto-deleted, such as
           "2017-08-29T18:52:51.142Z." See $ gcloud topic datetimes for
           information on time formats.
+          """,
+    )
+
+    auto_delete_group.add_argument(
+        '--delete-max-age',
+        type=arg_parsers.Duration(),
+        help="""\
+          The lifespan of the cluster, with auto-deletion upon completion,
+          such as "2h" or "1d".
+          See $ gcloud topic datetimes for information on duration formats.
+          """,
+    )
+    auto_delete_group.add_argument(
+        '--delete-expiration-time',
+        type=arg_parsers.Datetime.Parse,
+        help="""\
+          The time when the cluster will be auto-deleted, such as
+          "2017-08-29T18:52:51.142Z."
+          See $ gcloud topic datetimes for information on time formats.
+          """,
+    )
+
+    parser.add_argument(
+        '--stop-max-idle',
+        type=arg_parsers.Duration(),
+        help="""\
+          The duration after the last job completes to auto-stop the cluster,
+          such as "2h" or "1d".
+          See $ gcloud topic datetimes for information on duration formats.
+          """,
+    )
+    auto_stop_group = parser.add_mutually_exclusive_group()
+    auto_stop_group.add_argument(
+        '--stop-max-age',
+        type=arg_parsers.Duration(),
+        help="""\
+          The lifespan of the cluster, with auto-stop upon completion,
+          such as "2h" or "1d".
+          See $ gcloud topic datetimes for information on duration formats.
+          """,
+    )
+    auto_stop_group.add_argument(
+        '--stop-expiration-time',
+        type=arg_parsers.Datetime.Parse,
+        help="""\
+          The time when the cluster will be auto-stopped, such as
+          "2017-08-29T18:52:51.142Z."
+          See $ gcloud topic datetimes for information on time formats.
           """,
     )
 
@@ -760,14 +922,21 @@ If you want to enable all scopes use the 'cloud-platform' scope.
       group_text='Specifies the reservation for the instance.',
       affinity_text='The type of reservation for the instance.',
   )
+  # Note: include_gke_platform_args is only supported in the default universe.
+  # The check occurs in create.py.
   if include_gke_platform_args:
     gke_based_cluster_group = platform_group.add_argument_group(
         hidden=True,
-        help="""\
-          Options for creating a GKE-based Dataproc cluster. Specifying any of these
-          will indicate that this cluster is intended to be a GKE-based cluster.
-          These options are mutually exclusive with GCE-based options.
-          """,
+        help=arg_parsers.UniverseHelpText(
+            default="""\
+                    Options for creating a GKE-based Dataproc cluster. Specifying any of these
+                    will indicate that this cluster is intended to be a GKE-based cluster.
+                    These options are mutually exclusive with GCE-based options.
+                    """,
+            universe_help="""\
+                          GKE-based clusters are only supported in the default universe.
+                          """,
+        ),
     )
     gke_based_cluster_group.add_argument(
         '--gke-cluster',
@@ -1246,6 +1415,7 @@ def GetClusterConfig(
       serviceAccount=args.service_account,
       serviceAccountScopes=expanded_scopes,
       zoneUri=properties.VALUES.compute.zone.GetOrFail(),
+      autoZoneExcludeZoneUris=args.auto_zone_exclude_zones,
   )
 
   if args.public_ip_address:
@@ -1258,6 +1428,18 @@ def GetClusterConfig(
 
   if args.tags:
     gce_cluster_config.tags = args.tags
+
+  if args.resource_manager_tags:
+    flat_tags = collections.OrderedDict()
+    for entry in args.resource_manager_tags:
+      for k, v in entry.items():
+        flat_tags[k] = v
+    gce_cluster_config.resourceManagerTags = (
+        encoding.DictToAdditionalPropertyMessage(
+            flat_tags,
+            dataproc.messages.GceClusterConfig.ResourceManagerTagsValue,
+        )
+    )
 
   if args.metadata:
     flat_metadata = collections.OrderedDict()
@@ -1304,6 +1486,8 @@ def GetClusterConfig(
   cluster_config = dataproc.messages.ClusterConfig(
       configBucket=args.bucket,
       tempBucket=args.temp_bucket,
+      clusterType=_GetCusterType(dataproc, args.cluster_type),
+      clusterTier=_GetClusterTier(dataproc, args.tier),
       gceClusterConfig=gce_cluster_config,
       masterConfig=dataproc.messages.InstanceGroupConfig(
           numInstances=args.num_masters,
@@ -1319,6 +1503,7 @@ def GetClusterConfig(
               'Master',
               args.master_boot_disk_provisioned_iops,
               args.master_boot_disk_provisioned_throughput,
+              args.master_attached_disks,
           ),
           minCpuPlatform=args.master_min_cpu_platform,
           instanceFlexibilityPolicy=GetInstanceFlexibilityPolicy(
@@ -1340,6 +1525,7 @@ def GetClusterConfig(
               'Worker',
               args.worker_boot_disk_provisioned_iops,
               args.worker_boot_disk_provisioned_throughput,
+              args.worker_attached_disks,
           ),
           minCpuPlatform=args.worker_min_cpu_platform,
           instanceFlexibilityPolicy=GetInstanceFlexibilityPolicy(
@@ -1381,6 +1567,18 @@ def GetClusterConfig(
       cluster_config.securityConfig.kerberosConfig = kerberos_config
 
   if not beta:
+    if (
+        constants.ENABLE_DYNAMIC_MULTI_TENANCY_PROPERTY in args.properties
+        and not args.secure_multi_tenancy_user_mapping
+        and not args.identity_config_file
+    ):
+      raise exceptions.ArgumentError(
+          'If %s is enabled, either --secure-multi-tenancy-user-mapping or'
+          ' --identity-config-file must be provided with user to service'
+          ' account mappings.'
+          % constants.ENABLE_DYNAMIC_MULTI_TENANCY_PROPERTY,
+      )
+
     if args.identity_config_file or args.secure_multi_tenancy_user_mapping:
       if cluster_config.securityConfig is None:
         cluster_config.securityConfig = dataproc.messages.SecurityConfig()
@@ -1438,10 +1636,25 @@ def GetClusterConfig(
     cluster_config.metastoreConfig = dataproc.messages.MetastoreConfig(
         dataprocMetastoreService=args.dataproc_metastore
     )
+  elif (alpha or beta) and (
+      args.bigquery_metastore_project_id is not None
+      or args.bigquery_metastore_database_location is not None
+      or args.bigquery_metastore
+  ):
+    bigquery_metastore_config = GetBigQueryConfig(
+        dataproc,
+        args,
+    )
+    cluster_config.metastoreConfig = dataproc.messages.MetastoreConfig(
+        bigqueryMetastoreConfig=bigquery_metastore_config
+    )
 
   if include_ttl_config:
     lifecycle_config = dataproc.messages.LifecycleConfig()
     changed_config = False
+    # Flags max_age, expiration_time and max_idle are hidden, but still
+    # supported. They are replaced with new flags delete_max_age,
+    # delete_expiration_time and delete_max_idle.
     if args.max_age is not None:
       lifecycle_config.autoDeleteTtl = six.text_type(args.max_age) + 's'
       changed_config = True
@@ -1453,6 +1666,35 @@ def GetClusterConfig(
     if args.max_idle is not None:
       lifecycle_config.idleDeleteTtl = six.text_type(args.max_idle) + 's'
       changed_config = True
+
+    if args.delete_max_age is not None:
+      lifecycle_config.autoDeleteTtl = (
+          six.text_type(args.delete_max_age) + 's'
+      )
+      changed_config = True
+    if args.delete_expiration_time is not None:
+      lifecycle_config.autoDeleteTime = times.FormatDateTime(
+          args.delete_expiration_time
+      )
+      changed_config = True
+    if args.delete_max_idle is not None:
+      lifecycle_config.idleDeleteTtl = (
+          six.text_type(args.delete_max_idle) + 's'
+      )
+      changed_config = True
+    # Process scheduled stop args.
+    if args.stop_max_age is not None:
+      lifecycle_config.autoStopTtl = six.text_type(args.stop_max_age) + 's'
+      changed_config = True
+    if args.stop_expiration_time is not None:
+      lifecycle_config.autoStopTime = times.FormatDateTime(
+          args.stop_expiration_time
+      )
+      changed_config = True
+    if args.stop_max_idle is not None:
+      lifecycle_config.idleStopTtl = six.text_type(args.stop_max_idle) + 's'
+      changed_config = True
+
     if changed_config:
       cluster_config.lifecycleConfig = lifecycle_config
 
@@ -1538,6 +1780,7 @@ def GetClusterConfig(
                 'Secondary worker',
                 args.secondary_worker_boot_disk_provisioned_iops,
                 args.secondary_worker_boot_disk_provisioned_throughput,
+                args.secondary_worker_attached_disks,
             ),
             minCpuPlatform=args.worker_min_cpu_platform,
             preemptibility=_GetInstanceGroupPreemptibility(
@@ -1719,6 +1962,67 @@ def _GetInstanceGroupPreemptibility(dataproc, secondary_worker_type):
   return None
 
 
+def _GetCusterType(dataproc, cluster_type):
+  """Get ClusterType enum value.
+
+  Converts cluster_type argument value to
+  ClusterType API enum value.
+
+  Args:
+    dataproc: Dataproc API definition
+    cluster_type: argument value
+
+  Returns:
+    ClusterType API enum value
+  """
+  if cluster_type == 'standard':
+    return dataproc.messages.ClusterConfig.ClusterTypeValueValuesEnum(
+        'STANDARD'
+    )
+  if cluster_type == 'single-node':
+    return dataproc.messages.ClusterConfig.ClusterTypeValueValuesEnum(
+        'SINGLE_NODE'
+    )
+  if cluster_type == 'zero-scale':
+    return dataproc.messages.ClusterConfig.ClusterTypeValueValuesEnum(
+        'ZERO_SCALE'
+    )
+  if cluster_type is None:
+    return None
+  raise exceptions.ArgumentError(
+      'Unsupported --cluster-type flag value: '
+      + cluster_type
+  )
+
+
+def _GetClusterTier(dataproc, cluster_tier):
+  """Get ClusterTier enum value.
+
+  Converts cluster_tier argument value to
+  ClusterTier API enum value.
+
+  Args:
+    dataproc: Dataproc API definition
+    cluster_tier: argument value
+
+  Returns:
+    ClusterTier API enum value
+  """
+  if cluster_tier == 'premium':
+    return dataproc.messages.ClusterConfig.ClusterTierValueValuesEnum(
+        'CLUSTER_TIER_PREMIUM'
+    )
+  if cluster_tier == 'standard':
+    return dataproc.messages.ClusterConfig.ClusterTierValueValuesEnum(
+        'CLUSTER_TIER_STANDARD'
+    )
+  if cluster_tier is None:
+    return None
+  raise exceptions.ArgumentError(
+      'Unsupported --cluster-tier flag value: ' + cluster_tier
+  )
+
+
 def _GetPrivateIpv6GoogleAccess(dataproc, private_ipv6_google_access_type):
   """Get PrivateIpv6GoogleAccess enum value.
 
@@ -1752,6 +2056,22 @@ def _GetPrivateIpv6GoogleAccess(dataproc, private_ipv6_google_access_type):
   )
 
 
+def GetBigQueryConfig(dataproc, args):
+  """Get BigQuery config.
+
+  Args:
+    dataproc: Dataproc object that contains client, messages, and resources
+    args: arguments of the request
+
+  Returns:
+    bigquery_config: BigQuery config.
+  """
+  return dataproc.messages.BigqueryMetastoreConfig(
+      projectId=args.bigquery_metastore_project_id,
+      location=args.bigquery_metastore_database_location,
+  )
+
+
 def GetDiskConfig(
     dataproc,
     boot_disk_type,
@@ -1761,6 +2081,7 @@ def GetDiskConfig(
     node_type,
     boot_disk_provisioned_iops=None,
     boot_disk_provisioned_throughput=None,
+    attached_disk_configs=None,
 ):
   """Get dataproc cluster disk configuration.
 
@@ -1774,6 +2095,7 @@ def GetDiskConfig(
       worker, Driver pool
     boot_disk_provisioned_iops: Provisioned IOPS of the boot disk
     boot_disk_provisioned_throughput: Provisioned throughput of the boot disk
+    attached_disk_configs: Attached disks of the node.
 
   Returns:
     disk_config: Dataproc cluster disk configuration
@@ -1809,6 +2131,50 @@ def GetDiskConfig(
           f' {boot_disk_provisioned_throughput}.'
       )
 
+  attached_disk_configs_messages = []
+  if attached_disk_configs:
+    for attached_disk_config in attached_disk_configs:
+      disk = dataproc.messages.AttachedDiskConfig()
+      disk.diskType = (
+          dataproc.messages.AttachedDiskConfig.DiskTypeValueValuesEnum(
+              'DISK_TYPE_UNSPECIFIED'
+          )
+      )
+      if attached_disk_config.get('type') == 'hyperdisk-balanced':
+        disk.diskType = (
+            dataproc.messages.AttachedDiskConfig.DiskTypeValueValuesEnum(
+                'HYPERDISK_BALANCED'
+            )
+        )
+      if attached_disk_config.get('type') == 'hyperdisk-extreme':
+        disk.diskType = (
+            dataproc.messages.AttachedDiskConfig.DiskTypeValueValuesEnum(
+                'HYPERDISK_EXTREME'
+            )
+        )
+      if attached_disk_config.get('type') == 'hyperdisk-ml':
+        disk.diskType = (
+            dataproc.messages.AttachedDiskConfig.DiskTypeValueValuesEnum(
+                'HYPERDISK_ML'
+            )
+        )
+      if attached_disk_config.get('type') == 'hyperdisk-throughput':
+        disk.diskType = (
+            dataproc.messages.AttachedDiskConfig.DiskTypeValueValuesEnum(
+                'HYPERDISK_THROUGHPUT'
+            )
+        )
+      disk_size = attached_disk_config.get('size')
+      if disk_size:
+        disk.diskSizeGb = int(disk_size)
+      iops = attached_disk_config.get('iops')
+      if iops:
+        disk.provisionedIops = int(iops)
+      throughput = attached_disk_config.get('throughput')
+      if throughput:
+        disk.provisionedThroughput = int(throughput)
+      attached_disk_configs_messages.append(disk)
+
   return dataproc.messages.DiskConfig(
       bootDiskType=boot_disk_type,
       bootDiskSizeGb=boot_disk_size,
@@ -1816,6 +2182,7 @@ def GetDiskConfig(
       bootDiskProvisionedThroughput=boot_disk_provisioned_throughput,
       numLocalSsds=num_local_ssds,
       localSsdInterface=local_ssd_interface,
+      attachedDiskConfigs=attached_disk_configs_messages,
   )
 
 
@@ -2187,15 +2554,20 @@ def GetReservationAffinity(args, client):
 
   return None
 
-
-RESERVATION_AFFINITY_KEY = 'compute.googleapis.com/reservation-name'
+universe_domain = properties.VALUES.core.universe_domain.Get()
+RESERVATION_AFFINITY_KEY = f'compute.{universe_domain}/reservation-name'
 
 
 def AddKerberosGroup(parser):
   """Adds the argument group to handle Kerberos configurations."""
   kerberos_group = parser.add_argument_group(
       mutex=True,
-      help='Specifying these flags will enable Kerberos for the cluster.',
+      help=arg_parsers.UniverseHelpText(
+          default=(
+              'Specifying these flags will enable Kerberos for the cluster.'
+          ),
+          universe_help='Kerberos is only supported in the default universe.',
+      ),
   )
   # Not mutually exclusive
   kerberos_flag_group = kerberos_group.add_argument_group()
@@ -2365,9 +2737,15 @@ def AddSecureMultiTenancyGroup(parser):
   """Adds the argument group to handle Secure Multi-Tenancy configurations."""
   secure_multi_tenancy_group = parser.add_argument_group(
       mutex=True,
-      help=(
-          'Specifying these flags will enable Secure Multi-Tenancy for the'
-          ' cluster.'
+      help=arg_parsers.UniverseHelpText(
+          default=(
+              'Specifying these flags will enable Secure Multi-Tenancy for the'
+              ' cluster.'
+          ),
+          universe_help=(
+              'Secure Multi-Tenancy for clusters is only supported in the'
+              ' default universe.'
+          ),
       ),
   )
   secure_multi_tenancy_group.add_argument(
@@ -2412,6 +2790,12 @@ def ParseIdentityConfigFile(dataproc, identity_config_file):
     identity_config_data = yaml.load(data)
   except Exception as e:
     raise exceptions.ParseError('Cannot parse YAML:[{0}]'.format(e))
+
+  if not identity_config_data.get('user_service_account_mapping', {}):
+    raise exceptions.ArgumentError(
+        '--identity-config-file must contain at least one '
+        'user to service account mapping.'
+    )
 
   user_service_account_mapping = encoding.DictToAdditionalPropertyMessage(
       identity_config_data.get('user_service_account_mapping', {}),
@@ -2502,3 +2886,156 @@ class ArgMultiValueDict:
       )
       arg_dict.setdefault(key, []).append(value)
     return arg_dict
+
+
+class DiskConfigParser(object):
+  """Parses and validates disk configurations provided as a string.
+
+  This class takes a string representing disk configurations, parses them,
+  validates each configuration, and returns a list of dictionaries, where each
+  dictionary represents a valid disk configuration.
+
+  The expected format for the input string is a semi-colon separated list of
+  disk configurations. Each disk configuration is a comma-separated list of
+  key-value pairs, where the key and value are separated by an equals sign (=).
+
+  Example:
+      'type=pd-ssd,size=100GB,iops=2000;type=pd-standard,size=5TB'
+
+  Attributes:
+      binary_size_parser: An instance of arg_parsers.BinarySize used to parse
+        and validate disk sizes. It is initialized with a lower bound of '4GB'
+        and suggested scales of 'GB' and 'TB'.
+  """
+
+  def __init__(self):
+    self.binary_size_parser = arg_parsers.BinarySize(
+        lower_bound='4GB', suggested_binary_size_scales=['GB', 'TB']
+    )
+
+  def __call__(self, value: str) -> List[Dict[str, str]]:
+    """Parses and validates a string of disk configurations.
+
+    Args:
+        value: A string containing the disk configurations, or an empty string.
+
+    Returns:
+        A list of dictionaries, where each dictionary represents a valid disk
+        configuration. Returns an empty list if the input string is empty.
+
+    Raises:
+        exceptions.ArgumentError: If the input is not a string, if a disk
+          configuration is invalid, or if any validation fails.
+    """
+    if not value:
+      return []
+    if not isinstance(value, str):
+      raise exceptions.ArgumentError(
+          f'Expected string for disk configuration, but got {type(value)}'
+      )
+    disk_configs = value.split(';')
+    result = []
+    for config in disk_configs:
+      config = config.strip()
+      if not config:
+        continue
+      try:
+        disk_data = self._ParseKeyValuePairs(config)
+      except ValueError as e:
+        raise exceptions.ArgumentError(
+            f'Invalid disk configuration: {config}. {e}'
+        ) from e
+      self._ValidateDiskData(disk_data)
+      result.append(disk_data)
+    return result
+
+  def _ParseKeyValuePairs(self, config: str) -> Dict[str, str]:
+    """Parses a single disk configuration string into a dictionary.
+
+    Args:
+        config: A string representing a single disk configuration (e.g.,
+          'type=pd-ssd,size=100GB').
+
+    Returns:
+        A dictionary containing the key-value pairs of the disk configuration.
+
+    Raises:
+        ValueError: If the input string is not in the expected key=value format,
+          or if a key is duplicated.
+    """
+    disk_data = {}
+    pairs = config.split(',')
+    for pair in pairs:
+      if '=' not in pair:
+        raise ValueError(
+            f'Invalid key-value pair: {pair}. It should follow format:'
+            ' key=value'
+        )
+      key, value = pair.split('=', 1)
+      key = key.strip()
+      value = value.strip()
+      if key in disk_data:
+        raise ValueError(f'Duplicate key: {key}')
+      disk_data[key] = value
+    return disk_data
+
+  def _ValidateDiskData(self, disk_data: Dict[str, str]):
+    """Validates the disk data provided for attached disks.
+
+    This method checks that:
+      - All keys in the disk_data dictionary are in the
+      `ALLOWED_DISK_CONFIG_KEYSET`.
+      - The 'type' key is present and has a valid value.
+      - The 'size' value, if present, can be parsed by `binary_size_parser`.
+      - The 'iops' value, if present, is a positive integer.
+      - The 'throughput' value, if present, is a positive integer.
+
+    Args:
+        disk_data: A dictionary representing the disk configuration.
+
+    Raises:
+        exceptions.ArgumentError: If any of the validation rules fail.
+    """
+    for key in disk_data.keys():
+      if key not in ALLOWED_DISK_CONFIG_KEYSET:
+        raise exceptions.ArgumentError(
+            f'Invalid key: {key}. Allowed keys are:'
+            f' {", ".join(ALLOWED_DISK_CONFIG_KEYSET)}'
+        )
+    if 'type' not in disk_data or not disk_data['type']:
+      raise exceptions.ArgumentError('Disk type is required')
+    if disk_data['type'] not in VALID_DISK_TYPES:
+      raise exceptions.ArgumentError(
+          f"Invalid disk type: {disk_data['type']}. "
+          f"It must be one of: {', '.join(VALID_DISK_TYPES)}"
+      )
+    if 'size' in disk_data and disk_data['size']:
+      try:
+        disk_data['size'] = int(
+            self.binary_size_parser(disk_data['size']) / (1024 * 1024 * 1024)
+        )
+      except arg_parsers.ArgumentTypeError as e:
+        raise exceptions.ArgumentError(
+            f"Invalid disk size: {disk_data['size']}, {e}"
+        )
+    if (
+        'iops' in disk_data
+        and disk_data['iops']
+        and (not disk_data['iops'].isdigit() or int(disk_data['iops']) <= 0)
+    ):
+      raise exceptions.ArgumentError(
+          f"Invalid iops value: {disk_data['iops']}, It should be a positive"
+          ' number'
+      )
+    if (
+        'throughput' in disk_data
+        and disk_data['throughput']
+        and (
+            not disk_data['throughput'].isdigit()
+            or int(disk_data['throughput']) <= 0
+        )
+    ):
+      raise exceptions.ArgumentError(
+          f"Invalid throughput value: {disk_data['throughput']}, It should be a"
+          ' positive number'
+      )

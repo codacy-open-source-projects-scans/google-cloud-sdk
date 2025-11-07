@@ -143,6 +143,17 @@ class Collections(enum.Enum):
       ['name'],
       True
   )
+  PROJECTS_LOCATIONS_BACKENDAUTHENTICATIONCONFIGS = (
+      'projects.locations.backendAuthenticationConfigs',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'backendAuthenticationConfigs/{backendAuthenticationConfigsId}',
+      },
+      ['name'],
+      True
+  )
   PROJECTS_LOCATIONS_CLIENTTLSPOLICIES = (
       'projects.locations.clientTlsPolicies',
       '{+name}',
@@ -150,6 +161,17 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/'
               'clientTlsPolicies/{clientTlsPoliciesId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_DNSTHREATDETECTORS = (
+      'projects.locations.dnsThreatDetectors',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/'
+              'dnsThreatDetectors/{dnsThreatDetectorsId}',
       },
       ['name'],
       True
@@ -285,6 +307,28 @@ class Collections(enum.Enum):
           '':
               'projects/{projectsId}/locations/{locationsId}/operations/'
               '{operationsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_SACATTACHMENTS = (
+      'projects.locations.sacAttachments',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/sacAttachments/'
+              '{sacAttachmentsId}',
+      },
+      ['name'],
+      True
+  )
+  PROJECTS_LOCATIONS_SACREALMS = (
+      'projects.locations.sacRealms',
+      '{+name}',
+      {
+          '':
+              'projects/{projectsId}/locations/{locationsId}/sacRealms/'
+              '{sacRealmsId}',
       },
       ['name'],
       True

@@ -294,20 +294,23 @@ class DlpOrganizationsLocationsColumnDataProfilesListRequest(_messages.Message):
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `table_data_profile_name` - The name of the
-      related table data profile. - `project_id` - The Google Cloud project
-      ID. (REQUIRED) - `dataset_id` - The BigQuery dataset ID. (REQUIRED) -
-      `table_id` - The BigQuery table ID. (REQUIRED) - `field_id` - The ID of
-      the BigQuery field. - `info_type` - The infotype detected in the
-      resource. - `sensitivity_level` - HIGH|MEDIUM|LOW - `data_risk_level`:
-      How much risk is associated with this data. - `status_code` - an RPC
-      status code as defined in https://github.com/googleapis/googleapis/blob/
-      master/google/rpc/code.proto * The operator must be `=` for project_id,
-      dataset_id, and table_id. Other filters also support `!=`. Examples: *
-      project_id = 12345 AND status_code = 1 * project_id = 12345 AND
-      sensitivity_level = HIGH * project_id = 12345 AND info_type =
-      STREET_ADDRESS The length of this field should be no more than 500
-      characters.
+      Supported fields: - `table_data_profile_name`: The name of the related
+      table data profile - `project_id`: The Google Cloud project ID
+      (REQUIRED) - `dataset_id`: The BigQuery dataset ID (REQUIRED) -
+      `table_id`: The BigQuery table ID (REQUIRED) - `field_id`: The ID of the
+      BigQuery field - `info_type`: The infotype detected in the resource -
+      `sensitivity_level`: HIGH|MEDIUM|LOW - `data_risk_level`: How much risk
+      is associated with this data - `status_code`: An RPC status code as
+      defined in https://github.com/googleapis/googleapis/blob/master/google/r
+      pc/code.proto - `profile_last_generated`: Date and time the profile was
+      last generated * The operator must be `=` for project_id, dataset_id,
+      and table_id. Other filters also support `!=`. The
+      `profile_last_generated` filter also supports `<` and `>`. The syntax is
+      based on https://google.aip.dev/160. Examples: * project_id = 12345 AND
+      status_code = 1 * project_id = 12345 AND sensitivity_level = HIGH *
+      project_id = 12345 AND info_type = STREET_ADDRESS *
+      profile_last_generated < "2025-01-01T00:00:00.000Z" The length of this
+      field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
       is ascending. Redundant space characters are insignificant. Only one
@@ -379,6 +382,7 @@ class DlpOrganizationsLocationsConnectionsListRequest(_messages.Message):
 
   Fields:
     filter: Optional. Supported field/value: `state` - MISSING|AVAILABLE|ERROR
+      The syntax is based on https://google.aip.dev/160.
     pageSize: Optional. Number of results per page, max 1000.
     pageToken: Optional. Page token from a previous page to return the next
       set of results. If set, all other request fields must match the original
@@ -414,7 +418,8 @@ class DlpOrganizationsLocationsConnectionsSearchRequest(_messages.Message):
 
   Fields:
     filter: Optional. Supported field/value: - `state` -
-      MISSING|AVAILABLE|ERROR
+      MISSING|AVAILABLE|ERROR The syntax is based on
+      https://google.aip.dev/160.
     pageSize: Optional. Number of results per page, max 1000.
     pageToken: Optional. Page token from a previous page to return the next
       set of results. If set, all other request fields must match the original
@@ -645,10 +650,11 @@ class DlpOrganizationsLocationsDlpJobsListRequest(_messages.Message):
       * Supported fields for risk analysis jobs: - `state` -
       RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time
       the job finished. - 'start_time` - Corresponds to the time the job
-      finished. * The operator must be `=` or `!=`. Examples: *
-      inspected_storage = cloud_storage AND state = done * inspected_storage =
-      cloud_storage OR inspected_storage = bigquery * inspected_storage =
-      cloud_storage AND (state = done OR state = canceled) * end_time >
+      finished. * The operator must be `=` or `!=`. The syntax is based on
+      https://google.aip.dev/160. Examples: * inspected_storage =
+      cloud_storage AND state = done * inspected_storage = cloud_storage OR
+      inspected_storage = bigquery * inspected_storage = cloud_storage AND
+      (state = done OR state = canceled) * end_time >
       \"2017-12-12T00:00:00+00:00\" The length of this field should be no more
       than 500 characters.
     locationId: Deprecated. This field has no effect.
@@ -724,20 +730,24 @@ class DlpOrganizationsLocationsFileStoreDataProfilesListRequest(_messages.Messag
       are made up of one or more restrictions. * Restrictions can be combined
       by `AND` or `OR` logical operators. A sequence of restrictions
       implicitly uses `AND`. * A restriction has the form of `{field}
-      {operator} {value}`. * Supported fields/values: - `project_id` - The
-      Google Cloud project ID. - `account_id` - The AWS account ID. -
-      `file_store_path` - The path like "gs://bucket". - `data_source_type` -
-      The profile's data source type, like "google/storage/bucket". -
-      `data_storage_location` - The location where the file store's data is
-      stored, like "us-central1". - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `resource_visibility`:
-      PUBLIC|RESTRICTED - `status_code` - an RPC status code as defined in htt
-      ps://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-      * The operator must be `=` or `!=`. Examples: * `project_id = 12345 AND
+      {operator} {value}`. * Supported fields: - `project_id`: The Google
+      Cloud project ID - `account_id`: The AWS account ID - `file_store_path`:
+      The path like "gs://bucket" - `data_source_type`: The profile's data
+      source type, like "google/storage/bucket" - `data_storage_location`: The
+      location where the file store's data is stored, like "us-central1" -
+      `sensitivity_level`: HIGH|MODERATE|LOW - `data_risk_level`:
+      HIGH|MODERATE|LOW - `resource_visibility`: PUBLIC|RESTRICTED -
+      `status_code`: an RPC status code as defined in https://github.com/googl
+      eapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
       status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
       `project_id = 12345 AND resource_visibility = PUBLIC` * `file_store_path
-      = "gs://mybucket"` The length of this field should be no more than 500
-      characters.
+      = "gs://mybucket"` * `profile_last_generated <
+      "2025-01-01T00:00:00.000Z"` The length of this field should be no more
+      than 500 characters.
     orderBy: Optional. Comma-separated list of fields to order by, followed by
       `asc` or `desc` postfix. This list is case insensitive. The default
       sorting order is ascending. Redundant space characters are
@@ -763,6 +773,26 @@ class DlpOrganizationsLocationsFileStoreDataProfilesListRequest(_messages.Messag
   pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
   pageToken = _messages.StringField(4)
   parent = _messages.StringField(5, required=True)
+
+
+class DlpOrganizationsLocationsInfoTypesListRequest(_messages.Message):
+  r"""A DlpOrganizationsLocationsInfoTypesListRequest object.
+
+  Fields:
+    filter: filter to only return infoTypes supported by certain parts of the
+      API. Defaults to supported_by=INSPECT.
+    languageCode: BCP-47 language code for localized infoType friendly names.
+      If omitted, or if localized strings are not available, en-US strings
+      will be returned.
+    locationId: Deprecated. This field has no effect.
+    parent: The parent resource name. The format of this value is as follows:
+      `locations/{location_id}`
+  """
+
+  filter = _messages.StringField(1)
+  languageCode = _messages.StringField(2)
+  locationId = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class DlpOrganizationsLocationsInspectTemplatesCreateRequest(_messages.Message):
@@ -937,8 +967,9 @@ class DlpOrganizationsLocationsJobTriggersListRequest(_messages.Message):
       DATASTORE|CLOUD_STORAGE|BIGQUERY - 'last_run_time` - RFC 3339 formatted
       timestamp, surrounded by quotation marks. Nanoseconds are ignored. -
       'error_count' - Number of errors that have occurred while running. * The
-      operator must be `=` or `!=` for status and inspected_storage. Examples:
-      * inspected_storage = cloud_storage AND status = HEALTHY *
+      operator must be `=` or `!=` for status and inspected_storage. The
+      syntax is based on https://google.aip.dev/160. Examples: *
+      inspected_storage = cloud_storage AND status = HEALTHY *
       inspected_storage = cloud_storage OR inspected_storage = bigquery *
       inspected_storage = cloud_storage AND (state = PAUSED OR state =
       HEALTHY) * last_run_time > \"2017-12-12T00:00:00+00:00\" The length of
@@ -1026,22 +1057,26 @@ class DlpOrganizationsLocationsProjectDataProfilesListRequest(_messages.Message)
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `status_code` - an RPC status
-      code as defined in https://github.com/googleapis/googleapis/blob/master/
-      google/rpc/code.proto * The operator must be `=` or `!=`. Examples: *
-      `project_id = 12345 AND status_code = 1` * `project_id = 12345 AND
-      sensitivity_level = HIGH` The length of this field should be no more
-      than 500 characters.
+      Supported fields: - `project_id`: the Google Cloud project ID -
+      `sensitivity_level`: HIGH|MODERATE|LOW - `data_risk_level`:
+      HIGH|MODERATE|LOW - `status_code`: an RPC status code as defined in http
+      s://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
+      status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
+      `profile_last_generated < "2025-01-01T00:00:00.000Z"` The length of this
+      field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
       is ascending. Redundant space characters are insignificant. Only one
       order field at a time is allowed. Examples: * `project_id` *
-      `sensitivity_level desc` Supported fields are: - `project_id`: Google
-      Cloud project ID - `sensitivity_level`: How sensitive the data in a
-      project is, at most. - `data_risk_level`: How much risk is associated
-      with this data. - `profile_last_generated`: When the profile was last
-      updated in epoch seconds.
+      `sensitivity_level desc` Supported fields: - `project_id`: Google Cloud
+      project ID - `sensitivity_level`: How sensitive the data in a project
+      is, at most - `data_risk_level`: How much risk is associated with this
+      data - `profile_last_generated`: Date and time (in epoch seconds) the
+      profile was last generated
     pageSize: Size of the page. This value can be limited by the server. If
       zero, server returns a page of max size 100.
     pageToken: Page token to continue retrieval.
@@ -1188,15 +1223,19 @@ class DlpOrganizationsLocationsTableDataProfilesListRequest(_messages.Message):
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `project_id` - The Google Cloud project ID. -
-      `dataset_id` - The BigQuery dataset ID. - `table_id` - The ID of the
-      BigQuery table. - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `resource_visibility`:
-      PUBLIC|RESTRICTED - `status_code` - an RPC status code as defined in htt
-      ps://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-      * The operator must be `=` or `!=`. Examples: * `project_id = 12345 AND
+      Supported fields: - `project_id`: The Google Cloud project ID -
+      `dataset_id`: The BigQuery dataset ID - `table_id`: The ID of the
+      BigQuery table - `sensitivity_level`: HIGH|MODERATE|LOW -
+      `data_risk_level`: HIGH|MODERATE|LOW - `resource_visibility`:
+      PUBLIC|RESTRICTED - `status_code`: an RPC status code as defined in http
+      s://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
       status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
-      `project_id = 12345 AND resource_visibility = PUBLIC` The length of this
+      `project_id = 12345 AND resource_visibility = PUBLIC` *
+      `profile_last_generated < "2025-01-01T00:00:00.000Z"` The length of this
       field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
@@ -1585,10 +1624,11 @@ class DlpProjectsDlpJobsListRequest(_messages.Message):
       * Supported fields for risk analysis jobs: - `state` -
       RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time
       the job finished. - 'start_time` - Corresponds to the time the job
-      finished. * The operator must be `=` or `!=`. Examples: *
-      inspected_storage = cloud_storage AND state = done * inspected_storage =
-      cloud_storage OR inspected_storage = bigquery * inspected_storage =
-      cloud_storage AND (state = done OR state = canceled) * end_time >
+      finished. * The operator must be `=` or `!=`. The syntax is based on
+      https://google.aip.dev/160. Examples: * inspected_storage =
+      cloud_storage AND state = done * inspected_storage = cloud_storage OR
+      inspected_storage = bigquery * inspected_storage = cloud_storage AND
+      (state = done OR state = canceled) * end_time >
       \"2017-12-12T00:00:00+00:00\" The length of this field should be no more
       than 500 characters.
     locationId: Deprecated. This field has no effect.
@@ -1845,8 +1885,9 @@ class DlpProjectsJobTriggersListRequest(_messages.Message):
       DATASTORE|CLOUD_STORAGE|BIGQUERY - 'last_run_time` - RFC 3339 formatted
       timestamp, surrounded by quotation marks. Nanoseconds are ignored. -
       'error_count' - Number of errors that have occurred while running. * The
-      operator must be `=` or `!=` for status and inspected_storage. Examples:
-      * inspected_storage = cloud_storage AND status = HEALTHY *
+      operator must be `=` or `!=` for status and inspected_storage. The
+      syntax is based on https://google.aip.dev/160. Examples: *
+      inspected_storage = cloud_storage AND status = HEALTHY *
       inspected_storage = cloud_storage OR inspected_storage = bigquery *
       inspected_storage = cloud_storage AND (state = PAUSED OR state =
       HEALTHY) * last_run_time > \"2017-12-12T00:00:00+00:00\" The length of
@@ -1934,20 +1975,23 @@ class DlpProjectsLocationsColumnDataProfilesListRequest(_messages.Message):
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `table_data_profile_name` - The name of the
-      related table data profile. - `project_id` - The Google Cloud project
-      ID. (REQUIRED) - `dataset_id` - The BigQuery dataset ID. (REQUIRED) -
-      `table_id` - The BigQuery table ID. (REQUIRED) - `field_id` - The ID of
-      the BigQuery field. - `info_type` - The infotype detected in the
-      resource. - `sensitivity_level` - HIGH|MEDIUM|LOW - `data_risk_level`:
-      How much risk is associated with this data. - `status_code` - an RPC
-      status code as defined in https://github.com/googleapis/googleapis/blob/
-      master/google/rpc/code.proto * The operator must be `=` for project_id,
-      dataset_id, and table_id. Other filters also support `!=`. Examples: *
-      project_id = 12345 AND status_code = 1 * project_id = 12345 AND
-      sensitivity_level = HIGH * project_id = 12345 AND info_type =
-      STREET_ADDRESS The length of this field should be no more than 500
-      characters.
+      Supported fields: - `table_data_profile_name`: The name of the related
+      table data profile - `project_id`: The Google Cloud project ID
+      (REQUIRED) - `dataset_id`: The BigQuery dataset ID (REQUIRED) -
+      `table_id`: The BigQuery table ID (REQUIRED) - `field_id`: The ID of the
+      BigQuery field - `info_type`: The infotype detected in the resource -
+      `sensitivity_level`: HIGH|MEDIUM|LOW - `data_risk_level`: How much risk
+      is associated with this data - `status_code`: An RPC status code as
+      defined in https://github.com/googleapis/googleapis/blob/master/google/r
+      pc/code.proto - `profile_last_generated`: Date and time the profile was
+      last generated * The operator must be `=` for project_id, dataset_id,
+      and table_id. Other filters also support `!=`. The
+      `profile_last_generated` filter also supports `<` and `>`. The syntax is
+      based on https://google.aip.dev/160. Examples: * project_id = 12345 AND
+      status_code = 1 * project_id = 12345 AND sensitivity_level = HIGH *
+      project_id = 12345 AND info_type = STREET_ADDRESS *
+      profile_last_generated < "2025-01-01T00:00:00.000Z" The length of this
+      field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
       is ascending. Redundant space characters are insignificant. Only one
@@ -2019,6 +2063,7 @@ class DlpProjectsLocationsConnectionsListRequest(_messages.Message):
 
   Fields:
     filter: Optional. Supported field/value: `state` - MISSING|AVAILABLE|ERROR
+      The syntax is based on https://google.aip.dev/160.
     pageSize: Optional. Number of results per page, max 1000.
     pageToken: Optional. Page token from a previous page to return the next
       set of results. If set, all other request fields must match the original
@@ -2054,7 +2099,8 @@ class DlpProjectsLocationsConnectionsSearchRequest(_messages.Message):
 
   Fields:
     filter: Optional. Supported field/value: - `state` -
-      MISSING|AVAILABLE|ERROR
+      MISSING|AVAILABLE|ERROR The syntax is based on
+      https://google.aip.dev/160.
     pageSize: Optional. Number of results per page, max 1000.
     pageToken: Optional. Page token from a previous page to return the next
       set of results. If set, all other request fields must match the original
@@ -2440,10 +2486,11 @@ class DlpProjectsLocationsDlpJobsListRequest(_messages.Message):
       * Supported fields for risk analysis jobs: - `state` -
       RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time
       the job finished. - 'start_time` - Corresponds to the time the job
-      finished. * The operator must be `=` or `!=`. Examples: *
-      inspected_storage = cloud_storage AND state = done * inspected_storage =
-      cloud_storage OR inspected_storage = bigquery * inspected_storage =
-      cloud_storage AND (state = done OR state = canceled) * end_time >
+      finished. * The operator must be `=` or `!=`. The syntax is based on
+      https://google.aip.dev/160. Examples: * inspected_storage =
+      cloud_storage AND state = done * inspected_storage = cloud_storage OR
+      inspected_storage = bigquery * inspected_storage = cloud_storage AND
+      (state = done OR state = canceled) * end_time >
       \"2017-12-12T00:00:00+00:00\" The length of this field should be no more
       than 500 characters.
     locationId: Deprecated. This field has no effect.
@@ -2519,20 +2566,24 @@ class DlpProjectsLocationsFileStoreDataProfilesListRequest(_messages.Message):
       are made up of one or more restrictions. * Restrictions can be combined
       by `AND` or `OR` logical operators. A sequence of restrictions
       implicitly uses `AND`. * A restriction has the form of `{field}
-      {operator} {value}`. * Supported fields/values: - `project_id` - The
-      Google Cloud project ID. - `account_id` - The AWS account ID. -
-      `file_store_path` - The path like "gs://bucket". - `data_source_type` -
-      The profile's data source type, like "google/storage/bucket". -
-      `data_storage_location` - The location where the file store's data is
-      stored, like "us-central1". - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `resource_visibility`:
-      PUBLIC|RESTRICTED - `status_code` - an RPC status code as defined in htt
-      ps://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-      * The operator must be `=` or `!=`. Examples: * `project_id = 12345 AND
+      {operator} {value}`. * Supported fields: - `project_id`: The Google
+      Cloud project ID - `account_id`: The AWS account ID - `file_store_path`:
+      The path like "gs://bucket" - `data_source_type`: The profile's data
+      source type, like "google/storage/bucket" - `data_storage_location`: The
+      location where the file store's data is stored, like "us-central1" -
+      `sensitivity_level`: HIGH|MODERATE|LOW - `data_risk_level`:
+      HIGH|MODERATE|LOW - `resource_visibility`: PUBLIC|RESTRICTED -
+      `status_code`: an RPC status code as defined in https://github.com/googl
+      eapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
       status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
       `project_id = 12345 AND resource_visibility = PUBLIC` * `file_store_path
-      = "gs://mybucket"` The length of this field should be no more than 500
-      characters.
+      = "gs://mybucket"` * `profile_last_generated <
+      "2025-01-01T00:00:00.000Z"` The length of this field should be no more
+      than 500 characters.
     orderBy: Optional. Comma-separated list of fields to order by, followed by
       `asc` or `desc` postfix. This list is case insensitive. The default
       sorting order is ascending. Redundant space characters are
@@ -2581,6 +2632,26 @@ class DlpProjectsLocationsImageRedactRequest(_messages.Message):
 
   googlePrivacyDlpV2RedactImageRequest = _messages.MessageField('GooglePrivacyDlpV2RedactImageRequest', 1)
   parent = _messages.StringField(2, required=True)
+
+
+class DlpProjectsLocationsInfoTypesListRequest(_messages.Message):
+  r"""A DlpProjectsLocationsInfoTypesListRequest object.
+
+  Fields:
+    filter: filter to only return infoTypes supported by certain parts of the
+      API. Defaults to supported_by=INSPECT.
+    languageCode: BCP-47 language code for localized infoType friendly names.
+      If omitted, or if localized strings are not available, en-US strings
+      will be returned.
+    locationId: Deprecated. This field has no effect.
+    parent: The parent resource name. The format of this value is as follows:
+      `locations/{location_id}`
+  """
+
+  filter = _messages.StringField(1)
+  languageCode = _messages.StringField(2)
+  locationId = _messages.StringField(3)
+  parent = _messages.StringField(4, required=True)
 
 
 class DlpProjectsLocationsInspectTemplatesCreateRequest(_messages.Message):
@@ -2785,8 +2856,9 @@ class DlpProjectsLocationsJobTriggersListRequest(_messages.Message):
       DATASTORE|CLOUD_STORAGE|BIGQUERY - 'last_run_time` - RFC 3339 formatted
       timestamp, surrounded by quotation marks. Nanoseconds are ignored. -
       'error_count' - Number of errors that have occurred while running. * The
-      operator must be `=` or `!=` for status and inspected_storage. Examples:
-      * inspected_storage = cloud_storage AND status = HEALTHY *
+      operator must be `=` or `!=` for status and inspected_storage. The
+      syntax is based on https://google.aip.dev/160. Examples: *
+      inspected_storage = cloud_storage AND status = HEALTHY *
       inspected_storage = cloud_storage OR inspected_storage = bigquery *
       inspected_storage = cloud_storage AND (state = PAUSED OR state =
       HEALTHY) * last_run_time > \"2017-12-12T00:00:00+00:00\" The length of
@@ -2874,22 +2946,26 @@ class DlpProjectsLocationsProjectDataProfilesListRequest(_messages.Message):
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `status_code` - an RPC status
-      code as defined in https://github.com/googleapis/googleapis/blob/master/
-      google/rpc/code.proto * The operator must be `=` or `!=`. Examples: *
-      `project_id = 12345 AND status_code = 1` * `project_id = 12345 AND
-      sensitivity_level = HIGH` The length of this field should be no more
-      than 500 characters.
+      Supported fields: - `project_id`: the Google Cloud project ID -
+      `sensitivity_level`: HIGH|MODERATE|LOW - `data_risk_level`:
+      HIGH|MODERATE|LOW - `status_code`: an RPC status code as defined in http
+      s://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
+      status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
+      `profile_last_generated < "2025-01-01T00:00:00.000Z"` The length of this
+      field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
       is ascending. Redundant space characters are insignificant. Only one
       order field at a time is allowed. Examples: * `project_id` *
-      `sensitivity_level desc` Supported fields are: - `project_id`: Google
-      Cloud project ID - `sensitivity_level`: How sensitive the data in a
-      project is, at most. - `data_risk_level`: How much risk is associated
-      with this data. - `profile_last_generated`: When the profile was last
-      updated in epoch seconds.
+      `sensitivity_level desc` Supported fields: - `project_id`: Google Cloud
+      project ID - `sensitivity_level`: How sensitive the data in a project
+      is, at most - `data_risk_level`: How much risk is associated with this
+      data - `profile_last_generated`: Date and time (in epoch seconds) the
+      profile was last generated
     pageSize: Size of the page. This value can be limited by the server. If
       zero, server returns a page of max size 100.
     pageToken: Page token to continue retrieval.
@@ -3036,15 +3112,19 @@ class DlpProjectsLocationsTableDataProfilesListRequest(_messages.Message):
       up of one or more restrictions. * Restrictions can be combined by `AND`
       or `OR` logical operators. A sequence of restrictions implicitly uses
       `AND`. * A restriction has the form of `{field} {operator} {value}`. *
-      Supported fields/values: - `project_id` - The Google Cloud project ID. -
-      `dataset_id` - The BigQuery dataset ID. - `table_id` - The ID of the
-      BigQuery table. - `sensitivity_level` - HIGH|MODERATE|LOW -
-      `data_risk_level` - HIGH|MODERATE|LOW - `resource_visibility`:
-      PUBLIC|RESTRICTED - `status_code` - an RPC status code as defined in htt
-      ps://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-      * The operator must be `=` or `!=`. Examples: * `project_id = 12345 AND
+      Supported fields: - `project_id`: The Google Cloud project ID -
+      `dataset_id`: The BigQuery dataset ID - `table_id`: The ID of the
+      BigQuery table - `sensitivity_level`: HIGH|MODERATE|LOW -
+      `data_risk_level`: HIGH|MODERATE|LOW - `resource_visibility`:
+      PUBLIC|RESTRICTED - `status_code`: an RPC status code as defined in http
+      s://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto -
+      `profile_last_generated`: Date and time the profile was last generated *
+      The operator must be `=` or `!=`. The `profile_last_generated` filter
+      also supports `<` and `>`. The syntax is based on
+      https://google.aip.dev/160. Examples: * `project_id = 12345 AND
       status_code = 1` * `project_id = 12345 AND sensitivity_level = HIGH` *
-      `project_id = 12345 AND resource_visibility = PUBLIC` The length of this
+      `project_id = 12345 AND resource_visibility = PUBLIC` *
+      `profile_last_generated < "2025-01-01T00:00:00.000Z"` The length of this
       field should be no more than 500 characters.
     orderBy: Comma-separated list of fields to order by, followed by `asc` or
       `desc` postfix. This list is case insensitive. The default sorting order
@@ -3191,6 +3271,8 @@ class GooglePrivacyDlpV2Action(_messages.Message):
       notification-contacts).
     pubSub: Publish a notification to a Pub/Sub topic.
     publishFindingsToCloudDataCatalog: Publish findings to Cloud Datahub.
+    publishFindingsToDataplexCatalog: Publish findings as an aspect to
+      Dataplex Universal Catalog.
     publishSummaryToCscc: Publish summary to Cloud Security Command Center
       (Alpha).
     publishToStackdriver: Enable Stackdriver metric
@@ -3202,9 +3284,10 @@ class GooglePrivacyDlpV2Action(_messages.Message):
   jobNotificationEmails = _messages.MessageField('GooglePrivacyDlpV2JobNotificationEmails', 2)
   pubSub = _messages.MessageField('GooglePrivacyDlpV2PublishToPubSub', 3)
   publishFindingsToCloudDataCatalog = _messages.MessageField('GooglePrivacyDlpV2PublishFindingsToCloudDataCatalog', 4)
-  publishSummaryToCscc = _messages.MessageField('GooglePrivacyDlpV2PublishSummaryToCscc', 5)
-  publishToStackdriver = _messages.MessageField('GooglePrivacyDlpV2PublishToStackdriver', 6)
-  saveFindings = _messages.MessageField('GooglePrivacyDlpV2SaveFindings', 7)
+  publishFindingsToDataplexCatalog = _messages.MessageField('GooglePrivacyDlpV2PublishFindingsToDataplexCatalog', 5)
+  publishSummaryToCscc = _messages.MessageField('GooglePrivacyDlpV2PublishSummaryToCscc', 6)
+  publishToStackdriver = _messages.MessageField('GooglePrivacyDlpV2PublishToStackdriver', 7)
+  saveFindings = _messages.MessageField('GooglePrivacyDlpV2SaveFindings', 8)
 
 
 class GooglePrivacyDlpV2ActionDetails(_messages.Message):
@@ -3680,6 +3763,7 @@ class GooglePrivacyDlpV2ByteContentItem(_messages.Message):
       AUDIO: Audio file types. Only used for profiling.
       VIDEO: Video file types. Only used for profiling.
       EXECUTABLE: Executable file types. Only used for profiling.
+      AI_MODEL: AI model file types. Only used for profiling.
     """
     BYTES_TYPE_UNSPECIFIED = 0
     IMAGE = 1
@@ -3698,6 +3782,7 @@ class GooglePrivacyDlpV2ByteContentItem(_messages.Message):
     AUDIO = 14
     VIDEO = 15
     EXECUTABLE = 16
+    AI_MODEL = 17
 
   data = _messages.BytesField(1)
   type = _messages.EnumField('TypeValueValuesEnum', 2)
@@ -4727,7 +4812,8 @@ class GooglePrivacyDlpV2CryptoReplaceFfxFpeConfig(_messages.Message):
   will be skipped. See https://cloud.google.com/sensitive-data-
   protection/docs/pseudonymization to learn more. Note: We recommend using
   CryptoDeterministicConfig for all use cases which do not require preserving
-  the input alphabet space and size, plus warrant referential integrity.
+  the input alphabet space and size, plus warrant referential integrity. FPE
+  incurs significant latency costs.
 
   Enums:
     CommonAlphabetValueValuesEnum: Common alphabets.
@@ -4901,6 +4987,9 @@ class GooglePrivacyDlpV2DataProfileAction(_messages.Message):
       data in context-aware
       analytics](https://cloud.google.com/chronicle/docs/detection/usecase-
       dlp-high-risk-user-download).
+    publishToDataplexCatalog: Publishes a portion of each profile to Dataplex
+      Universal Catalog with the aspect type Sensitive Data Protection
+      Profile.
     publishToScc: Publishes findings to Security Command Center for each data
       profile.
     tagResources: Tags the profiled resources with the specified tag values.
@@ -4909,8 +4998,9 @@ class GooglePrivacyDlpV2DataProfileAction(_messages.Message):
   exportData = _messages.MessageField('GooglePrivacyDlpV2Export', 1)
   pubSubNotification = _messages.MessageField('GooglePrivacyDlpV2PubSubNotification', 2)
   publishToChronicle = _messages.MessageField('GooglePrivacyDlpV2PublishToChronicle', 3)
-  publishToScc = _messages.MessageField('GooglePrivacyDlpV2PublishToSecurityCommandCenter', 4)
-  tagResources = _messages.MessageField('GooglePrivacyDlpV2TagResources', 5)
+  publishToDataplexCatalog = _messages.MessageField('GooglePrivacyDlpV2PublishToDataplexCatalog', 4)
+  publishToScc = _messages.MessageField('GooglePrivacyDlpV2PublishToSecurityCommandCenter', 5)
+  tagResources = _messages.MessageField('GooglePrivacyDlpV2TagResources', 6)
 
 
 class GooglePrivacyDlpV2DataProfileBigQueryRowSchema(_messages.Message):
@@ -4952,6 +5042,89 @@ class GooglePrivacyDlpV2DataProfileConfigSnapshot(_messages.Message):
   inspectConfig = _messages.MessageField('GooglePrivacyDlpV2InspectConfig', 3)
   inspectTemplateModifiedTime = _messages.StringField(4)
   inspectTemplateName = _messages.StringField(5)
+
+
+class GooglePrivacyDlpV2DataProfileFinding(_messages.Message):
+  r"""Details about a piece of potentially sensitive information that was
+  detected when the data resource was profiled.
+
+  Enums:
+    ResourceVisibilityValueValuesEnum: How broadly a resource has been shared.
+
+  Fields:
+    dataProfileResourceName: Resource name of the data profile associated with
+      the finding.
+    dataSourceType: The type of the resource that was profiled.
+    findingId: A unique identifier for the finding.
+    fullResourceName: The [full resource name](https://cloud.google.com/apis/d
+      esign/resource_names#full_resource_name) of the resource profiled for
+      this finding.
+    infotype: The [type of content](https://cloud.google.com/sensitive-data-
+      protection/docs/infotypes-reference) that might have been found.
+    location: Where the content was found.
+    quote: The content that was found. Even if the content is not textual, it
+      may be converted to a textual representation here. If the finding
+      exceeds 4096 bytes in length, the quote may be omitted.
+    quoteInfo: Contains data parsed from quotes. Currently supported
+      infoTypes: DATE, DATE_OF_BIRTH, and TIME.
+    resourceVisibility: How broadly a resource has been shared.
+    timestamp: Timestamp when the finding was detected.
+  """
+
+  class ResourceVisibilityValueValuesEnum(_messages.Enum):
+    r"""How broadly a resource has been shared.
+
+    Values:
+      RESOURCE_VISIBILITY_UNSPECIFIED: Unused.
+      RESOURCE_VISIBILITY_PUBLIC: Visible to any user.
+      RESOURCE_VISIBILITY_INCONCLUSIVE: May contain public items. For example,
+        if a Cloud Storage bucket has uniform bucket level access disabled,
+        some objects inside it may be public, but none are known yet.
+      RESOURCE_VISIBILITY_RESTRICTED: Visible only to specific users.
+    """
+    RESOURCE_VISIBILITY_UNSPECIFIED = 0
+    RESOURCE_VISIBILITY_PUBLIC = 1
+    RESOURCE_VISIBILITY_INCONCLUSIVE = 2
+    RESOURCE_VISIBILITY_RESTRICTED = 3
+
+  dataProfileResourceName = _messages.StringField(1)
+  dataSourceType = _messages.MessageField('GooglePrivacyDlpV2DataSourceType', 2)
+  findingId = _messages.StringField(3)
+  fullResourceName = _messages.StringField(4)
+  infotype = _messages.MessageField('GooglePrivacyDlpV2InfoType', 5)
+  location = _messages.MessageField('GooglePrivacyDlpV2DataProfileFindingLocation', 6)
+  quote = _messages.StringField(7)
+  quoteInfo = _messages.MessageField('GooglePrivacyDlpV2QuoteInfo', 8)
+  resourceVisibility = _messages.EnumField('ResourceVisibilityValueValuesEnum', 9)
+  timestamp = _messages.StringField(10)
+
+
+class GooglePrivacyDlpV2DataProfileFindingLocation(_messages.Message):
+  r"""Location of a data profile finding within a resource.
+
+  Fields:
+    containerName: Name of the container where the finding is located. The
+      top-level name is the source file name or table name. Names of some
+      common storage containers are formatted as follows: * BigQuery tables:
+      `{project_id}:{dataset_id}.{table_id}` * Cloud Storage files:
+      `gs://{bucket}/{path}`
+    dataProfileFindingRecordLocation: Location of a finding within a resource
+      that produces a table data profile.
+  """
+
+  containerName = _messages.StringField(1)
+  dataProfileFindingRecordLocation = _messages.MessageField('GooglePrivacyDlpV2DataProfileFindingRecordLocation', 2)
+
+
+class GooglePrivacyDlpV2DataProfileFindingRecordLocation(_messages.Message):
+  r"""Location of a finding within a resource that produces a table data
+  profile.
+
+  Fields:
+    field: Field ID of the column containing the finding.
+  """
+
+  field = _messages.MessageField('GooglePrivacyDlpV2FieldId', 1)
 
 
 class GooglePrivacyDlpV2DataProfileJobConfig(_messages.Message):
@@ -5094,9 +5267,9 @@ class GooglePrivacyDlpV2DataSourceType(_messages.Message):
   r"""Message used to identify the type of resource being profiled.
 
   Fields:
-    dataSource: Output only. An identifying string to the type of resource
-      being profiled. Current values: * google/bigquery/table * google/project
-      * google/sql/table * google/gcs/bucket
+    dataSource: An identifying string to the type of resource being profiled.
+      Current values: * google/bigquery/table * google/project *
+      google/sql/table * google/gcs/bucket
   """
 
   dataSource = _messages.StringField(1)
@@ -5266,16 +5439,9 @@ class GooglePrivacyDlpV2DateTime(_messages.Message):
 
 
 class GooglePrivacyDlpV2Deidentify(_messages.Message):
-  r"""Create a de-identified copy of the requested table or files. A
-  TransformationDetail will be created for each transformation. If any rows in
-  BigQuery are skipped during de-identification (transformation errors or row
-  size exceeds BigQuery insert API limits) they are placed in the failure
-  output table. If the original row exceeds the BigQuery insert API limit it
-  will be truncated when written to the failure output table. The failure
-  output table can be set in the
-  action.deidentify.output.big_query_output.deidentified_failure_output_table
-  field, if no table is set, a table will be automatically created in the same
-  project and dataset as the original table. Compatible with: Inspect
+  r"""Create a de-identified copy of a storage bucket. Only compatible with
+  Cloud Storage buckets. A TransformationDetail will be created for each
+  transformation. Compatible with: Inspection of Cloud Storage
 
   Enums:
     FileTypesToTransformValueListEntryValuesEnum:
@@ -5287,20 +5453,53 @@ class GooglePrivacyDlpV2Deidentify(_messages.Message):
       different from the input bucket. De-identified files will overwrite
       files in the output path. Form of: gs://bucket/folder/ or gs://bucket
     fileTypesToTransform: List of user-specified file type groups to
-      transform. If specified, only the files with these file types will be
-      transformed. If empty, all supported files will be transformed.
-      Supported types may be automatically added over time. If a file type is
-      set in this field that isn't supported by the Deidentify action then the
-      job will fail and will not be successfully created/started. Currently
-      the only file types supported are: IMAGES, TEXT_FILES, CSV, TSV.
+      transform. If specified, only the files with these file types are
+      transformed. If empty, all supported files are transformed. Supported
+      types may be automatically added over time. Any unsupported file types
+      that are set in this field are excluded from de-identification. An error
+      is recorded for each unsupported file in the TransformationDetails
+      output table. Currently the only file types supported are: IMAGES,
+      TEXT_FILES, CSV, TSV.
     transformationConfig: User specified deidentify templates and configs for
       structured, unstructured, and image files.
     transformationDetailsStorageConfig: Config for storing transformation
-      details. This is separate from the de-identified content, and contains
-      metadata about the successful transformations and/or failures that
-      occurred while de-identifying. This needs to be set in order for users
-      to access information about the status of each transformation (see
-      TransformationDetails message for more information about what is noted).
+      details. This field specifies the configuration for storing detailed
+      metadata about each transformation performed during a de-identification
+      process. The metadata is stored separately from the de-identified
+      content itself and provides a granular record of both successful
+      transformations and any failures that occurred. Enabling this
+      configuration is essential for users who need to access comprehensive
+      information about the status, outcome, and specifics of each
+      transformation. The details are captured in the TransformationDetails
+      message for each operation. Key use cases: * **Auditing and compliance**
+      * Provides a verifiable audit trail of de-identification activities,
+      which is crucial for meeting regulatory requirements and internal data
+      governance policies. * Logs what data was transformed, what
+      transformations were applied, when they occurred, and their success
+      status. This helps demonstrate accountability and due diligence in
+      protecting sensitive data. * **Troubleshooting and debugging** * Offers
+      detailed error messages and context if a transformation fails. This
+      information is useful for diagnosing and resolving issues in the de-
+      identification pipeline. * Helps pinpoint the exact location and nature
+      of failures, speeding up the debugging process. * **Process verification
+      and quality assurance** * Allows users to confirm that de-identification
+      rules and transformations were applied correctly and consistently across
+      the dataset as intended. * Helps in verifying the effectiveness of the
+      chosen de-identification strategies. * **Data lineage and impact
+      analysis** * Creates a record of how data elements were modified,
+      contributing to data lineage. This is useful for understanding the
+      provenance of de-identified data. * Aids in assessing the potential
+      impact of de-identification choices on downstream analytical processes
+      or data usability. * **Reporting and operational insights** * You can
+      analyze the metadata stored in a queryable BigQuery table to generate
+      reports on transformation success rates, common error types, processing
+      volumes (e.g., transformedBytes), and the types of transformations
+      applied. * These insights can inform optimization of de-identification
+      configurations and resource planning. To take advantage of these
+      benefits, set this configuration. The stored details include a
+      description of the transformation, success or error codes, error
+      messages, the number of bytes transformed, the location of the
+      transformed content, and identifiers for the job and source data.
   """
 
   class FileTypesToTransformValueListEntryValuesEnum(_messages.Enum):
@@ -5821,13 +6020,13 @@ class GooglePrivacyDlpV2DiscoveryCloudStorageConditions(_messages.Message):
     Values:
       CLOUD_STORAGE_BUCKET_ATTRIBUTE_UNSPECIFIED: Unused.
       ALL_SUPPORTED_BUCKETS: Scan buckets regardless of the attribute.
-      AUTOCLASS_DISABLED: Buckets with autoclass disabled
-        (https://cloud.google.com/storage/docs/autoclass). Only one of
-        AUTOCLASS_DISABLED or AUTOCLASS_ENABLED should be set.
-      AUTOCLASS_ENABLED: Buckets with autoclass enabled
-        (https://cloud.google.com/storage/docs/autoclass). Only one of
-        AUTOCLASS_DISABLED or AUTOCLASS_ENABLED should be set. Scanning
-        Autoclass-enabled buckets can affect object storage classes.
+      AUTOCLASS_DISABLED: Buckets with
+        [Autoclass](https://cloud.google.com/storage/docs/autoclass) disabled.
+        Only one of AUTOCLASS_DISABLED or AUTOCLASS_ENABLED should be set.
+      AUTOCLASS_ENABLED: Buckets with
+        [Autoclass](https://cloud.google.com/storage/docs/autoclass) enabled.
+        Only one of AUTOCLASS_DISABLED or AUTOCLASS_ENABLED should be set.
+        Scanning Autoclass-enabled buckets can affect object storage classes.
     """
     CLOUD_STORAGE_BUCKET_ATTRIBUTE_UNSPECIFIED = 0
     ALL_SUPPORTED_BUCKETS = 1
@@ -5970,6 +6169,9 @@ class GooglePrivacyDlpV2DiscoveryConfig(_messages.Message):
       test-project/locations/global/discoveryConfigs/53234423`.
     orgConfig: Only set when the parent is an org.
     otherCloudStartingLocation: Must be set only when scanning other clouds.
+    processingLocation: Optional. Processing location configuration. Vertex AI
+      dataset scanning will set processing_location.image_fallback_type to
+      MultiRegionProcessing by default.
     status: Required. A status for this configuration.
     targets: Target to match against for determining what to scan and how
       frequently.
@@ -5997,9 +6199,10 @@ class GooglePrivacyDlpV2DiscoveryConfig(_messages.Message):
   name = _messages.StringField(7)
   orgConfig = _messages.MessageField('GooglePrivacyDlpV2OrgConfig', 8)
   otherCloudStartingLocation = _messages.MessageField('GooglePrivacyDlpV2OtherCloudDiscoveryStartingLocation', 9)
-  status = _messages.EnumField('StatusValueValuesEnum', 10)
-  targets = _messages.MessageField('GooglePrivacyDlpV2DiscoveryTarget', 11, repeated=True)
-  updateTime = _messages.StringField(12)
+  processingLocation = _messages.MessageField('GooglePrivacyDlpV2ProcessingLocation', 10)
+  status = _messages.EnumField('StatusValueValuesEnum', 11)
+  targets = _messages.MessageField('GooglePrivacyDlpV2DiscoveryTarget', 12, repeated=True)
+  updateTime = _messages.StringField(13)
 
 
 class GooglePrivacyDlpV2DiscoveryFileStoreConditions(_messages.Message):
@@ -6303,6 +6506,15 @@ class GooglePrivacyDlpV2DiscoveryTarget(_messages.Message):
     secretsTarget: Discovery target that looks for credentials and secrets
       stored in cloud resource metadata and reports them as vulnerabilities to
       Security Command Center. Only one target of this type is allowed.
+    vertexDatasetTarget: Vertex AI dataset target for Discovery. The first
+      target to match a dataset will be the one applied. Note that discovery
+      for Vertex AI can incur Cloud Storage Class B operation charges for
+      storage.objects.get operations and retrieval fees. For more information,
+      see [Cloud Storage
+      pricing](https://cloud.google.com/storage/pricing#price-tables). Note
+      that discovery for Vertex AI dataset will not be able to scan images
+      unless DiscoveryConfig.processing_location.image_fallback_location has
+      multi_region_processing or global_processing configured.
   """
 
   bigQueryTarget = _messages.MessageField('GooglePrivacyDlpV2BigQueryDiscoveryTarget', 1)
@@ -6310,6 +6522,85 @@ class GooglePrivacyDlpV2DiscoveryTarget(_messages.Message):
   cloudStorageTarget = _messages.MessageField('GooglePrivacyDlpV2CloudStorageDiscoveryTarget', 3)
   otherCloudTarget = _messages.MessageField('GooglePrivacyDlpV2OtherCloudDiscoveryTarget', 4)
   secretsTarget = _messages.MessageField('GooglePrivacyDlpV2SecretsDiscoveryTarget', 5)
+  vertexDatasetTarget = _messages.MessageField('GooglePrivacyDlpV2VertexDatasetDiscoveryTarget', 6)
+
+
+class GooglePrivacyDlpV2DiscoveryVertexDatasetConditions(_messages.Message):
+  r"""Requirements that must be true before a dataset is profiled for the
+  first time.
+
+  Fields:
+    createdAfter: Vertex AI dataset must have been created after this date.
+      Used to avoid backfilling.
+    minAge: Minimum age a Vertex AI dataset must have. If set, the value must
+      be 1 hour or greater.
+  """
+
+  createdAfter = _messages.StringField(1)
+  minAge = _messages.StringField(2)
+
+
+class GooglePrivacyDlpV2DiscoveryVertexDatasetFilter(_messages.Message):
+  r"""Determines what datasets will have profiles generated within an
+  organization or project. Includes the ability to filter by regular
+  expression patterns on project ID or dataset regex.
+
+  Fields:
+    collection: A specific set of Vertex AI datasets for this filter to apply
+      to.
+    others: Catch-all. This should always be the last target in the list
+      because anything above it will apply first. Should only appear once in a
+      configuration. If none is specified, a default one will be added
+      automatically.
+    vertexDatasetResourceReference: The dataset resource to scan. Targets
+      including this can only include one target (the target with this dataset
+      resource reference).
+  """
+
+  collection = _messages.MessageField('GooglePrivacyDlpV2VertexDatasetCollection', 1)
+  others = _messages.MessageField('GooglePrivacyDlpV2AllOtherResources', 2)
+  vertexDatasetResourceReference = _messages.MessageField('GooglePrivacyDlpV2VertexDatasetResourceReference', 3)
+
+
+class GooglePrivacyDlpV2DiscoveryVertexDatasetGenerationCadence(_messages.Message):
+  r"""How often existing datasets should have their profiles refreshed. New
+  datasets are scanned as quickly as possible depending on system capacity.
+
+  Enums:
+    RefreshFrequencyValueValuesEnum: If you set this field, profiles are
+      refreshed at this frequency regardless of whether the underlying
+      datasets have changed. Defaults to never.
+
+  Fields:
+    inspectTemplateModifiedCadence: Governs when to update data profiles when
+      the inspection rules defined by the `InspectTemplate` change. If not
+      set, changing the template will not cause a data profile to be updated.
+    refreshFrequency: If you set this field, profiles are refreshed at this
+      frequency regardless of whether the underlying datasets have changed.
+      Defaults to never.
+  """
+
+  class RefreshFrequencyValueValuesEnum(_messages.Enum):
+    r"""If you set this field, profiles are refreshed at this frequency
+    regardless of whether the underlying datasets have changed. Defaults to
+    never.
+
+    Values:
+      UPDATE_FREQUENCY_UNSPECIFIED: Unspecified.
+      UPDATE_FREQUENCY_NEVER: After the data profile is created, it will never
+        be updated.
+      UPDATE_FREQUENCY_DAILY: The data profile can be updated up to once every
+        24 hours.
+      UPDATE_FREQUENCY_MONTHLY: The data profile can be updated up to once
+        every 30 days. Default.
+    """
+    UPDATE_FREQUENCY_UNSPECIFIED = 0
+    UPDATE_FREQUENCY_NEVER = 1
+    UPDATE_FREQUENCY_DAILY = 2
+    UPDATE_FREQUENCY_MONTHLY = 3
+
+  inspectTemplateModifiedCadence = _messages.MessageField('GooglePrivacyDlpV2DiscoveryInspectTemplateModifiedCadence', 1)
+  refreshFrequency = _messages.EnumField('RefreshFrequencyValueValuesEnum', 2)
 
 
 class GooglePrivacyDlpV2DlpJob(_messages.Message):
@@ -6386,6 +6677,21 @@ class GooglePrivacyDlpV2DlpJob(_messages.Message):
   type = _messages.EnumField('TypeValueValuesEnum', 12)
 
 
+class GooglePrivacyDlpV2DocumentFallbackLocation(_messages.Message):
+  r"""Configure document processing to fall back to any of the following
+  processing options if document processing is unavailable in the original
+  request location.
+
+  Fields:
+    globalProcessing: Processing occurs in the global region.
+    multiRegionProcessing: Processing occurs in a multi-region that contains
+      the current region if available.
+  """
+
+  globalProcessing = _messages.MessageField('GooglePrivacyDlpV2GlobalProcessing', 1)
+  multiRegionProcessing = _messages.MessageField('GooglePrivacyDlpV2MultiRegionProcessing', 2)
+
+
 class GooglePrivacyDlpV2DocumentLocation(_messages.Message):
   r"""Location of a finding within a document.
 
@@ -6395,6 +6701,64 @@ class GooglePrivacyDlpV2DocumentLocation(_messages.Message):
   """
 
   fileOffset = _messages.IntegerField(1)
+
+
+class GooglePrivacyDlpV2Domain(_messages.Message):
+  r"""A domain represents a thematic category that a data profile can fall
+  under.
+
+  Enums:
+    CategoryValueValuesEnum: A domain category that this profile is related
+      to.
+    SignalsValueListEntryValuesEnum:
+
+  Fields:
+    category: A domain category that this profile is related to.
+    signals: The collection of signals that influenced selection of the
+      category.
+  """
+
+  class CategoryValueValuesEnum(_messages.Enum):
+    r"""A domain category that this profile is related to.
+
+    Values:
+      CATEGORY_UNSPECIFIED: Category unspecified.
+      AI: Indicates that the data profile is related to artificial
+        intelligence. When set, all findings stored to Security Command Center
+        will set the corresponding AI domain field of `Finding` objects.
+      CODE: Indicates that the data profile is related to code.
+    """
+    CATEGORY_UNSPECIFIED = 0
+    AI = 1
+    CODE = 2
+
+  class SignalsValueListEntryValuesEnum(_messages.Enum):
+    r"""SignalsValueListEntryValuesEnum enum type.
+
+    Values:
+      SIGNAL_UNSPECIFIED: Unused.
+      MODEL: One or more machine learning models are present.
+      TEXT_EMBEDDING: A table appears to be a text embedding.
+      VERTEX_PLUGIN: The [Cloud SQL Vertex
+        AI](https://cloud.google.com/sql/docs/postgres/integrate-cloud-sql-
+        with-vertex-ai) plugin is installed on the database.
+      VECTOR_PLUGIN: Support for [Cloud SQL vector
+        embeddings](https://cloud.google.com/sql/docs/mysql/enable-vector-
+        search) is enabled on the database.
+      SOURCE_CODE: Source code is present.
+      SERVICE: If the service determines the category type. For example,
+        Vertex AI assets would always have a `Category` of `AI`.
+    """
+    SIGNAL_UNSPECIFIED = 0
+    MODEL = 1
+    TEXT_EMBEDDING = 2
+    VERTEX_PLUGIN = 3
+    VECTOR_PLUGIN = 4
+    SOURCE_CODE = 5
+    SERVICE = 6
+
+  category = _messages.EnumField('CategoryValueValuesEnum', 1)
+  signals = _messages.EnumField('SignalsValueListEntryValuesEnum', 2, repeated=True)
 
 
 class GooglePrivacyDlpV2EntityId(_messages.Message):
@@ -6535,18 +6899,40 @@ class GooglePrivacyDlpV2Export(_messages.Message):
   your choice whenever updated.
 
   Fields:
-    profileTable: Store all table and column profiles in an existing table or
-      a new table in an existing dataset. Each re-generation will result in
-      new rows in BigQuery. Data is inserted using [streaming
+    profileTable: Store all profiles to BigQuery. * The system will create a
+      new dataset and table for you if none are are provided. The dataset will
+      be named `sensitive_data_protection_discovery` and table will be named
+      `discovery_profiles`. This table will be placed in the same project as
+      the container project running the scan. After the first profile is
+      generated and the dataset and table are created, the discovery scan
+      configuration will be updated with the dataset and table names. * See
+      [Analyze data profiles stored in
+      BigQuery](https://cloud.google.com/sensitive-data-
+      protection/docs/analyze-data-profiles). * See [Sample queries for your
+      BigQuery table](https://cloud.google.com/sensitive-data-
+      protection/docs/analyze-data-profiles#sample_sql_queries). * Data is
+      inserted using [streaming
       insert](https://cloud.google.com/blog/products/bigquery/life-of-a-
       bigquery-streaming-insert) and so data may be in the buffer for a period
-      of time after the profile has finished. The Pub/Sub notification is sent
-      before the streaming buffer is guaranteed to be written, so data may not
-      be instantly visible to queries by the time your topic receives the
-      Pub/Sub notification.
+      of time after the profile has finished. * The Pub/Sub notification is
+      sent before the streaming buffer is guaranteed to be written, so data
+      may not be instantly visible to queries by the time your topic receives
+      the Pub/Sub notification. * The best practice is to use the same table
+      for an entire organization so that you can take advantage of the
+      [provided Looker reports](https://cloud.google.com/sensitive-data-
+      protection/docs/analyze-data-profiles#use_a_premade_report). If you use
+      VPC Service Controls to define security perimeters, then you must use a
+      separate table for each boundary.
+    sampleFindingsTable: Store sample data profile findings in an existing
+      table or a new table in an existing dataset. Each regeneration will
+      result in new rows in BigQuery. Data is inserted using [streaming
+      insert](https://cloud.google.com/blog/products/bigquery/life-of-a-
+      bigquery-streaming-insert) and so data may be in the buffer for a period
+      of time after the profile has finished.
   """
 
   profileTable = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 1)
+  sampleFindingsTable = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 2)
 
 
 class GooglePrivacyDlpV2Expressions(_messages.Message):
@@ -6628,9 +7014,9 @@ class GooglePrivacyDlpV2FileClusterSummary(_messages.Message):
       no files were seen. File extensions can be derived from the file name or
       the file content.
     fileStoreInfoTypeSummaries: InfoTypes detected in this cluster.
-    noFilesExist: True if no files exist in this cluster. If the bucket had
-      more files than could be listed, this will be false even if no files for
-      this cluster were seen and file_extensions_seen is empty.
+    noFilesExist: True if no files exist in this cluster. If the file store
+      had more files than could be listed, this will be false even if no files
+      for this cluster were seen and file_extensions_seen is empty.
     sensitivityScore: The sensitivity score of this cluster. The score will be
       SENSITIVITY_LOW if nothing has been scanned.
   """
@@ -6669,6 +7055,7 @@ class GooglePrivacyDlpV2FileClusterType(_messages.Message):
       CLUSTER_ARCHIVE: Archives and containers like .zip, .tar etc.
       CLUSTER_MULTIMEDIA: Multimedia like .mp4, .avi etc.
       CLUSTER_EXECUTABLE: Executable files like .exe, .class, .apk etc.
+      CLUSTER_AI_MODEL: AI models like .tflite etc.
     """
     CLUSTER_UNSPECIFIED = 0
     CLUSTER_UNKNOWN = 1
@@ -6680,6 +7067,7 @@ class GooglePrivacyDlpV2FileClusterType(_messages.Message):
     CLUSTER_ARCHIVE = 7
     CLUSTER_MULTIMEDIA = 8
     CLUSTER_EXECUTABLE = 9
+    CLUSTER_AI_MODEL = 10
 
   cluster = _messages.EnumField('ClusterValueValuesEnum', 1)
 
@@ -6714,14 +7102,23 @@ class GooglePrivacyDlpV2FileSet(_messages.Message):
 
 
 class GooglePrivacyDlpV2FileStoreCollection(_messages.Message):
-  r"""Match file stores (e.g. buckets) using regex filters.
+  r"""Match file stores (e.g. buckets) using filters.
 
   Fields:
     includeRegexes: Optional. A collection of regular expressions to match a
       file store against.
+    includeTags: Optional. To be included in the collection, a resource must
+      meet all of the following requirements: - If tag filters are provided,
+      match all provided tag filters. - If one or more patterns are specified,
+      match at least one pattern. For a resource to match the tag filters, the
+      resource must have all of the provided tags attached. Tags refer to
+      Resource Manager tags bound to the resource or its ancestors. For more
+      information, see [Manage schedules](https://cloud.google.com/sensitive-
+      data-protection/docs/profile-project-cloud-storage#manage-schedules).
   """
 
   includeRegexes = _messages.MessageField('GooglePrivacyDlpV2FileStoreRegexes', 1)
+  includeTags = _messages.MessageField('GooglePrivacyDlpV2TagFilters', 2)
 
 
 class GooglePrivacyDlpV2FileStoreDataProfile(_messages.Message):
@@ -6752,24 +7149,27 @@ class GooglePrivacyDlpV2FileStoreDataProfile(_messages.Message):
       the corresponding multi-region for the list of individual locations. The
       first region is always picked as the processing and storage location for
       the data profile.
+    domains: Domains associated with the profile.
     fileClusterSummaries: FileClusterSummary per each cluster.
     fileStoreInfoTypeSummaries: InfoTypes detected in this file store.
-    fileStoreIsEmpty: The file store does not have any files.
+    fileStoreIsEmpty: The file store does not have any files. If the profiling
+      operation failed, this is false.
     fileStoreLocation: The location of the file store. * Cloud Storage:
       https://cloud.google.com/storage/docs/locations#available-locations *
       Amazon S3:
       https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-
       endpoints
     fileStorePath: The file store path. * Cloud Storage: `gs://{bucket}` *
-      Amazon S3: `s3://{bucket}`
+      Amazon S3: `s3://{bucket}` * Vertex AI dataset:
+      `projects/{project_number}/locations/{location}/datasets/{dataset_id}`
     fullResource: The resource name of the resource profiled.
       https://cloud.google.com/apis/design/resource_names#full_resource_name
       Example format of an S3 bucket full resource name: `//cloudasset.googlea
       pis.com/organizations/{org_id}/otherCloudConnections/aws/arn:aws:s3:::{b
       ucket_name}`
     lastModifiedTime: The time the file store was last modified.
-    locationType: The location type of the bucket (region, dual-region, multi-
-      region, etc). If dual-region, expect data_storage_locations to be
+    locationType: The location type of the file store (region, dual-region,
+      multi-region, etc). If dual-region, expect data_storage_locations to be
       populated.
     name: The name of the profile.
     profileLastGenerated: The last time the profile was generated.
@@ -6780,6 +7180,7 @@ class GooglePrivacyDlpV2FileStoreDataProfile(_messages.Message):
       file store.
     projectId: The Google Cloud project ID that owns the resource. For Amazon
       S3 buckets, this is the AWS Account Id.
+    relatedResources: Resources related to this profile.
     resourceAttributes: Attributes of the resource being profiled. Currently
       used attributes: * customer_managed_encryption: boolean - true: the
       resource is encrypted with a customer-managed key. - false: the resource
@@ -6787,8 +7188,12 @@ class GooglePrivacyDlpV2FileStoreDataProfile(_messages.Message):
     resourceLabels: The labels applied to the resource at the time the profile
       was generated.
     resourceVisibility: How broadly a resource has been shared.
+    sampleFindingsTable: The BigQuery table to which the sample findings are
+      written.
     sensitivityScore: The sensitivity score of this resource.
     state: State of a profile.
+    tags: The tags attached to the resource, including any tags attached
+      during profiling.
   """
 
   class ResourceVisibilityValueValuesEnum(_messages.Enum):
@@ -6881,24 +7286,28 @@ class GooglePrivacyDlpV2FileStoreDataProfile(_messages.Message):
   dataRiskLevel = _messages.MessageField('GooglePrivacyDlpV2DataRiskLevel', 3)
   dataSourceType = _messages.MessageField('GooglePrivacyDlpV2DataSourceType', 4)
   dataStorageLocations = _messages.StringField(5, repeated=True)
-  fileClusterSummaries = _messages.MessageField('GooglePrivacyDlpV2FileClusterSummary', 6, repeated=True)
-  fileStoreInfoTypeSummaries = _messages.MessageField('GooglePrivacyDlpV2FileStoreInfoTypeSummary', 7, repeated=True)
-  fileStoreIsEmpty = _messages.BooleanField(8)
-  fileStoreLocation = _messages.StringField(9)
-  fileStorePath = _messages.StringField(10)
-  fullResource = _messages.StringField(11)
-  lastModifiedTime = _messages.StringField(12)
-  locationType = _messages.StringField(13)
-  name = _messages.StringField(14)
-  profileLastGenerated = _messages.StringField(15)
-  profileStatus = _messages.MessageField('GooglePrivacyDlpV2ProfileStatus', 16)
-  projectDataProfile = _messages.StringField(17)
-  projectId = _messages.StringField(18)
-  resourceAttributes = _messages.MessageField('ResourceAttributesValue', 19)
-  resourceLabels = _messages.MessageField('ResourceLabelsValue', 20)
-  resourceVisibility = _messages.EnumField('ResourceVisibilityValueValuesEnum', 21)
-  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 22)
-  state = _messages.EnumField('StateValueValuesEnum', 23)
+  domains = _messages.MessageField('GooglePrivacyDlpV2Domain', 6, repeated=True)
+  fileClusterSummaries = _messages.MessageField('GooglePrivacyDlpV2FileClusterSummary', 7, repeated=True)
+  fileStoreInfoTypeSummaries = _messages.MessageField('GooglePrivacyDlpV2FileStoreInfoTypeSummary', 8, repeated=True)
+  fileStoreIsEmpty = _messages.BooleanField(9)
+  fileStoreLocation = _messages.StringField(10)
+  fileStorePath = _messages.StringField(11)
+  fullResource = _messages.StringField(12)
+  lastModifiedTime = _messages.StringField(13)
+  locationType = _messages.StringField(14)
+  name = _messages.StringField(15)
+  profileLastGenerated = _messages.StringField(16)
+  profileStatus = _messages.MessageField('GooglePrivacyDlpV2ProfileStatus', 17)
+  projectDataProfile = _messages.StringField(18)
+  projectId = _messages.StringField(19)
+  relatedResources = _messages.MessageField('GooglePrivacyDlpV2RelatedResource', 20, repeated=True)
+  resourceAttributes = _messages.MessageField('ResourceAttributesValue', 21)
+  resourceLabels = _messages.MessageField('ResourceLabelsValue', 22)
+  resourceVisibility = _messages.EnumField('ResourceVisibilityValueValuesEnum', 23)
+  sampleFindingsTable = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 24)
+  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 25)
+  state = _messages.EnumField('StateValueValuesEnum', 26)
+  tags = _messages.MessageField('GooglePrivacyDlpV2Tag', 27, repeated=True)
 
 
 class GooglePrivacyDlpV2FileStoreInfoTypeSummary(_messages.Message):
@@ -7113,6 +7522,10 @@ class GooglePrivacyDlpV2FixedSizeBucketingConfig(_messages.Message):
   bucketSize = _messages.FloatField(1)
   lowerBound = _messages.MessageField('GooglePrivacyDlpV2Value', 2)
   upperBound = _messages.MessageField('GooglePrivacyDlpV2Value', 3)
+
+
+class GooglePrivacyDlpV2GlobalProcessing(_messages.Message):
+  r"""Processing occurs in the global region."""
 
 
 class GooglePrivacyDlpV2HotwordRule(_messages.Message):
@@ -7351,6 +7764,21 @@ class GooglePrivacyDlpV2HybridOptions(_messages.Message):
   tableOptions = _messages.MessageField('GooglePrivacyDlpV2TableOptions', 4)
 
 
+class GooglePrivacyDlpV2ImageFallbackLocation(_messages.Message):
+  r"""Configure image processing to fall back to any of the following
+  processing options if image processing is unavailable in the original
+  request location.
+
+  Fields:
+    globalProcessing: Processing occurs in the global region.
+    multiRegionProcessing: Processing occurs in a multi-region that contains
+      the current region if available.
+  """
+
+  globalProcessing = _messages.MessageField('GooglePrivacyDlpV2GlobalProcessing', 1)
+  multiRegionProcessing = _messages.MessageField('GooglePrivacyDlpV2MultiRegionProcessing', 2)
+
+
 class GooglePrivacyDlpV2ImageLocation(_messages.Message):
   r"""Location of the finding within an image.
 
@@ -7477,6 +7905,7 @@ class GooglePrivacyDlpV2InfoTypeCategory(_messages.Message):
       ARGENTINA: The infoType is typically used in Argentina.
       ARMENIA: The infoType is typically used in Armenia.
       AUSTRALIA: The infoType is typically used in Australia.
+      AUSTRIA: The infoType is typically used in Austria.
       AZERBAIJAN: The infoType is typically used in Azerbaijan.
       BELARUS: The infoType is typically used in Belarus.
       BELGIUM: The infoType is typically used in Belgium.
@@ -7486,6 +7915,7 @@ class GooglePrivacyDlpV2InfoTypeCategory(_messages.Message):
       CHINA: The infoType is typically used in China.
       COLOMBIA: The infoType is typically used in Colombia.
       CROATIA: The infoType is typically used in Croatia.
+      CZECHIA: The infoType is typically used in Czechia.
       DENMARK: The infoType is typically used in Denmark.
       FRANCE: The infoType is typically used in France.
       FINLAND: The infoType is typically used in Finland.
@@ -7529,52 +7959,54 @@ class GooglePrivacyDlpV2InfoTypeCategory(_messages.Message):
     ARGENTINA = 2
     ARMENIA = 3
     AUSTRALIA = 4
-    AZERBAIJAN = 5
-    BELARUS = 6
-    BELGIUM = 7
-    BRAZIL = 8
-    CANADA = 9
-    CHILE = 10
-    CHINA = 11
-    COLOMBIA = 12
-    CROATIA = 13
-    DENMARK = 14
-    FRANCE = 15
-    FINLAND = 16
-    GERMANY = 17
-    HONG_KONG = 18
-    INDIA = 19
-    INDONESIA = 20
-    IRELAND = 21
-    ISRAEL = 22
-    ITALY = 23
-    JAPAN = 24
-    KAZAKHSTAN = 25
-    KOREA = 26
-    MEXICO = 27
-    THE_NETHERLANDS = 28
-    NEW_ZEALAND = 29
-    NORWAY = 30
-    PARAGUAY = 31
-    PERU = 32
-    POLAND = 33
-    PORTUGAL = 34
-    RUSSIA = 35
-    SINGAPORE = 36
-    SOUTH_AFRICA = 37
-    SPAIN = 38
-    SWEDEN = 39
-    SWITZERLAND = 40
-    TAIWAN = 41
-    THAILAND = 42
-    TURKEY = 43
-    UKRAINE = 44
-    UNITED_KINGDOM = 45
-    UNITED_STATES = 46
-    URUGUAY = 47
-    UZBEKISTAN = 48
-    VENEZUELA = 49
-    INTERNAL = 50
+    AUSTRIA = 5
+    AZERBAIJAN = 6
+    BELARUS = 7
+    BELGIUM = 8
+    BRAZIL = 9
+    CANADA = 10
+    CHILE = 11
+    CHINA = 12
+    COLOMBIA = 13
+    CROATIA = 14
+    CZECHIA = 15
+    DENMARK = 16
+    FRANCE = 17
+    FINLAND = 18
+    GERMANY = 19
+    HONG_KONG = 20
+    INDIA = 21
+    INDONESIA = 22
+    IRELAND = 23
+    ISRAEL = 24
+    ITALY = 25
+    JAPAN = 26
+    KAZAKHSTAN = 27
+    KOREA = 28
+    MEXICO = 29
+    THE_NETHERLANDS = 30
+    NEW_ZEALAND = 31
+    NORWAY = 32
+    PARAGUAY = 33
+    PERU = 34
+    POLAND = 35
+    PORTUGAL = 36
+    RUSSIA = 37
+    SINGAPORE = 38
+    SOUTH_AFRICA = 39
+    SPAIN = 40
+    SWEDEN = 41
+    SWITZERLAND = 42
+    TAIWAN = 43
+    THAILAND = 44
+    TURKEY = 45
+    UKRAINE = 46
+    UNITED_KINGDOM = 47
+    UNITED_STATES = 48
+    URUGUAY = 49
+    UZBEKISTAN = 50
+    VENEZUELA = 51
+    INTERNAL = 52
 
   class TypeCategoryValueValuesEnum(_messages.Enum):
     r"""The class of identifiers where this infoType belongs
@@ -7593,6 +8025,7 @@ class GooglePrivacyDlpV2InfoTypeCategory(_messages.Message):
       CONTEXTUAL_INFORMATION: Information that is not sensitive on its own,
         but provides details about the circumstances surrounding an entity or
         an event.
+      CUSTOM: Category for `CustomInfoType` types.
     """
     TYPE_UNSPECIFIED = 0
     PII = 1
@@ -7602,6 +8035,7 @@ class GooglePrivacyDlpV2InfoTypeCategory(_messages.Message):
     GOVERNMENT_ID = 5
     DOCUMENT = 6
     CONTEXTUAL_INFORMATION = 7
+    CUSTOM = 8
 
   industryCategory = _messages.EnumField('IndustryCategoryValueValuesEnum', 1)
   locationCategory = _messages.EnumField('LocationCategoryValueValuesEnum', 2)
@@ -7619,8 +8053,16 @@ class GooglePrivacyDlpV2InfoTypeDescription(_messages.Message):
     description: Description of the infotype. Translated when language is
       provided in the request.
     displayName: Human readable form of the infoType name.
+    example: A sample that is a true positive for this infoType.
+    locationSupport: Locations at which this feature can be used. May change
+      over time.
     name: Internal name of the infoType.
     sensitivityScore: The default sensitivity of the infoType.
+    specificInfoTypes: If this field is set, this infoType is a general
+      infoType and these specific infoTypes are contained within it. General
+      infoTypes are infoTypes that encompass multiple specific infoTypes. For
+      example, the "GEOGRAPHIC_DATA" general infoType would have set for this
+      field "LOCATION", "LOCATION_COORDINATES", and "STREET_ADDRESS".
     supportedBy: Which parts of the API supports this InfoType.
     versions: A list of available versions for the infotype.
   """
@@ -7640,10 +8082,13 @@ class GooglePrivacyDlpV2InfoTypeDescription(_messages.Message):
   categories = _messages.MessageField('GooglePrivacyDlpV2InfoTypeCategory', 1, repeated=True)
   description = _messages.StringField(2)
   displayName = _messages.StringField(3)
-  name = _messages.StringField(4)
-  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 5)
-  supportedBy = _messages.EnumField('SupportedByValueListEntryValuesEnum', 6, repeated=True)
-  versions = _messages.MessageField('GooglePrivacyDlpV2VersionDescription', 7, repeated=True)
+  example = _messages.StringField(4)
+  locationSupport = _messages.MessageField('GooglePrivacyDlpV2LocationSupport', 5)
+  name = _messages.StringField(6)
+  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 7)
+  specificInfoTypes = _messages.StringField(8, repeated=True)
+  supportedBy = _messages.EnumField('SupportedByValueListEntryValuesEnum', 9, repeated=True)
+  versions = _messages.MessageField('GooglePrivacyDlpV2VersionDescription', 10, repeated=True)
 
 
 class GooglePrivacyDlpV2InfoTypeLikelihood(_messages.Message):
@@ -8589,6 +9034,39 @@ class GooglePrivacyDlpV2Location(_messages.Message):
   contentLocations = _messages.MessageField('GooglePrivacyDlpV2ContentLocation', 4, repeated=True)
 
 
+class GooglePrivacyDlpV2LocationSupport(_messages.Message):
+  r"""Locations at which a feature can be used.
+
+  Enums:
+    RegionalizationScopeValueValuesEnum: The current scope for location on
+      this feature. This may expand over time.
+
+  Fields:
+    locations: Specific locations where the feature may be used. Examples: us-
+      central1, us, asia, global If scope is ANY_LOCATION, no regions will be
+      listed.
+    regionalizationScope: The current scope for location on this feature. This
+      may expand over time.
+  """
+
+  class RegionalizationScopeValueValuesEnum(_messages.Enum):
+    r"""The current scope for location on this feature. This may expand over
+    time.
+
+    Values:
+      REGIONALIZATION_SCOPE_UNSPECIFIED: Invalid.
+      REGIONAL: Feature may be used with one or more regions. See locations
+        for details.
+      ANY_LOCATION: Feature may be used anywhere. Default value.
+    """
+    REGIONALIZATION_SCOPE_UNSPECIFIED = 0
+    REGIONAL = 1
+    ANY_LOCATION = 2
+
+  locations = _messages.StringField(1, repeated=True)
+  regionalizationScope = _messages.EnumField('RegionalizationScopeValueValuesEnum', 2)
+
+
 class GooglePrivacyDlpV2Manual(_messages.Message):
   r"""Job trigger option for hybrid jobs. Jobs must be manually created and
   finished.
@@ -8619,6 +9097,13 @@ class GooglePrivacyDlpV2MetadataLocation(_messages.Message):
 
   storageLabel = _messages.MessageField('GooglePrivacyDlpV2StorageMetadataLabel', 1)
   type = _messages.EnumField('TypeValueValuesEnum', 2)
+
+
+class GooglePrivacyDlpV2MultiRegionProcessing(_messages.Message):
+  r"""Processing occurs in a multi-region that contains the current region if
+  available.
+  """
+
 
 
 class GooglePrivacyDlpV2NumericalStatsConfig(_messages.Message):
@@ -8802,6 +9287,14 @@ class GooglePrivacyDlpV2OutputStorageConfig(_messages.Message):
       unspecified, then all available columns will be used for a new table or
       an (existing) table with no schema, and no changes will be made to an
       existing table that has a schema. Only for use with external storage.
+    storagePath: Store findings in an existing Cloud Storage bucket. Files
+      will be generated with the job ID and file part number as the filename
+      and will contain findings in textproto format as
+      SaveToGcsFindingsOutput. The filename will follow the naming convention
+      `-`. Example: `my-job-id-2`. Supported for Inspect jobs. The bucket must
+      not be the same as the bucket being inspected. If storing findings to
+      Cloud Storage, the output schema field should not be set. If set, it
+      will be ignored.
     table: Store findings in an existing table or a new table in an existing
       dataset. If table_id is not set a new one will be generated for you with
       the following format: dlp_googleapis_yyyy_mm_dd_[dlp_job_id]. Pacific
@@ -8844,7 +9337,8 @@ class GooglePrivacyDlpV2OutputStorageConfig(_messages.Message):
     ALL_COLUMNS = 5
 
   outputSchema = _messages.EnumField('OutputSchemaValueValuesEnum', 1)
-  table = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 2)
+  storagePath = _messages.MessageField('GooglePrivacyDlpV2CloudStoragePath', 2)
+  table = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 3)
 
 
 class GooglePrivacyDlpV2PartitionId(_messages.Message):
@@ -8892,7 +9386,9 @@ class GooglePrivacyDlpV2PrimitiveTransformation(_messages.Message):
     characterMaskConfig: Mask
     cryptoDeterministicConfig: Deterministic Crypto
     cryptoHashConfig: Crypto
-    cryptoReplaceFfxFpeConfig: Ffx-Fpe
+    cryptoReplaceFfxFpeConfig: Ffx-Fpe. Strongly discouraged, consider using
+      CryptoDeterministicConfig instead. Fpe is computationally expensive
+      incurring latency costs.
     dateShiftConfig: Date Shift
     fixedSizeBucketingConfig: Fixed size bucketing
     redactConfig: Redact
@@ -8935,6 +9431,22 @@ class GooglePrivacyDlpV2PrivacyMetric(_messages.Message):
   kMapEstimationConfig = _messages.MessageField('GooglePrivacyDlpV2KMapEstimationConfig', 4)
   lDiversityConfig = _messages.MessageField('GooglePrivacyDlpV2LDiversityConfig', 5)
   numericalStatsConfig = _messages.MessageField('GooglePrivacyDlpV2NumericalStatsConfig', 6)
+
+
+class GooglePrivacyDlpV2ProcessingLocation(_messages.Message):
+  r"""Configure processing location for discovery and inspection. For example,
+  image OCR is only provided in limited regions but configuring
+  ProcessingLocation will redirect OCR to a location where OCR is provided.
+
+  Fields:
+    documentFallbackLocation: Document processing falls back using this
+      configuration.
+    imageFallbackLocation: Image processing falls back using this
+      configuration.
+  """
+
+  documentFallbackLocation = _messages.MessageField('GooglePrivacyDlpV2DocumentFallbackLocation', 1)
+  imageFallbackLocation = _messages.MessageField('GooglePrivacyDlpV2ImageFallbackLocation', 2)
 
 
 class GooglePrivacyDlpV2ProfileStatus(_messages.Message):
@@ -9153,6 +9665,21 @@ class GooglePrivacyDlpV2PublishFindingsToCloudDataCatalog(_messages.Message):
 
 
 
+class GooglePrivacyDlpV2PublishFindingsToDataplexCatalog(_messages.Message):
+  r"""Publish findings of a DlpJob to Dataplex Universal Catalog as a
+  `sensitive-data-protection-job-result` aspect. For more information, see
+  [Send inspection results to Dataplex Universal Catalog as
+  aspects](https://cloud.google.com/sensitive-data-protection/docs/add-
+  aspects-inspection-job). Aspects are stored in Dataplex Universal Catalog
+  storage and are governed by service-specific policies for Dataplex Universal
+  Catalog. For more information, see [Service Specific
+  Terms](https://cloud.google.com/terms/service-terms). Only a single instance
+  of this action can be specified. This action is allowed only if all
+  resources being scanned are BigQuery tables. Compatible with: Inspect
+  """
+
+
+
 class GooglePrivacyDlpV2PublishSummaryToCscc(_messages.Message):
   r"""Publish the result summary of a DlpJob to [Security Command
   Center](https://cloud.google.com/security-command-center). This action is
@@ -9170,6 +9697,24 @@ class GooglePrivacyDlpV2PublishToChronicle(_messages.Message):
   r"""Message expressing intention to publish to Google Security Operations.
   """
 
+
+
+class GooglePrivacyDlpV2PublishToDataplexCatalog(_messages.Message):
+  r"""Create Dataplex Universal Catalog aspects for profiled resources with
+  the aspect type Sensitive Data Protection Profile. To learn more about
+  aspects, see https://cloud.google.com/sensitive-data-protection/docs/add-
+  aspects.
+
+  Fields:
+    lowerDataRiskToLow: Whether creating a Dataplex Universal Catalog aspect
+      for a profiled resource should lower the risk of the profile for that
+      resource. This also lowers the data risk of resources at the lower
+      levels of the resource hierarchy. For example, reducing the data risk of
+      a table data profile also reduces the data risk of the constituent
+      column data profiles.
+  """
+
+  lowerDataRiskToLow = _messages.BooleanField(1)
 
 
 class GooglePrivacyDlpV2PublishToPubSub(_messages.Message):
@@ -9211,7 +9756,7 @@ class GooglePrivacyDlpV2QuasiId(_messages.Message):
   Fields:
     customTag: A column can be tagged with a custom tag. In this case, the
       user must indicate an auxiliary table that contains statistical
-      information on the possible values of this column (below).
+      information on the possible values of this column.
     field: Required. Identifies the column.
     inferred: If no semantic tag is indicated, we infer the statistical model
       from the distribution of values in the input data
@@ -9248,7 +9793,7 @@ class GooglePrivacyDlpV2QuasiIdentifierField(_messages.Message):
   Fields:
     customTag: A column can be tagged with a custom tag. In this case, the
       user must indicate an auxiliary table that contains statistical
-      information on the possible values of this column (below).
+      information on the possible values of this column.
     field: Identifies the column.
   """
 
@@ -9377,19 +9922,33 @@ class GooglePrivacyDlpV2RedactImageRequest(_messages.Message):
 
   Fields:
     byteItem: The content must be PNG, JPEG, SVG or BMP.
+    deidentifyTemplate: The full resource name of the de-identification
+      template to use. Settings in the main `image_redaction_configs` field
+      override the corresponding settings in this de-identification template.
+      The request fails if the type of the template's deidentify_config is not
+      image_transformations.
     imageRedactionConfigs: The configuration for specifying what content to
       redact from images.
     includeFindings: Whether the response should include findings along with
       the redacted image.
     inspectConfig: Configuration for the inspector.
+    inspectTemplate: The full resource name of the inspection template to use.
+      Settings in the main `inspect_config` field override the corresponding
+      settings in this inspection template. The merge behavior is as follows:
+      - Singular field: The main field's value replaces the value of the
+      corresponding field in the template. - Repeated fields: The field values
+      are appended to the list defined in the template. - Sub-messages and
+      groups: The fields are recursively merged.
     locationId: Deprecated. This field has no effect.
   """
 
   byteItem = _messages.MessageField('GooglePrivacyDlpV2ByteContentItem', 1)
-  imageRedactionConfigs = _messages.MessageField('GooglePrivacyDlpV2ImageRedactionConfig', 2, repeated=True)
-  includeFindings = _messages.BooleanField(3)
-  inspectConfig = _messages.MessageField('GooglePrivacyDlpV2InspectConfig', 4)
-  locationId = _messages.StringField(5)
+  deidentifyTemplate = _messages.StringField(2)
+  imageRedactionConfigs = _messages.MessageField('GooglePrivacyDlpV2ImageRedactionConfig', 3, repeated=True)
+  includeFindings = _messages.BooleanField(4)
+  inspectConfig = _messages.MessageField('GooglePrivacyDlpV2InspectConfig', 5)
+  inspectTemplate = _messages.StringField(6)
+  locationId = _messages.StringField(7)
 
 
 class GooglePrivacyDlpV2RedactImageResponse(_messages.Message):
@@ -9474,6 +10033,17 @@ class GooglePrivacyDlpV2ReidentifyContentResponse(_messages.Message):
   overview = _messages.MessageField('GooglePrivacyDlpV2TransformationOverview', 2)
 
 
+class GooglePrivacyDlpV2RelatedResource(_messages.Message):
+  r"""A related resource. Examples: * The source BigQuery table for a Vertex
+  AI dataset. * The source Cloud Storage bucket for a Vertex AI dataset.
+
+  Fields:
+    fullResource: The full resource name of the related resource.
+  """
+
+  fullResource = _messages.StringField(1)
+
+
 class GooglePrivacyDlpV2ReplaceDictionaryConfig(_messages.Message):
   r"""Replace each input value with a value randomly selected from the
   dictionary.
@@ -9545,8 +10115,7 @@ class GooglePrivacyDlpV2RequestedRiskAnalysisOptions(_messages.Message):
 
 
 class GooglePrivacyDlpV2Result(_messages.Message):
-  r"""All result fields mentioned below are updated while the job is
-  processing.
+  r"""All Result fields are updated while the job is processing.
 
   Fields:
     hybridStats: Statistics related to the processing of hybrid inspect.
@@ -9602,6 +10171,18 @@ class GooglePrivacyDlpV2SaveFindings(_messages.Message):
   """
 
   outputConfig = _messages.MessageField('GooglePrivacyDlpV2OutputStorageConfig', 1)
+
+
+class GooglePrivacyDlpV2SaveToGcsFindingsOutput(_messages.Message):
+  r"""Collection of findings saved to a Cloud Storage bucket. This is used as
+  the proto schema for textproto files created when specifying a cloud storage
+  path to save Inspect findings.
+
+  Fields:
+    findings: List of findings.
+  """
+
+  findings = _messages.MessageField('GooglePrivacyDlpV2Finding', 1, repeated=True)
 
 
 class GooglePrivacyDlpV2Schedule(_messages.Message):
@@ -9996,7 +10577,9 @@ class GooglePrivacyDlpV2TableDataProfile(_messages.Message):
   Enums:
     EncryptionStatusValueValuesEnum: How the table is encrypted.
     ResourceVisibilityValueValuesEnum: How broadly a resource has been shared.
-    StateValueValuesEnum: State of a profile.
+    StateValueValuesEnum: State of a profile. This will always be set to DONE
+      when the table data profile is written to another service like BigQuery
+      or Pub/Sub.
 
   Messages:
     ResourceLabelsValue: The labels applied to the resource at the time the
@@ -10013,6 +10596,7 @@ class GooglePrivacyDlpV2TableDataProfile(_messages.Message):
       stored. See https://cloud.google.com/bigquery/docs/locations for
       supported locations.
     datasetProjectId: The Google Cloud project ID that owns the resource.
+    domains: Domains associated with the profile.
     encryptionStatus: How the table is encrypted.
     expirationTime: Optional. The time when this table expires.
     failedColumnCount: The number of columns skipped in the table because of
@@ -10030,16 +10614,23 @@ class GooglePrivacyDlpV2TableDataProfile(_messages.Message):
       generated.
     projectDataProfile: The resource name of the project data profile for this
       table.
+    relatedResources: Resources related to this profile.
     resourceLabels: The labels applied to the resource at the time the profile
       was generated.
     resourceVisibility: How broadly a resource has been shared.
     rowCount: Number of rows in the table when the profile was generated. This
       will not be populated for BigLake tables.
+    sampleFindingsTable: The BigQuery table to which the sample findings are
+      written.
     scannedColumnCount: The number of columns profiled in the table.
     sensitivityScore: The sensitivity score of this table.
-    state: State of a profile.
+    state: State of a profile. This will always be set to DONE when the table
+      data profile is written to another service like BigQuery or Pub/Sub.
     tableId: The table ID.
     tableSizeBytes: The size of the table when the profile was generated.
+    tags: The tags attached to the table, including any tags attached during
+      profiling. Because tags are attached to Cloud SQL instances rather than
+      Cloud SQL tables, this field is empty for Cloud SQL table profiles.
   """
 
   class EncryptionStatusValueValuesEnum(_messages.Enum):
@@ -10072,7 +10663,8 @@ class GooglePrivacyDlpV2TableDataProfile(_messages.Message):
     RESOURCE_VISIBILITY_RESTRICTED = 3
 
   class StateValueValuesEnum(_messages.Enum):
-    r"""State of a profile.
+    r"""State of a profile. This will always be set to DONE when the table
+    data profile is written to another service like BigQuery or Pub/Sub.
 
     Values:
       STATE_UNSPECIFIED: Unused.
@@ -10118,25 +10710,29 @@ class GooglePrivacyDlpV2TableDataProfile(_messages.Message):
   datasetId = _messages.StringField(5)
   datasetLocation = _messages.StringField(6)
   datasetProjectId = _messages.StringField(7)
-  encryptionStatus = _messages.EnumField('EncryptionStatusValueValuesEnum', 8)
-  expirationTime = _messages.StringField(9)
-  failedColumnCount = _messages.IntegerField(10)
-  fullResource = _messages.StringField(11)
-  lastModifiedTime = _messages.StringField(12)
-  name = _messages.StringField(13)
-  otherInfoTypes = _messages.MessageField('GooglePrivacyDlpV2OtherInfoTypeSummary', 14, repeated=True)
-  predictedInfoTypes = _messages.MessageField('GooglePrivacyDlpV2InfoTypeSummary', 15, repeated=True)
-  profileLastGenerated = _messages.StringField(16)
-  profileStatus = _messages.MessageField('GooglePrivacyDlpV2ProfileStatus', 17)
-  projectDataProfile = _messages.StringField(18)
-  resourceLabels = _messages.MessageField('ResourceLabelsValue', 19)
-  resourceVisibility = _messages.EnumField('ResourceVisibilityValueValuesEnum', 20)
-  rowCount = _messages.IntegerField(21)
-  scannedColumnCount = _messages.IntegerField(22)
-  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 23)
-  state = _messages.EnumField('StateValueValuesEnum', 24)
-  tableId = _messages.StringField(25)
-  tableSizeBytes = _messages.IntegerField(26)
+  domains = _messages.MessageField('GooglePrivacyDlpV2Domain', 8, repeated=True)
+  encryptionStatus = _messages.EnumField('EncryptionStatusValueValuesEnum', 9)
+  expirationTime = _messages.StringField(10)
+  failedColumnCount = _messages.IntegerField(11)
+  fullResource = _messages.StringField(12)
+  lastModifiedTime = _messages.StringField(13)
+  name = _messages.StringField(14)
+  otherInfoTypes = _messages.MessageField('GooglePrivacyDlpV2OtherInfoTypeSummary', 15, repeated=True)
+  predictedInfoTypes = _messages.MessageField('GooglePrivacyDlpV2InfoTypeSummary', 16, repeated=True)
+  profileLastGenerated = _messages.StringField(17)
+  profileStatus = _messages.MessageField('GooglePrivacyDlpV2ProfileStatus', 18)
+  projectDataProfile = _messages.StringField(19)
+  relatedResources = _messages.MessageField('GooglePrivacyDlpV2RelatedResource', 20, repeated=True)
+  resourceLabels = _messages.MessageField('ResourceLabelsValue', 21)
+  resourceVisibility = _messages.EnumField('ResourceVisibilityValueValuesEnum', 22)
+  rowCount = _messages.IntegerField(23)
+  sampleFindingsTable = _messages.MessageField('GooglePrivacyDlpV2BigQueryTable', 24)
+  scannedColumnCount = _messages.IntegerField(25)
+  sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 26)
+  state = _messages.EnumField('StateValueValuesEnum', 27)
+  tableId = _messages.StringField(28)
+  tableSizeBytes = _messages.IntegerField(29)
+  tags = _messages.MessageField('GooglePrivacyDlpV2Tag', 30, repeated=True)
 
 
 class GooglePrivacyDlpV2TableLocation(_messages.Message):
@@ -10173,11 +10769,36 @@ class GooglePrivacyDlpV2TableReference(_messages.Message):
 
   Fields:
     datasetId: Dataset ID of the table.
+    projectId: The Google Cloud project ID of the project containing the
+      table. If omitted, the project ID is inferred from the parent project.
+      This field is required if the parent resource is an organization.
     tableId: Name of the table.
   """
 
   datasetId = _messages.StringField(1)
-  tableId = _messages.StringField(2)
+  projectId = _messages.StringField(2)
+  tableId = _messages.StringField(3)
+
+
+class GooglePrivacyDlpV2Tag(_messages.Message):
+  r"""A tag associated with a resource.
+
+  Fields:
+    key: The key of a tag key-value pair. For Google Cloud resources, this is
+      the resource name of the key, for example, "tagKeys/123456".
+    namespacedTagValue: The namespaced name for the tag value to attach to
+      Google Cloud resources. Must be in the format
+      `{parent_id}/{tag_key_short_name}/{short_name}`, for example,
+      "123456/environment/prod" for an organization parent, or "my-
+      project/environment/prod" for a project parent. This is only set for
+      Google Cloud resources.
+    value: The value of a tag key-value pair. For Google Cloud resources, this
+      is the resource name of the value, for example, "tagValues/123456".
+  """
+
+  key = _messages.StringField(1)
+  namespacedTagValue = _messages.StringField(2)
+  value = _messages.StringField(3)
 
 
 class GooglePrivacyDlpV2TagCondition(_messages.Message):
@@ -10192,6 +10813,35 @@ class GooglePrivacyDlpV2TagCondition(_messages.Message):
 
   sensitivityScore = _messages.MessageField('GooglePrivacyDlpV2SensitivityScore', 1)
   tag = _messages.MessageField('GooglePrivacyDlpV2TagValue', 2)
+
+
+class GooglePrivacyDlpV2TagFilter(_messages.Message):
+  r"""A single tag to filter against.
+
+  Fields:
+    namespacedTagKey: The namespaced name for the tag key. Must be in the
+      format `{parent_id}/{tag_key_short_name}`, for example,
+      "123456/sensitive" for an organization parent, or "my-project/sensitive"
+      for a project parent.
+    namespacedTagValue: The namespaced name for the tag value. Must be in the
+      format `{parent_id}/{tag_key_short_name}/{short_name}`, for example,
+      "123456/environment/prod" for an organization parent, or "my-
+      project/environment/prod" for a project parent.
+  """
+
+  namespacedTagKey = _messages.StringField(1)
+  namespacedTagValue = _messages.StringField(2)
+
+
+class GooglePrivacyDlpV2TagFilters(_messages.Message):
+  r"""Tags to match against for filtering.
+
+  Fields:
+    tagFilters: Required. A resource must match ALL of the specified tag
+      filters to be included in the collection.
+  """
+
+  tagFilters = _messages.MessageField('GooglePrivacyDlpV2TagFilter', 1, repeated=True)
 
 
 class GooglePrivacyDlpV2TagResources(_messages.Message):
@@ -10249,7 +10899,8 @@ class GooglePrivacyDlpV2TagValue(_messages.Message):
     namespacedValue: The namespaced name for the tag value to attach to
       resources. Must be in the format
       `{parent_id}/{tag_key_short_name}/{short_name}`, for example,
-      "123456/environment/prod".
+      "123456/environment/prod" for an organization parent, or "my-
+      project/environment/prod" for a project parent.
   """
 
   namespacedValue = _messages.StringField(1)
@@ -10261,7 +10912,7 @@ class GooglePrivacyDlpV2TaggedField(_messages.Message):
   Fields:
     customTag: A column can be tagged with a custom tag. In this case, the
       user must indicate an auxiliary table that contains statistical
-      information on the possible values of this column (below).
+      information on the possible values of this column.
     field: Required. Identifies the column.
     inferred: If no semantic tag is indicated, we infer the statistical model
       from the distribution of values in the input data
@@ -10851,6 +11502,74 @@ class GooglePrivacyDlpV2VersionDescription(_messages.Message):
   version = _messages.StringField(2)
 
 
+class GooglePrivacyDlpV2VertexDatasetCollection(_messages.Message):
+  r"""Match dataset resources using regex filters.
+
+  Fields:
+    vertexDatasetRegexes: The regex used to filter dataset resources.
+  """
+
+  vertexDatasetRegexes = _messages.MessageField('GooglePrivacyDlpV2VertexDatasetRegexes', 1)
+
+
+class GooglePrivacyDlpV2VertexDatasetDiscoveryTarget(_messages.Message):
+  r"""Target used to match against for discovery with Vertex AI datasets.
+
+  Fields:
+    conditions: In addition to matching the filter, these conditions must be
+      true before a profile is generated.
+    disabled: Disable profiling for datasets that match this filter.
+    filter: Required. The datasets the discovery cadence applies to. The first
+      target with a matching filter will be the one to apply to a dataset.
+    generationCadence: How often and when to update profiles. New datasets
+      that match both the filter and conditions are scanned as quickly as
+      possible depending on system capacity.
+  """
+
+  conditions = _messages.MessageField('GooglePrivacyDlpV2DiscoveryVertexDatasetConditions', 1)
+  disabled = _messages.MessageField('GooglePrivacyDlpV2Disabled', 2)
+  filter = _messages.MessageField('GooglePrivacyDlpV2DiscoveryVertexDatasetFilter', 3)
+  generationCadence = _messages.MessageField('GooglePrivacyDlpV2DiscoveryVertexDatasetGenerationCadence', 4)
+
+
+class GooglePrivacyDlpV2VertexDatasetRegex(_messages.Message):
+  r"""A pattern to match against one or more dataset resources.
+
+  Fields:
+    projectIdRegex: For organizations, if unset, will match all projects. Has
+      no effect for configurations created within a project.
+  """
+
+  projectIdRegex = _messages.StringField(1)
+
+
+class GooglePrivacyDlpV2VertexDatasetRegexes(_messages.Message):
+  r"""A collection of regular expressions to determine what datasets to match
+  against.
+
+  Fields:
+    patterns: Required. The group of regular expression patterns to match
+      against one or more datasets. Maximum of 100 entries. The sum of the
+      lengths of all regular expressions can't exceed 10 KiB.
+  """
+
+  patterns = _messages.MessageField('GooglePrivacyDlpV2VertexDatasetRegex', 1, repeated=True)
+
+
+class GooglePrivacyDlpV2VertexDatasetResourceReference(_messages.Message):
+  r"""Identifies a single Vertex AI resource. Currently only datasets are
+  supported.
+
+  Fields:
+    datasetResourceName: Required. The name of the Vertex AI resource. If set
+      within a project-level configuration, the specified resource must be
+      within the project. Examples: *
+      `projects/{project}/locations/{location}/datasets/{dataset}`
+  """
+
+  datasetResourceName = _messages.StringField(1)
+
+
 class GooglePrivacyDlpV2WordList(_messages.Message):
   r"""Message defining a list of words or phrases to search for in the data.
 
@@ -10973,6 +11692,20 @@ class GoogleTypeTimeOfDay(_messages.Message):
   seconds = _messages.IntegerField(4, variant=_messages.Variant.INT32)
 
 
+class Proto2BridgeMessageSet(_messages.Message):
+  r"""This is proto2's version of MessageSet. DEPRECATED: DO NOT USE FOR NEW
+  FIELDS. If you are using editions or proto2, please make your own extendable
+  messages for your use case. If you are using proto3, please use `Any`
+  instead. MessageSet was the implementation of extensions for proto1. When
+  proto2 was introduced, extensions were implemented as a first-class feature.
+  This schema for MessageSet was meant to be a "bridge" solution to migrate
+  MessageSet-bearing messages from proto1 to proto2. This schema has been
+  open-sourced only to facilitate the migration of Google products with
+  MessageSet-bearing messages to open-source environments.
+  """
+
+
+
 class StandardQueryParameters(_messages.Message):
   r"""Query parameters accepted by all methods.
 
@@ -11034,6 +11767,33 @@ class StandardQueryParameters(_messages.Message):
   trace = _messages.StringField(10)
   uploadType = _messages.StringField(11)
   upload_protocol = _messages.StringField(12)
+
+
+class UtilStatusProto(_messages.Message):
+  r"""Wire-format for a Status object
+
+  Fields:
+    canonicalCode: copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional int32 canonical_code = 6;
+    code: Numeric code drawn from the space specified below. Often, this is
+      the canonical error space, and code is drawn from
+      google3/util/task/codes.proto copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional int32 code = 1;
+    message: Detail message copybara:strip_begin(b/383363683)
+      copybara:strip_end_and_replace optional string message = 3;
+    messageSet: message_set associates an arbitrary proto message with the
+      status. copybara:strip_begin(b/383363683) copybara:strip_end_and_replace
+      optional proto2.bridge.MessageSet message_set = 5;
+    space: copybara:strip_begin(b/383363683) Space to which this status
+      belongs copybara:strip_end_and_replace optional string space = 2; //
+      Space to which this status belongs
+  """
+
+  canonicalCode = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  code = _messages.IntegerField(2, variant=_messages.Variant.INT32)
+  message = _messages.StringField(3)
+  messageSet = _messages.MessageField('Proto2BridgeMessageSet', 4)
+  space = _messages.StringField(5)
 
 
 encoding.AddCustomJsonFieldMapping(

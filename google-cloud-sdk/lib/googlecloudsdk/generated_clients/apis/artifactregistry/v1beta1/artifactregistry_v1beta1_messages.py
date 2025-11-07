@@ -29,6 +29,9 @@ class ArtifactregistryProjectsLocationsListRequest(_messages.Message):
   r"""A ArtifactregistryProjectsLocationsListRequest object.
 
   Fields:
+    extraLocationTypes: Optional. Do not use this field. It is unsupported and
+      is ignored unless explicitly documented otherwise. This is primarily for
+      internal usage.
     filter: A filter to narrow down results to a preferred subset. The
       filtering language accepts strings like `"displayName=tokyo"`, and is
       documented in more detail in [AIP-160](https://google.aip.dev/160).
@@ -39,10 +42,11 @@ class ArtifactregistryProjectsLocationsListRequest(_messages.Message):
       response. Send that page token to receive the subsequent page.
   """
 
-  filter = _messages.StringField(1)
-  name = _messages.StringField(2, required=True)
-  pageSize = _messages.IntegerField(3, variant=_messages.Variant.INT32)
-  pageToken = _messages.StringField(4)
+  extraLocationTypes = _messages.StringField(1, repeated=True)
+  filter = _messages.StringField(2)
+  name = _messages.StringField(3, required=True)
+  pageSize = _messages.IntegerField(4, variant=_messages.Variant.INT32)
+  pageToken = _messages.StringField(5)
 
 
 class ArtifactregistryProjectsLocationsOperationsGetRequest(_messages.Message):
@@ -1044,10 +1048,8 @@ class Repository(_messages.Message):
     name: The name of the repository, for example: `projects/p1/locations/us-
       central1/repositories/repo1`. For each location in a project, repository
       names must be unique.
-    satisfiesPzi: Output only. If set, the repository satisfies physical zone
-      isolation.
-    satisfiesPzs: Output only. If set, the repository satisfies physical zone
-      separation.
+    satisfiesPzi: Output only. Whether or not this repository satisfies PZI.
+    satisfiesPzs: Output only. Whether or not this repository satisfies PZS.
     sizeBytes: Output only. The size, in bytes, of all artifact storage in
       this repository. Repositories that are generally available or in public
       preview use this to calculate storage costs.

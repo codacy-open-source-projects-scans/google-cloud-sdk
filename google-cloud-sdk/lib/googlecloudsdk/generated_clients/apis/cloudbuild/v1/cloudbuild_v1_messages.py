@@ -14,6 +14,20 @@ from apitools.base.py import extra_types
 package = 'cloudbuild'
 
 
+class AcceleratorConfig(_messages.Message):
+  r"""Accelerator configuration for a VM instance for Trusted Pools in TBI.
+
+  Fields:
+    acceleratorCount: Optional. The number of guest accelerator cards exposed
+      to each VM.
+    acceleratorType: Optional. The type of accelerator attached to each VM.
+      For example, `nvidia-tesla-k80` for Nvidia Tesla K80.
+  """
+
+  acceleratorCount = _messages.IntegerField(1)
+  acceleratorType = _messages.StringField(2)
+
+
 class AnthosWorkerPool(_messages.Message):
   r"""Anthos CICD cluster option.
 
@@ -129,6 +143,9 @@ class Artifacts(_messages.Message):
   completion of all build steps.
 
   Fields:
+    goModules: Optional. A list of Go modules to be uploaded to Artifact
+      Registry upon successful completion of all build steps. If any objects
+      fail to be pushed, the build is marked FAILURE.
     images: A list of images to be pushed upon the successful completion of
       all build steps. The images will be pushed using the builder service
       account's credentials. The digests of the pushed images will be stored
@@ -152,22 +169,43 @@ class Artifacts(_messages.Message):
       generation of the uploaded objects will be stored in the Build
       resource's results field. If any objects fail to be pushed, the build is
       marked FAILURE.
+    oci: Optional. A list of OCI images to be uploaded to Artifact Registry
+      upon successful completion of all build steps. OCI images in the
+      specified paths will be uploaded to the specified Artifact Registry
+      repository using the builder service account's credentials. If any
+      images fail to be pushed, the build is marked FAILURE.
     pythonPackages: A list of Python packages to be uploaded to Artifact
       Registry upon successful completion of all build steps. The build
       service account credentials will be used to perform the upload. If any
       objects fail to be pushed, the build is marked FAILURE.
-    testResults: Optional. Files in the workspace matching specified paths
-      globs will be uploaded to the specified Cloud Storage location using the
-      builder service account's credentials. Will also contain the format of
-      the test which by default will be JUnit
   """
 
-  images = _messages.StringField(1, repeated=True)
-  mavenArtifacts = _messages.MessageField('MavenArtifact', 2, repeated=True)
-  npmPackages = _messages.MessageField('NpmPackage', 3, repeated=True)
-  objects = _messages.MessageField('ArtifactObjects', 4)
-  pythonPackages = _messages.MessageField('PythonPackage', 5, repeated=True)
-  testResults = _messages.MessageField('TestResults', 6)
+  goModules = _messages.MessageField('GoModule', 1, repeated=True)
+  images = _messages.StringField(2, repeated=True)
+  mavenArtifacts = _messages.MessageField('MavenArtifact', 3, repeated=True)
+  npmPackages = _messages.MessageField('NpmPackage', 4, repeated=True)
+  objects = _messages.MessageField('ArtifactObjects', 5)
+  oci = _messages.MessageField('Oci', 6, repeated=True)
+  pythonPackages = _messages.MessageField('PythonPackage', 7, repeated=True)
+
+
+class Autoscale(_messages.Message):
+  r"""Autoscaling configuration of the pool.
+
+  Fields:
+    maxWorkers: Required. The maximal number of workers in an autoscale
+      enabled pool.
+    minIdleWorkers: Required. The minimum number of idle workers the
+      autoscaler will aim to have in the pool at all times that are
+      immediately available to accept a surge in build traffic. The pool size
+      will still be constrained by min_workers and max_workers.
+    minWorkers: Required. The minimal number of workers in an autoscale
+      enabled pool.
+  """
+
+  maxWorkers = _messages.IntegerField(1)
+  minIdleWorkers = _messages.IntegerField(2)
+  minWorkers = _messages.IntegerField(3)
 
 
 class BatchCreateBitbucketServerConnectedRepositoriesRequest(_messages.Message):
@@ -440,6 +478,8 @@ class Build(_messages.Message):
       this build, if it was triggered automatically.
     createTime: Output only. Time at which the request to create the build was
       received.
+    dependencies: Optional. Dependencies that the Cloud Build worker will
+      fetch before executing user steps.
     failureInfo: Output only. Contains information about the build when
       status=FAILURE.
     finishTime: Output only. Time at which execution of the build was
@@ -465,6 +505,7 @@ class Build(_messages.Message):
     queueTtl: TTL in queue for this build. If provided and the build is
       enqueued longer than this value, the build will expire and the build
       status will be `EXPIRED`. The TTL starts ticking from create_time.
+    remoteConfig: Optional. Remote config for the build.
     results: Output only. Results of the build.
     secrets: Secrets to decrypt using Cloud Key Management Service. Note:
       Secret Manager is the recommended technique for managing sensitive data
@@ -584,31 +625,33 @@ class Build(_messages.Message):
   availableSecrets = _messages.MessageField('Secrets', 3)
   buildTriggerId = _messages.StringField(4)
   createTime = _messages.StringField(5)
-  failureInfo = _messages.MessageField('FailureInfo', 6)
-  finishTime = _messages.StringField(7)
-  gitConfig = _messages.MessageField('GitConfig', 8)
-  id = _messages.StringField(9)
-  images = _messages.StringField(10, repeated=True)
-  logUrl = _messages.StringField(11)
-  logsBucket = _messages.StringField(12)
-  name = _messages.StringField(13)
-  options = _messages.MessageField('BuildOptions', 14)
-  projectId = _messages.StringField(15)
-  queueTtl = _messages.StringField(16)
-  results = _messages.MessageField('Results', 17)
-  secrets = _messages.MessageField('Secret', 18, repeated=True)
-  serviceAccount = _messages.StringField(19)
-  source = _messages.MessageField('Source', 20)
-  sourceProvenance = _messages.MessageField('SourceProvenance', 21)
-  startTime = _messages.StringField(22)
-  status = _messages.EnumField('StatusValueValuesEnum', 23)
-  statusDetail = _messages.StringField(24)
-  steps = _messages.MessageField('BuildStep', 25, repeated=True)
-  substitutions = _messages.MessageField('SubstitutionsValue', 26)
-  tags = _messages.StringField(27, repeated=True)
-  timeout = _messages.StringField(28)
-  timing = _messages.MessageField('TimingValue', 29)
-  warnings = _messages.MessageField('Warning', 30, repeated=True)
+  dependencies = _messages.MessageField('Dependency', 6, repeated=True)
+  failureInfo = _messages.MessageField('FailureInfo', 7)
+  finishTime = _messages.StringField(8)
+  gitConfig = _messages.MessageField('GitConfig', 9)
+  id = _messages.StringField(10)
+  images = _messages.StringField(11, repeated=True)
+  logUrl = _messages.StringField(12)
+  logsBucket = _messages.StringField(13)
+  name = _messages.StringField(14)
+  options = _messages.MessageField('BuildOptions', 15)
+  projectId = _messages.StringField(16)
+  queueTtl = _messages.StringField(17)
+  remoteConfig = _messages.StringField(18)
+  results = _messages.MessageField('Results', 19)
+  secrets = _messages.MessageField('Secret', 20, repeated=True)
+  serviceAccount = _messages.StringField(21)
+  source = _messages.MessageField('Source', 22)
+  sourceProvenance = _messages.MessageField('SourceProvenance', 23)
+  startTime = _messages.StringField(24)
+  status = _messages.EnumField('StatusValueValuesEnum', 25)
+  statusDetail = _messages.StringField(26)
+  steps = _messages.MessageField('BuildStep', 27, repeated=True)
+  substitutions = _messages.MessageField('SubstitutionsValue', 28)
+  tags = _messages.StringField(29, repeated=True)
+  timeout = _messages.StringField(30)
+  timing = _messages.MessageField('TimingValue', 31)
+  warnings = _messages.MessageField('Warning', 32, repeated=True)
 
 
 class BuildApproval(_messages.Message):
@@ -820,6 +863,9 @@ class BuildOptions(_messages.Message):
       E2_HIGHCPU_8: Highcpu e2 machine with 8 CPUs.
       E2_HIGHCPU_32: Highcpu e2 machine with 32 CPUs.
       E2_MEDIUM: E2 machine with 1 CPU.
+      C3_STANDARD_4: C3 machine with 4 CPUs.
+      C3_HIGHCPU_8: Highcpu C3 machine with 8 CPUs.
+      C3_HIGHCPU_44: Highcpu C3 machine with 44 CPUs.
     """
     UNSPECIFIED = 0
     N1_HIGHCPU_8 = 1
@@ -827,6 +873,9 @@ class BuildOptions(_messages.Message):
     E2_HIGHCPU_8 = 3
     E2_HIGHCPU_32 = 4
     E2_MEDIUM = 5
+    C3_STANDARD_4 = 6
+    C3_HIGHCPU_8 = 7
+    C3_HIGHCPU_44 = 8
 
   class RequestedVerifyOptionValueValuesEnum(_messages.Enum):
     r"""Requested verifiability options.
@@ -845,12 +894,15 @@ class BuildOptions(_messages.Message):
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   class SubstitutionOptionValueValuesEnum(_messages.Enum):
     r"""Option to specify behavior when there is an error in the substitution
@@ -885,6 +937,65 @@ class BuildOptions(_messages.Message):
   substitutionOption = _messages.EnumField('SubstitutionOptionValueValuesEnum', 18)
   volumes = _messages.MessageField('Volume', 19, repeated=True)
   workerPool = _messages.StringField(20)
+
+
+class BuildSecurityPolicy(_messages.Message):
+  r"""BuildSecurityPolicy defines the advanced security policies for the TBI
+  instance for Trusted Pools in TBI.
+
+  Enums:
+    BcidLevelValueValuesEnum: Output only. Immutable. Max BCID level the
+      instance should be able to meet (affects what security settings will be
+      enabled for the instance, regardless of whether lower BCID-level builds
+      are sent through or not)
+    WorkflowTypeValueValuesEnum: Output only. Immutable. Determines whether
+      this instance handles presubmit or postsubmit builds.
+
+  Fields:
+    bcidLevel: Output only. Immutable. Max BCID level the instance should be
+      able to meet (affects what security settings will be enabled for the
+      instance, regardless of whether lower BCID-level builds are sent through
+      or not)
+    enableNetworkEnforcement: Output only. Immutable. Determines whether
+      network proxy will be enabled for the instance or not.
+    enableTcaEnforcement: Output only. Immutable. Determines whether
+      additional restrictions needed to run TCA builds will be enabled on the
+      instance or not for Trusted Pools in TBI.
+    workflowType: Output only. Immutable. Determines whether this instance
+      handles presubmit or postsubmit builds.
+  """
+
+  class BcidLevelValueValuesEnum(_messages.Enum):
+    r"""Output only. Immutable. Max BCID level the instance should be able to
+    meet (affects what security settings will be enabled for the instance,
+    regardless of whether lower BCID-level builds are sent through or not)
+
+    Values:
+      BCID_LEVEL_UNSPECIFIED: Unspecified BCID level.
+      BCID_L2: BCID L2.
+      BCID_L3: BCID L3.
+    """
+    BCID_LEVEL_UNSPECIFIED = 0
+    BCID_L2 = 1
+    BCID_L3 = 2
+
+  class WorkflowTypeValueValuesEnum(_messages.Enum):
+    r"""Output only. Immutable. Determines whether this instance handles
+    presubmit or postsubmit builds.
+
+    Values:
+      WORKFLOW_TYPE_UNSPECIFIED: Unspecified workflow type.
+      WORKFLOW_TYPE_PRESUBMIT: Presubmit workflow type.
+      WORKFLOW_TYPE_POSTSUBMIT: Postsubmit workflow type.
+    """
+    WORKFLOW_TYPE_UNSPECIFIED = 0
+    WORKFLOW_TYPE_PRESUBMIT = 1
+    WORKFLOW_TYPE_POSTSUBMIT = 2
+
+  bcidLevel = _messages.EnumField('BcidLevelValueValuesEnum', 1)
+  enableNetworkEnforcement = _messages.BooleanField(2)
+  enableTcaEnforcement = _messages.BooleanField(3)
+  workflowType = _messages.EnumField('WorkflowTypeValueValuesEnum', 4)
 
 
 class BuildStep(_messages.Message):
@@ -943,6 +1054,8 @@ class BuildStep(_messages.Message):
       to use as the name for a later build step.
     pullTiming: Output only. Stores timing information for pulling this build
       step's builder image only.
+    remoteConfig: Optional. Remote config to be used for this build step.
+    results: Declaration of results for this build step.
     script: A shell script to be executed in the step. When script is
       provided, the user cannot specify the entrypoint or args.
     secretEnv: A list of environment variables which are encrypted using a
@@ -1008,13 +1121,15 @@ class BuildStep(_messages.Message):
   id = _messages.StringField(9)
   name = _messages.StringField(10)
   pullTiming = _messages.MessageField('TimeSpan', 11)
-  script = _messages.StringField(12)
-  secretEnv = _messages.StringField(13, repeated=True)
-  status = _messages.EnumField('StatusValueValuesEnum', 14)
-  timeout = _messages.StringField(15)
-  timing = _messages.MessageField('TimeSpan', 16)
-  volumes = _messages.MessageField('Volume', 17, repeated=True)
-  waitFor = _messages.StringField(18, repeated=True)
+  remoteConfig = _messages.StringField(12)
+  results = _messages.MessageField('StepResult', 13, repeated=True)
+  script = _messages.StringField(14)
+  secretEnv = _messages.StringField(15, repeated=True)
+  status = _messages.EnumField('StatusValueValuesEnum', 16)
+  timeout = _messages.StringField(17)
+  timing = _messages.MessageField('TimeSpan', 18)
+  volumes = _messages.MessageField('Volume', 19, repeated=True)
+  waitFor = _messages.StringField(20, repeated=True)
 
 
 class BuildTrigger(_messages.Message):
@@ -2782,13 +2897,16 @@ class CreateWorkerPoolOperationMetadata(_messages.Message):
   Fields:
     completeTime: Time the operation was completed.
     createTime: Time the operation was created.
+    trustedPoolMetadata: Output only. Metadata for the trusted pool creation
+      in TBI.
     workerPool: The resource name of the `WorkerPool` to create. Format:
       `projects/{project}/locations/{location}/workerPools/{worker_pool}`.
   """
 
   completeTime = _messages.StringField(1)
   createTime = _messages.StringField(2)
-  workerPool = _messages.StringField(3)
+  trustedPoolMetadata = _messages.MessageField('TrustedPoolMetadata', 3)
+  workerPool = _messages.StringField(4)
 
 
 class CronConfig(_messages.Message):
@@ -2898,6 +3016,20 @@ class DeleteWorkerPoolOperationMetadata(_messages.Message):
   workerPool = _messages.StringField(3)
 
 
+class Dependency(_messages.Message):
+  r"""A dependency that the Cloud Build worker will fetch before executing
+  user steps.
+
+  Fields:
+    empty: If set to true disable all dependency fetching (ignoring the
+      default source as well).
+    gitSource: Represents a git repository as a build dependency.
+  """
+
+  empty = _messages.BooleanField(1)
+  gitSource = _messages.MessageField('GitSourceDependency', 2)
+
+
 class DeveloperConnectConfig(_messages.Message):
   r"""This config defines the location of a source through Developer Connect.
 
@@ -2942,12 +3074,16 @@ class DeveloperConnectEventConfig(_messages.Message):
       GITHUB_ENTERPRISE: The SCM repo is GITHUB_ENTERPRISE.
       GITLAB: The SCM repo is GITLAB.
       GITLAB_ENTERPRISE: The SCM repo is GITLAB_ENTERPRISE.
+      BITBUCKET_DATA_CENTER: The SCM repo is BITBUCKET_DATA_CENTER.
+      BITBUCKET_CLOUD: The SCM repo is BITBUCKET_CLOUD.
     """
     GIT_REPOSITORY_LINK_TYPE_UNSPECIFIED = 0
     GITHUB = 1
     GITHUB_ENTERPRISE = 2
     GITLAB = 3
     GITLAB_ENTERPRISE = 4
+    BITBUCKET_DATA_CENTER = 5
+    BITBUCKET_CLOUD = 6
 
   gitRepositoryLink = _messages.StringField(1)
   gitRepositoryLinkType = _messages.EnumField('GitRepositoryLinkTypeValueValuesEnum', 2)
@@ -3454,6 +3590,70 @@ class GitSource(_messages.Message):
   url = _messages.StringField(3)
 
 
+class GitSourceDependency(_messages.Message):
+  r"""Represents a git repository as a build dependency.
+
+  Fields:
+    depth: Optional. How much history should be fetched for the build (default
+      1, -1 for all history).
+    destPath: Required. Where should the files be placed on the worker.
+    recurseSubmodules: Optional. True if submodules should be fetched too
+      (default false).
+    repository: Required. The kind of repo (url or dev connect).
+    revision: Required. The revision that we will fetch the repo at.
+  """
+
+  depth = _messages.IntegerField(1)
+  destPath = _messages.StringField(2)
+  recurseSubmodules = _messages.BooleanField(3)
+  repository = _messages.MessageField('GitSourceRepository', 4)
+  revision = _messages.StringField(5)
+
+
+class GitSourceRepository(_messages.Message):
+  r"""A repository for a git source.
+
+  Fields:
+    developerConnect: The Developer Connect Git repository link formatted as
+      `projects/*/locations/*/connections/*/gitRepositoryLink/*`
+    url: Location of the Git repository.
+  """
+
+  developerConnect = _messages.StringField(1)
+  url = _messages.StringField(2)
+
+
+class GoModule(_messages.Message):
+  r"""Go module to upload to Artifact Registry upon successful completion of
+  all build steps. A module refers to all dependencies in a go.mod file.
+
+  Fields:
+    modulePath: Optional. The Go module's "module path". e.g.
+      example.com/foo/v2
+    moduleVersion: Optional. The Go module's semantic version in the form
+      vX.Y.Z. e.g. v0.1.1 Pre-release identifiers can also be added by
+      appending a dash and dot separated ASCII alphanumeric characters and
+      hyphens. e.g. v0.2.3-alpha.x.12m.5
+    repositoryLocation: Optional. Location of the Artifact Registry
+      repository. i.e. us-east1 Defaults to the build's location.
+    repositoryName: Optional. Artifact Registry repository name. Specified Go
+      modules will be zipped and uploaded to Artifact Registry with this
+      location as a prefix. e.g. my-go-repo
+    repositoryProjectId: Optional. Project ID of the Artifact Registry
+      repository. Defaults to the build project.
+    sourcePath: Optional. Source path of the go.mod file in the build's
+      workspace. If not specified, this will default to the current directory.
+      e.g. ~/code/go/mypackage
+  """
+
+  modulePath = _messages.StringField(1)
+  moduleVersion = _messages.StringField(2)
+  repositoryLocation = _messages.StringField(3)
+  repositoryName = _messages.StringField(4)
+  repositoryProjectId = _messages.StringField(5)
+  sourcePath = _messages.StringField(6)
+
+
 class GoogleDevtoolsCloudbuildV1BuildOptionsPoolOptionWorkerConfig(_messages.Message):
   r"""Configuration per workload for both Private Pools and Hybrid Pools.
 
@@ -3555,12 +3755,15 @@ class Hash(_messages.Message):
       NONE: No hash requested.
       SHA256: Use a sha256 hash.
       MD5: Use a md5 hash.
+      GO_MODULE_H1: Dirhash of a Go module's source code which is then hex-
+        encoded.
       SHA512: Use a sha512 hash.
     """
     NONE = 0
     SHA256 = 1
     MD5 = 2
-    SHA512 = 3
+    GO_MODULE_H1 = 3
+    SHA512 = 4
 
   type = _messages.EnumField('TypeValueValuesEnum', 1)
   value = _messages.BytesField(2)
@@ -3788,6 +3991,40 @@ class Installation(_messages.Message):
   repositorySettingList = _messages.MessageField('GitHubRepositorySettingList', 8)
 
 
+class LinuxPool(_messages.Message):
+  r"""This section is used to configure the Linux pool for Trusted Pools in
+  TBI.
+
+  Enums:
+    LinuxHostOsValueValuesEnum: Output only. Linux host OS to use for the
+      pool.
+
+  Fields:
+    diskConfig: Required. Disk configuration for the pool.
+    linuxHostOs: Output only. Linux host OS to use for the pool.
+    machineConfig: Required. Machine configuration for the pool.
+    preferReusableVms: Optional. If true, the pool will prefer to use reusable
+      VMs.
+  """
+
+  class LinuxHostOsValueValuesEnum(_messages.Enum):
+    r"""Output only. Linux host OS to use for the pool.
+
+    Values:
+      LINUX_HOST_OS_UNSPECIFIED: LINUX_HOST_OS_UNSPECIFIED
+      UBUNTU_OS: UBUNTU_OS
+      COS_OS: COS_OS
+    """
+    LINUX_HOST_OS_UNSPECIFIED = 0
+    UBUNTU_OS = 1
+    COS_OS = 2
+
+  diskConfig = _messages.MessageField('TrustedPoolDiskConfig', 1)
+  linuxHostOs = _messages.EnumField('LinuxHostOsValueValuesEnum', 2)
+  machineConfig = _messages.MessageField('TrustedPoolMachineConfig', 3)
+  preferReusableVms = _messages.BooleanField(4)
+
+
 class ListBitbucketServerConfigsResponse(_messages.Message):
   r"""RPC response object returned by ListBitbucketServerConfigs RPC method.
 
@@ -3918,10 +4155,15 @@ class MavenArtifact(_messages.Message):
   Fields:
     artifactId: Maven `artifactId` value used when uploading the artifact to
       Artifact Registry.
+    deployFolder: Optional. Path to a folder containing the files to upload to
+      Artifact Registry. This can be either an absolute path, e.g.
+      `/workspace/my-app/target/`, or a relative path from /workspace, e.g.
+      `my-app/target/`. This field is mutually exclusive with the `path`
+      field.
     groupId: Maven `groupId` value used when uploading the artifact to
       Artifact Registry.
-    path: Path to an artifact in the build's workspace to be uploaded to
-      Artifact Registry. This can be either an absolute path, e.g.
+    path: Optional. Path to an artifact in the build's workspace to be
+      uploaded to Artifact Registry. This can be either an absolute path, e.g.
       /workspace/my-app/target/my-app-1.0.SNAPSHOT.jar or a relative path from
       /workspace, e.g. my-app/target/my-app-1.0.SNAPSHOT.jar.
     repository: Artifact Registry repository, in the form "https://$REGION-
@@ -3933,10 +4175,11 @@ class MavenArtifact(_messages.Message):
   """
 
   artifactId = _messages.StringField(1)
-  groupId = _messages.StringField(2)
-  path = _messages.StringField(3)
-  repository = _messages.StringField(4)
-  version = _messages.StringField(5)
+  deployFolder = _messages.StringField(2)
+  groupId = _messages.StringField(3)
+  path = _messages.StringField(4)
+  repository = _messages.StringField(5)
+  version = _messages.StringField(6)
 
 
 class NetworkConfig(_messages.Message):
@@ -3990,7 +4233,9 @@ class NpmPackage(_messages.Message):
   all build steps.
 
   Fields:
-    packagePath: Path to the package.json. e.g. workspace/path/to/package
+    packagePath: Optional. Path to the package.json. e.g.
+      workspace/path/to/package Only one of `archive` or `package_path` can be
+      specified.
     repository: Artifact Registry repository, in the form "https://$REGION-
       npm.pkg.dev/$PROJECT/$REPOSITORY" Npm package in the workspace specified
       by path will be zipped and uploaded to Artifact Registry with this
@@ -4013,6 +4258,23 @@ class OAuthRegistrationURI(_messages.Message):
   """
 
   registrationUri = _messages.StringField(1)
+
+
+class Oci(_messages.Message):
+  r"""OCI image to upload to Artifact Registry upon successful completion of
+  all build steps.
+
+  Fields:
+    file: Required. Path on the local file system where to find the container
+      to upload. e.g. /workspace/my-image.tar
+    registryPath: Required. Registry path to upload the container to. e.g. us-
+      east1-docker.pkg.dev/my-project/my-repo/my-image
+    tags: Optional. Tags to apply to the uploaded image. e.g. latest, 1.0.0
+  """
+
+  file = _messages.StringField(1)
+  registryPath = _messages.StringField(2)
+  tags = _messages.StringField(3, repeated=True)
 
 
 class Operation(_messages.Message):
@@ -4283,8 +4545,9 @@ class PrivateServiceConnect(_messages.Message):
     routeAllTraffic: Immutable. Route all traffic through PSC interface.
       Enable this if you want full control of traffic in the private pool.
       Configure Cloud NAT for the subnet of network attachment if you need to
-      access public Internet. If false, Only route private IPs, e.g.
-      10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 through PSC interface.
+      access public Internet. If false, Only route RFC 1918 (10.0.0.0/8,
+      172.16.0.0/12, and 192.168.0.0/16) and RFC 6598 (100.64.0.0/10) through
+      PSC interface.
   """
 
   networkAttachment = _messages.StringField(1)
@@ -4597,6 +4860,8 @@ class Results(_messages.Message):
       produce this output by writing to `$BUILDER_OUTPUT/output`. Only the
       first 50KB of data is stored. Note that the `$BUILDER_OUTPUT` variable
       is read-only and can't be substituted.
+    goModules: Optional. Go module artifacts uploaded to Artifact Registry at
+      the end of the build.
     images: Container images that were built as a part of the build.
     mavenArtifacts: Maven artifacts uploaded to Artifact Registry at the end
       of the build.
@@ -4604,6 +4869,8 @@ class Results(_messages.Message):
       build.
     numArtifacts: Number of non-container artifacts uploaded to Cloud Storage.
       Only populated when artifacts are uploaded to Cloud Storage.
+    ociArtifacts: Output only. OCI artifacts uploaded to Artifact Registry at
+      the end of the build.
     pythonPackages: Python artifacts uploaded to Artifact Registry at the end
       of the build.
   """
@@ -4612,11 +4879,13 @@ class Results(_messages.Message):
   artifactTiming = _messages.MessageField('TimeSpan', 2)
   buildStepImages = _messages.StringField(3, repeated=True)
   buildStepOutputs = _messages.BytesField(4, repeated=True)
-  images = _messages.MessageField('BuiltImage', 5, repeated=True)
-  mavenArtifacts = _messages.MessageField('UploadedMavenArtifact', 6, repeated=True)
-  npmPackages = _messages.MessageField('UploadedNpmPackage', 7, repeated=True)
-  numArtifacts = _messages.IntegerField(8)
-  pythonPackages = _messages.MessageField('UploadedPythonPackage', 9, repeated=True)
+  goModules = _messages.MessageField('UploadedGoModule', 5, repeated=True)
+  images = _messages.MessageField('BuiltImage', 6, repeated=True)
+  mavenArtifacts = _messages.MessageField('UploadedMavenArtifact', 7, repeated=True)
+  npmPackages = _messages.MessageField('UploadedNpmPackage', 8, repeated=True)
+  numArtifacts = _messages.IntegerField(9)
+  ociArtifacts = _messages.MessageField('UploadedOCIArtifact', 10, repeated=True)
+  pythonPackages = _messages.MessageField('UploadedPythonPackage', 11, repeated=True)
 
 
 class RetryBuildRequest(_messages.Message):
@@ -4764,6 +5033,8 @@ class Source(_messages.Message):
   r"""Location of the source in a supported storage service.
 
   Fields:
+    buildConfigFileName: Path, from the source root, to the build
+      configuration file (i.e. cloudbuild.yaml).
     connectedRepository: Optional. If provided, get the source from this 2nd-
       gen Google Cloud Build repository resource.
     developerConnectConfig: If provided, get the source from this Developer
@@ -4779,12 +5050,13 @@ class Source(_messages.Message):
       builders/tree/master/gcs-fetcher).
   """
 
-  connectedRepository = _messages.MessageField('ConnectedRepository', 1)
-  developerConnectConfig = _messages.MessageField('DeveloperConnectConfig', 2)
-  gitSource = _messages.MessageField('GitSource', 3)
-  repoSource = _messages.MessageField('RepoSource', 4)
-  storageSource = _messages.MessageField('StorageSource', 5)
-  storageSourceManifest = _messages.MessageField('StorageSourceManifest', 6)
+  buildConfigFileName = _messages.StringField(1)
+  connectedRepository = _messages.MessageField('ConnectedRepository', 2)
+  developerConnectConfig = _messages.MessageField('DeveloperConnectConfig', 3)
+  gitSource = _messages.MessageField('GitSource', 4)
+  repoSource = _messages.MessageField('RepoSource', 5)
+  storageSource = _messages.MessageField('StorageSource', 6)
+  storageSourceManifest = _messages.MessageField('StorageSourceManifest', 7)
 
 
 class SourceProvenance(_messages.Message):
@@ -4975,6 +5247,21 @@ class Status(_messages.Message):
   message = _messages.StringField(3)
 
 
+class StepResult(_messages.Message):
+  r"""StepResult is the declaration of a result for a build step.
+
+  Fields:
+    attestationContent: Optional. The content of the attestation to be
+      generated.
+    attestationType: Optional. The type of attestation to be generated.
+    name: Required. The name of the result.
+  """
+
+  attestationContent = _messages.StringField(1)
+  attestationType = _messages.StringField(2)
+  name = _messages.StringField(3)
+
+
 class StorageSource(_messages.Message):
   r"""Location of the source in an archive file in Cloud Storage.
 
@@ -5036,38 +5323,6 @@ class StorageSourceManifest(_messages.Message):
   object = _messages.StringField(3)
 
 
-class TestResults(_messages.Message):
-  r"""Files in the workspace to upload to Cloud Storage upon successful
-  completion of all build steps.
-
-  Enums:
-    FormatValueValuesEnum: Optional. Format of the test results.
-
-  Fields:
-    bucketUri: Optional. Cloud Storage bucket and optional object path, in the
-      form "gs://bucket/path/to/somewhere/". (see [Bucket Name
-      Requirements](https://cloud.google.com/storage/docs/bucket-
-      naming#requirements)). Files in the workspace matching any path pattern
-      will be uploaded to Cloud Storage with this location as a prefix.
-    format: Optional. Format of the test results.
-    paths: Optional. Path globs used to match files in the build's workspace.
-  """
-
-  class FormatValueValuesEnum(_messages.Enum):
-    r"""Optional. Format of the test results.
-
-    Values:
-      FORMAT_UNSPECIFIED: The default format is JUnit.
-      JUNIT: The test results are in JUnit format.
-    """
-    FORMAT_UNSPECIFIED = 0
-    JUNIT = 1
-
-  bucketUri = _messages.StringField(1)
-  format = _messages.EnumField('FormatValueValuesEnum', 2)
-  paths = _messages.StringField(3, repeated=True)
-
-
 class TimeSpan(_messages.Message):
   r"""Start and end times for a build execution phase.
 
@@ -5078,6 +5333,104 @@ class TimeSpan(_messages.Message):
 
   endTime = _messages.StringField(1)
   startTime = _messages.StringField(2)
+
+
+class TrustedPoolConfig(_messages.Message):
+  r"""Defines the configuration specific for Trusted Pools for TBI only.
+
+  Fields:
+    buildSecurityPolicy: Output only. Build security policy sets the security
+      requirements for the trusted pool.
+    defaultWorkloadAccount: Required. This BYOSA is used by the build to
+      access resources while the build is running for example build step
+      container images. This is a mandatory field. This cannot be the same as
+      the resource_access_account.
+    linuxPool: Linux pool sets the linux pool type.
+    resourceAccessAccount: Required. This BYOSA is used for fetching
+      sources/dependencies or pushing artifacts to output locations such as
+      Artifact Registry. This service account is used exclusively by the TBI
+      borg job to fetch configs from GoB and push/pull artifacts to/from
+      Artifact Registry and Cloud Storage.
+    workerCount: Required. Worker count sets the number of workers in the
+      pool.
+  """
+
+  buildSecurityPolicy = _messages.MessageField('BuildSecurityPolicy', 1)
+  defaultWorkloadAccount = _messages.StringField(2)
+  linuxPool = _messages.MessageField('LinuxPool', 3)
+  resourceAccessAccount = _messages.StringField(4)
+  workerCount = _messages.MessageField('WorkerCount', 5)
+
+
+class TrustedPoolDiskConfig(_messages.Message):
+  r"""This section is used to configure the disk config for Trusted Pools in
+  TBI.
+
+  Enums:
+    DiskTypeValueValuesEnum: Required. Disk Type to use for a VM.
+
+  Fields:
+    diskSizeGb: Required. Size of the disk attached to a VM in GB.
+    diskType: Required. Disk Type to use for a VM.
+  """
+
+  class DiskTypeValueValuesEnum(_messages.Enum):
+    r"""Required. Disk Type to use for a VM.
+
+    Values:
+      DISK_TYPE_UNSPECIFIED: Unspecified disk type.
+      PD_STANDARD_DISK: Standard persistent disk.
+      PD_SSD_DISK: SSD persistent disk.
+    """
+    DISK_TYPE_UNSPECIFIED = 0
+    PD_STANDARD_DISK = 1
+    PD_SSD_DISK = 2
+
+  diskSizeGb = _messages.IntegerField(1)
+  diskType = _messages.EnumField('DiskTypeValueValuesEnum', 2)
+
+
+class TrustedPoolMachineConfig(_messages.Message):
+  r"""This section is used to configure the machine config for Trusted Pools
+  in TBI.
+
+  Fields:
+    acceleratorConfig: Optional. Accelerator configuration for a VM instance.
+    machineType: Required. Machine type of a VM such as `e2-standard-4`. See
+      https://cloud.google.com/compute/docs/machine-types for more
+      information.
+    minCpuPlatform: Optional. Specifies a minimum CPU platform. If specified,
+      the value will determine the Minimum CPU platform to be used by a VM
+      instance and the value can be set to `Intel Broadwell`, `Intel Skylake`,
+      etc. Otherwise, the default CPU platform for a given machine type is
+      used. For more information, see
+      https://cloud.google.com/compute/docs/instances/specify-min-cpu-
+      platform.
+  """
+
+  acceleratorConfig = _messages.MessageField('AcceleratorConfig', 1)
+  machineType = _messages.StringField(2)
+  minCpuPlatform = _messages.StringField(3)
+
+
+class TrustedPoolMetadata(_messages.Message):
+  r"""Metadata for the trusted pool creation in TBI.
+
+  Fields:
+    instanceCreationDone: Indicates if the instance creation operation is done
+      in TBI.
+    instanceOp: The operation name returned by TBI's create instance API.
+    poolCreationDone: Indicates if the pool creation operation is done in TBI.
+    poolOp: The operation name returned by TBI's create pool API.
+    uid: The unique identifier of the trusted pool. This is used as the
+      instance ID and pool ID in TBI.
+  """
+
+  instanceCreationDone = _messages.BooleanField(1)
+  instanceOp = _messages.StringField(2)
+  poolCreationDone = _messages.BooleanField(3)
+  poolOp = _messages.StringField(4)
+  uid = _messages.StringField(5)
 
 
 class UpdateBitbucketServerConfigOperationMetadata(_messages.Message):
@@ -5142,6 +5495,22 @@ class UpdateWorkerPoolOperationMetadata(_messages.Message):
   workerPool = _messages.StringField(3)
 
 
+class UploadedGoModule(_messages.Message):
+  r"""A Go module artifact uploaded to Artifact Registry using the GoModule
+  directive.
+
+  Fields:
+    fileHashes: Hash types and values of the Go Module Artifact.
+    pushTiming: Output only. Stores timing information for pushing the
+      specified artifact.
+    uri: URI of the uploaded artifact.
+  """
+
+  fileHashes = _messages.MessageField('FileHashes', 1)
+  pushTiming = _messages.MessageField('TimeSpan', 2)
+  uri = _messages.StringField(3)
+
+
 class UploadedMavenArtifact(_messages.Message):
   r"""A Maven artifact uploaded using the MavenArtifact directive.
 
@@ -5166,6 +5535,21 @@ class UploadedNpmPackage(_messages.Message):
     pushTiming: Output only. Stores timing information for pushing the
       specified artifact.
     uri: URI of the uploaded npm package.
+  """
+
+  fileHashes = _messages.MessageField('FileHashes', 1)
+  pushTiming = _messages.MessageField('TimeSpan', 2)
+  uri = _messages.StringField(3)
+
+
+class UploadedOCIArtifact(_messages.Message):
+  r"""An oci image uploaded to Artifact Registry using the OCI directive.
+
+  Fields:
+    fileHashes: Output only. Hash types and values of the OCI Artifact.
+    pushTiming: Output only. Stores timing information for pushing the
+      specified artifact.
+    uri: Output only. URI of the uploaded OCI Artifact.
   """
 
   fileHashes = _messages.MessageField('FileHashes', 1)
@@ -5272,8 +5656,11 @@ class WorkerConfig(_messages.Message):
   Fields:
     diskSizeGb: Size of the disk attached to the worker, in GB. See [Worker
       pool config file](https://cloud.google.com/build/docs/private-
-      pools/worker-pool-config-file-schema). Specify a value of up to 2000. If
+      pools/worker-pool-config-file-schema). Specify a value of up to 4000. If
       `0` is specified, Cloud Build will use a standard disk size.
+    enableNestedVirtualization: Optional. Enable nested virtualization on the
+      worker, if supported by the machine type. By default, nested
+      virtualization is disabled.
     machineType: Optional. Machine type of a worker, such as `e2-medium`. See
       [Worker pool config file](https://cloud.google.com/build/docs/private-
       pools/worker-pool-config-file-schema). If left blank, Cloud Build will
@@ -5281,7 +5668,21 @@ class WorkerConfig(_messages.Message):
   """
 
   diskSizeGb = _messages.IntegerField(1)
-  machineType = _messages.StringField(2)
+  enableNestedVirtualization = _messages.BooleanField(2)
+  machineType = _messages.StringField(3)
+
+
+class WorkerCount(_messages.Message):
+  r"""This section is used to configure the number of workers in the trusted
+  pool for TBI only.
+
+  Fields:
+    autoscale: The autoscaling configuration of the pool.
+    staticCount: The number of workers in a static pool.
+  """
+
+  autoscale = _messages.MessageField('Autoscale', 1)
+  staticCount = _messages.IntegerField(2)
 
 
 class WorkerPool(_messages.Message):
@@ -5323,9 +5724,12 @@ class WorkerPool(_messages.Message):
       value of `{worker_pool}` is provided by `worker_pool_id` in
       `CreateWorkerPool` request and the value of `{location}` is determined
       by the endpoint accessed.
-    privatePoolConfig: Private Pool configuration.
-    privatePoolV1Config: Legacy Private Pool configuration.
+    privatePoolConfig: Private Pool configuration for Cloud Build 2nd gen.
+      DEPRECATED due to the cancellation of Cloud Build 2nd gen.
+    privatePoolV1Config: Private Pool configuration.
     state: Output only. `WorkerPool` state.
+    trustedPoolConfig: Trusted Pool configuration for running builds in
+      Trusted Build Infrastructure (TBI) environment.
     uid: Output only. A unique identifier for the `WorkerPool`.
     updateTime: Output only. Time at which the request to update the
       `WorkerPool` was received.
@@ -5386,8 +5790,9 @@ class WorkerPool(_messages.Message):
   privatePoolConfig = _messages.MessageField('PrivatePoolConfig', 8)
   privatePoolV1Config = _messages.MessageField('PrivatePoolV1Config', 9)
   state = _messages.EnumField('StateValueValuesEnum', 10)
-  uid = _messages.StringField(11)
-  updateTime = _messages.StringField(12)
+  trustedPoolConfig = _messages.MessageField('TrustedPoolConfig', 11)
+  uid = _messages.StringField(12)
+  updateTime = _messages.StringField(13)
 
 
 encoding.AddCustomJsonFieldMapping(

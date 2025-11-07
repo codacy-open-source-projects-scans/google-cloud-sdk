@@ -18,6 +18,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+from apitools.base.py import exceptions as apitools_exceptions
+from apitools.base.py import http_wrapper
 from apitools.base.py import list_pager
 from googlecloudsdk.api_lib.artifacts import exceptions as ar_exceptions
 from googlecloudsdk.api_lib.cloudkms import iam as kms_iam
@@ -25,6 +27,7 @@ from googlecloudsdk.api_lib.iam import util as iam_api
 from googlecloudsdk.api_lib.util import apis
 from googlecloudsdk.command_lib.iam import iam_util
 from googlecloudsdk.core import resources
+
 
 ARTIFACTREGISTRY_API_NAME = "artifactregistry"
 ARTIFACTREGISTRY_API_VERSION = "v1"
@@ -45,12 +48,21 @@ def GetStorageMessages():
   return apis.GetMessagesModule(STORAGE_API_NAME, STORAGE_API_VERSION)
 
 
+def SkipRetryOn500Errors(response):
+  """Wrap http_wrapper.CheckResponse to skip retry on 501."""
+  if response.status_code >= 500:
+    raise apitools_exceptions.HttpError.FromResponse(response)
+  return http_wrapper.CheckResponse(response)
+
+
 def GetClient(skip_activation_prompt=False):
-  return apis.GetClientInstance(
+  client = apis.GetClientInstance(
       ARTIFACTREGISTRY_API_NAME,
       ARTIFACTREGISTRY_API_VERSION,
       skip_activation_prompt=skip_activation_prompt,
   )
+  client.check_response_func = SkipRetryOn500Errors
+  return client
 
 
 def GetMessages():
@@ -161,7 +173,7 @@ def ListVersionTags(client, messages, package, version, page_size=None):
 
 
 def ListPackages(client, messages, repo, page_size=None,
-                 order_by=None, server_filter=None):
+                 order_by=None, limit=None, server_filter=None):
   """Lists all packages under a repository."""
   list_pkgs_req = (
       messages.ArtifactregistryProjectsLocationsRepositoriesPackagesListRequest(
@@ -170,6 +182,7 @@ def ListPackages(client, messages, repo, page_size=None,
       list_pager.YieldFromList(
           client.projects_locations_repositories_packages,
           list_pkgs_req,
+          limit=limit,
           batch_size=page_size,
           batch_size_attribute="pageSize",
           field="packages"))
@@ -451,3 +464,41 @@ def ListDockerImages(parent: str, page_size: int, limit: int):
           limit=limit,
       )
   )
+
+
+def CopyRepository(source_repo, dest_repo_name):
+  """Copies a repository."""
+  client = GetClient()
+  messages = GetMessages()
+  req = messages.ArtifactregistryProjectsLocationsRepositoriesCopyRepositoryRequest(
+      destinationRepository=dest_repo_name,
+      copyRepositoryRequest=messages.CopyRepositoryRequest(
+          sourceRepository=source_repo
+      ),
+  )
+  return client.projects_locations_repositories.CopyRepository(req)
+
+
+def ExportArtifact(version, tag, gcs_destination):
+  """Exports an artifact by version or tag."""
+  client = GetClient()
+  messages = GetMessages()
+  if version:
+    req = messages.ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest(
+        repository=version.Parent().Parent().RelativeName(),
+        exportArtifactRequest=messages.ExportArtifactRequest(
+            gcsPath=gcs_destination,
+            sourceVersion=version.RelativeName(),
+        ),
+    )
+  elif tag:
+    req = messages.ArtifactregistryProjectsLocationsRepositoriesExportArtifactRequest(
+        repository=tag.Parent().Parent().RelativeName(),
+        exportArtifactRequest=messages.ExportArtifactRequest(
+            gcsPath=gcs_destination,
+            sourceTag=tag.RelativeName(),
+        ),
+    )
+  else:
+    raise ValueError("Either version or tag must be specified.")
+  return client.projects_locations_repositories.ExportArtifact(req)

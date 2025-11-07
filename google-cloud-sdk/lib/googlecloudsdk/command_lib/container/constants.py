@@ -29,7 +29,7 @@ EXPIRE_WARNING = """
 """
 
 KUBERNETES_ALPHA_PROMPT = (
-    "This will create a cluster with all Kubernetes Alpha features enabled.\n"
+    "This will create a cluster with Kubernetes alpha features enabled.\n"
     "- This cluster will not be covered by the Kubernetes Engine SLA and should"
     " not be used for production workloads.\n"
     "- You will not be able to upgrade the control plane or nodes.\n"
@@ -49,6 +49,14 @@ KUBERNETES_GPU_DRIVER_AUTO_INSTALL_MSG = (
     "version, GKE installs the default GPU driver for your node's GKE version."
 )
 
+KUBERNETES_GPU_DRIVER_DISABLED_NEEDS_MANUAL_INSTALL_MSG = (
+    "By specifying 'gpu-driver-version=disabled' you have chosen to skip "
+    "automatic driver installation. You must manually install a driver after "
+    "the create command. To learn how to manually install the GPU driver, "
+    "refer to: "
+    "https://cloud.google.com/kubernetes-engine/docs/how-to/gpus#installing_drivers"
+)
+
 USERNAME_PASSWORD_ERROR_MSG = (
     "Cannot specify --password with empty --username or --no-enable-basic-auth."
 )
@@ -56,4 +64,16 @@ USERNAME_PASSWORD_ERROR_MSG = (
 CONFLICTING_GET_CREDS_FLAGS_ERROR_MSG = (
     "Can only specify one of the following flags for get-credentials: "
     "--cross-connect-subnetwork, --internal-ip, --private-endpoint-fqdn."
+)
+
+LOGGING_DISABLED_WARNING = (
+    "Warning: If you disable Logging or apply exclusion filters to "
+    "System logs, GKE customer support is offered on a best-effort "
+    "basis and might require additional effort from your engineering team."
+)
+
+MONITORING_DISABLED_WARNING = (
+    "Warning: If you disable Monitoring, GKE customer support is offered "
+    "on a best-effort basis and might require additional effort "
+    "from your engineering team."
 )

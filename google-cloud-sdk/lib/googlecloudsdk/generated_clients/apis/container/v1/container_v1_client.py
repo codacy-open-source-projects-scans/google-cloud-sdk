@@ -480,6 +480,33 @@ class ContainerV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def CompleteControlPlaneUpgrade(self, request, global_params=None):
+      r"""CompleteControlPlaneUpgrade completes the rollback-safe upgrade by performing the step two upgrade for a specific cluster.
+
+      Args:
+        request: (ContainerProjectsLocationsClustersCompleteControlPlaneUpgradeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('CompleteControlPlaneUpgrade')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    CompleteControlPlaneUpgrade.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/locations/{locationsId}/clusters/{clustersId}:completeControlPlaneUpgrade',
+        http_method='POST',
+        method_id='container.projects.locations.clusters.completeControlPlaneUpgrade',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:completeControlPlaneUpgrade',
+        request_field='completeControlPlaneUpgradeRequest',
+        request_type_name='ContainerProjectsLocationsClustersCompleteControlPlaneUpgradeRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def CompleteConvertToAutopilot(self, request, global_params=None):
       r"""CompleteConvertToAutopilot is an optional API that commits the conversion by deleting all Standard node pools and completing CA rotation. This action requires that a conversion has been started and that workload migration has completed, with no pods running on GKE Standard node pools. This action will be automatically performed 72 hours after conversion.
 
@@ -535,7 +562,7 @@ class ContainerV1(base_api.BaseApiClient):
     )
 
     def Create(self, request, global_params=None):
-      r"""Creates a cluster, consisting of the specified number and type of Google Compute Engine instances. By default, the cluster is created in the project's [default network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). One firewall is added for the cluster. After cluster creation, the Kubelet creates routes for each node to allow the containers on that node to communicate with all other instances in the cluster. Finally, an entry is added to the project's global metadata indicating which CIDR range the cluster is using.
+      r"""Creates a cluster, consisting of the specified number and type of Google Compute Engine instances. By default, the cluster is created in the project's [default network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). One firewall is added for the cluster. After cluster creation, the kubelet creates routes for each node to allow the containers on that node to communicate with all other instances in the cluster. Finally, an entry is added to the project's global metadata indicating which CIDR range the cluster is using.
 
       Args:
         request: (CreateClusterRequest) input message
@@ -1455,6 +1482,33 @@ class ContainerV1(base_api.BaseApiClient):
         supports_download=False,
     )
 
+    def CompleteControlPlaneUpgrade(self, request, global_params=None):
+      r"""CompleteControlPlaneUpgrade completes the rollback-safe upgrade by performing the step two upgrade for a specific cluster.
+
+      Args:
+        request: (ContainerProjectsZonesClustersCompleteControlPlaneUpgradeRequest) input message
+        global_params: (StandardQueryParameters, default: None) global arguments
+      Returns:
+        (Operation) The response message.
+      """
+      config = self.GetMethodConfig('CompleteControlPlaneUpgrade')
+      return self._RunMethod(
+          config, request, global_params=global_params)
+
+    CompleteControlPlaneUpgrade.method_config = lambda: base_api.ApiMethodInfo(
+        flat_path='v1/projects/{projectsId}/zones/{zonesId}/clusters/{clustersId}:completeControlPlaneUpgrade',
+        http_method='POST',
+        method_id='container.projects.zones.clusters.completeControlPlaneUpgrade',
+        ordered_params=['name'],
+        path_params=['name'],
+        query_params=[],
+        relative_path='v1/{+name}:completeControlPlaneUpgrade',
+        request_field='completeControlPlaneUpgradeRequest',
+        request_type_name='ContainerProjectsZonesClustersCompleteControlPlaneUpgradeRequest',
+        response_type_name='Operation',
+        supports_download=False,
+    )
+
     def CompleteIpRotation(self, request, global_params=None):
       r"""Completes master IP rotation.
 
@@ -1482,7 +1536,7 @@ class ContainerV1(base_api.BaseApiClient):
     )
 
     def Create(self, request, global_params=None):
-      r"""Creates a cluster, consisting of the specified number and type of Google Compute Engine instances. By default, the cluster is created in the project's [default network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). One firewall is added for the cluster. After cluster creation, the Kubelet creates routes for each node to allow the containers on that node to communicate with all other instances in the cluster. Finally, an entry is added to the project's global metadata indicating which CIDR range the cluster is using.
+      r"""Creates a cluster, consisting of the specified number and type of Google Compute Engine instances. By default, the cluster is created in the project's [default network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). One firewall is added for the cluster. After cluster creation, the kubelet creates routes for each node to allow the containers on that node to communicate with all other instances in the cluster. Finally, an entry is added to the project's global metadata indicating which CIDR range the cluster is using.
 
       Args:
         request: (CreateClusterRequest) input message

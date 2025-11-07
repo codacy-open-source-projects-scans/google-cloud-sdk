@@ -18,6 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import json
 import re
 
 from googlecloudsdk.api_lib.compute import constants
@@ -73,9 +74,7 @@ def AddDiskArgsForBulk(parser):
   )
 
 
-def ValidateBulkDiskFlags(
-    args, enable_source_snapshot_csek=False, enable_image_csek=False
-):
+def ValidateBulkDiskFlags(args):
   """Validates the values of all disk-related flags."""
   for disk in args.disk or []:
     if 'name' not in disk:
@@ -89,8 +88,7 @@ def ValidateBulkDiskFlags(
   instances_flags.ValidateCreateDiskFlags(
       args,
       enable_snapshots=True,
-      enable_source_snapshot_csek=enable_source_snapshot_csek,
-      enable_image_csek=enable_image_csek,
+      enable_image_csek=True,
   )
 
 
@@ -275,10 +273,6 @@ def AddBulkCreateArgs(
 
 def AddBulkCreateNetworkingArgs(
     parser,
-    support_no_address=False,
-    support_network_queue_count=False,
-    support_per_interface_stack_type=False,
-    support_ipv6_only=False,
     support_igmp_query=False,
 ):
   """Adds Networking Args for Bulk Create Command."""
@@ -324,39 +318,30 @@ def AddBulkCreateNetworkingArgs(
       the interface. ``NIC_TYPE'' must be one of: `GVNIC`, `VIRTIO_NET`.
   """
 
-  if support_no_address:
-    multiple_network_interface_cards_spec['no-address'] = None
-    network_interface_help += """
-      *no-address*::: If specified the interface will have no external IP.
-      If not specified instances will get ephemeral IPs.
-      """
-
-  if support_network_queue_count:
-    multiple_network_interface_cards_spec['queue-count'] = int
-    network_interface_help += """
-      *queue-count*::: Specifies the networking queue count for this interface.
-      Both Rx and Tx queues will be set to this number. If it's not specified, a
-      default queue count will be assigned. See
-      https://cloud.google.com/compute/docs/network-bandwidth#rx-tx for
-      more details.
+  multiple_network_interface_cards_spec['no-address'] = None
+  network_interface_help += """
+    *no-address*::: If specified the interface will have no external IP.
+    If not specified instances will get ephemeral IPs.
     """
 
-  if support_per_interface_stack_type:
-    multiple_network_interface_cards_spec['stack-type'] = (
-        instances_flags.ValidateNetworkInterfaceStackType
-        if support_ipv6_only
-        else instances_flags.ValidateNetworkInterfaceStackTypeIpv6OnlyNotSupported
-    )
-    stack_types = (
-        '`IPV4_ONLY`, `IPV4_IPV6`, `IPV6_ONLY`'
-        if support_ipv6_only
-        else '`IPV4_ONLY`, `IPV4_IPV6`'
-    )
-    network_interface_help += f"""
-      *stack-type*::: Specifies whether IPv6 is enabled on the interface.
-      ``STACK_TYPE'' must be one of: {stack_types}.
-      The default value is `IPV4_ONLY`.
-    """
+  multiple_network_interface_cards_spec['queue-count'] = int
+  network_interface_help += """
+    *queue-count*::: Specifies the networking queue count for this interface.
+    Both Rx and Tx queues will be set to this number. If it's not specified, a
+    default queue count will be assigned. See
+    https://cloud.google.com/compute/docs/network-bandwidth#rx-tx for
+    more details.
+  """
+
+  multiple_network_interface_cards_spec['stack-type'] = (
+      instances_flags.ValidateNetworkInterfaceStackType
+  )
+  stack_types = '`IPV4_ONLY`, `IPV4_IPV6`, `IPV6_ONLY`'
+  network_interface_help += f"""
+    *stack-type*::: Specifies whether IPv6 is enabled on the interface.
+    ``STACK_TYPE'' must be one of: {stack_types}.
+    The default value is `IPV4_ONLY`.
+  """
 
   if support_igmp_query:
     multiple_network_interface_cards_spec['igmp-query'] = (
@@ -380,34 +365,102 @@ def AddBulkCreateNetworkingArgs(
   )
 
 
+def AddInstanceFlexibilityPolicyArgs(parser):
+  """Adds instance flexibility policy arguments to the parser."""
+  mutex_group = parser.add_mutually_exclusive_group()
+  mutex_group.add_argument(
+      '--instance-selection-machine-types',
+      type=arg_parsers.ArgList(),
+      metavar='MACHINE_TYPE',
+      help="""\\
+      Specifies a list of machine types to consider for instance creation.
+      The bulk create operation will attempt to create instances from this list
+      based on capacity availability.
+      This flag is only valid when a region is specified.
+      """,
+  )
+  mutex_group.add_argument(
+      '--instance-selection',
+      metavar='name=NAME[,rank=RANK][,machine-type=MACHINE_TYPE]...[,disk=DISK_JSON]...',
+      type=ArgMultiValueDict(),
+      action=arg_parsers.FlattenAction(),
+      help="""\\
+      Specifies a list of machine types to consider for instance creation.
+      The bulk create operation will attempt to create instances from this list
+      based on capacity availability.
+      This flag is only valid when a region is specified.
+
+      Keys for each instance selection:
+
+      name: (Required) A unique name for this instance selection group.
+      machine-type: (Required) Repeatable. Specifies a machine type to include in this group (e.g., machine-type=n1-standard-1).
+      rank: (Optional) An integer representing the priority. Lower ranks are preferred. Defaults to 0.
+      disk: (Optional) Repeatable. A JSON string defining a disk to attach or override, conforming to the Compute Engine AttachedDisk API structure. Example: disk='{"deviceName": "boot-disk", "boot": true, "initializeParams": {"sourceImage": "IMAGE_URL"}}'
+      """,
+  )
+
+
+def ValidateInstanceFlexibilityArgs(args):
+  """Validates args supplied to --instance-selection-machine-types."""
+  flexibility_policy_args = [
+      'instance_selection_machine_types',
+      'instance_selection',
+  ]
+  specified_args = []
+  for arg in flexibility_policy_args:
+    if args.IsKnownAndSpecified(arg):
+      specified_args.append(arg)
+
+  if not specified_args:
+    return
+
+  if not args.IsSpecified('region'):
+    raise exceptions.RequiredArgumentException(
+        '--region',
+        'Flag --region is required for any of the instance flexibility policy'
+        ' flags.',
+    )
+  if args.IsSpecified('instance_selection'):
+    for instance_selection in args.instance_selection:
+      if 'name' not in instance_selection:
+        raise exceptions.InvalidArgumentException(
+            'instance_selection', 'Missing instance selection name.'
+        )
+      if (
+          'machine-type' not in instance_selection
+          or not instance_selection['machine-type']
+      ):
+        raise exceptions.InvalidArgumentException(
+            'instance_selection', 'Missing machine type in instance selection.'
+        )
+      if 'rank' in instance_selection:
+        rank = instance_selection['rank']
+        if not rank.isdigit():
+          raise exceptions.InvalidArgumentException(
+              'instance_selection',
+              'Invalid value for rank in instance selection.',
+          )
+
+
 def AddCommonBulkInsertArgs(
     parser,
     release_track,
-    deprecate_maintenance_policy=False,
-    support_min_node_cpu=False,
-    support_erase_vss=False,
-    snapshot_csek=False,
-    image_csek=False,
     support_display_device=False,
-    support_local_ssd_size=False,
     support_numa_node_count=False,
-    support_visible_core_count=False,
-    support_max_run_duration=False,
-    support_enable_target_shape=False,
     add_zone_region_flags=True,
-    support_confidential_compute_type=False,
-    support_confidential_compute_type_tdx=False,
-    support_no_address_in_networking=False,
+    support_snp_svsm=False,
     support_max_count_per_zone=False,
-    support_network_queue_count=False,
-    support_performance_monitoring_unit=False,
     support_custom_hostnames=False,
     support_specific_then_x_affinity=False,
-    support_ipv6_only=False,
     support_watchdog_timer=False,
-    support_per_interface_stack_type=False,
     support_igmp_query=False,
-    support_reservation_bound=False,
+    support_graceful_shutdown=False,
+    support_flex_start=False,
+    support_source_snapshot_region=False,
+    support_skip_guest_os_shutdown=False,
+    support_preemption_notice_duration=False,
+    support_instance_flexibility_policy=False,
+    support_workload_identity_config=False,
 ):
   """Register parser args common to all tracks."""
   metadata_utils.AddMetadataArgs(parser)
@@ -416,22 +469,26 @@ def AddCommonBulkInsertArgs(
       parser,
       enable_kms=True,
       enable_snapshots=True,
-      source_snapshot_csek=snapshot_csek,
-      image_csek=image_csek,
+      image_csek=True,
       include_name=False,
       support_boot=True,
+      support_source_snapshot_region=support_source_snapshot_region,
   )
   instances_flags.AddCanIpForwardArgs(parser)
   instances_flags.AddAcceleratorArgs(parser)
   instances_flags.AddMachineTypeArgs(parser)
-  instances_flags.AddMaintenancePolicyArgs(
-      parser, deprecate=deprecate_maintenance_policy
-  )
+  instances_flags.AddMaintenancePolicyArgs(parser, deprecate=True)
   instances_flags.AddNoRestartOnFailureArgs(parser)
   instances_flags.AddPreemptibleVmArgs(parser)
   instances_flags.AddProvisioningModelVmArgs(
-      parser, support_reservation_bound=support_reservation_bound
+      parser,
+      support_flex_start=support_flex_start,
   )
+  if support_graceful_shutdown:
+    instances_flags.AddGracefulShutdownArgs(parser, is_create=True)
+
+  if support_preemption_notice_duration:
+    instances_flags.AddPreemptionNoticeDurationArgs(parser)
   instances_flags.AddNetworkPerformanceConfigsArgs(parser)
   instances_flags.AddInstanceTerminationActionVmArgs(parser)
   instances_flags.AddServiceAccountAndScopeArgs(
@@ -455,14 +512,14 @@ def AddCommonBulkInsertArgs(
   instances_flags.AddNetworkTierArgs(parser, instance=True)
   AddBulkCreateNetworkingArgs(
       parser,
-      support_no_address_in_networking,
-      support_network_queue_count=support_network_queue_count,
-      support_per_interface_stack_type=support_per_interface_stack_type,
-      support_ipv6_only=support_ipv6_only,
       support_igmp_query=support_igmp_query,
   )
 
-  instances_flags.AddImageArgs(parser, enable_snapshots=True)
+  instances_flags.AddImageArgs(
+      parser,
+      enable_snapshots=True,
+      support_source_snapshot_region=support_source_snapshot_region,
+  )
   instances_flags.AddShieldedInstanceConfigArgs(parser)
   instances_flags.AddNestedVirtualizationArgs(parser)
   instances_flags.AddThreadsPerCoreArgs(parser)
@@ -483,15 +540,13 @@ def AddCommonBulkInsertArgs(
 
   maintenance_flags.AddResourcePoliciesArgs(parser, 'added to', 'instance')
 
-  if support_min_node_cpu:
-    instances_flags.AddMinNodeCpuArg(parser)
+  instances_flags.AddMinNodeCpuArg(parser)
 
   instances_flags.AddLocationHintArg(parser)
 
-  if support_erase_vss:
-    compute_flags.AddEraseVssSignature(
-        parser, 'source snapshots or source machine image'
-    )
+  compute_flags.AddEraseVssSignature(
+      parser, 'source snapshots or source machine image'
+  )
 
   labels_util.AddCreateLabelsFlags(parser)
 
@@ -504,28 +559,23 @@ def AddCommonBulkInsertArgs(
       'multi(instances:format="table(name,zone.basename())")'
   )
 
-  if support_visible_core_count:
-    instances_flags.AddVisibleCoreCountArgs(parser)
+  instances_flags.AddVisibleCoreCountArgs(parser)
 
-  if support_local_ssd_size:
-    instances_flags.AddLocalSsdArgsWithSize(parser)
-  else:
-    instances_flags.AddLocalSsdArgs(parser)
+  instances_flags.AddLocalSsdArgsWithSize(parser)
 
-  if support_max_run_duration:
-    instances_flags.AddMaxRunDurationVmArgs(parser)
-    instances_flags.AddDiscardLocalSsdVmArgs(parser)
+  instances_flags.AddMaxRunDurationVmArgs(parser)
+  instances_flags.AddDiscardLocalSsdVmArgs(parser)
 
-  if support_enable_target_shape:
-    AddDistributionTargetShapeArgs(parser)
+  AddDistributionTargetShapeArgs(parser)
 
-  instances_flags.AddStackTypeArgs(parser, support_ipv6_only)
+  instances_flags.AddStackTypeArgs(parser, support_ipv6_only=True)
   instances_flags.AddMinCpuPlatformArgs(parser, release_track)
   instances_flags.AddPublicDnsArgs(parser, instance=True)
   instances_flags.AddConfidentialComputeArgs(
       parser,
-      support_confidential_compute_type,
-      support_confidential_compute_type_tdx,
+      support_confidential_compute_type=True,
+      support_confidential_compute_type_tdx=True,
+      support_snp_svsm=support_snp_svsm,
   )
   instances_flags.AddPostKeyRevocationActionTypeArgs(parser)
   AddBulkCreateArgs(
@@ -535,11 +585,16 @@ def AddCommonBulkInsertArgs(
       support_custom_hostnames,
   )
 
-  if support_performance_monitoring_unit:
-    instances_flags.AddPerformanceMonitoringUnitArgs(parser)
+  instances_flags.AddPerformanceMonitoringUnitArgs(parser)
   if support_watchdog_timer:
     instances_flags.AddWatchdogTimerArg(parser)
   instances_flags.AddTurboModeArgs(parser)
+  if support_skip_guest_os_shutdown:
+    instances_flags.AddSkipGuestOsShutdownArgs(parser)
+  if support_instance_flexibility_policy:
+    AddInstanceFlexibilityPolicyArgs(parser)
+  if support_workload_identity_config:
+    instances_flags.AddWorkloadIdentityConfigArgs(parser)
 
 
 def ValidateBulkCreateArgs(args):
@@ -576,7 +631,6 @@ def ValidateLocationPolicyArgs(args):
       zone_split = zone.split('-')
       if (
           len(zone_split) != 3
-          or (len(zone_split[2]) != 1 or not zone_split[2].isalpha())
           or not zone_split[1][-1].isdigit()
       ):
         raise exceptions.InvalidArgumentException(
@@ -637,27 +691,19 @@ def ValidateNaturalCount(count):
 
 def ValidateBulkInsertArgs(
     args,
-    support_enable_target_shape,
-    support_source_snapshot_csek,
-    support_image_csek,
-    support_max_run_duration,
     support_max_count_per_zone,
     support_custom_hostnames,
+    support_instance_flexibility_policy,
 ):
   """Validates all bulk and instance args."""
   ValidateBulkCreateArgs(args)
-  if support_enable_target_shape:
-    ValidateBulkTargetShapeArgs(args)
+  ValidateBulkTargetShapeArgs(args)
   ValidateLocationPolicyArgs(args)
   if support_max_count_per_zone:
     ValidateMaxCountPerZoneArgs(args)
   if support_custom_hostnames:
     ValidateCustomHostnames(args)
-  ValidateBulkDiskFlags(
-      args,
-      enable_source_snapshot_csek=support_source_snapshot_csek,
-      enable_image_csek=support_image_csek,
-  )
+  ValidateBulkDiskFlags(args)
   instances_flags.ValidateImageFlags(args)
   instances_flags.ValidateLocalSsdFlags(args)
   instances_flags.ValidateNicFlags(args)
@@ -667,5 +713,60 @@ def ValidateBulkInsertArgs(
   instances_flags.ValidateReservationAffinityGroup(args)
   instances_flags.ValidateNetworkPerformanceConfigsArgs(args)
   instances_flags.ValidateInstanceScheduling(
-      args, support_max_run_duration=support_max_run_duration
+      args, support_max_run_duration=True
   )
+  if support_instance_flexibility_policy:
+    ValidateInstanceFlexibilityArgs(args)
+
+
+class ArgMultiValueDict(object):
+  """Custom parser for --instance-selection flag.
+
+  Parses a comma-separated string of key=value pairs. Special handling
+  for the 'disk' key, where the value is expected to be a single-quoted
+  JSON string.
+  """
+
+  def __call__(self, argument_value):
+    if not argument_value:
+      return {}
+
+    entries = self._SplitArgString(argument_value)
+    result = {}
+
+    for key, value in entries:
+      if key == 'disk':
+        try:
+          disk_dict = json.loads(value)
+          if key in result:
+            result[key].append(disk_dict)
+          else:
+            result[key] = [disk_dict]
+        except json.JSONDecodeError as e:
+          raise exceptions.InvalidArgumentException(
+              '--instance-selection',
+              f'Invalid JSON for disk key: {e} - Received: {value}',
+          )
+      elif key == 'machine-type':
+        if key in result:
+          result[key].append(value)
+        else:
+          result[key] = [value]
+      else:
+        result[key] = value
+    return result
+
+  def _SplitArgString(self, argument_value):
+    """Splits the argument string by commas, respecting single-quoted JSON for disk values."""
+    # Regex to find key=value pairs. For 'disk', it captures the content within
+    # single quotes.
+    # This regex assumes disk values are single-quoted and don't contain escaped
+    # single quotes.
+    pattern = r"([\w-]+)=(?:'([^']*)'|([^,]*))"
+    matches = re.findall(pattern, argument_value)
+
+    entries = []
+    for key, single_quoted_val, unquoted_val in matches:
+      value = single_quoted_val if single_quoted_val else unquoted_val
+      entries.append((key, value))
+    return entries
