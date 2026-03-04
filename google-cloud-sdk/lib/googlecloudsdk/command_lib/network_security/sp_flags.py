@@ -14,10 +14,7 @@
 # limitations under the License.
 """Flags for Security Profile Threat Prevention commands."""
 
-from __future__ import absolute_import
 from __future__ import annotations
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.network_security.security_profiles import sp_api
 from googlecloudsdk.calliope import arg_parsers
@@ -114,12 +111,12 @@ def OrgSecurityProfileResourceSpec(release_track, name):
       ),
       locationsId=concepts.ResourceParameterAttributeConfig(
           "location",
-          "location of the {resource} - Global.",
+          "Location of the security profile.",
           parameter_name="locationsId",
       ),
       securityProfilesId=concepts.ResourceParameterAttributeConfig(
           name,
-          "Name of the {resource}.",
+          "Name of the security profile.",
           parameter_name="securityProfilesId",
       ),
   )
@@ -143,12 +140,12 @@ def ProjectSecurityProfileResourceSpec(release_track, name):
       ),
       locationsId=concepts.ResourceParameterAttributeConfig(
           "location",
-          "location of the {resource} - Global.",
+          "Location of the security profile.",
           parameter_name="locationsId",
       ),
       securityProfilesId=concepts.ResourceParameterAttributeConfig(
           name,
-          "Name of the {resource}.",
+          "Name of the security profile.",
           parameter_name="securityProfilesId",
       ),
   )

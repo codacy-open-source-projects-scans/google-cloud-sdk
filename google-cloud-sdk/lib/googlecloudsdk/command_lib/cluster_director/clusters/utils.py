@@ -109,35 +109,6 @@ def GetClusterFlagType(api_version=None) -> dict[str, Any]:  # pylint: disable=g
   return flag_types.FlagTypes(api_version).GetClusterFlagType()
 
 
-def _SetDefaultLoginNodeDiskSizesInDict(login_nodes: Mapping[str, Any]) -> None:
-  """Sets default boot disk size for Slurm login nodes in a dict."""
-  boot_disk = login_nodes.get("bootDisk")
-  if boot_disk and boot_disk.get("sizeGb") is None:
-    boot_disk["sizeGb"] = 100
-  if disks := login_nodes.get("disks"):
-    for disk in disks:
-      if disk.get("boot") and disk.get("sizeGb") is None:
-        disk["sizeGb"] = 100
-
-
-def _SetDefaultNodeSetDiskSizesInDict(
-    node_sets: list[Mapping[str, Any]],
-) -> None:
-  """Sets default boot disk size for Slurm node sets in a dict."""
-  for nodeset in node_sets:
-    boot_disk = nodeset.get("bootDisk")
-    if boot_disk and boot_disk.get("boot") and boot_disk.get("sizeGb") is None:
-      boot_disk["sizeGb"] = 100
-
-
-def _SetDefaultSlurmDiskSizesInDict(slurm: Mapping[str, Any]) -> None:
-  """Sets default disk sizes for Slurm login nodes and node sets in a dict."""
-  if login_nodes := slurm.get("loginNodes"):
-    _SetDefaultLoginNodeDiskSizesInDict(login_nodes)
-  if node_sets := slurm.get("nodeSets"):
-    _SetDefaultNodeSetDiskSizesInDict(node_sets)
-
-
 class ClusterUtil:
   """Represents a cluster utility class."""
 
@@ -158,11 +129,6 @@ class ClusterUtil:
   def MakeClusterFromConfig(self):
     """Returns a cluster message from the config JSON string."""
     config_dict = self.args.config
-    orchestrator = config_dict.get("orchestrator")
-    if orchestrator:
-      slurm = orchestrator.get("slurm")
-      if slurm:
-        _SetDefaultSlurmDiskSizesInDict(slurm)
     return messages_util.DictToMessageWithErrorCheck(
         config_dict, self.message_module.Cluster
     )
@@ -232,16 +198,18 @@ class ClusterUtil:
   def MakeClusterStorages(self):
     """Makes a cluster message with storage fields."""
     storages = self.message_module.Cluster.StorageResourcesValue()
-    # Gives a range of 10 to 99 for storage IDs, required for deterministic
-    # sorting.
-    storage_counter = 10
+    storage_ids = set()
     if self.args.IsSpecified("create_filestores"):
       for filestore in self.args.create_filestores:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = filestore.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         storages.additionalProperties.append(
             self.message_module.Cluster.StorageResourcesValue.AdditionalProperty(
-                key=storage_id,
+                key=filestore.get("id"),
                 value=self.message_module.StorageResource(
                     config=self.message_module.StorageResourceConfig(
                         newFilestore=self.message_module.NewFilestoreConfig(
@@ -264,15 +232,21 @@ class ClusterUtil:
         )
     if self.args.IsSpecified("filestores"):
       for filestore in self.args.filestores:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = filestore.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         storages.additionalProperties.append(
             self.message_module.Cluster.StorageResourcesValue.AdditionalProperty(
                 key=storage_id,
                 value=self.message_module.StorageResource(
                     config=self.message_module.StorageResourceConfig(
                         existingFilestore=self.message_module.ExistingFilestoreConfig(
-                            filestore=self._GetFilestoreName(filestore),
+                            filestore=self._GetFilestoreName(
+                                filestore.get("name")
+                            ),
                         )
                     ),
                 ),
@@ -280,8 +254,12 @@ class ClusterUtil:
         )
     if self.args.IsSpecified("create_lustres"):
       for lustre in self.args.create_lustres:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = lustre.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         storages.additionalProperties.append(
             self.message_module.Cluster.StorageResourcesValue.AdditionalProperty(
                 key=storage_id,
@@ -302,15 +280,19 @@ class ClusterUtil:
         )
     if self.args.IsSpecified("lustres"):
       for lustre in self.args.lustres:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = lustre.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         storages.additionalProperties.append(
             self.message_module.Cluster.StorageResourcesValue.AdditionalProperty(
                 key=storage_id,
                 value=self.message_module.StorageResource(
                     config=self.message_module.StorageResourceConfig(
                         existingLustre=self.message_module.ExistingLustreConfig(
-                            lustre=self._GetLustreName(lustre),
+                            lustre=self._GetLustreName(lustre.get("name")),
                         )
                     ),
                 ),
@@ -318,8 +300,12 @@ class ClusterUtil:
         )
     if self.args.IsSpecified("create_buckets"):
       for gcs_bucket in self.args.create_buckets:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = gcs_bucket.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         gcs = self.message_module.NewBucketConfig(
             bucket=gcs_bucket.get("name"),
         )
@@ -351,15 +337,19 @@ class ClusterUtil:
         )
     if self.args.IsSpecified("buckets"):
       for gcs_bucket in self.args.buckets:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = gcs_bucket.get("id")
+        if storage_id in storage_ids:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        storage_ids.add(storage_id)
         storages.additionalProperties.append(
             self.message_module.Cluster.StorageResourcesValue.AdditionalProperty(
                 key=storage_id,
                 value=self.message_module.StorageResource(
                     config=self.message_module.StorageResourceConfig(
                         existingBucket=self.message_module.ExistingBucketConfig(
-                            bucket=gcs_bucket,
+                            bucket=gcs_bucket.get("name"),
                         )
                     ),
                 ),
@@ -430,7 +420,7 @@ class ClusterUtil:
   def MakeClusterSlurmOrchestrator(self, cluster):
     """Makes a cluster message with slurm orchestrator fields."""
     slurm = self.message_module.SlurmOrchestrator()
-    storage_configs: list[Any] = self._GetStorageConfigs(cluster)
+    default_storage_configs = self._GetStorageConfigs(cluster)
     if self.args.IsSpecified("slurm_node_sets"):
       for node_set in self.args.slurm_node_sets:
         node_set_keys = set(node_set.keys())
@@ -444,6 +434,7 @@ class ClusterUtil:
           compute_id = node_set.get("computeId")
           if compute_id:
             machine_type = self._GetComputeMachineTypeFromArgs(compute_id)
+        storage_configs = default_storage_configs
         slurm.nodeSets.append(
             self._MakeSlurmNodeSet(node_set, machine_type, storage_configs)
         )
@@ -458,12 +449,13 @@ class ClusterUtil:
     if self.args.IsSpecified("slurm_login_node"):
       login_node = self.args.slurm_login_node
       machine_type = login_node.get("machineType")
+      storage_configs = default_storage_configs
       slurm.loginNodes = self.message_module.SlurmLoginNodes(
           count=login_node.get("count", 1),
           machineType=machine_type,
           zone=login_node.get("zone"),
           storageConfigs=storage_configs,
-          enableOsLogin=login_node.get("enableOSLogin", True),
+          enableOsLogin=login_node.get("enableOsLogin", True),
           enablePublicIps=login_node.get("enablePublicIps", True),
           startupScript=self._GetBashScript(login_node.get("startupScript")),
           labels=self.MakeLabels(
@@ -508,27 +500,6 @@ class ClusterUtil:
             for key, value in sorted(label_args.items())
         ]
     )
-
-  def MakeDisk(
-      self,
-      machine_type: str,
-      boot: bool = True,
-      source_image: str = "",
-  ):
-    """Returns the disk message, defaults to boot disk with empty source image."""
-    disk_type = "pd-standard"
-    if machine_type.startswith(
-        ("a3-megagpu", "a3-ultragpu", "a4-highgpu", "a4x-highgpu")
-    ):
-      disk_type = "hyperdisk-balanced"
-    disk = self.message_module.Disk(
-        type=disk_type,
-        boot=boot,
-        sourceImage=source_image,
-    )
-    if boot:
-      disk.sizeGb = 100
-    return disk
 
   def MakeBootDisk(self, machine_type: str, image: str = None) -> Any:
     """Returns BootDisk message for login node."""
@@ -686,20 +657,13 @@ class ClusterUtil:
         storages.pop(storage_id)
       is_storage_updated = True
 
-    storage_counter = 10
-    if storages:
-      storage_ids = [
-          int(k[len("storage") :])
-          for k in storages.keys()
-          if k.startswith("storage") and k[len("storage") :].isdigit()
-      ]
-      if storage_ids:
-        storage_counter = max(storage_ids) + 1
-
     if self.args.IsSpecified("add_new_filestore_instances"):
       for filestore in self.args.add_new_filestore_instances:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = filestore.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
         filestore_name = self._GetFilestoreName(filestore.get("name"))
         for storage_resource in storages.values():
           config = storage_resource.config
@@ -737,9 +701,12 @@ class ClusterUtil:
 
     if self.args.IsSpecified("add_filestore_instances"):
       for filestore in self.args.add_filestore_instances:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
-        filestore_name = self._GetFilestoreName(filestore)
+        storage_id = filestore.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        filestore_name = self._GetFilestoreName(filestore.get("name"))
         for storage_resource in storages.values():
           config = storage_resource.config
           if config and (
@@ -767,8 +734,11 @@ class ClusterUtil:
 
     if self.args.IsSpecified("add_new_lustre_instances"):
       for lustre in self.args.add_new_lustre_instances:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = lustre.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
         lustre_name = self._GetLustreName(lustre.get("name"))
         for storage_resource in storages.values():
           config = storage_resource.config
@@ -800,9 +770,12 @@ class ClusterUtil:
 
     if self.args.IsSpecified("add_lustre_instances"):
       for lustre in self.args.add_lustre_instances:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
-        lustre_name = self._GetLustreName(lustre)
+        storage_id = lustre.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        lustre_name = self._GetLustreName(lustre.get("name"))
         for storage_resource in storages.values():
           config = storage_resource.config
           if config and (
@@ -827,8 +800,12 @@ class ClusterUtil:
 
     if self.args.IsSpecified("add_storage_buckets"):
       for bucket in self.args.add_storage_buckets:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = bucket.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
+        bucket_name = bucket.get("name")
         # Check for duplicates
         for storage_resource in storages.values():
           config = storage_resource.config
@@ -839,15 +816,15 @@ class ClusterUtil:
             elif config.existingBucket:
               bucket_name_in_config = config.existingBucket.bucket
 
-          if bucket_name_in_config == bucket:
+          if bucket_name_in_config == bucket_name:
             raise ClusterDirectorError(
-                f"Cloud Storage bucket {bucket} already exists."
+                f"Cloud Storage bucket {bucket_name} already exists."
             )
 
         storages[storage_id] = self.message_module.StorageResource(
             config=self.message_module.StorageResourceConfig(
                 existingBucket=self.message_module.ExistingBucketConfig(
-                    bucket=bucket,
+                    bucket=bucket_name,
                 )
             )
         )
@@ -855,8 +832,11 @@ class ClusterUtil:
 
     if self.args.IsSpecified("add_new_storage_buckets"):
       for gcs_bucket in self.args.add_new_storage_buckets:
-        storage_id = self._GetNextStorageId(storage_counter)
-        storage_counter += 1
+        storage_id = gcs_bucket.get("id")
+        if storage_id in storages:
+          raise ClusterDirectorError(
+              f"Duplicate storage resource id: {storage_id}"
+          )
         bucket_name = gcs_bucket.get("name")
         for storage_resource in storages.values():
           config = storage_resource.config
@@ -1036,7 +1016,9 @@ class ClusterUtil:
             node_set_id, slurm_node_sets, _SLURM_NODESET_NOT_FOUND_ERROR
         )
         node_set_keys = set(node_set.keys())
-        is_gke_node_set = existing_node_set.containerNodePool is not None
+        is_gke_node_set = (
+            getattr(existing_node_set, "containerNodePool", None) is not None
+        )
         if is_gke_node_set and node_set_keys.intersection(_GCE_INSTANCE_FIELDS):
           raise ClusterDirectorError(_UPDATE_GCE_FIELDS_ON_GKE_NODE_SET_ERROR)
         elif not is_gke_node_set and node_set_keys.intersection(
@@ -1084,10 +1066,19 @@ class ClusterUtil:
         ):
           storage_configs_source = cluster_patch
         storage_configs = self._GetStorageConfigs(storage_configs_source)
-        compute_id = node_set.get("computeId")
-        machine_type = self._GetComputeMachineTypeFromCluster(
-            compute_id, cluster_patch, use_existing_cluster=True
+        node_set_keys = set(node_set.keys())
+        node_set_type_str = node_set.get("type")
+        has_gke_fields = node_set_keys.intersection(_GKE_NODE_POOL_FIELDS)
+        is_gke_node_set = node_set_type_str == NodeSetType.GKE.value or (
+            node_set_type_str is None and has_gke_fields
         )
+        if is_gke_node_set:
+          machine_type = None
+        else:
+          compute_id = node_set.get("computeId")
+          machine_type = self._GetComputeMachineTypeFromCluster(
+              compute_id, cluster_patch, use_existing_cluster=True
+          )
         self._AddKeyToDictSpec(
             key=node_set.get("id"),
             dict_spec=slurm_node_sets,
@@ -1128,8 +1119,8 @@ class ClusterUtil:
         existing_partition = self._GetValueFromDictSpec(
             partition_id, slurm_partitions, _SLURM_PARTITION_NOT_FOUND_ERROR
         )
-        if "nodesetIds" in partition:
-          existing_partition.nodeSetIds = partition.get("nodesetIds")
+        if "nodeSetIds" in partition:
+          existing_partition.nodeSetIds = partition.get("nodeSetIds")
         if "exclusive" in partition:
           if hasattr(existing_partition, "exclusive"):
             existing_partition.exclusive = partition.get("exclusive")
@@ -1170,8 +1161,6 @@ class ClusterUtil:
         login_nodes.startupScript = self._GetBashScript(startup_script)
       if (boot_disk_patch := login_node_patch.get("bootDisk")) is not None:
         boot_disk = login_nodes.bootDisk
-        if not boot_disk:
-          boot_disk = self.MakeBootDisk(login_nodes.machineType)
         boot_disk.type = boot_disk_patch.get("type", boot_disk.type)
         boot_disk.sizeGb = boot_disk_patch.get("sizeGb", boot_disk.sizeGb)
         if hasattr(boot_disk, "image"):
@@ -1179,6 +1168,28 @@ class ClusterUtil:
         login_nodes.bootDisk = boot_disk
       slurm.loginNodes = login_nodes
       self.update_mask.add("orchestrator.slurm.login_nodes")
+
+    if "storage_resources" in self.update_mask:
+      new_storage_configs = self._GetStorageConfigs(cluster_patch)
+      if not slurm.nodeSets and slurm_node_sets:
+        slurm.nodeSets = list(slurm_node_sets.values())
+      if slurm.nodeSets:
+        for ns in slurm.nodeSets:
+          if not ns.storageConfigs:
+            ns.storageConfigs = new_storage_configs
+        self.update_mask.add("orchestrator.slurm.node_sets")
+
+      if (
+          not slurm.loginNodes
+          and self.existing_cluster
+          and self.existing_cluster.orchestrator
+          and self.existing_cluster.orchestrator.slurm
+          and self.existing_cluster.orchestrator.slurm.loginNodes
+      ):
+        slurm.loginNodes = self.existing_cluster.orchestrator.slurm.loginNodes
+      if slurm.loginNodes and not slurm.loginNodes.storageConfigs:
+        slurm.loginNodes.storageConfigs = new_storage_configs
+        self.update_mask.add("orchestrator.slurm.login_nodes")
 
     return slurm
 
@@ -1197,19 +1208,9 @@ class ClusterUtil:
     if not existing_node_set.computeInstance.bootDisk:
       return
     boot_disk_patch = node_set_patch.get("bootDisk")
-    machine_type = self._GetComputeMachineTypeFromCluster(
-        existing_node_set.computeId,
-        None,
-        use_existing_cluster=True,
-    )
 
     # Determine the base bootDisk to patch.
     boot_disk = existing_node_set.computeInstance.bootDisk
-    default_boot_disk = self.MakeBootDisk(machine_type)
-    if boot_disk.type is None:
-      boot_disk.type = default_boot_disk.type
-    if boot_disk.sizeGb is None:
-      boot_disk.sizeGb = default_boot_disk.sizeGb
 
     boot_disk.type = boot_disk_patch.get("type", boot_disk.type)
     boot_disk.sizeGb = boot_disk_patch.get("sizeGb", boot_disk.sizeGb)
@@ -1484,6 +1485,7 @@ class ClusterUtil:
             newSpotInstances=self.message_module.NewSpotInstancesConfig(
                 zone=instance.get("zone"),
                 machineType=instance.get("machineType"),
+                terminationAction=instance.get("terminationAction"),
             ),
         ),
     )
@@ -1592,13 +1594,12 @@ class ClusterUtil:
         storageConfigs=storage_configs,
         computeId=node_set.get("computeId"),
     )
-    service_account = node_set.get("serviceAccount")
-    if service_account:
-      slurm_node_set.serviceAccount = self.message_module.ServiceAccount(
-          email=service_account.get("email"),
-          scopes=service_account.get("scopes"),
-      )
     if is_container_node_pool:
+      if not hasattr(slurm_node_set, "containerNodePool"):
+        raise ClusterDirectorError(
+            "GKE node set fields (container-*) are not supported in this API"
+            " version."
+        )
       slurm_node_set.containerNodePool = self.message_module.ContainerNodePoolSlurmNodeSet(
           resourceLabels=self.MakeLabels(
               label_args=node_set.get("container-resource-labels"),
@@ -1655,7 +1656,7 @@ class ClusterUtil:
     """Makes a cluster slurm partition message from partition args."""
     slurm_partition = self.message_module.SlurmPartition(
         id=partition.get("id"),
-        nodeSetIds=partition.get("nodesetIds"),
+        nodeSetIds=partition.get("nodeSetIds"),
     )
     if hasattr(slurm_partition, "exclusive"):
       slurm_partition.exclusive = partition.get("exclusive")

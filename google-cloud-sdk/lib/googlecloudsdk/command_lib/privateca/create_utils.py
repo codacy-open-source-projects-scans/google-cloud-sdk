@@ -14,9 +14,6 @@
 # limitations under the License.
 """Helpers for create commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from apitools.base.py import exceptions as apitools_exceptions
 from googlecloudsdk.api_lib.privateca import base as privateca_base
@@ -42,10 +39,6 @@ def _ParseCAResourceArgs(args):
   resource_args.ValidateResourceIsCompleteIfSpecified(args, 'from_ca')
 
   ca_ref = args.CONCEPTS.certificate_authority.Parse()
-
-  resource_args.ValidateResourceLocation(
-      ca_ref, 'CERTIFICATE_AUTHORITY', version='v1'
-  )
 
   kms_key_version_ref = args.CONCEPTS.kms_key_version.Parse()
   if (

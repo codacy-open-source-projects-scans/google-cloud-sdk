@@ -14,9 +14,6 @@
 # limitations under the License.
 """Flags and helpers for the compute ssl-policies commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.calliope import arg_parsers
 from googlecloudsdk.calliope import base
@@ -222,6 +219,23 @@ def GetCustomFeaturesFlag():
           'features.\n\n'
           'The list of all supported custom features can be obtained using:\n\n'
           '  gcloud compute ssl-policies list-available-features\n'))
+
+
+def GetPostQuantumKeyExchangeFlag():
+  """Returns the flag for specifying post-quantum key exchange."""
+  return base.Argument(
+      '--post-quantum-key-exchange',
+      choices={
+          'DEFAULT': (
+              'Post-quantum key exchange is disabled until it becomes enabled '
+              'by default on load balancers.'),
+          'DEFERRED': (
+              'Post-quantum key exchange with clients is temporarily '
+              'disabled.'),
+          'ENABLED': (
+              'Post-quantum key exchange is enabled.'),
+      },
+      help='Whether to use post-quantum key exchange.')
 
 
 def ParseTlsVersion(tls_version):

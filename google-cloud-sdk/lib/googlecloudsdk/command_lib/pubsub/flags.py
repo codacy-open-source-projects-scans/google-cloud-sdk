@@ -15,9 +15,6 @@
 
 """A library containing flags used by Cloud Pub/Sub commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.pubsub import subscriptions
 from googlecloudsdk.calliope import actions
@@ -763,6 +760,19 @@ def AddBigtableConfigFlags(parser, is_update):
           'The service account email to use when writing to Bigtable. If'
           ' unspecified, uses the Pub/Sub service agent'
           ' (https://cloud.google.com/iam/docs/service-account-types#service-agents).'
+      ),
+  )
+  bigtable_config_group.add_argument(
+      '--bigtable-write-metadata',
+      action='store_true',
+      default=None,
+      help=(
+          'Whether or not to write the subscription name, message_id,'
+          ' publish_time, attributes, and ordering_key as additional fields in'
+          ' the output. The subscription name, message_id, and publish_time'
+          ' fields are put in their own fields while all other message'
+          ' properties other than data (for example, an ordering_key, if'
+          ' present) are added as entries in the attributes map.'
       ),
   )
 

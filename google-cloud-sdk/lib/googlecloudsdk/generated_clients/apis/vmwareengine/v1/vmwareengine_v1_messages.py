@@ -736,6 +736,41 @@ class Empty(_messages.Message):
 
 
 
+class EncryptionConfig(_messages.Message):
+  r"""Encryption configuration for a private cloud.
+
+  Enums:
+    TypeValueValuesEnum: Required. The encryption type of the private cloud.
+
+  Fields:
+    cryptoKeyName: Optional. The resource name of the Cloud KMS key to be used
+      for CMEK encryption. The format of this field is `projects/{project}/loc
+      ations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`. The key
+      must be in the same region as the private cloud. This key is used for
+      wrapping the key-encrypting key of vSAN clusters. This field must be
+      provided when `type` is `CMEK` or `LEGACY_CMEK`, and must not be set
+      when `type` is `OTHER`.
+    type: Required. The encryption type of the private cloud.
+  """
+
+  class TypeValueValuesEnum(_messages.Enum):
+    r"""Required. The encryption type of the private cloud.
+
+    Values:
+      TYPE_UNSPECIFIED: The default value. This value should never be used.
+      CMEK: Customer-managed encryption keys (CMEK).
+      LEGACY_CMEK: Legacy customer-managed encryption keys (CMEK).
+      OTHER: Other encryption types, such as self-managed external KMS.
+    """
+    TYPE_UNSPECIFIED = 0
+    CMEK = 1
+    LEGACY_CMEK = 2
+    OTHER = 3
+
+  cryptoKeyName = _messages.StringField(1)
+  type = _messages.EnumField('TypeValueValuesEnum', 2)
+
+
 class Expr(_messages.Message):
   r"""Represents a textual expression in the Common Expression Language (CEL)
   syntax. CEL is a C-like expression language. The syntax and semantics of CEL
@@ -1884,6 +1919,39 @@ class ManagementDnsZoneBinding(_messages.Message):
   vpcNetwork = _messages.StringField(9)
 
 
+class MigrateManagementVmsRequest(_messages.Message):
+  r"""Request message for VmwareEngine.MigrateManagementVms
+
+  Fields:
+    clusterId: Required. The user-provided identifier of the workload cluster
+      to which the management VMs are to be migrated. The cluster must be in
+      the same private cloud as the one specified in `name`, and must be a
+      workload cluster. The eventual cluster name will be constructed from the
+      private cloud name and this cluster ID.
+    etag: Optional. Checksum used to ensure that the user-provided value is up
+      to date before the server processes the request. The server compares
+      provided checksum with the current checksum of the resource. If the
+      user-provided value is out of date, this request returns an `ABORTED`
+      error.
+    requestId: Optional. A request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed. The server
+      guarantees that a request doesn't result in creation of duplicate
+      commitments for at least 60 minutes. For example, consider a situation
+      where you make an initial request and the request times out. If you make
+      the request again with the same request ID, the server can check if the
+      original operation with the same request ID was received, and if so,
+      will ignore the second request. This prevents clients from accidentally
+      creating duplicate commitments. The request ID must be a valid UUID with
+      the exception that zero UUID is not supported
+      (00000000-0000-0000-0000-000000000000).
+  """
+
+  clusterId = _messages.StringField(1)
+  etag = _messages.StringField(2)
+  requestId = _messages.StringField(3)
+
+
 class MountDatastoreRequest(_messages.Message):
   r"""Mount Datastore Request message
 
@@ -2707,6 +2775,9 @@ class PrivateCloud(_messages.Message):
     deleteTime: Output only. Time when the resource was scheduled for
       deletion.
     description: User-provided description for this private cloud.
+    encryptionConfig: Optional. Encryption configuration for the private
+      cloud. If this field is left unspecified, Google default encryption is
+      used.
     expireTime: Output only. Time when the resource will be irreversibly
       deleted.
     hcx: Output only. HCX appliance.
@@ -2777,17 +2848,18 @@ class PrivateCloud(_messages.Message):
   createTime = _messages.StringField(1)
   deleteTime = _messages.StringField(2)
   description = _messages.StringField(3)
-  expireTime = _messages.StringField(4)
-  hcx = _messages.MessageField('Hcx', 5)
-  managementCluster = _messages.MessageField('ManagementCluster', 6)
-  name = _messages.StringField(7)
-  networkConfig = _messages.MessageField('NetworkConfig', 8)
-  nsx = _messages.MessageField('Nsx', 9)
-  state = _messages.EnumField('StateValueValuesEnum', 10)
-  type = _messages.EnumField('TypeValueValuesEnum', 11)
-  uid = _messages.StringField(12)
-  updateTime = _messages.StringField(13)
-  vcenter = _messages.MessageField('Vcenter', 14)
+  encryptionConfig = _messages.MessageField('EncryptionConfig', 4)
+  expireTime = _messages.StringField(5)
+  hcx = _messages.MessageField('Hcx', 6)
+  managementCluster = _messages.MessageField('ManagementCluster', 7)
+  name = _messages.StringField(8)
+  networkConfig = _messages.MessageField('NetworkConfig', 9)
+  nsx = _messages.MessageField('Nsx', 10)
+  state = _messages.EnumField('StateValueValuesEnum', 11)
+  type = _messages.EnumField('TypeValueValuesEnum', 12)
+  uid = _messages.StringField(13)
+  updateTime = _messages.StringField(14)
+  vcenter = _messages.MessageField('Vcenter', 15)
 
 
 class PrivateConnection(_messages.Message):
@@ -4125,8 +4197,7 @@ class VmwareengineProjectsLocationsDatastoresPatchRequest(_messages.Message):
       overwritten in the Datastore resource by the update. The fields
       specified in the `update_mask` are relative to the resource, not the
       full request. A field will be overwritten if it is in the mask. If the
-      user does not provide a mask then all fields will be overwritten. Only
-      the following fields can be updated: `description`.
+      user does not provide a mask then all fields will be overwritten.
   """
 
   datastore = _messages.MessageField('Datastore', 1)
@@ -6115,6 +6186,24 @@ class VmwareengineProjectsLocationsPrivateCloudsManagementDnsZoneBindingsRepairR
 
   name = _messages.StringField(1, required=True)
   repairManagementDnsZoneBindingRequest = _messages.MessageField('RepairManagementDnsZoneBindingRequest', 2)
+
+
+class VmwareengineProjectsLocationsPrivateCloudsMigrateManagementVmsRequest(_messages.Message):
+  r"""A VmwareengineProjectsLocationsPrivateCloudsMigrateManagementVmsRequest
+  object.
+
+  Fields:
+    migrateManagementVmsRequest: A MigrateManagementVmsRequest resource to be
+      passed as the request body.
+    name: Required. The resource name of the private cloud whose management
+      vms are getting migrated. Resource names are schemeless URIs that follow
+      the conventions in https://cloud.google.com/apis/design/resource_names.
+      For example: `projects/my-project/locations/us-
+      central1-a/privateClouds/my-cloud`
+  """
+
+  migrateManagementVmsRequest = _messages.MessageField('MigrateManagementVmsRequest', 1)
+  name = _messages.StringField(2, required=True)
 
 
 class VmwareengineProjectsLocationsPrivateCloudsPatchRequest(_messages.Message):

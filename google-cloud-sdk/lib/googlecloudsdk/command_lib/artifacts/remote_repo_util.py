@@ -14,9 +14,6 @@
 # limitations under the License.
 """Remote repo utils for Artifact Registry repository commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 import re
 from typing import List
@@ -94,16 +91,20 @@ def Args():
 
 def IsRemoteRepoRequest(repo_args) -> bool:
   """Returns whether or not the repo mode specifies a remote repository."""
-  return (
-      hasattr(repo_args, "mode")
-      and arg_utils.ChoiceToEnumName(repo_args.mode) == "REMOTE_REPOSITORY"
-  )
+  return hasattr(repo_args, "mode") and arg_utils.ChoiceToEnumName(
+      repo_args.mode
+  ) in ["REMOTE_REPOSITORY", "CONNECTOR_REPOSITORY"]
 
 
 def AppendRemoteRepoConfigToRequest(messages, repo_args, request):
   """Adds remote repository config to CreateRepositoryRequest or UpdateRepositoryRequest."""
   remote_cfg = messages.RemoteRepositoryConfig()
   remote_cfg.description = repo_args.remote_repo_config_desc
+
+  # Connector Mode
+  if repo_args.mode == "CONNECTOR_REPOSITORY":
+    remote_cfg.no_cache = messages.RemoteRepositoryConfig.NoCacheFetching()
+
   # Credentials
   username = repo_args.remote_username
   secret = repo_args.remote_password_secret_version

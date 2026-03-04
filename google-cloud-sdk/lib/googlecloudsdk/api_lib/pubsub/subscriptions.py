@@ -15,9 +15,6 @@
 
 """Utilities for Cloud Pub/Sub Subscriptions API."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from apitools.base.py import list_pager
 from googlecloudsdk.api_lib.pubsub import utils
@@ -141,6 +138,7 @@ class SubscriptionsClient(object):
       bigtable_table=None,
       bigtable_app_profile_id=None,
       bigtable_service_account_email=None,
+      bigtable_write_metadata=None,
       message_transforms_file=None,
       tags=None,
       enable_vertex_ai_smt=False,
@@ -211,6 +209,8 @@ class SubscriptionsClient(object):
         Bigtable.
       bigtable_service_account_email (str): The service account to use when
         writing to Bigtable.
+      bigtable_write_metadata (bool): Whether or not to write metadata fields
+        when writing to Bigtable.
       message_transforms_file (str): The file path to the JSON or YAML file
         containing the message transforms.
       tags (TagsValue): The tags Keys/Values to be bound to the subscription.
@@ -266,6 +266,7 @@ class SubscriptionsClient(object):
             bigtable_table,
             bigtable_app_profile_id,
             bigtable_service_account_email,
+            bigtable_write_metadata,
         ),
     )
     if message_transforms_file:
@@ -574,13 +575,16 @@ class SubscriptionsClient(object):
       return self.messages.PubSubExportConfig(topic=topic, region=region)
     return None
 
-  def _BigtableConfig(self, table, app_profile_id, service_account_email):
+  def _BigtableConfig(
+      self, table, app_profile_id, service_account_email, write_metadata
+  ):
     """Builds BigtableConfig message from argument values.
 
     Args:
       table (str): The name of the Bigtable table.
       app_profile_id (str): The app profile to use.
       service_account_email (str): The service account to use.
+      write_metadata (bool): Whether or not to write metadata fields.
 
     Returns:
       BigtableConfig message or None
@@ -590,6 +594,7 @@ class SubscriptionsClient(object):
           table=table,
           appProfileId=app_profile_id,
           serviceAccountEmail=service_account_email,
+          writeMetadata=write_metadata,
       )
     return None
 
@@ -668,6 +673,7 @@ class SubscriptionsClient(object):
       bigtable_table=None,
       bigtable_app_profile_id=None,
       bigtable_service_account_email=None,
+      bigtable_write_metadata=None,
       clear_bigtable_config=False,
       message_transforms_file=None,
       clear_message_transforms=False,
@@ -746,6 +752,8 @@ class SubscriptionsClient(object):
         Bigtable.
       bigtable_service_account_email (str): The service account to use when
         writing to Bigtable.
+      bigtable_write_metadata (bool): Whether or not to write metadata fields
+        when writing to Bigtable.
       clear_bigtable_config (bool): If set, clear the Bigtable config from the
         subscription.
       message_transforms_file (str): The file path to the JSON or YAML file
@@ -814,6 +822,7 @@ class SubscriptionsClient(object):
           bigtable_table,
           bigtable_app_profile_id,
           bigtable_service_account_email,
+          bigtable_write_metadata,
       )
 
     if clear_push_no_wrapper_config:

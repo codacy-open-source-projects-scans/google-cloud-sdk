@@ -14,10 +14,7 @@
 # limitations under the License.
 """Tools for converting metadata fields to GCS formats."""
 
-from __future__ import absolute_import
 from __future__ import annotations
-from __future__ import division
-from __future__ import unicode_literals
 
 import json
 import sys
@@ -104,17 +101,6 @@ def process_cors(file_path):
         encoding.DictToMessage(cors_dict, messages.Bucket.CorsValueListEntry)
     )
   return cors_messages
-
-
-def process_default_encryption_key(default_encryption_key):
-  """Converts default_encryption_key string to Apitools object."""
-  if default_encryption_key == user_request_args_factory.CLEAR:
-    return None
-
-  messages = apis.GetMessagesModule('storage', 'v1')
-  return messages.Bucket.EncryptionValue(
-      defaultKmsKeyName=default_encryption_key
-  )
 
 
 def process_encryption_enforcement_config(

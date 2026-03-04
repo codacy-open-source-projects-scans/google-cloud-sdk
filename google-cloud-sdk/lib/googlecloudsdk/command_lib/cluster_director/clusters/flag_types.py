@@ -44,21 +44,54 @@ STORAGE_CONFIG = arg_parsers.ArgObject(
         "id": str,
         "localMount": str,
     },
+    required_keys=["id", "localMount"],
+    repeated=True,
+)
+
+EXISTING_FILESTORES_TYPE = arg_parsers.ArgObject(
+    spec={
+        "id": str,
+        "name": str,
+    },
+    required_keys=["id", "name"],
+    enable_shorthand=True,
+    repeated=True,
+)
+
+EXISTING_BUCKETS_TYPE = arg_parsers.ArgObject(
+    spec={
+        "id": str,
+        "name": str,
+    },
+    required_keys=["id", "name"],
+    enable_shorthand=True,
+    repeated=True,
+)
+
+EXISTING_LUSTRES_TYPE = arg_parsers.ArgObject(
+    spec={
+        "id": str,
+        "name": str,
+    },
+    required_keys=["id", "name"],
+    enable_shorthand=True,
     repeated=True,
 )
 
 LUSTRES_OBJECT = arg_parsers.ArgObject(
     spec={
+        "id": str,
         "name": str,
         "filesystem": str,
         "capacityGb": int,
         "description": str,
         "perUnitStorageThroughput": int,
     },
-    required_keys=["name", "capacityGb", "filesystem"],
-    enable_shorthand=True,
+    required_keys=["id", "name", "capacityGb", "filesystem"],
     repeated=True,
+    enable_shorthand=True,
 )
+
 
 SERVICE_ACCOUNT_TYPE = arg_parsers.ArgObject(
     spec={
@@ -91,6 +124,7 @@ SLURM_CONFIG_TYPE = arg_parsers.ArgObject(
     }
 )
 FILESTORE_CONFIG_SPEC = {
+    "id": str,
     "description": str,
     "fileShares": arg_parsers.ArgObject(
         spec={"capacityGb": int, "fileShare": str},
@@ -102,6 +136,7 @@ FILESTORE_CONFIG_SPEC = {
 }
 
 LUSTRE_CONFIG_SPEC = {
+    "id": str,
     "capacityGb": int,
     "description": str,
     "filesystem": str,
@@ -132,6 +167,7 @@ class FlagTypes:
   def GetFilestoresObject(self) -> arg_parsers.ArgObject:
     return arg_parsers.ArgObject(
         spec={
+            "id": str,
             "name": str,
             "tier": self.messages.NewFilestoreConfig.TierValueValuesEnum,
             "capacityGb": int,
@@ -141,7 +177,7 @@ class FlagTypes:
             ),
             "description": str,
         },
-        required_keys=["name", "tier", "capacityGb", "fileshare"],
+        required_keys=["id", "name", "tier", "capacityGb", "fileshare"],
         enable_shorthand=True,
         repeated=True,
     )
@@ -163,6 +199,7 @@ class FlagTypes:
     """Returns an ArgObject for parsing GCS bucket configurations."""
 
     spec = {
+        "id": str,
         "name": str,
         "storageClass": (
             self.messages.NewBucketConfig.StorageClassValueValuesEnum
@@ -176,7 +213,7 @@ class FlagTypes:
       )
     return arg_parsers.ArgObject(
         spec=spec,
-        required_keys=["name"],
+        required_keys=["id", "name"],
         enable_shorthand=True,
         repeated=True,
     )
@@ -260,11 +297,11 @@ class FlagTypes:
               "startupScript": arg_parsers.ArgObject(),
               "labels": LABEL,
               "bootDisk": self.GetProtoBootDiskType(),
-              "serviceAccount": SERVICE_ACCOUNT_TYPE,
               "startupScriptTimeout": str,
               "container-resource-labels": LABEL,
               "container-startup-script": arg_parsers.ArgObject(),
               "type": str,
+              "storageConfigs": STORAGE_CONFIG,
           },
           required_keys=["id"],
           enable_shorthand=True,
@@ -285,6 +322,7 @@ class FlagTypes:
                   },
                   enable_shorthand=True,
               ),
+              "storageConfigs": STORAGE_CONFIG,
           },
           required_keys=["id"],
           enable_shorthand=True,
@@ -294,7 +332,7 @@ class FlagTypes:
   def _GetSlurmPartitionSpec(self) -> dict[str, Any]:
     spec = {
         "id": str,
-        "nodesetIds": arg_parsers.ArgObject(value_type=str, repeated=True),
+        "nodeSetIds": arg_parsers.ArgObject(value_type=str, repeated=True),
     }
     if self.is_alpha:
       spec["exclusive"] = bool
@@ -303,7 +341,7 @@ class FlagTypes:
   def GetSlurmPartitionsObject(self) -> arg_parsers.ArgObject:
     return arg_parsers.ArgObject(
         spec=self._GetSlurmPartitionSpec(),
-        required_keys=["id", "nodesetIds"],
+        required_keys=["id", "nodeSetIds"],
         enable_shorthand=True,
         repeated=True,
     )
@@ -324,12 +362,12 @@ class FlagTypes:
               "machineType": str,
               "zone": str,
               "count": int,
-              "enableOSLogin": bool,
-              "enablePublicIPs": bool,
+              "enableOsLogin": bool,
+              "enablePublicIps": bool,
               "startupScript": arg_parsers.ArgObject(),
               "labels": LABEL,
               "bootDisk": self.GetProtoBootDiskType(),
-              "serviceAccount": SERVICE_ACCOUNT_TYPE,
+              "storageConfigs": STORAGE_CONFIG,
           },
           required_keys=["machineType", "zone"],
           enable_shorthand=True,
@@ -340,11 +378,12 @@ class FlagTypes:
               "machineType": str,
               "zone": str,
               "count": int,
-              "enableOSLogin": bool,
-              "enablePublicIPs": bool,
+              "enableOsLogin": bool,
+              "enablePublicIps": bool,
               "startupScript": str,
               "labels": LABEL,
               "bootDisk": self.GetProtoBootDiskType(),
+              "storageConfigs": STORAGE_CONFIG,
           },
           required_keys=["machineType", "zone"],
           enable_shorthand=True,
@@ -358,7 +397,6 @@ class FlagTypes:
               "count": int,
               "startupScript": arg_parsers.ArgObject(),
               "bootDisk": self.GetProtoBootDiskType(),
-              "serviceAccount": SERVICE_ACCOUNT_TYPE,
           },
           required_keys=[],
           enable_shorthand=True,
@@ -488,7 +526,6 @@ class FlagTypes:
                                   "storageConfigs": STORAGE_CONFIG,
                                   "zone": str,
                                   "bootDisk": self.GetProtoBootDiskType(),
-                                  "serviceAccount": SERVICE_ACCOUNT_TYPE,
                               }
                           ),
                           "nodeSets": arg_parsers.ArgObject(
@@ -498,7 +535,6 @@ class FlagTypes:
                                   "staticNodeCount": int,
                                   "storageConfigs": STORAGE_CONFIG,
                                   "computeId": str,
-                                  "serviceAccount": SERVICE_ACCOUNT_TYPE,
                                   "computeInstance": arg_parsers.ArgObject(
                                       spec={
                                           "startupScript": (

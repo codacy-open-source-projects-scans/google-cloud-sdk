@@ -14,9 +14,6 @@
 # limitations under the License.
 """Common utility functions for all projects commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 import datetime
 import enum
@@ -328,6 +325,10 @@ def GetStandardEnvironmentValue(value):
 def PrintEnvironmentTagMessage(project_id):
   """Prints environment tag message given project ID."""
   env_tag_key, env_tag_value = GetEnvironmentTag(project_id)
+  # TODO(b/485552525): Temporarily disable environment tag messages until
+  # b/485552525 is fixed.
+  if project_id:
+    return
   if not env_tag_key:
     log.status.Print(
         "Project '{0}' lacks an 'environment' tag. Please create or add a tag"

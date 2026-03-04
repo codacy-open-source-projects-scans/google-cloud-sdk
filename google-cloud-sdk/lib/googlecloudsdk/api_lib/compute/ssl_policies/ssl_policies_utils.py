@@ -14,9 +14,6 @@
 # limitations under the License.
 """API utilities for gcloud compute ssl-policy commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.api_lib.compute.operations import poller
 from googlecloudsdk.api_lib.util import waiter
@@ -43,7 +40,7 @@ class SslPolicyHelper(object):
     return self._compute_client.messages
 
   def GetSslPolicyForInsert(self, name, description, profile, min_tls_version,
-                            custom_features):
+                            custom_features, post_quantum_key_exchange=None):
     """Returns the SslPolicy message for an insert request.
 
     Args:
@@ -56,23 +53,32 @@ class SslPolicyHelper(object):
         policy. Can be one of 'TLS_1_0', 'TLS_1_1', 'TLS_1_2'.
       custom_features: The list of strings representing the custom features to
         use.
+      post_quantum_key_exchange: String representing the support state of the
+        post quantum key exchange of the SSL policy. Can be one of 'DEFAULT',
+        'ENABLED' or 'DEFERRED'.
 
     Returns:
       The SslPolicy message object that can be used in an insert request.
     """
-    return self._messages.SslPolicy(
+    ssl_policy = self._messages.SslPolicy(
         name=name,
         description=description,
         profile=self._messages.SslPolicy.ProfileValueValuesEnum(profile),
         minTlsVersion=self._messages.SslPolicy.MinTlsVersionValueValuesEnum(
             min_tls_version),
         customFeatures=custom_features)
+    if post_quantum_key_exchange:
+      ssl_policy.postQuantumKeyExchange = (
+          self._messages.SslPolicy.PostQuantumKeyExchangeValueValuesEnum(
+              post_quantum_key_exchange))
+    return ssl_policy
 
   def GetSslPolicyForPatch(self,
                            fingerprint,
                            profile=None,
                            min_tls_version=None,
-                           custom_features=None):
+                           custom_features=None,
+                           post_quantum_key_exchange=None):
     """Returns the SslPolicy message for a patch request.
 
     Args:
@@ -84,6 +90,9 @@ class SslPolicyHelper(object):
         policy. Can be one of 'TLS_1_0', 'TLS_1_1', 'TLS_1_2'.
       custom_features: The list of strings representing the custom features to
         use.
+      post_quantum_key_exchange: String representing the support state of the
+        post quantum key exchange of the SSL policy. Can be one of 'DEFAULT',
+        'ENABLED' or 'DEFERRED'.
     """
     messages = self._messages
     ssl_policy = messages.SslPolicy(fingerprint=fingerprint)
@@ -94,6 +103,10 @@ class SslPolicyHelper(object):
           messages.SslPolicy.MinTlsVersionValueValuesEnum(min_tls_version))
     if custom_features is not None:
       ssl_policy.customFeatures = custom_features
+    if post_quantum_key_exchange:
+      ssl_policy.postQuantumKeyExchange = (
+          messages.SslPolicy.PostQuantumKeyExchangeValueValuesEnum(
+              post_quantum_key_exchange))
     return ssl_policy
 
   def WaitForOperation(self, ssl_policy_ref, operation_ref, wait_message):

@@ -14,16 +14,13 @@
 # limitations under the License.
 """Wrapper for runcompose binary."""
 
-from __future__ import absolute_import
 from __future__ import annotations
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.command_lib.util.anthos import binary_operations
 
 
 MISSING_BINARY = (
-    'Could not locate Cloud Run executable run-compsose'
+    'Could not locate Cloud Run executable run-compose'
     ' on the system PATH. '
     'Please ensure gcloud run up component is properly '
     'installed. '
@@ -52,20 +49,12 @@ class RunComposeWrapper(binary_operations.StreamingBinaryBackedOperation):
       self,
       command=None,
       compose_file=None,
-      repo=None,
-      debug=False,
-      dry_run=False,
       resources_config=None,
       project_number=None,
       region=None,
       out: str | None = None,
       **kwargs
   ):
-    if command == 'up':
-      # Using default handlers for stdout/stderr for the older "up" command.
-      self.std_out_handler = binary_operations.DefaultStreamOutHandler
-      self.std_err_handler = binary_operations.DefaultStreamErrHandler
-
     del kwargs
     exec_args = []
     if command:
@@ -73,12 +62,6 @@ class RunComposeWrapper(binary_operations.StreamingBinaryBackedOperation):
     if compose_file:
       exec_args += [compose_file]
 
-    if command == 'up':
-      exec_args += ['--repo', repo]
-      if debug:
-        exec_args.append('--debug')
-      if dry_run:
-        exec_args.append('--dry-run')
     if command == 'resource':
       exec_args += ['--region', region]
       if out:

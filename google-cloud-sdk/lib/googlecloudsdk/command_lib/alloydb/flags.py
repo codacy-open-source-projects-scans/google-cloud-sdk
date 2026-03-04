@@ -28,9 +28,6 @@ def AddFlagName(parser):
   )
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 import argparse
 import datetime
@@ -1783,24 +1780,20 @@ def AddRequireConnectors(parser):
   )
 
 
-def AddDatabaseVersion(parser, alloydb_messages, release_track):
+def AddDatabaseVersion(parser, alloydb_messages):
   """Adds Database Version flag.
 
   Args:
     parser: argparse.Parser: Parser object for command line inputs.
     alloydb_messages: Message module.
-    release_track: The command version being used - GA/BETA/ALPHA.
   """
   choices = [
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_14,
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_15,
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_16,
       alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_17,
+      alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_18,
   ]
-  if release_track in (base.ReleaseTrack.ALPHA, base.ReleaseTrack.BETA):
-    choices.append(
-        alloydb_messages.Cluster.DatabaseVersionValueValuesEnum.POSTGRES_18
-    )
   parser.add_argument(
       '--database-version',
       required=False,
@@ -1810,7 +1803,7 @@ def AddDatabaseVersion(parser, alloydb_messages, release_track):
   )
 
 
-def AddVersion(parser, alloydb_messages):
+def AddVersion(parser, alloydb_messages) -> None:
   """Adds Version flag.
 
   Args:
@@ -1822,6 +1815,7 @@ def AddVersion(parser, alloydb_messages):
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_15,
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_16,
       alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_17,
+      alloydb_messages.UpgradeClusterRequest.VersionValueValuesEnum.POSTGRES_18,
   ]
   parser.add_argument(
       '--version',

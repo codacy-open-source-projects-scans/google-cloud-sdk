@@ -14,9 +14,6 @@
 # limitations under the License.
 """Shared resource flags for Database Migration Service commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 from googlecloudsdk.calliope.concepts import concepts
 from googlecloudsdk.command_lib.util.concepts import concept_parsers
@@ -360,7 +357,6 @@ def AddSqlServerConnectionProfileResourceArg(parser,
           GetServiceAttachmentResourceSpec(),
           'Resource ID of the service attachment.',
           flag_name_overrides={'region': ''},
-          hidden=True,
           group=connectivity_parser,
       ),
   ]
@@ -393,7 +389,7 @@ def AddPostgresqlConnectionProfileResourceArg(parser, verb, positional=True):
       help="""use static ip connectivity""",
   )
 
-  AddForwardSshConnectivityGroup(connectivity_parser, hidden=True)
+  AddForwardSshConnectivityGroup(connectivity_parser)
 
   resource_specs = [
       presentation_specs.ResourcePresentationSpec(
@@ -415,7 +411,6 @@ def AddPostgresqlConnectionProfileResourceArg(parser, verb, positional=True):
           'Resource ID of the private connection.',
           flag_name_overrides={'region': ''},
           group=connectivity_parser,
-          hidden=True,
       ),
   ]
   concept_parsers.ConceptParser(
@@ -576,7 +571,6 @@ def AddHeterogeneousMigrationJobResourceArgs(parser, verb, required=False):
           'Name of the original migration job to be used for the failback'
           ' migration job',
           flag_name_overrides={'region': ''},
-          hidden=True,
       ),
       presentation_specs.ResourcePresentationSpec(
           '--cmek-key',

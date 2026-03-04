@@ -14,9 +14,6 @@
 # limitations under the License.
 """Utilities for unit operations commands."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
 
 
 def HandleEmptyProvision(unused_ref, args, request):
@@ -114,11 +111,15 @@ def HandleOneOfOperationTypeUpdate(unused_ref, args, request):
       'remove_upgrade_input_variables',
   ]
   deprovision_flags = ['deprovision']
+  flag_update_flags = ['flag_update']
 
   operation_flags = {
       'provision': any(args.IsSpecified(flag) for flag in provision_flags),
       'upgrade': any(args.IsSpecified(flag) for flag in upgrade_flags),
       'deprovision': any(args.IsSpecified(flag) for flag in deprovision_flags),
+      'flag_update': any(
+          args.IsKnownAndSpecified(flag) for flag in flag_update_flags
+      ),
   }
 
   for operation, is_specified in operation_flags.items():
